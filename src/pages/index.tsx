@@ -34,6 +34,9 @@ import AuthLayout from "../layouts/AuthLayout";
 
 // setting
 import SettingPage from "./settings/settingpage";
+import ChatWindow from "../features/chat/components/ChatWindow.tsx";
+import ChatSetting from "../features/chat/components/ChatSetting.tsx";
+import EmptyState from "../features/chat/components/EmptyState.tsx";
 const Pages = () => {
   const isAuthenticated = true;
 
@@ -75,7 +78,11 @@ const Pages = () => {
           <Route
             path="/chat"
             element={isAuthenticated ? <ChatPage /> : <Navigate to="/login" />}
-          />
+          >
+            <Route index element={<EmptyState />} />
+            <Route path=":chatId" element={<ChatWindow />} />
+            <Route path=":chatId/settings" element={<ChatSetting />} />
+          </Route>
           <Route
             path="/settings"
             element={

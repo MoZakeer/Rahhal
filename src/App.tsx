@@ -13,7 +13,7 @@ const queryClient = new QueryClient({
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools />
+      {/* <ReactQueryDevtools /> */}
       <Pages />
       <CustomToaster />
     </QueryClientProvider>
