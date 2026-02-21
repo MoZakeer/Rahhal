@@ -1,9 +1,19 @@
 import type { Post } from "../../../types/post";
 import { PostContent } from "./PostContent";
 
-import { MessageCircle, Share2, MoreHorizontal, Edit, Trash2, Flag } from "lucide-react";
+import {
+  MessageCircle,
+  Share2,
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  Flag,
+} from "lucide-react";
 import { BookmarkIcon as BookmarkSolid } from "@heroicons/react/24/solid";
-import { BookmarkIcon as BookmarkOutline, HeartIcon as HeartOutline } from "@heroicons/react/24/outline";
+import {
+  BookmarkIcon as BookmarkOutline,
+  HeartIcon as HeartOutline,
+} from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 
 import { useState, useRef, useEffect } from "react";
@@ -34,11 +44,13 @@ export function PostHeader({
   const [isFollowing, setIsFollowing] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setDropdownOpen(false);
       }
     }
@@ -47,7 +59,7 @@ export function PostHeader({
   }, []);
 
   const isOwner = currentUserId === profileId;
-
+  profileUrl = profileUrl ?? "./avater.png";
   function formatTime(date?: string) {
     if (!date) return "";
 
@@ -70,7 +82,9 @@ export function PostHeader({
         <div className="flex flex-col leading-tight">
           <span className="font-semibold">{userName}</span>
           {createdAt && (
-            <span className="text-xs text-gray-500">{formatTime(createdAt)}</span>
+            <span className="text-xs text-gray-500">
+              {formatTime(createdAt)}
+            </span>
           )}
         </div>
       </div>
@@ -138,7 +152,8 @@ export function PostMedia({ media }: { media: string[] }) {
   if (!media.length) return null;
 
   const next = () => setCurrent((prev) => (prev + 1) % media.length);
-  const prev = () => setCurrent((prev) => (prev - 1 + media.length) % media.length);
+  const prev = () =>
+    setCurrent((prev) => (prev - 1 + media.length) % media.length);
 
   return (
     <div className="relative w-full bg-black/5">
@@ -192,7 +207,10 @@ export function PostActions({
   return (
     <div className="flex justify-between px-4 py-2">
       <div className="flex gap-4">
-        <button onClick={onLike} className="transition-transform duration-200 ease-in-out">
+        <button
+          onClick={onLike}
+          className="transition-transform duration-200 ease-in-out"
+        >
           {liked ? (
             <HeartSolid className="w-6 h-6 text-blue-300 scale-125 transition-all duration-300" />
           ) : (
@@ -229,7 +247,6 @@ export default function PostCard({
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(post.isSaved ?? false);
   const navigate = useNavigate();
-
   async function handleSaveToggle() {
     const prev = isSaved;
     setIsSaved(!prev); // optimistic update
@@ -283,10 +300,15 @@ export default function PostCard({
         onComment={() => setCommentsOpen(true)}
       />
 
-      <div className="px-4 text-sm font-semibold mt-1">{post.likes ?? 0} likes</div>
+      <div className="px-4 text-sm font-semibold mt-1">
+        {post.likes ?? 0} likes
+      </div>
 
       {hasMedia && (
-        <PostContent description={post.description} className="px-4 mt-1 text-sm" />
+        <PostContent
+          description={post.description}
+          className="px-4 mt-1 text-sm"
+        />
       )}
 
       <div
