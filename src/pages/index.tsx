@@ -37,7 +37,7 @@ import AuthLayout from "../layouts/AuthLayout";
 // setting
 import SettingPage from "./settings/settingpage";
 const Pages = () => {
-  const isAuthenticated = true;
+  const isAuthenticated = false;
 
   return (
     <Router>
