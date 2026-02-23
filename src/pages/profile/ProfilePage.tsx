@@ -6,7 +6,7 @@ import ProfilePosts from "../../features/profile/components/ProfilePosts";
 const ProfilePage: React.FC = () => {
   return (
    <div className="mx-auto w-full min-h-screen bg-white px-4 py-4">
-      <ProfileHeader />
+      {/* <ProfileHeader /> */}
       <ProfileStats />
       <ProfileTabs />
       <ProfilePosts />
