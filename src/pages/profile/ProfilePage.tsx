@@ -1,4 +1,4 @@
-import ProfileHeader from "../../features/profile/components/ProfileHeader";
+// import ProfileHeader from "../../features/profile/components/ProfileHeader";
 import ProfileStats from "../../features/profile/components/ProfileStats";
 import ProfileTabs from "../../features/profile/components/ProfileTabs";
 import ProfilePosts from "../../features/profile/components/ProfilePosts";
