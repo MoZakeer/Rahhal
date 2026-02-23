@@ -1,10 +1,12 @@
 import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import type { User } from "../services/createPost";
 import type { EditMedia } from "../services/createPost"; 
 
 
 export function useCreatePost(userId: string, token: string) {
+  const navigate = useNavigate();
   const DEFAULT_AVATAR = "https://www.gravatar.com/avatar/?d=mp&f=y";
 
   const [caption, setCaption] = useState("");
@@ -56,6 +58,7 @@ export function useCreatePost(userId: string, token: string) {
       console.log("Post created", res.data);
       setCaption("");
       setMedia([]);
+      navigate("/feed"); 
     } catch (err: any) {
       console.log("ERROR", err.response?.data);
     } finally {

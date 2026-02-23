@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import type { User, EditMedia } from "../services/editPost";
-
+import { useNavigate } from "react-router-dom";
 export function useEditPost(postId: string, userId: string, token: string) {
+   const navigate = useNavigate();
   const [caption, setCaption] = useState("");
   const [media, setMedia] = useState<EditMedia[]>([]);
   const [loading, setLoading] = useState(false);
@@ -119,6 +120,7 @@ export function useEditPost(postId: string, userId: string, token: string) {
 
      
       await fetchPost();
+      navigate("/feed"); 
     } catch (err) {
       console.log("Error updating post ❌", err);
     } finally {
