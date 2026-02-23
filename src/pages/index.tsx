@@ -4,7 +4,8 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-
+//landing page
+import LandingPage from "./landingPage/landingPage.tsx";
 // Auth Pages
 import Login from "./auth/Login";
 import SignUp from "./auth/SignUp.tsx";
@@ -52,6 +53,7 @@ const Pages = () => {
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/create-post" element={<CreatePost />} />
           <Route path="/edit-post/:postId" element={<EditPost />} />
+          <Route path="/landing-page" element={<LandingPage/>} />
         </Route>
 
         <Route element={<MainLayout />}>
