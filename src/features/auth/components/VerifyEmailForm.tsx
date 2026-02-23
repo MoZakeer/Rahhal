@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import Button from "../../../shared/components/Button";
+import Button from "../../../shared/components/button"
 import OtpInput from "./OtpInput";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { verifySchema, type TVerifyType } from "../validation/verifySchema";

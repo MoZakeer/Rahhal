@@ -1,8 +1,9 @@
 export interface Profile {
-  name: string;
+ fullName: string;
+  userName: string;
   location: string;
   bio: string;
-  avatar: string;
+  profilePicture: string;
 }
 
 export interface ProfileStats {

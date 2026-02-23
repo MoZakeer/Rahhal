@@ -2,7 +2,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Button from "../../../shared/components/Button";
+import Button from "../../../shared/components/button";
 import PasswordInput from "../../../shared/components/PasswordInput";
 import {
   resetPasswordSchema,

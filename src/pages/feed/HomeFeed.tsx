@@ -1,4 +1,3 @@
-import React from 'react'
 import PostsList from "../../features/post/components/PostList";
 import FeedHeader from "../../features/post/components/feedHeader";
 export default function HomeFeed() {
