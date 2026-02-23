@@ -1,13 +1,13 @@
-// // features/profile/components/EditProfileForm.tsx
 // import { useForm, Controller } from "react-hook-form";
 // import { Fragment, useState } from "react";
 // import { Dialog, Transition } from "@headlessui/react";
+// import type { UpdateProfileRequest } from "../types/profile.types";
 
 // interface EditProfileFormProps {
 //   isOpen: boolean;
 //   closeModal: () => void;
-//   userData: any;
-//   onUpdate: (data: any) => void;
+//   userData: UpdateProfileRequest;
+//   onUpdate: (data: UpdateProfileRequest) => void;
 // }
 
 // export default function EditProfileForm({ isOpen, closeModal, userData, onUpdate }: EditProfileFormProps) {
@@ -26,7 +26,7 @@
 //     }
 //   };
 
-//   const submit = (data: any) => {
+//   const submit = (data: UpdateProfileRequest) => {
 //     // استبدلي ProfilePicture بالصورة المحملة
 //     data.ProfilePicture = previewImage;
 //     onUpdate(data);
@@ -37,7 +37,17 @@
 //     <Transition show={isOpen} as={Fragment}>
 //       <Dialog onClose={closeModal} className="fixed inset-0 z-10 overflow-y-auto">
 //         <div className="flex items-center justify-center min-h-screen">
-//           <Dialog.Overlay className="fixed inset-0 bg-black opacity-30" />
+//           <Transition.Child
+//             as={Fragment}
+//             enter="ease-out duration-300"
+//             enterFrom="opacity-0"
+//             enterTo="opacity-100"
+//             leave="ease-in duration-200"
+//             leaveFrom="opacity-100"
+//             leaveTo="opacity-0"
+//           >
+//             <div className="fixed inset-0 bg-black opacity-30" />
+//           </Transition.Child>
 //           <div className="bg-white p-6 rounded z-20 w-96 max-h-[90vh] overflow-y-auto">
 //             <Dialog.Title className="text-lg font-bold mb-4">Edit Profile</Dialog.Title>
 //             <form onSubmit={handleSubmit(submit)} className="space-y-3">
@@ -75,9 +85,9 @@
 //                   <input
 //                     type="text"
 //                     placeholder="Travel Preferences (comma separated IDs)"
-//                     {...field}
+//                     value={field.value?.join(", ") || ""}
 //                     onChange={(e) =>
-//                       field.onChange(e.target.value.split(",").map((id) => parseInt(id.trim())))
+//                       field.onChange(e.target.value.split(",").map((id) => parseInt(id.trim())).filter(id => !isNaN(id)))
 //                     }
 //                     className="w-full p-2 border rounded"
 //                   />
@@ -91,9 +101,9 @@
 //                   <input
 //                     type="text"
 //                     placeholder="Visited Countries (comma separated IDs)"
-//                     {...field}
+//                     value={field.value?.join(", ") || ""}
 //                     onChange={(e) =>
-//                       field.onChange(e.target.value.split(",").map((id) => parseInt(id.trim())))
+//                       field.onChange(e.target.value.split(",").map((id) => parseInt(id.trim())).filter(id => !isNaN(id)))
 //                     }
 //                     className="w-full p-2 border rounded"
 //                   />
@@ -107,9 +117,9 @@
 //                   <input
 //                     type="text"
 //                     placeholder="Dream Countries (comma separated IDs)"
-//                     {...field}
+//                     value={field.value?.join(", ") || ""}
 //                     onChange={(e) =>
-//                       field.onChange(e.target.value.split(",").map((id) => parseInt(id.trim())))
+//                       field.onChange(e.target.value.split(",").map((id) => parseInt(id.trim())).filter(id => !isNaN(id)))
 //                     }
 //                     className="w-full p-2 border rounded"
 //                   />
