@@ -36,9 +36,8 @@ import AuthLayout from "../layouts/AuthLayout";
 
 // setting
 import SettingPage from "./settings/settingpage";
-const Pages = () => {
-  const isAuthenticated = false;
 
+const Pages = () => {
   return (
     <Router>
       <Routes>
@@ -55,41 +54,18 @@ const Pages = () => {
         </Route>
 
         <Route element={<MainLayout />}>
-          {/* Protected Pages */}
-          <Route
-            path="/profile"
-            element={
-              isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />
-            }
-          />
-          <Route
-            path="/feed"
-            element={isAuthenticated ? <HomeFeed /> : <Navigate to="/login" />}
-          />
-          <Route
-            path="/trips"
-            element={isAuthenticated ? <MyTrips /> : <Navigate to="/login" />}
-          />
-          <Route
-            path="/groups/:groupId"
-            element={
-              isAuthenticated ? <GroupDetails /> : <Navigate to="/login" />
-            }
-          />
-          <Route
-            path="/chat"
-            element={isAuthenticated ? <ChatPage /> : <Navigate to="/login" />}
-          />
-          <Route
-            path="/settings"
-            element={
-              isAuthenticated ? <SettingPage /> : <Navigate to="/login" />
-            }
-          />
+          {/* All pages now open directly */}
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/feed" element={<HomeFeed />} />
+          <Route path="/trips" element={<MyTrips />} />
+          <Route path="/groups/:groupId" element={<GroupDetails />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/settings" element={<SettingPage />} />
 
           {/* Home / Default */}
           <Route path="/" element={<Navigate to="/feed" />} />
         </Route>
+
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>

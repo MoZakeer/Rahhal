@@ -14,6 +14,7 @@ export function useLogin() {
     onSuccess: (data) => {
       console.log(data?.data?.token);
       setToken(data?.data?.token);
+      localStorage.setItem("profileId", JSON.stringify(data?.data?.profileId));
     },
   });
   return { isPending, login, error };
