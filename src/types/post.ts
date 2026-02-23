@@ -4,12 +4,16 @@ export interface Post {
   userName: string;
   profileUrl: string;
   description: string;
-  media_URLs: string[];
+  mediaUrLs: PostMediaItem[];
 createdDate?: string;
   likes?: number;
   comments?: number;
   isLiked: boolean;
   isSaved: boolean;
+}
+export interface PostMediaItem {
+  id: string;
+  url: string;
 }
 export interface PostsResponse {
   data: {

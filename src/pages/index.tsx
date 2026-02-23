@@ -90,8 +90,7 @@ const Pages = () => {
           />
 
           {/* Home / Default */}
-          <Route path="/" element={<Navigate to="/feed" />} />
-        </Route>
+<Route path="/" element={<HomeFeed />} />        </Route>
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
