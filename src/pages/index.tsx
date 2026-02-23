@@ -4,8 +4,10 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-//landing page
+
+// Landing page
 import LandingPage from "./landingPage/landingPage.tsx";
+
 // Auth Pages
 import Login from "./auth/Login";
 import SignUp from "./auth/SignUp.tsx";
@@ -13,13 +15,14 @@ import ForgetPassword from "./auth/ForgetPassword.tsx";
 import ResetPassword from "./auth/ResetPassword.tsx";
 import ChangePassword from "./auth/ChangePassword.tsx";
 import VerifyEmail from "./auth/VerifyEmail.tsx";
+
 // Profile Pages
 import ProfilePage from "./profile/ProfilePage";
 
 // Feed Pages
 import HomeFeed from "./feed/HomeFeed";
-import CreatePost from './feed/CreatePost';
-import EditPost from './feed/EditPost.tsx';
+import CreatePost from "./feed/CreatePost";
+import EditPost from "./feed/EditPost.tsx";
 
 // Trips Pages
 import MyTrips from "./trips/MyTrips";
@@ -32,10 +35,11 @@ import ChatPage from "./chat/ChatPage";
 
 // Optional: 404 page
 import NotFound from "./NotFound/notfound";
+
 import MainLayout from "../layouts/mainLayout";
 import AuthLayout from "../layouts/AuthLayout";
 
-// setting
+// Settings
 import SettingPage from "./settings/settingpage";
 
 const Pages = () => {
@@ -52,11 +56,11 @@ const Pages = () => {
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/create-post" element={<CreatePost />} />
           <Route path="/edit-post/:postId" element={<EditPost />} />
-          <Route path="/landing-page" element={<LandingPage/>} />
+          <Route path="/landing-page" element={<LandingPage />} />
         </Route>
 
+        {/* Main App */}
         <Route element={<MainLayout />}>
-          {/* All pages now open directly */}
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/feed" element={<HomeFeed />} />
           <Route path="/trips" element={<MyTrips />} />
@@ -64,14 +68,10 @@ const Pages = () => {
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/settings" element={<SettingPage />} />
 
-          {/* Home / Default */}
-<<<<<<< HEAD
-          <Route path="/" element={<Navigate to="/feed" />} />
+          {/* Default Home */}
+          <Route path="/" element={<Navigate to="/feed" replace />} />
         </Route>
 
-=======
-<Route path="/" element={<HomeFeed />} />        </Route>
->>>>>>> 93a45eba710835a6b273c232bd09035cbe2d1efc
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
