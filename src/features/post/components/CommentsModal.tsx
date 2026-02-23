@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { X, Heart, MoreHorizontal } from "lucide-react";
 import * as commentApi from "../components/services/commentApi";
+import {  normalizeMediaUrl } from "./services/posts.api";
 
 type CommentItem = {
   commentId: string;
   profileId: string;
   userName: string;
-  profilePicture: string | null;
+  profilePicture: string;
   description: string;
   createdDate: string;
   likesCount: number;
@@ -17,7 +18,7 @@ type ReplyItem = {
   replyId: string;
   profileId: string;
   userName: string;
-  profilePicture: string | null;
+  profilePicture: string ;
   description: string;
   createdDate: string;
   likesCount: number;
@@ -67,6 +68,7 @@ export function CommentsModal({
     try {
       const data = await commentApi.fetchComments(postId);
       setComments(data.data.items || []);
+      console.log("Fetched comments:", data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -78,6 +80,7 @@ export function CommentsModal({
     try {
       const data = await commentApi.fetchReplies(parentId);
       setRepliesMap((prev) => ({ ...prev, [parentId]: data.data.items || [] }));
+      console.log(`Fetched replies for comment ${parentId}:`, data);
     } catch (err) {
       console.error(err);
       setRepliesMap((prev) => ({ ...prev, [parentId]: [] }));
@@ -187,7 +190,7 @@ export function CommentsModal({
     return (
       <div key={id} className="flex gap-3 w-full">
         <img
-          src={comment.profilePicture || FALLBACK_AVATAR}
+          src={normalizeMediaUrl(comment.profilePicture) || FALLBACK_AVATAR}
           className={`${
             isReply ? "w-7 h-7" : "w-9 h-9"
           } rounded-full object-cover mt-0.5 flex-shrink-0`}
@@ -283,9 +286,8 @@ export function CommentsModal({
               className="flex items-center gap-1 hover:text-black"
             >
               <Heart className="w-3.5 h-3.5" />
-              <span className="font-medium">{comment.likesCount}</span>
+              <span className="font-medium">{comment.likesCount || 0}</span>
             </button>
-
             {/* Reply button only for main comments */}
             {!parentId && (
               <button
