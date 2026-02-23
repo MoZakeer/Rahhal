@@ -4,7 +4,8 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-
+//landing page
+import LandingPage from "./landingPage/landingPage.tsx";
 // Auth Pages
 import Login from "./auth/Login";
 import SignUp from "./auth/SignUp.tsx";
@@ -51,6 +52,7 @@ const Pages = () => {
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/create-post" element={<CreatePost />} />
           <Route path="/edit-post/:postId" element={<EditPost />} />
+          <Route path="/landing-page" element={<LandingPage/>} />
         </Route>
 
         <Route element={<MainLayout />}>
@@ -63,9 +65,13 @@ const Pages = () => {
           <Route path="/settings" element={<SettingPage />} />
 
           {/* Home / Default */}
+<<<<<<< HEAD
           <Route path="/" element={<Navigate to="/feed" />} />
         </Route>
 
+=======
+<Route path="/" element={<HomeFeed />} />        </Route>
+>>>>>>> 93a45eba710835a6b273c232bd09035cbe2d1efc
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
