@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 function LoginForm() {
   const { isPending, login } = useLogin();
   const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -27,20 +28,20 @@ function LoginForm() {
 
   function onSubmit(payload: TLoginInputsType) {
     login(payload, {
-<<<<<<< HEAD
-      onSuccess: (data) => {
-        toast.success(data?.message || "welcome in your rahhal account");
-        localStorage.setItem("token", data?.token || "");
-        localStorage.setItem("user", JSON.stringify(data?.data));
-=======
-      onSuccess: ({ data, message }) => {
+      onSuccess: (response) => {
+        const { data, message } = response || {};
+
         if (!data?.profileId) {
           toast.error("Invalid server response");
           return;
         }
 
+        // ✅ store full login data
+        localStorage.setItem("auth", JSON.stringify(data));
+        localStorage.setItem("token", data.token);
+
         toast.success(message ?? "Welcome to your Rahhal account");
->>>>>>> 4035534e7f5900823fd614d50427487adfa0aad3
+
         navigate("/feed");
       },
 
@@ -53,12 +54,15 @@ function LoginForm() {
       },
     });
   }
+
   const isWaiting: boolean = isSubmitting || isPending;
+
   return (
     <div className="box px-4 py-8 sm:px-8 sm:py-10 gap-6">
       <h1 className="text-center text-2xl font-semibold text-gray-800">
         Login to your profile
       </h1>
+
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <Input
           label="Email or Username"
@@ -66,7 +70,6 @@ function LoginForm() {
           placeholder="username or email"
           {...register("email")}
           error={errors.email?.message}
-          defaultValue="mohmedabdelnaser2004@gmail.com"
         />
 
         <PasswordInput
@@ -75,7 +78,6 @@ function LoginForm() {
           placeholder="Password"
           {...register("password")}
           error={errors.password?.message}
-          defaultValue="Zakeer@132"
         />
 
         <Link
