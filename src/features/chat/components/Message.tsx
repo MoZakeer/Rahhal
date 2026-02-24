@@ -41,7 +41,7 @@ function Message({ type, children, time, name }: Props) {
             ${isSend ? "text-gray-400" : "text-primary-200"}
           `}
         >
-          {time} pm
+          {time}
         </span>
       </div>
     </li>

@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Pages from "./pages";
 import CustomToaster from "./shared/components/CustomToaster";
+import { UserProvider } from "./features/context/UserContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -12,10 +13,12 @@ const queryClient = new QueryClient({
 });
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      {/* <ReactQueryDevtools /> */}
-      <Pages />
-      <CustomToaster />
-    </QueryClientProvider>
+    <UserProvider>
+      <QueryClientProvider client={queryClient}>
+        <ReactQueryDevtools />
+        <Pages />
+        <CustomToaster />
+      </QueryClientProvider>
+    </UserProvider>
   );
 }
