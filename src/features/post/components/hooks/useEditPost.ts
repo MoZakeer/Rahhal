@@ -1,34 +1,52 @@
 import { useEffect, useState, useRef } from "react";
-import type { User, EditMedia } from "../services/editPost";
+import { useNavigate } from "react-router-dom";
+import type { EditMedia } from "../services/editPost";
 
-export function useEditPost(postId: string, userId: string, token: string) {
+export function useEditPost(postId: string) {
+  const navigate = useNavigate();
+  const DEFAULT_AVATAR = "https://www.gravatar.com/avatar/?d=mp&f=y";
+
   const [caption, setCaption] = useState("");
   const [media, setMedia] = useState<EditMedia[]>([]);
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<{ name: string; username: string; avatar: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const BASE_URL = "https://rahhal-api.runasp.net";
-  const DEFAULT_AVATAR = "https://www.gravatar.com/avatar/?d=mp&f=y";
+
+  function getUserFromStorage() {
+    const userJS = localStorage.getItem("user");
+    return userJS ? JSON.parse(userJS) : null;
+  }
 
   // ================= Fetch User =================
   useEffect(() => {
     const fetchUser = async () => {
+      const storedUser = getUserFromStorage();
+      if (!storedUser) {
+        setUser({ name: "Unknown User", username: "unknown", avatar: DEFAULT_AVATAR });
+        return;
+      }
+
+      const { token, userId } = storedUser;
+
       try {
-        const res = await fetch(
-          `${BASE_URL}/Profile/GetUserProfile?ProfileId=${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              accept: "application/json",
-            },
-          }
-        );
+        const res = await fetch(`${BASE_URL}/Profile/GetUserProfile?ProfileId=${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            accept: "application/json",
+          },
+        });
 
         if (!res.ok) throw new Error("Failed to fetch user");
 
         const json = await res.json();
         const data = json.data;
+
+        if (!data) {
+          setUser({ name: "Unknown User", username: "unknown", avatar: DEFAULT_AVATAR });
+          return;
+        }
 
         setUser({
           name: data.fullName || "Unknown User",
@@ -36,19 +54,20 @@ export function useEditPost(postId: string, userId: string, token: string) {
           avatar: data.profilePicture || DEFAULT_AVATAR,
         });
       } catch {
-        setUser({
-          name: "Unknown User",
-          username: "unknown",
-          avatar: DEFAULT_AVATAR,
-        });
+        setUser({ name: "Unknown User", username: "unknown", avatar: DEFAULT_AVATAR });
       }
     };
 
     fetchUser();
-  }, [userId, token]);
+  }, []);
 
   // ================= Fetch Post =================
   const fetchPost = async () => {
+    const storedUser = getUserFromStorage();
+    if (!storedUser) return;
+
+    const { token } = storedUser;
+
     try {
       const res = await fetch(`${BASE_URL}/Post/GetById?PostId=${postId}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -58,6 +77,7 @@ export function useEditPost(postId: string, userId: string, token: string) {
 
       const json = await res.json();
       const data = json.data;
+      if (!data) return;
 
       setCaption(data.description || "");
 
@@ -81,30 +101,26 @@ export function useEditPost(postId: string, userId: string, token: string) {
   const handleUpdatePost = async () => {
     if (!caption.trim()) return;
 
+    const storedUser = getUserFromStorage();
+    if (!storedUser) return;
+
+    const { token } = storedUser;
+
     try {
       setLoading(true);
 
       const formData = new FormData();
-
       formData.append("ID", postId);
       formData.append("Description", caption);
 
       media.forEach((m, index) => {
-  if (m.file instanceof File) {
-    formData.append(`Media[${index}].File`, m.file);
-
-    
-    formData.append(`Media[${index}].MediaId`, "");
-  } else {
-
-    formData.append(`Media[${index}].MediaId`, m.mediaId);
-  }
-});
-
-      for (let pair of formData.entries()) {
-  console.log(pair[0], pair[1]);
-}
-
+        if (m.file instanceof File) {
+          formData.append(`Media[${index}].File`, m.file);
+          formData.append(`Media[${index}].MediaId`, ""); // جديد
+        } else {
+          formData.append(`Media[${index}].MediaId`, m.mediaId);
+        }
+      });
 
       const res = await fetch(`${BASE_URL}/Post/Update`, {
         method: "PATCH",
@@ -115,10 +131,8 @@ export function useEditPost(postId: string, userId: string, token: string) {
       if (!res.ok) throw new Error("Failed to update post");
 
       console.log("Post updated successfully ✅");
-      
-
-     
       await fetchPost();
+      navigate("/feed");
     } catch (err) {
       console.log("Error updating post ❌", err);
     } finally {
@@ -126,14 +140,5 @@ export function useEditPost(postId: string, userId: string, token: string) {
     }
   };
 
-  return {
-    caption,
-    setCaption,
-    media,
-    setMedia,
-    loading,
-    user,
-    handleUpdatePost,
-    fileRef,
-  };
+  return { caption, setCaption, media, setMedia, loading, user, handleUpdatePost, fileRef };
 }

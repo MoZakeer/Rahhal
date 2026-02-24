@@ -1,4 +1,6 @@
+import { useNavigate } from "react-router-dom";
 const CTA = () => {
+    const navigate = useNavigate();
     return (
         <section className="text-center py-20 bg-[var(--color-gray-0)]">
             <h2 className="text-4xl font-bold text-[var(--color-gray-900)]">
@@ -14,7 +16,8 @@ const CTA = () => {
             </p>
 
             <button className="mt-8 px-8 py-3 rounded-full bg-[var(--color-primary-600)] text-white hover:bg-[var(--color-primary-700)] hover:scale-105
-            active:scale-95 transition-all duration-300">
+            active:scale-95 transition-all duration-300"
+                onClick={() => navigate("/login")} >
                 Join Rahhal  →
             </button>
         </section>

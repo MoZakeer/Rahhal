@@ -1,8 +1,5 @@
+import ChatLayout from "../../features/chat/components/ChatLayout";
 
 export default function ChatPage() {
-  return (
-    <div>
-      this iss chat page
-    </div>
-  )
+  return <ChatLayout />;
 }

@@ -1,4 +1,5 @@
 import { MapPin, Sparkles, Users, Share2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface Feature {
   icon: React.ReactNode;
@@ -7,6 +8,7 @@ interface Feature {
 }
 
 export default function FeaturesSection() {
+  const navigate = useNavigate();
   const features: Feature[] = [
     {
       icon: <MapPin size={18} />,
@@ -56,7 +58,10 @@ export default function FeaturesSection() {
             transition-all duration-300
             hover:bg-[var(--color-primary-700)]
             hover:scale-105
-            active:scale-95">
+            active:scale-95"
+             onClick={() => navigate("/login")}
+            >
+           
             Start Planning Now
           </button>
         </div>

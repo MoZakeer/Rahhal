@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { X, Heart, MoreHorizontal } from "lucide-react";
 import * as commentApi from "../components/services/commentApi";
 import {  normalizeMediaUrl } from "./services/posts.api";
+import { useNavigate } from "react-router-dom";
 
 type CommentItem = {
   commentId: string;
@@ -12,6 +13,7 @@ type CommentItem = {
   createdDate: string;
   likesCount: number;
   repliesCount: number;
+  isLikedByCurrentUser: boolean;
 };
 
 type ReplyItem = {
@@ -23,6 +25,7 @@ type ReplyItem = {
   createdDate: string;
   likesCount: number;
   repliesCount: number;
+  isLikedByCurrentUser: boolean;
 };
 
 type CommentsModalProps = {
@@ -62,13 +65,13 @@ export function CommentsModal({
   const [repliesOpenMap, setRepliesOpenMap] = useState<Record<string, boolean>>({});
 
   const commentsEndRef = useRef<HTMLDivElement>(null);
+    const navigate = useNavigate();
 
   const fetchComments = async () => {
     setLoading(true);
     try {
       const data = await commentApi.fetchComments(postId);
       setComments(data.data.items || []);
-      console.log("Fetched comments:", data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -80,7 +83,6 @@ export function CommentsModal({
     try {
       const data = await commentApi.fetchReplies(parentId);
       setRepliesMap((prev) => ({ ...prev, [parentId]: data.data.items || [] }));
-      console.log(`Fetched replies for comment ${parentId}:`, data);
     } catch (err) {
       console.error(err);
       setRepliesMap((prev) => ({ ...prev, [parentId]: [] }));
@@ -129,12 +131,49 @@ export function CommentsModal({
       fetchComments();
     }
   };
+ 
+  const handleLike = async (commentId: string, parentId?: string) => {
 
-  const handleLike = async (id: string, parentId?: string) => {
-    await commentApi.likeComment(currentUserId, id);
+  if (parentId) {
+    setRepliesMap(prev => ({
+      ...prev,
+      [parentId]: prev[parentId]?.map(reply =>
+        reply.replyId === commentId
+          ? {
+               ...reply,
+              isLikedByCurrentUser: !reply.isLikedByCurrentUser,
+              likesCount: reply.isLikedByCurrentUser
+                ? reply.likesCount - 1
+                : reply.likesCount + 1,
+            }
+          : reply
+      )
+    }));
+  } else {
+    setComments(prev =>
+      prev.map(comment =>
+        comment.commentId === commentId
+          ? {
+              ...comment,
+              isLikedByCurrentUser: !comment.isLikedByCurrentUser,
+              likesCount: comment.isLikedByCurrentUser
+                ? comment.likesCount - 1
+                : comment.likesCount + 1,
+            }
+          : comment
+      )
+    );
+  }
+
+  try {
+    await commentApi.likeComment(currentUserId, commentId);
+  } catch (error) {
+    console.error("Like failed", error);
+
+    fetchComments();
     if (parentId) fetchReplies(parentId);
-    else fetchComments();
-  };
+  }
+};
 
   const toggleMenu = (key: string) =>
     setMenuOpenMap((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -223,7 +262,8 @@ export function CommentsModal({
               ) : (
                 <div className="rounded-2xl bg-gray-50 border border-black/5 px-3 py-2">
                   <p className="text-sm leading-5 break-words">
-                    <span className="font-semibold mr-1">{comment.userName}</span>
+                    <span onClick={() => navigate(`/profile/${comment.profileId}`)}
+  className="font-semibold cursor-pointer hover:underline">{comment.userName}</span>
                     {comment.description}
                   </p>
                 </div>
@@ -281,13 +321,26 @@ export function CommentsModal({
           <div className="mt-1 flex items-center gap-4 text-xs text-gray-500 flex-wrap">
             <span>{formatDate(comment.createdDate)}</span>
 
-            <button
-              onClick={() => handleLike(id, parentId)}
-              className="flex items-center gap-1 hover:text-black"
-            >
-              <Heart className="w-3.5 h-3.5" />
-              <span className="font-medium">{comment.likesCount || 0}</span>
-            </button>
+         <button
+  onClick={() => handleLike(id, parentId)}
+  className="flex items-center gap-1"
+>
+ <Heart
+  className={`w-4 h-4 transition ${
+    (isReply
+      ? (comment as ReplyItem).isLikedByCurrentUser
+      : (comment as CommentItem).isLikedByCurrentUser)
+      ? "text-red-600 fill-red-700"
+      : ""
+  }`}
+/>
+
+  <span className="text-xs font-medium">
+    {isReply
+      ? (comment as ReplyItem).likesCount
+      : (comment as CommentItem).likesCount}
+  </span>
+</button>
             {/* Reply button only for main comments */}
             {!parentId && (
               <button

@@ -32,6 +32,9 @@ import GroupDetails from "./groups/GroupDetails";
 
 // Chat Pages
 import ChatPage from "./chat/ChatPage";
+import ChatWindow from "../features/chat/components/ChatWindow.tsx";
+import ChatSetting from "../features/chat/components/ChatSetting.tsx";
+import EmptyState from "../features/chat/components/EmptyState.tsx";
 
 // Optional: 404 page
 import NotFound from "./NotFound/notfound";
@@ -43,6 +46,8 @@ import AuthLayout from "../layouts/AuthLayout";
 import SettingPage from "./settings/settingpage";
 
 const Pages = () => {
+  const isAuthenticated = true; 
+
   return (
     <Router>
       <Routes>
@@ -61,12 +66,52 @@ const Pages = () => {
 
         {/* Main App */}
         <Route element={<MainLayout />}>
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/feed" element={<HomeFeed />} />
-          <Route path="/trips" element={<MyTrips />} />
-          <Route path="/groups/:groupId" element={<GroupDetails />} />
-          <Route path="/chat" element={<ChatPage />} />
-          <Route path="/settings" element={<SettingPage />} />
+
+          <Route
+            path="/profile"
+            element={
+              isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />
+            }
+          />
+
+          <Route
+            path="/feed"
+            element={
+              isAuthenticated ? <HomeFeed /> : <Navigate to="/login" />
+            }
+          />
+
+          <Route
+            path="/trips"
+            element={
+              isAuthenticated ? <MyTrips /> : <Navigate to="/login" />
+            }
+          />
+
+          <Route
+            path="/groups/:groupId"
+            element={
+              isAuthenticated ? <GroupDetails /> : <Navigate to="/login" />
+            }
+          />
+
+          <Route
+            path="/chat"
+            element={
+              isAuthenticated ? <ChatPage /> : <Navigate to="/login" />
+            }
+          >
+            <Route index element={<EmptyState />} />
+            <Route path=":chatId" element={<ChatWindow />} />
+            <Route path=":chatId/settings" element={<ChatSetting />} />
+          </Route>
+
+          <Route
+            path="/settings"
+            element={
+              isAuthenticated ? <SettingPage /> : <Navigate to="/login" />
+            }
+          />
 
           {/* Default Home */}
           <Route

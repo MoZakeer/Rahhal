@@ -1,14 +1,23 @@
 import type { Post } from "../../../types/post";
 import type { PostMediaItem } from "../../../types/post";
 import { PostContent } from "./PostContent";
-
-import { MessageCircle, Share2, MoreHorizontal, Edit, Trash2, Flag } from "lucide-react";
+import {
+  MessageCircle,
+  Share2,
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  Flag,
+} from "lucide-react";
 import { BookmarkIcon as BookmarkSolid } from "@heroicons/react/24/solid";
-import { BookmarkIcon as BookmarkOutline, HeartIcon as HeartOutline } from "@heroicons/react/24/outline";
+import {
+  BookmarkIcon as BookmarkOutline,
+  HeartIcon as HeartOutline,
+} from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 
 import { useState, useRef, useEffect } from "react";
-import { deletePost, normalizeMediaUrl, savePost , likePost } from "./services/posts.api";
+import { deletePost, normalizeMediaUrl, savePost, likePost } from "./services/posts.api";
 import { getUserId } from "../../../utils/auth";
 import { CommentsModal } from "../components/CommentsModal";
 import { useNavigate } from "react-router-dom";
@@ -32,14 +41,19 @@ export function PostHeader({
   onDelete?: () => void;
   onReport?: () => void;
 }) {
+  const navigate = useNavigate();
+console.log("logged:", currentUserId);
+console.log("post owner:", profileId);
   const [isFollowing, setIsFollowing] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setDropdownOpen(false);
       }
     }
@@ -48,7 +62,7 @@ export function PostHeader({
   }, []);
 
   const isOwner = currentUserId === profileId;
-
+  profileUrl = profileUrl ?? "./avater.png";
   function formatTime(date?: string) {
     if (!date) return "";
 
@@ -69,9 +83,15 @@ export function PostHeader({
       <div className="flex items-center gap-3">
         <img src={normalizeMediaUrl(profileUrl)} className="w-10 h-10 rounded-full object-cover" />
         <div className="flex flex-col leading-tight">
-          <span className="font-semibold">{userName}</span>
-          {createdAt && (
-            <span className="text-xs text-gray-500">{formatTime(createdAt)}</span>
+          <span
+            onClick={() => navigate(`/profile/${profileId}`)}
+            className="font-semibold cursor-pointer hover:underline"
+          >
+            {userName}
+          </span>          {createdAt && (
+            <span className="text-xs text-gray-500">
+              {formatTime(createdAt)}
+            </span>
           )}
         </div>
       </div>
@@ -80,11 +100,10 @@ export function PostHeader({
         {!isOwner && (
           <button
             onClick={() => setIsFollowing(!isFollowing)}
-            className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${
-              isFollowing
+            className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${isFollowing
                 ? "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
                 : "bg-white border border-black text-black hover:bg-gray-100"
-            }`}
+              }`}
           >
             {isFollowing ? "Following" : "Follow"}
           </button>
@@ -139,7 +158,8 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
   if (!media.length) return null;
 
   const next = () => setCurrent((prev) => (prev + 1) % media.length);
-  const prev = () => setCurrent((prev) => (prev - 1 + media.length) % media.length);
+  const prev = () =>
+    setCurrent((prev) => (prev - 1 + media.length) % media.length);
 
   return (
     <div className="relative w-full bg-black/5">
@@ -164,9 +184,9 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
           </button>
 
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-           {media.map((m, i) => (
+            {media.map((m, i) => (
               <span
-                key={m.id} 
+                key={m.id}
                 className={`w-2 h-2 rounded-full ${i === current ? "bg-white" : "bg-white/50"}`}
               />
             ))}
@@ -193,9 +213,12 @@ export function PostActions({
   return (
     <div className="flex justify-between px-4 py-2">
       <div className="flex gap-4">
-        <button onClick={onLike} className="transition-transform duration-200 ease-in-out">
+        <button
+          onClick={onLike}
+          className="transition-transform duration-200 ease-in-out"
+        >
           {liked ? (
-            <HeartSolid className="w-6 h-6 text-blue-300 scale-125 transition-all duration-300" />
+            <HeartSolid className="w-6 h-6 text-red-600 fill-red-700 scale-125 transition-all duration-300" />
           ) : (
             <HeartOutline className="w-6 h-6 text-black/60 scale-100 transition-all duration-300" />
           )}
@@ -210,7 +233,7 @@ export function PostActions({
 
       <button onClick={onSave}>
         {saved ? (
-          <BookmarkSolid className="w-6 h-6 text-blue-300 scale-125 transition-all duration-300" />
+          <BookmarkSolid className="w-6 h-6 text-black-600 fill-black-700 scale-100 transition-all duration-300" />
         ) : (
           <BookmarkOutline className="w-6 h-6 text-black/60 scale-100 transition-all duration-300" />
         )}
@@ -229,16 +252,20 @@ export default function PostCard({
   const hasMedia = post.mediaUrLs && post.mediaUrLs.length > 0;
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(post.isSaved ?? false);
-  const navigate = useNavigate();
+  const [isLiked, setIsLiked] = useState(post.isLiked ?? false);
+  const [likesCount, setLikesCount] = useState(post.likes ?? 0);
 
+  const navigate = useNavigate();
   async function handleSaveToggle() {
     const prev = isSaved;
-    setIsSaved(!prev); // optimistic update
+    setIsSaved(!prev);
+
     try {
       await savePost(post.id);
     } catch (err) {
       console.error(err);
-      setIsSaved(prev); // rollback
+      setIsSaved(prev);
+
     }
   }
 
@@ -254,8 +281,21 @@ export default function PostCard({
   function handleEditPost() {
     navigate(`/edit-post/${post.id}`);
   }
-function handleLike() {
-    likePost(post.id, getUserId());
+  async function handleLike() {
+    const prevLiked = isLiked;
+
+    // optimistic update
+    setIsLiked(!prevLiked);
+    setLikesCount(prevLiked ? likesCount - 1 : likesCount + 1);
+
+    try {
+      await likePost(post.id);
+    } catch (error) {
+      setIsLiked(prevLiked);
+      setLikesCount(likesCount);
+
+      console.error("Like failed", error);
+    }
   }
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm mb-6 max-w-xl mx-auto">
@@ -279,17 +319,22 @@ function handleLike() {
       {hasMedia && <PostMedia media={post.mediaUrLs} />}
 
       <PostActions
-        liked={post.isLiked ?? false}
+        liked={isLiked}
         saved={isSaved}
         onLike={handleLike}
         onSave={handleSaveToggle}
         onComment={() => setCommentsOpen(true)}
       />
 
-      <div className="px-4 text-sm font-semibold mt-1">{post.likes ?? 0} likes</div>
+      <div className="px-4 text-sm font-semibold mt-1">
+        {likesCount} likes
+      </div>
 
       {hasMedia && (
-        <PostContent description={post.description} className="px-4 mt-1 text-sm" />
+        <PostContent
+          description={post.description}
+          className="px-4 mt-1 text-sm"
+        />
       )}
 
       <div

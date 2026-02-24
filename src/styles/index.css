@@ -89,7 +89,11 @@ body {
   box-shadow: 0 0 0 2px
     color-mix(in srgb, var(--color-brand-500) 40%, transparent);
 }
-
+button,
+Link,
+NavLink {
+  outline: none;
+}
 @layer components {
   .box {
     @apply flex flex-col gap-5 sm:gap-4 w-full sm:w-md 

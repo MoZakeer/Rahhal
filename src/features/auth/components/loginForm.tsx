@@ -27,14 +27,30 @@ function LoginForm() {
 
   function onSubmit(payload: TLoginInputsType) {
     login(payload, {
+<<<<<<< HEAD
       onSuccess: (data) => {
         toast.success(data?.message || "welcome in your rahhal account");
         localStorage.setItem("token", data?.token || "");
         localStorage.setItem("user", JSON.stringify(data?.data));
+=======
+      onSuccess: ({ data, message }) => {
+        if (!data?.profileId) {
+          toast.error("Invalid server response");
+          return;
+        }
+
+        toast.success(message ?? "Welcome to your Rahhal account");
+>>>>>>> 4035534e7f5900823fd614d50427487adfa0aad3
         navigate("/feed");
       },
-      onError: (error) => toast.error(error?.message),
-      onSettled: () => reset(),
+
+      onError: (error: Error) => {
+        toast.error(error.message);
+      },
+
+      onSettled: () => {
+        reset();
+      },
     });
   }
   const isWaiting: boolean = isSubmitting || isPending;
@@ -50,6 +66,7 @@ function LoginForm() {
           placeholder="username or email"
           {...register("email")}
           error={errors.email?.message}
+          defaultValue="mohmedabdelnaser2004@gmail.com"
         />
 
         <PasswordInput
@@ -58,6 +75,7 @@ function LoginForm() {
           placeholder="Password"
           {...register("password")}
           error={errors.password?.message}
+          defaultValue="Zakeer@132"
         />
 
         <Link
