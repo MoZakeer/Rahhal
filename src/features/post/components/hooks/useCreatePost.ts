@@ -1,28 +1,48 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import type { User } from "../services/createPost";
-import type { EditMedia } from "../services/createPost"; 
+import type { EditMedia } from "../services/createPost";
 
-
-export function useCreatePost(userId: string, token: string) {
+export function useCreatePost() {
   const navigate = useNavigate();
   const DEFAULT_AVATAR = "https://www.gravatar.com/avatar/?d=mp&f=y";
 
   const [caption, setCaption] = useState("");
   const [media, setMedia] = useState<EditMedia[]>([]);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<{ name: string; username: string; avatar: string } | null>(null);
   const [isPosting, setIsPosting] = useState(false);
- const fileRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  // Helper to get user & token from localStorage
+  function getUserFromStorage() {
+    const userJS = localStorage.getItem("user");
+    if (!userJS) return null;
+    return JSON.parse(userJS); // { token, userId }
+  }
 
   useEffect(() => {
     const fetchUser = async () => {
+      const storedUser = getUserFromStorage();
+      if (!storedUser) {
+        setUser({ name: "Unknown User", username: "unknown", avatar: DEFAULT_AVATAR });
+        return;
+      }
+
+      const { token, userId } = storedUser;
+
       try {
         const res = await axios.get("https://rahhal-api.runasp.net/Profile/GetUserProfile", {
           params: { ProfileId: userId },
           headers: { Authorization: `Bearer ${token}`, accept: "application/json" },
         });
-        const data = res.data.data;
+
+        const data = res.data?.data;
+        if (!data) {
+          console.log("No profile data returned");
+          setUser({ name: "Unknown User", username: "unknown", avatar: DEFAULT_AVATAR });
+          return;
+        }
+
         setUser({
           name: data.fullName || "Unknown User",
           username: data.userName || "unknown",
@@ -35,19 +55,28 @@ export function useCreatePost(userId: string, token: string) {
     };
 
     fetchUser();
-  }, [userId, token]);
+  }, []);
 
   const handleCreatePost = async () => {
     if (!caption && media.length === 0) return;
 
     setIsPosting(true);
 
-    const formData = new FormData();
-      media.forEach((img) => {
-    if (img.file instanceof File) {
-      formData.append("Files", img.file); 
+    const storedUser = getUserFromStorage();
+    if (!storedUser) {
+      console.log("No user/token found");
+      setIsPosting(false);
+      return;
     }
-  });
+
+    const { token, userId } = storedUser;
+
+    const formData = new FormData();
+    media.forEach((img) => {
+      if (img.file instanceof File) {
+        formData.append("Files", img.file);
+      }
+    });
     formData.append("UserId", userId);
     formData.append("Description", caption);
 
@@ -58,9 +87,9 @@ export function useCreatePost(userId: string, token: string) {
       console.log("Post created", res.data);
       setCaption("");
       setMedia([]);
-      navigate("/feed"); 
+      navigate("/feed");
     } catch (err: any) {
-      console.log("ERROR", err.response?.data);
+      console.log("ERROR", err.response?.data || err.message);
     } finally {
       setIsPosting(false);
     }

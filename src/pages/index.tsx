@@ -46,7 +46,7 @@ import AuthLayout from "../layouts/AuthLayout";
 import SettingPage from "./settings/settingpage";
 
 const Pages = () => {
-  const isAuthenticated = true; // بدلها بعدين بالـ auth logic الحقيقي
+  const isAuthenticated = true; 
 
   return (
     <Router>
