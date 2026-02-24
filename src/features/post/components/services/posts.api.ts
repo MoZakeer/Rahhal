@@ -23,6 +23,7 @@ export async function getAllPosts(): Promise<PostsResponse> {
   if (!res.ok) {
     throw new Error("Failed to fetch posts");
   }
+  console.log("TOKEN:", token);
 
   return res.json();
 }

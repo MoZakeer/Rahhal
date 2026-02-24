@@ -298,7 +298,7 @@ export function CommentsModal({
                           Edit
                         </button>
                         <button
-                          className="w-full px-3 py-2 text-sm hover:bg-black/5 text-left text-red-600"
+                          className="w-full px-3 py-2 text-sm hover:bg-black/5 text-left text-red-500"
                           onClick={() => handleDelete(id, parentId)}
                         >
                           Delete
@@ -330,7 +330,7 @@ export function CommentsModal({
     (isReply
       ? (comment as ReplyItem).isLikedByCurrentUser
       : (comment as CommentItem).isLikedByCurrentUser)
-      ? "text-red-600 fill-red-700"
+      ? "text-primary-500 fill-primary-500"
       : ""
   }`}
 />

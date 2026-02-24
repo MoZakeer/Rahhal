@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getAllPosts } from "../../post/components/services/posts.api";
 import type { Post } from "../../../types/post";
 import PostCard from "../components/PostCard";
@@ -8,6 +8,8 @@ export default function PostsList() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const hasFetched = useRef(false); // 👈 guard
 
   async function fetchPosts() {
     setLoading(true);
@@ -29,9 +31,11 @@ export default function PostsList() {
   }
 
   useEffect(() => {
+    if (hasFetched.current) return; // 👈 prevents second call
+    hasFetched.current = true;
+
     fetchPosts();
   }, []);
-
 
   function handleRemovePost(postId: string) {
     setPosts((prev) => prev.filter((p) => p.id !== postId));
