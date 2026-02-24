@@ -1,18 +1,23 @@
 import type { PostsResponse } from "../../../../types/post";
 
-const BASE_URL = "https://rahhal-api.runasp.net"; 
+const BASE_URL = "https://rahhal-api.runasp.net";
 
 function getToken() {
-  const token = localStorage.getItem("token");
-  if (!token) return "";
-  return JSON.parse(token); 
+  const userJS = localStorage.getItem("user");
+  if (!userJS) return "";
+  const user = JSON.parse(userJS);
+
+  return user?.token;
 }
 export async function getAllPosts(): Promise<PostsResponse> {
-        const token = getToken();
+  const token = getToken();
 
   const res = await fetch(`${BASE_URL}/Post/GetAll`, {
     method: "GET",
-    headers: { "Content-Type": "application/json",  Authorization: `Bearer ${token}`},
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   if (!res.ok) {
@@ -33,16 +38,19 @@ export function normalizeMediaUrl(url: string) {
   // handle windows path OR any path
   const fileName = url.split("\\").pop()?.split("/").pop();
 
-const finalUrl = `${BASE_URL}/uploads/${fileName}`;
-return finalUrl;
+  const finalUrl = `${BASE_URL}/uploads/${fileName}`;
+  return finalUrl;
 }
 export async function deletePost(postId: string) {
-      const token = getToken();
+  const token = getToken();
 
   const res = await fetch(`${BASE_URL}/Post/Delete`, {
-    method: "DELETE", 
-    headers: { "Content-Type": "application/json",  Authorization: `Bearer ${token}`},
-    body: JSON.stringify({ postId }), 
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ postId }),
   });
 
   if (!res.ok) throw new Error("Failed to delete post");
@@ -53,13 +61,15 @@ export async function deletePost(postId: string) {
     return { isSuccess: res.ok };
   }
 }
-export async function savePost( postId: string) {
-    const token = getToken();
+export async function savePost(postId: string) {
+  const token = getToken();
   const res = await fetch(`${BASE_URL}/Post/SavePost`, {
     method: "POST",
-    headers: { "Content-Type": "application/json",  Authorization: `Bearer ${token}`,
- },
-    body: JSON.stringify({postId }),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ postId }),
   });
 
   if (!res.ok) throw new Error("Failed to save post");
@@ -71,23 +81,29 @@ export async function savePost( postId: string) {
   }
 }
 
-export async function likePost( postId: string, userId: string  ) {
-    const token = getToken();
+export async function likePost(postId: string, userId: string) {
+  const token = getToken();
   const res = await fetch(`${BASE_URL}/Like/AddToPost`, {
     method: "POST",
-    headers: { "Content-Type": "application/json",  Authorization: `Bearer ${token}` },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify({ postId, userId }),
   });
 
   if (!res.ok) throw new Error("Failed to like post");
-console.log("Liked post response:", res);
+  console.log("Liked post response:", res);
   return res.json();
 }
-export async function unlikePost( postId: string, userId: string  ) {
-    const token = getToken();
+export async function unlikePost(postId: string, userId: string) {
+  const token = getToken();
   const res = await fetch(`${BASE_URL}/Like/AddToPost`, {
     method: "POST",
-    headers: { "Content-Type": "application/json",  Authorization: `Bearer ${token}` },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify({ postId, userId }),
   });
 
@@ -95,4 +111,3 @@ export async function unlikePost( postId: string, userId: string  ) {
 
   return res.json();
 }
-

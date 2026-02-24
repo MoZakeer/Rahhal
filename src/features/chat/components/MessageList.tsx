@@ -1,5 +1,5 @@
 import { formatDate } from "../../../utils/helper";
-import { useUser } from "../../context/UserContext";
+import { useUser } from "../../../context/UserContext";
 import Message from "./Message";
 
 function MessageList({ messages }) {
