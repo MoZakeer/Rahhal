@@ -4,7 +4,7 @@ import {Plane} from "lucide-react";
 export default function Footer() {
   return (
     <footer className="w-full bg-slate-950 pt-16 pb-8">
-      <div className="max-w-[1280px] mx-auto px-4 md:px-10 lg:px-20">
+      <div className="max-w-7xl mx-auto px-4 md:px-10 lg:px-20">
         {/* Grid: 1 column mobile, 2 md, 4 lg */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand */}

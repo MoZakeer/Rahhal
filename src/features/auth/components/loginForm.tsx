@@ -29,6 +29,8 @@ function LoginForm() {
     login(payload, {
       onSuccess: (data) => {
         toast.success(data?.message || "welcome in your rahhal account");
+        localStorage.setItem("token", data?.token || "");
+        localStorage.setItem("user", JSON.stringify(data?.data));
         navigate("/feed");
       },
       onError: (error) => toast.error(error?.message),

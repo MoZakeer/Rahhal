@@ -69,7 +69,14 @@ const Pages = () => {
           <Route path="/settings" element={<SettingPage />} />
 
           {/* Default Home */}
-          <Route path="/" element={<Navigate to="/feed" replace />} />
+          <Route
+            path="/"
+            element={
+              localStorage.getItem("token")
+                ? <Navigate to="/feed" replace />
+                : <Navigate to="/landing-page" replace />
+            }
+          />
         </Route>
 
         {/* 404 */}
