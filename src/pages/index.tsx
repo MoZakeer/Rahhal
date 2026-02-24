@@ -5,6 +5,9 @@ import {
   Navigate,
 } from "react-router-dom";
 
+// Landing page
+import LandingPage from "./landingPage/landingPage.tsx";
+
 // Auth Pages
 import Login from "./auth/Login";
 import SignUp from "./auth/SignUp.tsx";
@@ -12,13 +15,14 @@ import ForgetPassword from "./auth/ForgetPassword.tsx";
 import ResetPassword from "./auth/ResetPassword.tsx";
 import ChangePassword from "./auth/ChangePassword.tsx";
 import VerifyEmail from "./auth/VerifyEmail.tsx";
+
 // Profile Pages
 import ProfilePage from "./profile/ProfilePage";
 
 // Feed Pages
 import HomeFeed from "./feed/HomeFeed";
-import CreatePost from './feed/CreatePost';
-import EditPost from './feed/EditPost.tsx';
+import CreatePost from "./feed/CreatePost";
+import EditPost from "./feed/EditPost.tsx";
 
 // Trips Pages
 import MyTrips from "./trips/MyTrips";
@@ -28,19 +32,21 @@ import GroupDetails from "./groups/GroupDetails";
 
 // Chat Pages
 import ChatPage from "./chat/ChatPage";
-
-// Optional: 404 page
-import NotFound from "./NotFound/notfound";
-import MainLayout from "../layouts/mainLayout";
-import AuthLayout from "../layouts/AuthLayout";
-
-// setting
-import SettingPage from "./settings/settingpage";
 import ChatWindow from "../features/chat/components/ChatWindow.tsx";
 import ChatSetting from "../features/chat/components/ChatSetting.tsx";
 import EmptyState from "../features/chat/components/EmptyState.tsx";
+
+// Optional: 404 page
+import NotFound from "./NotFound/notfound";
+
+import MainLayout from "../layouts/mainLayout";
+import AuthLayout from "../layouts/AuthLayout";
+
+// Settings
+import SettingPage from "./settings/settingpage";
+
 const Pages = () => {
-  const isAuthenticated = true;
+  const isAuthenticated = true; // بدلها بعدين بالـ auth logic الحقيقي
 
   return (
     <Router>
@@ -55,38 +61,51 @@ const Pages = () => {
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/create-post" element={<CreatePost />} />
           <Route path="/edit-post/:postId" element={<EditPost />} />
+          <Route path="/landing-page" element={<LandingPage />} />
         </Route>
 
+        {/* Main App */}
         <Route element={<MainLayout />}>
-          {/* Protected Pages */}
+
           <Route
             path="/profile"
             element={
               isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />
             }
           />
+
           <Route
             path="/feed"
-            element={isAuthenticated ? <HomeFeed /> : <Navigate to="/login" />}
+            element={
+              isAuthenticated ? <HomeFeed /> : <Navigate to="/login" />
+            }
           />
+
           <Route
             path="/trips"
-            element={isAuthenticated ? <MyTrips /> : <Navigate to="/login" />}
+            element={
+              isAuthenticated ? <MyTrips /> : <Navigate to="/login" />
+            }
           />
+
           <Route
             path="/groups/:groupId"
             element={
               isAuthenticated ? <GroupDetails /> : <Navigate to="/login" />
             }
           />
+
           <Route
             path="/chat"
-            element={isAuthenticated ? <ChatPage /> : <Navigate to="/login" />}
+            element={
+              isAuthenticated ? <ChatPage /> : <Navigate to="/login" />
+            }
           >
             <Route index element={<EmptyState />} />
             <Route path=":chatId" element={<ChatWindow />} />
             <Route path=":chatId/settings" element={<ChatSetting />} />
           </Route>
+
           <Route
             path="/settings"
             element={
@@ -94,9 +113,10 @@ const Pages = () => {
             }
           />
 
-          {/* Home / Default */}
-          <Route path="/" element={<Navigate to="/feed" />} />
+          {/* Default Home */}
+          <Route path="/" element={<Navigate to="/feed" replace />} />
         </Route>
+
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>

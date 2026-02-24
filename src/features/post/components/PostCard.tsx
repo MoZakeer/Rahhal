@@ -1,4 +1,5 @@
 import type { Post } from "../../../types/post";
+import type { PostMediaItem } from "../../../types/post";
 import { PostContent } from "./PostContent";
 
 import {
@@ -17,7 +18,7 @@ import {
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 
 import { useState, useRef, useEffect } from "react";
-import { deletePost, normalizeMediaUrl, savePost } from "./services/posts.api";
+import { deletePost, normalizeMediaUrl, savePost , likePost } from "./services/posts.api";
 import { getUserId } from "../../../utils/auth";
 import { CommentsModal } from "../components/CommentsModal";
 import { useNavigate } from "react-router-dom";
@@ -78,7 +79,7 @@ export function PostHeader({
   return (
     <div className="flex items-center justify-between px-4 py-3 relative">
       <div className="flex items-center gap-3">
-        <img src={profileUrl} className="w-10 h-10 rounded-full object-cover" />
+        <img src={normalizeMediaUrl(profileUrl)} className="w-10 h-10 rounded-full object-cover" />
         <div className="flex flex-col leading-tight">
           <span className="font-semibold">{userName}</span>
           {createdAt && (
@@ -147,7 +148,7 @@ export function PostHeader({
   );
 }
 
-export function PostMedia({ media }: { media: string[] }) {
+export function PostMedia({ media }: { media: PostMediaItem[] }) {
   const [current, setCurrent] = useState(0);
   if (!media.length) return null;
 
@@ -158,7 +159,7 @@ export function PostMedia({ media }: { media: string[] }) {
   return (
     <div className="relative w-full bg-black/5">
       <img
-        src={normalizeMediaUrl(media[current])}
+        src={normalizeMediaUrl(media[current].url)}
         className="w-full max-h-[500px] object-cover"
       />
 
@@ -178,9 +179,9 @@ export function PostMedia({ media }: { media: string[] }) {
           </button>
 
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-            {media.map((_, i) => (
+           {media.map((m, i) => (
               <span
-                key={i}
+                key={m.id} 
                 className={`w-2 h-2 rounded-full ${i === current ? "bg-white" : "bg-white/50"}`}
               />
             ))}
@@ -243,7 +244,7 @@ export default function PostCard({
   post: Post;
   onPostDeleted?: (postId: string) => void;
 }) {
-  const hasMedia = post.media_URLs && post.media_URLs.length > 0;
+  const hasMedia = post.mediaUrLs && post.mediaUrLs.length > 0;
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(post.isSaved ?? false);
   const navigate = useNavigate();
@@ -270,7 +271,9 @@ export default function PostCard({
   function handleEditPost() {
     navigate(`/edit-post/${post.id}`);
   }
-
+function handleLike() {
+    likePost(post.id, getUserId());
+  }
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm mb-6 max-w-xl mx-auto">
       <PostHeader
@@ -290,12 +293,12 @@ export default function PostCard({
         />
       )}
 
-      {hasMedia && <PostMedia media={post.media_URLs} />}
+      {hasMedia && <PostMedia media={post.mediaUrLs} />}
 
       <PostActions
         liked={post.isLiked ?? false}
         saved={isSaved}
-        onLike={() => console.log("Like")}
+        onLike={handleLike}
         onSave={handleSaveToggle}
         onComment={() => setCommentsOpen(true)}
       />

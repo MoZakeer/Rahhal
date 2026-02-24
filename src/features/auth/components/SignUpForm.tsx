@@ -2,7 +2,7 @@ import { signUpSchema, type TSignUpType } from "../validation/signUpSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import Button from "../../../shared/components/Button";
+import Button from "../../../shared/components/button";
 import Input from "../../../shared/components/Input";
 import PasswordInput from "../../../shared/components/PasswordInput";
 import { useSignUp } from "../hooks/useSignUp";

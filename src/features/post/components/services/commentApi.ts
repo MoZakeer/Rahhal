@@ -1,6 +1,13 @@
 const BASE_URL = "https://rahhal-api.runasp.net";
+function getToken() {
+  const token = localStorage.getItem("token");
+  if (!token) return "";
+  return JSON.parse(token); 
+}
 
 export async function fetchComments(postId: string, page = 1, pageSize = 20) {
+          const token = getToken();
+
   const params = new URLSearchParams({
     PostId: postId,
     PageNumber: page.toString(),
@@ -8,19 +15,24 @@ export async function fetchComments(postId: string, page = 1, pageSize = 20) {
     SortByLastAdded: "true",
   });
 
-  const res = await fetch(`${BASE_URL}/Comment/AllCommentsToPost?${params.toString()}`);
+  const res = await fetch(`${BASE_URL}/Comment/AllCommentsToPost?${params.toString()}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   const text = await res.text();
   return text ? JSON.parse(text) : { data: { items: [] } };
 }
 
 export async function fetchReplies(commentId: string, page = 1, pageSize = 20) {
+
   const params = new URLSearchParams({
     CommentId: commentId,
     PageNumber: page.toString(),
     PageSize: pageSize.toString(),
   });
 
-  const res = await fetch(`${BASE_URL}/Comment/AllRepliesToComment?${params.toString()}`);
+  const res = await fetch(`${BASE_URL}/Comment/AllRepliesToComment?${params.toString()}`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
   const text = await res.text();
   return text ? JSON.parse(text) : { data: { items: [] } };
 }
@@ -38,12 +50,13 @@ export async function createComment(
   description: string,
   parentCommentId?: string
 ) {
+  
   const body: CreateCommentBody = { profileId, postId, description };
   if (parentCommentId) body.parentCommentId = parentCommentId;
 
   const res = await fetch(`${BASE_URL}/Comment/Create`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
     body: JSON.stringify(body),
   });
   return res.json();
@@ -60,7 +73,7 @@ export async function editComment(commentId: string, description: string) {
 
   const res = await fetch(`${BASE_URL}/Comment/Update`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json" , Authorization: `Bearer ${getToken()}`},
     body: JSON.stringify(body),
   });
   return res.json();
@@ -70,13 +83,13 @@ export async function editComment(commentId: string, description: string) {
 export async function deleteComment(commentId: string) {
   const res = await fetch(`${BASE_URL}/Comment/Delete`, {
     method: "DELETE", 
-    headers: { "Content-Type": "application/json" }, // MUST include this
-    body: JSON.stringify({ commentId }), // send ID in body
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+
+    body: JSON.stringify({ commentId }), 
   });
 
   if (!res.ok) throw new Error("Failed to delete comment");
 
-  // Some DELETE APIs return empty response, so wrap in try-catch
   try {
     return await res.json();
   } catch {
@@ -86,11 +99,13 @@ export async function deleteComment(commentId: string) {
 
 
 
-export async function likeComment(userId: string, commentId: string) {
-  const res = await fetch(`${BASE_URL}/post/addlikecomment`, {
+export async function likeComment(profileId: string, commentId: string) {
+  const res = await fetch(`${BASE_URL}/Like/ToComment`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, commentId }),
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+    body: JSON.stringify({ profileId, commentId }),
   });
-  return res.json();
+  if (!res.ok) throw new Error("Failed to like comment");
+  console.log("Liked comment response kkkkkkkkk:", res);
+  return true;
 }

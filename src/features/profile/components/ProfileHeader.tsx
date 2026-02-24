@@ -1,57 +1,53 @@
-import Button from "../../../shared/components/button";
-import type { Profile } from "../types/profile.types";
-import Image from "../../../../public/avater.png";
-import { IoSettingsOutline } from "react-icons/io5";
-import { Link } from "react-router-dom";
-const profile: Profile = {
-  name: "Mohamed Abdelnaser",
-  location: "📍 San Francisco, CA",
-  bio: "✈️ Travel enthusiast | 🌍 8 countries & counting | 📸 Capturing moments",
-  avatar: Image,
-};
+import { useEffect, useState } from "react";
+import EditProfileForm from "./EditProfileForm";
+import type { ProfileResponse } from "../types/profile.types";
 
-const ProfileHeader: React.FC = () => {
+const ProfileHeader = () => {
+  const [userData, setUserData] = useState<ProfileResponse | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const fetchProfile = async () => {
+    try {
+      const id = localStorage.getItem("profileId") || "";
+      const res = await fetch(`https://rahhal-api.runasp.net/Profile/GetUserProfile?ProfileId=${id}`);
+      const data = await res.json();
+      setUserData(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchProfile();
+  }, []);
+
+  if (!userData) return <div>Loading...</div>;
+
   return (
-    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
-      {/* Left side: Avatar + Info */}
-      <div className="flex flex-col md:flex-row md:items-center gap-3">
-        <img
-          src={profile.avatar}
-          alt={profile.name}
-          width={100}
-          height={100}
-          className="rounded-full object-cover"
-        />
-
+    <div className="flex items-center justify-between p-4 bg-gray-50 rounded">
+      <div className="flex items-center gap-4">
+        <img src={userData.ProfilePicture} className="w-16 h-16 rounded-full object-cover" />
         <div>
-          <h2 className="text-base font-bold">{profile.name}</h2>
-          <p className="text-xs text-gray-500">{profile.location}</p>
-          <p className="mt-1 text-sm text-gray-700 leading-tight">
-            {profile.bio}
-          </p>
-
-          {/* Buttons — Mobile only */}
-          <div className="mt-3 flex gap-2 md:hidden">
-            <Button>Edit</Button>
-            <Button variant="outline">Share</Button>
-            <Link to='/settings'>
-              <Button variant="outline">
-                <IoSettingsOutline className="w-5 h-5" />
-              </Button>
-            </Link>
-          </div>
+          <h2 className="font-bold">{userData.Fname} {userData.Lname}</h2>
+          <p className="text-sm text-gray-600">@{userData.UserName}</p>
         </div>
       </div>
+      <button
+        onClick={() => setIsModalOpen(true)}
+        className="px-4 py-2 bg-blue-600 text-white rounded"
+      >
+        Edit Profile
+      </button>
 
-      {/* Buttons — Desktop only */}
-      <div className="hidden md:flex gap-2">
-        <Button>Edit</Button>
-        <Button variant="outline">Share</Button>
-        <Button variant="outline">
-          <IoSettingsOutline className="w-5 h-5" />
-        </Button>
-      </div>
+      {isModalOpen && (
+        <EditProfileForm
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          userData={userData}
+          onSuccess={fetchProfile} 
+        />
+      )}
     </div>
   );
 };
