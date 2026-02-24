@@ -42,6 +42,8 @@ export function PostHeader({
   onDelete?: () => void;
   onReport?: () => void;
 }) {
+    const navigate = useNavigate();
+
   const [isFollowing, setIsFollowing] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -81,8 +83,12 @@ export function PostHeader({
       <div className="flex items-center gap-3">
         <img src={normalizeMediaUrl(profileUrl)} className="w-10 h-10 rounded-full object-cover" />
         <div className="flex flex-col leading-tight">
-          <span className="font-semibold">{userName}</span>
-          {createdAt && (
+<span
+  onClick={() => navigate(`/profile/${profileId}`)}
+  className="font-semibold cursor-pointer hover:underline"
+>
+  {userName}
+</span>          {createdAt && (
             <span className="text-xs text-gray-500">
               {formatTime(createdAt)}
             </span>
@@ -213,7 +219,7 @@ export function PostActions({
           className="transition-transform duration-200 ease-in-out"
         >
           {liked ? (
-            <HeartSolid className="w-6 h-6 text-blue-300 scale-125 transition-all duration-300" />
+            <HeartSolid className="w-6 h-6 text-red-600 fill-red-700 scale-125 transition-all duration-300" />
           ) : (
             <HeartOutline className="w-6 h-6 text-black/60 scale-100 transition-all duration-300" />
           )}
@@ -228,7 +234,7 @@ export function PostActions({
 
       <button onClick={onSave}>
         {saved ? (
-          <BookmarkSolid className="w-6 h-6 text-blue-300 scale-125 transition-all duration-300" />
+          <BookmarkSolid className="w-6 h-6 text-black-600 fill-black-700 scale-100 transition-all duration-300" />
         ) : (
           <BookmarkOutline className="w-6 h-6 text-black/60 scale-100 transition-all duration-300" />
         )}
@@ -247,15 +253,20 @@ export default function PostCard({
   const hasMedia = post.mediaUrLs && post.mediaUrLs.length > 0;
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(post.isSaved ?? false);
+  const [isLiked, setIsLiked] = useState(post.isLiked ?? false);
+  const [likesCount, setLikesCount] = useState(post.likes ?? 0);
+
   const navigate = useNavigate();
   async function handleSaveToggle() {
     const prev = isSaved;
-    setIsSaved(!prev); // optimistic update
+    setIsSaved(!prev); 
+
     try {
       await savePost(post.id);
     } catch (err) {
       console.error(err);
-      setIsSaved(prev); // rollback
+      setIsSaved(prev); 
+
     }
   }
 
@@ -271,9 +282,21 @@ export default function PostCard({
   function handleEditPost() {
     navigate(`/edit-post/${post.id}`);
   }
-function handleLike() {
-    likePost(post.id, getUserId());
-  }
+async function handleLike() {
+    const prevLiked = isLiked;
+
+  // optimistic update
+  setIsLiked(!prevLiked);
+      setLikesCount(prevLiked ? likesCount - 1 : likesCount + 1);
+
+  try {
+    await likePost(post.id);
+  } catch (error) {
+    setIsLiked(prevLiked);
+              setLikesCount(likesCount);
+
+    console.error("Like failed", error);
+  }}
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm mb-6 max-w-xl mx-auto">
       <PostHeader
@@ -296,7 +319,7 @@ function handleLike() {
       {hasMedia && <PostMedia media={post.mediaUrLs} />}
 
       <PostActions
-        liked={post.isLiked ?? false}
+        liked={isLiked }
         saved={isSaved}
         onLike={handleLike}
         onSave={handleSaveToggle}
@@ -304,7 +327,7 @@ function handleLike() {
       />
 
       <div className="px-4 text-sm font-semibold mt-1">
-        {post.likes ?? 0} likes
+        {likesCount} likes
       </div>
 
       {hasMedia && (

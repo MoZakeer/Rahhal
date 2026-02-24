@@ -106,6 +106,5 @@ export async function likeComment(profileId: string, commentId: string) {
     body: JSON.stringify({ profileId, commentId }),
   });
   if (!res.ok) throw new Error("Failed to like comment");
-  console.log("Liked comment response kkkkkkkkk:", res);
   return true;
 }

@@ -76,12 +76,13 @@ export async function savePost(postId: string) {
 
   try {
     return await res.json();
+    
   } catch {
     return { isSuccess: res.ok };
   }
 }
 
-export async function likePost(postId: string, userId: string) {
+export async function likePost(postId: string) {
   const token = getToken();
   const res = await fetch(`${BASE_URL}/Like/AddToPost`, {
     method: "POST",
@@ -89,25 +90,10 @@ export async function likePost(postId: string, userId: string) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ postId, userId }),
+    body: JSON.stringify({ postId }),
   });
 
   if (!res.ok) throw new Error("Failed to like post");
-  console.log("Liked post response:", res);
   return res.json();
 }
-export async function unlikePost(postId: string, userId: string) {
-  const token = getToken();
-  const res = await fetch(`${BASE_URL}/Like/AddToPost`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ postId, userId }),
-  });
 
-  if (!res.ok) throw new Error("Failed to like post");
-
-  return res.json();
-}
