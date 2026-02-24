@@ -3,20 +3,33 @@ import EditProfileForm from "./EditProfileForm";
 import type { ProfileResponse } from "../types/profile.types";
 
 const ProfileHeader = () => {
-  const [userData, setUserData] = useState<ProfileResponse | null>(null);
+const [userData, setUserData] = useState<ProfileResponse | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchProfile = async () => {
-    try {
-      const id = localStorage.getItem("profileId") || "";
-      const res = await fetch(`https://rahhal-api.runasp.net/Profile/GetUserProfile?ProfileId=${id}`);
-      const data = await res.json();
-      setUserData(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+ const fetchProfile = async () => {
+  try {
+    const auth = localStorage.getItem("auth");
+    const profileId = auth ? JSON.parse(auth).profileId : null;
 
+    if (!profileId) {
+      console.error("No profileId found");
+      return;
+    }
+
+    const res = await fetch(
+      `https://rahhal-api.runasp.net/Profile/GetUserProfile?ProfileId=${profileId}`
+    );
+
+    const result = await res.json();
+
+    console.log("Fetched profile data:", result);
+
+    setUserData(result.data);
+
+  } catch (err) {
+    console.error(err);
+  }
+};
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchProfile();
@@ -27,12 +40,18 @@ const ProfileHeader = () => {
   return (
     <div className="flex items-center justify-between p-4 bg-gray-50 rounded">
       <div className="flex items-center gap-4">
-        <img src={userData.ProfilePicture} className="w-16 h-16 rounded-full object-cover" />
+        <img
+          src={userData.ProfilePicture}
+          className="w-16 h-16 rounded-full object-cover"
+        />
         <div>
-          <h2 className="font-bold">{userData.Fname} {userData.Lname}</h2>
-          <p className="text-sm text-gray-600">@{userData.UserName}</p>
+          <h2 className="font-bold">
+            {userData.Fname} {userData.Lname}
+          </h2>
+          <p className="text-sm text-gray-600">@{userData.fullName}</p>
         </div>
       </div>
+
       <button
         onClick={() => setIsModalOpen(true)}
         className="px-4 py-2 bg-blue-600 text-white rounded"
@@ -45,7 +64,7 @@ const ProfileHeader = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           userData={userData}
-          onSuccess={fetchProfile} 
+          onSuccess={fetchProfile}
         />
       )}
     </div>

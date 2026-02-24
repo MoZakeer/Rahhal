@@ -9,6 +9,7 @@ export interface ProfileResponse {
   Fname: string;
   Lname: string;
   UserName: string;
+  fullName: string;
   Bio: string;
   Location: string;
   ProfilePicture: string; // Base64 string or URL
