@@ -2,26 +2,21 @@ import type { Post } from "../../../types/post";
 import type { PostMediaItem } from "../../../types/post";
 import { PostContent } from "./PostContent";
 import {
-  MessageCircle,
-  Share2,
   MoreHorizontal,
   Edit,
   Trash2,
   Flag,
 } from "lucide-react";
-import { BookmarkIcon as BookmarkSolid } from "@heroicons/react/24/solid";
-import {
-  BookmarkIcon as BookmarkOutline,
-  HeartIcon as HeartOutline,
-} from "@heroicons/react/24/outline";
-import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
-
+import { MapPinIcon as MapPinSolid } from "@heroicons/react/24/solid";
+import { MapPinIcon as MapPinOutline } from "@heroicons/react/24/outline";
+import { HeartIcon } from "@heroicons/react/24/outline";
+import { PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import { useState, useRef, useEffect } from "react";
 import { deletePost, normalizeMediaUrl, savePost, likePost } from "./services/posts.api";
 import { getUserId } from "../../../utils/auth";
 import { CommentsModal } from "../components/CommentsModal";
 import { useNavigate } from "react-router-dom";
-
+import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 export function PostHeader({
   userName,
   profileUrl,
@@ -211,33 +206,41 @@ export function PostActions({
   onSave: () => void;
 }) {
   return (
-    <div className="flex justify-between px-4 py-2">
-      <div className="flex gap-4">
+    <div className="flex justify-between px-5 py-2">
+      <div className="flex gap-6">
         <button
           onClick={onLike}
           className="transition-transform duration-200 ease-in-out"
         >
           {liked ? (
-            <HeartSolid className="w-6 h-6 text-red-600 fill-red-700 scale-125 transition-all duration-300" />
+            <HeartIcon
+  className="w-6 h-6 text-primary-500 fill-primary-500
+  hover:text-primary-200 
+  hover:scale-125 
+  hover:rotate-12 
+  transition-all duration-500" />
           ) : (
-            <HeartOutline className="w-6 h-6 text-black/60 scale-100 transition-all duration-300" />
+            <HeartIcon className="w-6 h-6 text-black/60 scale-100 transition-all duration-300" />
           )}
         </button>
         <button onClick={onComment}>
-          <MessageCircle className="w-6 h-6 text-black/60" />
+          <ChatBubbleLeftRightIcon className="w-6 h-6 text-black/60 hover:scale-105 
+  hover:rotate-1 
+  transition-all duration-500" />
         </button>
-        <button>
-          <Share2 className="w-6 h-6 text-black/60" />
-        </button>
+       <button className="hover:scale-105 transition">
+  <PaperAirplaneIcon className="w-6 h-6 text-black/60 rotate-315" />
+</button>
       </div>
 
-      <button onClick={onSave}>
-        {saved ? (
-          <BookmarkSolid className="w-6 h-6 text-black-600 fill-black-700 scale-100 transition-all duration-300" />
-        ) : (
-          <BookmarkOutline className="w-6 h-6 text-black/60 scale-100 transition-all duration-300" />
-        )}
-      </button>
+     <button onClick={onSave}>
+  {saved ? (
+    <MapPinSolid className="w-6 h-6 text-primary-500 fill-primary-500 scale-100 hover:scale-110 
+  transition-all duration-500" />
+  ) : (
+    <MapPinOutline className="w-6 h-6 text-black/60 scale-100 transition-all duration-300" />
+  )}
+</button>
     </div>
   );
 }

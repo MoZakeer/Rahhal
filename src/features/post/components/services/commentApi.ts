@@ -1,8 +1,10 @@
 const BASE_URL = "https://rahhal-api.runasp.net";
 function getToken() {
-  const token = localStorage.getItem("token");
-  if (!token) return "";
-  return JSON.parse(token); 
+  const userJS = localStorage.getItem("user");
+  if (!userJS) return "";
+  const user = JSON.parse(userJS);
+
+  return user?.token;
 }
 
 export async function fetchComments(postId: string, page = 1, pageSize = 20) {
@@ -19,6 +21,7 @@ export async function fetchComments(postId: string, page = 1, pageSize = 20) {
     headers: { Authorization: `Bearer ${token}` },
   });
   const text = await res.text();
+  console.log("TOKEN:", token);
   return text ? JSON.parse(text) : { data: { items: [] } };
 }
 
