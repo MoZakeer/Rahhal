@@ -1,9 +1,9 @@
-export interface ProfileStats {
-  trips: number;
-  countries: number;
-  following: number;
-  followers: number;
-}
+// export interface ProfileStats {
+//   trips: number;
+//   countries: number;
+//   following: number;
+//   followers: number;
+// }
 export interface ProfileResponse {
   Id: string;
   Fname: string;
@@ -34,5 +34,16 @@ export interface UpdateProfileRequest {
   TravelPreferenceIds: number[];
   VisitedCountryIds: number[];
   DreamCountryIds: number[];
+}
+export interface ProfileData {
+  profileId: string;
+  fullName: string;
+  userName: string;
+  profilePicture: string | null;
+  location: string | null;
+  bio: string | null;
+  countriesCount: number;
+  followersCount: number;
+  followingCount: number;
 }
 export type ProfileTab = "Posts" | "My trips" | "Saved";

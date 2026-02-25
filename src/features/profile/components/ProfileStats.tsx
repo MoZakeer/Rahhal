@@ -1,22 +1,53 @@
-import type { ProfileStats as StatsType } from "../types/profile.types";
+import { motion } from "framer-motion";
+import { useProfileStore } from "../store/profile.store";
 
-const stats: StatsType = {
-  trips: 12,
-  countries: 8,
-  following: 400,
-  followers: 120,
+const container = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
 };
 
-const ProfileStats: React.FC = () => {
+const item = {
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0 },
+};
+
+const ProfileStats = () => {
+  const { profile } = useProfileStore();
+
+  if (!profile) return null; // guard against null profile
+
+  // pick only the last three stats you want to display
+if (!profile || !("countriesCount" in profile)) return null;
+
+const statsToShow = [
+  { label: "Countries", value: profile.countriesCount },
+  { label: "Followers", value: profile.followersCount },
+  { label: "Following", value: profile.followingCount },
+];
+
   return (
-    <div className="mt-6 flex justify-between text-center">
-      {Object.entries(stats).map(([key, value]) => (
-        <div key={key}>
-          <p className="text-lg font-semibold">{value}</p>
-          <p className="text-xs text-gray-500 capitalize">{key}</p>
-        </div>
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="mt-6 flex justify-between bg-gray-50 rounded-xl p-4 shadow-sm"
+    >
+      {statsToShow.map((stat) => (
+        <motion.div
+          key={stat.label}
+          variants={item}
+          whileHover={{ scale: 1.05 }}
+          className="flex-1 text-center cursor-pointer"
+        >
+          <p className="text-xl font-semibold text-gray-900">{stat.value}</p>
+          <p className="text-xs text-gray-500">{stat.label}</p>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 };
 
