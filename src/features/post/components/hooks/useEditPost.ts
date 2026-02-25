@@ -19,48 +19,6 @@ export function useEditPost(postId: string) {
     return userJS ? JSON.parse(userJS) : null;
   }
 
-  // ================= Fetch User =================
-  useEffect(() => {
-    const fetchUser = async () => {
-      const storedUser = getUserFromStorage();
-      if (!storedUser) {
-        setUser({ name: "Unknown User", username: "unknown", avatar: DEFAULT_AVATAR });
-        return;
-      }
-
-      const { token, userId } = storedUser;
-
-      try {
-        const res = await fetch(`${BASE_URL}/Profile/GetUserProfile?ProfileId=${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            accept: "application/json",
-          },
-        });
-
-        if (!res.ok) throw new Error("Failed to fetch user");
-
-        const json = await res.json();
-        const data = json.data;
-
-        if (!data) {
-          setUser({ name: "Unknown User", username: "unknown", avatar: DEFAULT_AVATAR });
-          return;
-        }
-
-        setUser({
-          name: data.fullName || "Unknown User",
-          username: data.userName || "unknown",
-          avatar: data.profilePicture || DEFAULT_AVATAR,
-        });
-      } catch {
-        setUser({ name: "Unknown User", username: "unknown", avatar: DEFAULT_AVATAR });
-      }
-    };
-
-    fetchUser();
-  }, []);
-
   // ================= Fetch Post =================
   const fetchPost = async () => {
     const storedUser = getUserFromStorage();
@@ -79,17 +37,27 @@ export function useEditPost(postId: string) {
       const data = json.data;
       if (!data) return;
 
+      // ====== Set Caption ======
       setCaption(data.description || "");
 
-      const mediaData = data.mediaUrLs || data.media_URLs || [];
+      // ====== Set Media ======
+      const mediaData = data.media_URLs || [];
       setMedia(
         mediaData.map((m: { id: string; url: string }) => ({
           mediaId: m.id,
           file: m.url.startsWith("http") ? m.url : `${BASE_URL}${m.url}`,
         }))
       );
+
+      // ====== Set User from Post data ======
+      setUser({
+        name: data.userName || "Unknown User",
+        username: data.userName || "unknown",
+        avatar: data.profileURL ? (data.profileURL.startsWith("http") ? data.profileURL : `${BASE_URL}${data.profileURL}`) : DEFAULT_AVATAR,
+      });
     } catch (err) {
       console.log("Error fetching post", err);
+      setUser({ name: "Unknown User", username: "unknown", avatar: DEFAULT_AVATAR });
     }
   };
 
@@ -114,11 +82,9 @@ export function useEditPost(postId: string) {
       formData.append("Description", caption);
 
       media.forEach((m, index) => {
+        formData.append(`Media[${index}].MediaId`, m.mediaId || "");
         if (m.file instanceof File) {
           formData.append(`Media[${index}].File`, m.file);
-          formData.append(`Media[${index}].MediaId`, ""); // جديد
-        } else {
-          formData.append(`Media[${index}].MediaId`, m.mediaId);
         }
       });
 
