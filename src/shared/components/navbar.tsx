@@ -9,8 +9,16 @@ import {
   Bell,
   Menu,
   X,
+  Settings,
+  LogOut,
+  // LayoutGrid,
 } from "lucide-react";
-
+// import { normalizeMediaUrl } from "../../features/post/components/services/posts.api";
+import { getUserId } from "../../utils/auth";
+import { useNavigate } from "react-router-dom";
+import { CircleUser } from "lucide-react";
+// const FALLBACK_AVATAR =
+//   "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
 const navItems = [
   { icon: Home, label: "Home", path: "/" },
   { icon: Compass, label: "Explore", path: "/explore" },
@@ -21,6 +29,7 @@ const navItems = [
 export default function Navbar() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
 
   const isLandingPage = location.pathname === "/landing-page";
 
@@ -36,8 +45,17 @@ export default function Navbar() {
       document.body.style.overflow = "";
     };
   }, [mobileOpen]);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
+useEffect(() => {
+  const handleClickOutside = () => {
+    setProfileMenuOpen(false);
+  };
+  document.addEventListener("click", handleClickOutside);
+  return () => document.removeEventListener("click", handleClickOutside);
+}, []);
   return (
+    
     <header className="sticky top-0 z-50 w-full bg-white">
       <div className="container flex h-16 items-center justify-between gap-4">
         {/* Logo */}
@@ -100,18 +118,67 @@ export default function Navbar() {
                 <Bell className="h-5 w-5 text-foreground" />
               </button>
 
-              <Link
-                to="/profile"
+             <div className="relative">
+  <button
+  onClick={(e) => {
+    e.stopPropagation();
+    setProfileMenuOpen((prev) => !prev);
+  }}
                 className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition"
-              >
-                <User className="h-5 w-5 text-foreground" />
-              </Link>
+>
+<CircleUser className="h-5 w-5 text-foreground" /></button>
+  
+  {profileMenuOpen && (
+    <div className="absolute right-0 mt-2 w-48 bg-white border border-black/10 rounded-xl shadow-lg overflow-hidden z-50">
+      <button
+        onClick={() => {
+          navigate(`/profile/${getUserId()}`);
+          setProfileMenuOpen(false);
+        }}
+        className="flex items-center gap-3 w-full px-4 py-3 text-sm hover:bg-gray-50"
+      >
+        <User className="w-4 h-4" />
+        Profile
+      </button>
+
+      <button
+        onClick={() => {
+          navigate("/settings");
+          setProfileMenuOpen(false);
+        }}
+        className="flex items-center gap-3 w-full px-4 py-3 text-sm hover:bg-gray-50"
+      >
+        <Settings className="w-4 h-4" />
+        Settings
+      </button>
+
+      <button
+        onClick={() => {
+          localStorage.removeItem("token");
+          navigate("/login");
+        }}
+        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-500 hover:bg-red-50"
+      >
+        <LogOut className="w-4 h-4" />
+        Logout
+      </button>
+    </div>
+  )}
+</div>
+
             </>
           )}
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-2">
+          {isLandingPage ? null : (
+            <button
+              className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition"
+              aria-label="Notifications"
+            >
+              <Bell className="h-5 w-5 text-foreground" />
+              </button>)}
           <button
             className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition"
             onClick={() => setMobileOpen(true)}
@@ -164,7 +231,7 @@ export default function Navbar() {
           </div>
 
           {/* Drawer Content */}
-          <div className="p-4 flex flex-col gap-3">
+          <div className="p-4 flex flex-col ">
             {/* Nav Items */}
             <div className="flex flex-col gap-1">
               {navItems.map(({ icon: Icon, label, path }) => {
@@ -182,7 +249,7 @@ export default function Navbar() {
                         : "text-muted-foreground hover:text-foreground hover:bg-muted",
                     ].join(" ")}
                   >
-                    <Icon className="h-5 w-5" />
+                    <Icon className="h-6 w-6" />
                     <span>{label}</span>
                   </Link>
                 );
@@ -215,15 +282,20 @@ export default function Navbar() {
                 <Link
                   to="/profile"
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-muted rounded-xl"
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition"
                 >
-                  <User className="h-5 w-5" />
+                  <User className="h-6 w-6" />
                   Profile
                 </Link>
 
-                <button className="flex items-center gap-3 px-4 py-3 hover:bg-muted rounded-xl">
-                  <Bell className="h-5 w-5" />
-                  Notifications
+                
+                <button className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition">
+                  <Settings className="h-6 w-6" />
+                  Settings
+                </button>
+                <button className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition hover:bg-muted">
+                  <LogOut className="h-6 w-6" />
+                  Logout
                 </button>
               </>
             )}

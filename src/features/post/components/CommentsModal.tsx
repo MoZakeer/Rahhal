@@ -175,8 +175,13 @@ export function CommentsModal({
   }
 };
 
-  const toggleMenu = (key: string) =>
-    setMenuOpenMap((prev) => ({ ...prev, [key]: !prev[key] }));
+  const toggleMenu = (key: string) => {
+  setMenuOpenMap((prev) =>
+    prev[key]
+      ? {}          
+      : { [key]: true } 
+  );
+};
 
   const closeAllMenus = () => setMenuOpenMap({});
 
@@ -283,7 +288,7 @@ export function CommentsModal({
               </button>
 
               {menuOpenMap[menuKey] && (
-                <div className="fixed  right-3 z-50 bg-white border border-black/10 rounded-xl shadow-lg w-36 overflow-hidden">
+  <div className="absolute right-0 mt-2 z-50 bg-white border border-black/10 rounded-xl shadow-lg w-36 overflow-visible">
                   <div className="flex flex-col">
                     {comment.profileId === currentUserId ? (
                       <>
