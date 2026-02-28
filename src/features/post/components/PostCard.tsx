@@ -17,6 +17,8 @@ import { getUserId } from "../../../utils/auth";
 import { CommentsModal } from "../components/CommentsModal";
 import { useNavigate } from "react-router-dom";
 import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
+// import { motion, AnimatePresence } from "framer-motion";
+
 export function PostHeader({
   userName,
   profileUrl,
@@ -148,50 +150,108 @@ console.log("post owner:", profileId);
   );
 }
 
+
 export function PostMedia({ media }: { media: PostMediaItem[] }) {
   const [current, setCurrent] = useState(0);
+
+  const startX = useRef<number | null>(null);
+  const isDragging = useRef(false);
+
   if (!media.length) return null;
 
-  const next = () => setCurrent((prev) => (prev + 1) % media.length);
-  const prev = () =>
+  const next = () => {
+    setCurrent((prev) => (prev + 1) % media.length);
+  };
+
+  const prev = () => {
     setCurrent((prev) => (prev - 1 + media.length) % media.length);
+  };
+
+  // Drag Start
+  const handleStart = (x: number) => {
+    startX.current = x;
+    isDragging.current = true;
+  };
+
+  // Drag Move
+  const handleMove = (x: number) => {
+    if (!isDragging.current || startX.current === null) return;
+
+    const diff = x - startX.current;
+
+    // Threshold prevents accidental swipes
+    if (diff > 80) {
+      prev();
+      isDragging.current = false;
+    }
+
+    if (diff < -80) {
+      next();
+      isDragging.current = false;
+    }
+  };
+
+  const handleEnd = () => {
+    isDragging.current = false;
+    startX.current = null;
+  };
 
   return (
-    <div className="relative w-full bg-black/5">
-      <img
-        src={normalizeMediaUrl(media[current].url)}
-        className="w-full max-h-[500px] object-cover"
-      />
+    <div className="w-full">
+      {/* Main Image (Swipe Area) */}
+      <div
+        className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden group select-none"
+        onMouseDown={(e) => handleStart(e.clientX)}
+        onMouseMove={(e) => handleMove(e.clientX)}
+        onMouseUp={handleEnd}
+        onMouseLeave={handleEnd}
+        onTouchStart={(e) => handleStart(e.touches[0].clientX)}
+        onTouchMove={(e) => handleMove(e.touches[0].clientX)}
+        onTouchEnd={handleEnd}
+      >
+        <img
+          src={normalizeMediaUrl(media[current].url)}
+          className="w-full h-full object-cover transition-transform duration-300"
+          draggable={false}
+        />
 
+        {/* Counter */}
+        <div className="absolute top-2 right-2 
+bg-black/60 text-white text-xs 
+px-2 py-0.5 rounded-full backdrop-blur-sm
+opacity-0 translate-y-1 
+group-hover:opacity-100 group-hover:translate-y-0
+transition-all duration-300">
+          {current + 1} / {media.length}
+        </div>
+      </div>
+
+      {/* Thumbnails */}
       {media.length > 1 && (
-        <>
-          <button
-            onClick={prev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/50"
-          >
-            ‹
-          </button>
-          <button
-            onClick={next}
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/50"
-          >
-            ›
-          </button>
-
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-            {media.map((m, i) => (
-              <span
-                key={m.id}
-                className={`w-2 h-2 rounded-full ${i === current ? "bg-white" : "bg-white/50"}`}
+        <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
+          {media.map((m, i) => (
+            <div
+              key={m.id}
+              onClick={() => setCurrent(i)}
+              onMouseEnter={() => setCurrent(i)}
+              className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${
+                i === current
+                  ? "ring-2 ring-blue-200"
+                  : "opacity-80 hover:opacity-100"
+              }`}
+            >
+              <img
+                src={normalizeMediaUrl(m.url)}
+                className="w-full h-full object-cover"
+                loading="lazy"
               />
-            ))}
-          </div>
-        </>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
 }
-
 export function PostActions({
   liked,
   saved,
@@ -199,6 +259,7 @@ export function PostActions({
   onComment,
   onSave,
 }: {
+  
   liked: boolean;
   saved: boolean;
   onLike: () => void;
@@ -210,7 +271,7 @@ export function PostActions({
       <div className="flex gap-6">
         <button
           onClick={onLike}
-          className="transition-transform duration-200 ease-in-out"
+          className=" flex flex-col items-center transition-transform duration-200 ease-in-out"
         >
           {liked ? (
             <HeartIcon
@@ -220,16 +281,19 @@ export function PostActions({
   hover:rotate-12 
   transition-all duration-500" />
           ) : (
-            <HeartIcon className="w-6 h-6 text-black/60 scale-100 transition-all duration-300" />
+            <HeartIcon className="w-6 h-6 text-black scale-100 transition-all duration-300" />
           )}
+          
         </button>
-        <button onClick={onComment}>
-          <ChatBubbleLeftRightIcon className="w-6 h-6 text-black/60 hover:scale-105 
+        
+        <button onClick={onComment} className=" flex flex-col items-center transition-transform duration-200 ease-in-out">
+          <ChatBubbleLeftRightIcon className="w-6 h-6 text-black hover:scale-105 
   hover:rotate-1 
   transition-all duration-500" />
+  
         </button>
        <button className="hover:scale-105 transition">
-  <PaperAirplaneIcon className="w-6 h-6 text-black/60 rotate-315" />
+  <PaperAirplaneIcon className="w-6 h-6 text-black rotate-315" />
 </button>
       </div>
 
@@ -238,7 +302,7 @@ export function PostActions({
     <MapPinSolid className="w-6 h-6 text-primary-500 fill-primary-500 scale-100 hover:scale-110 
   transition-all duration-500" />
   ) : (
-    <MapPinOutline className="w-6 h-6 text-black/60 scale-100 transition-all duration-300" />
+    <MapPinOutline className="w-6 h-6 text-black scale-100 transition-all duration-300" />
   )}
 </button>
     </div>
@@ -322,6 +386,7 @@ export default function PostCard({
       {hasMedia && <PostMedia media={post.mediaUrLs} />}
 
       <PostActions
+
         liked={isLiked}
         saved={isSaved}
         onLike={handleLike}
@@ -339,14 +404,14 @@ export default function PostCard({
           className="px-4 mt-1 text-sm"
         />
       )}
-
-      <div
-        className="px-4 py-2 text-sm text-gray-500 cursor-pointer"
-        onClick={() => setCommentsOpen(true)}
-      >
-        View all {post.comments ?? 0} comments
-      </div>
-
+{(post.comments ?? 0) > 0 && (
+  <div
+    className="px-4 pb-3 text-sm text-gray-500 cursor-pointer"
+    onClick={() => setCommentsOpen(true)}
+  >
+    View all {post.comments ?? 0} comments
+  </div>
+)}
       <CommentsModal
         open={commentsOpen}
         onClose={() => setCommentsOpen(false)}

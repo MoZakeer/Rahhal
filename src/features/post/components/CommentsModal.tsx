@@ -175,8 +175,13 @@ export function CommentsModal({
   }
 };
 
-  const toggleMenu = (key: string) =>
-    setMenuOpenMap((prev) => ({ ...prev, [key]: !prev[key] }));
+  const toggleMenu = (key: string) => {
+  setMenuOpenMap((prev) =>
+    prev[key]
+      ? {}          
+      : { [key]: true } 
+  );
+};
 
   const closeAllMenus = () => setMenuOpenMap({});
 
@@ -283,7 +288,7 @@ export function CommentsModal({
               </button>
 
               {menuOpenMap[menuKey] && (
-                <div className="fixed  right-3 z-50 bg-white border border-black/10 rounded-xl shadow-lg w-36 overflow-hidden">
+  <div className="absolute right-0 mt-2 z-50 bg-white border border-black/10 rounded-xl shadow-lg w-36 overflow-visible">
                   <div className="flex flex-col">
                     {comment.profileId === currentUserId ? (
                       <>
@@ -341,18 +346,21 @@ export function CommentsModal({
       : (comment as CommentItem).likesCount}
   </span>
 </button>
-            {/* Reply button only for main comments */}
-            {!parentId && (
-              <button
-                onClick={() => {
-                  setReplyingTo(id);
-                  setReplyingToName(comment.userName);
-                }}
-                className="font-medium hover:text-black"
-              >
-                Reply
-              </button>
-            )}
+           <button
+  onClick={() => {
+    const mainParentId = parentId ?? id; 
+    setReplyingTo(mainParentId);
+    setReplyingToName(comment.userName);
+
+    setRepliesOpenMap(prev => ({
+      ...prev,
+      [mainParentId]: true,
+    }));
+  }}
+  className="font-medium hover:text-black"
+>
+  Reply
+</button>
           </div>
 
           {!isReply && comment.repliesCount > 0 && (
@@ -378,7 +386,7 @@ export function CommentsModal({
 
               <div className="flex-1 flex flex-col gap-1 min-w-0">
                 {!repliesMap[id] ? (
-                  <div className="text-xs text-gray-500 py-2">Loading replies...</div>
+                  <div className="text-xs text-gray-500 py-2"></div>
                 ) : repliesMap[id].length === 0 ? (
                   <div className="text-xs text-gray-500 py-2">No replies yet</div>
                 ) : (
@@ -388,8 +396,7 @@ export function CommentsModal({
             </div>
           )}
 
-          {replyingTo === id && !parentId && (
-            <div className="mt-3 w-full">
+{replyingTo === (parentId ?? id) && !parentId && (            <div className="mt-3 w-full">
               <div className="text-xs text-gray-500 mb-2">
                 Replying to{" "}
                 <span className="font-semibold text-gray-700">@{replyingToName}</span>
@@ -448,7 +455,7 @@ export function CommentsModal({
 
         <div className="max-h-[60vh] overflow-y-auto px-4 py-4 space-y-5">
           {loading ? (
-            <div className="text-center text-gray-500">Loading...</div>
+            <div className="text-center text-gray-500"></div>
           ) : comments.length === 0 ? (
             <div className="text-center text-gray-500">No comments yet</div>
           ) : (

@@ -36,7 +36,7 @@ export const useProfileStore = create<ProfileState>((set) => ({
       {
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`, // 🔥 ده المهم
+          "Authorization": `Bearer ${token}`, 
         },
       }
     );

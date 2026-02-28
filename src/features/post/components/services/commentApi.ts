@@ -25,7 +25,7 @@ export async function fetchComments(postId: string, page = 1, pageSize = 20) {
   return text ? JSON.parse(text) : { data: { items: [] } };
 }
 
-export async function fetchReplies(commentId: string, page = 1, pageSize = 20) {
+export async function fetchReplies(commentId: string, page = 1, pageSize =20) {
 
   const params = new URLSearchParams({
     CommentId: commentId,
@@ -109,5 +109,14 @@ export async function likeComment(profileId: string, commentId: string) {
     body: JSON.stringify({ profileId, commentId }),
   });
   if (!res.ok) throw new Error("Failed to like comment");
+  return true;
+}
+export async function reportComment(profileId: string, commentId: string ,type:string,description:string) {
+  const res = await fetch(`${BASE_URL}/Report/ReportComment`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+    body: JSON.stringify({ profileId, commentId, type, description }),
+  });
+  if (!res.ok) throw new Error("Failed to report comment");
   return true;
 }

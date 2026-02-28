@@ -44,7 +44,8 @@ import AuthLayout from "../layouts/AuthLayout";
 
 // Settings
 import SettingPage from "./settings/settingpage";
-
+// Admin Pages
+import { ReportsPage } from "./reports/ReportsPage.tsx";
 const Pages = () => {
   const isAuthenticated = true; 
 
@@ -80,7 +81,13 @@ const Pages = () => {
               isAuthenticated ? <HomeFeed /> : <Navigate to="/login" />
             }
           />
-
+ {/* Admin */}
+          <Route
+  path="/admin/reports/:type"
+  element={
+    isAuthenticated ? <ReportsPage /> : <Navigate to="/login" />
+  }
+/>
           <Route
             path="/trips"
             element={
@@ -122,11 +129,13 @@ const Pages = () => {
                 : <Navigate to="/landing-page" replace />
             }
           />
+         
         </Route>
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+
     </Router>
   );
 };
