@@ -1,5 +1,5 @@
-import  { useMemo, useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useMemo, useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Home,
   Compass,
@@ -8,7 +8,7 @@ import {
   User,
   Bell,
   Menu,
-  X,
+
 } from "lucide-react";
 
 const navItems = [
@@ -20,9 +20,21 @@ const navItems = [
 
 export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hasToken, setHasToken] = useState(() => {
+    const token = localStorage.getItem("token");
+    return !!token;
+  });
 
-  const isLandingPage = location.pathname === "/landing-page";
+  // const isLandingPage = location.pathname === "/landing-page";
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setHasToken(false);
+    setMobileOpen(false);
+    navigate("/login");
+  };
 
   const isActivePath = useMemo(() => {
     return (path: string) => location.pathname === path;
@@ -77,21 +89,7 @@ export default function Navbar() {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-2">
-          {isLandingPage ? (
-            <>
-              <Link to="/login">
-                <button className="px-4 py-2 rounded-xl text-sm shadow-sm font-medium hover:text-primary transition">
-                  Sign In
-                </button>
-              </Link>
-
-              <Link to="/sign-up">
-                <button className="px-4 py-2 rounded-xl bg-black text-white text-sm font-medium hover:bg-primary/90 transition shadow-sm">
-                  Sign Up
-                </button>
-              </Link>
-            </>
-          ) : (
+          {hasToken ? (
             <>
               <button
                 className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition"
@@ -105,6 +103,27 @@ export default function Navbar() {
                 className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition"
               >
                 <User className="h-5 w-5 text-foreground" />
+              </Link>
+
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-xl text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">
+                <button className="px-4 py-2 rounded-xl text-sm shadow-sm font-medium hover:text-primary transition">
+                  Sign In
+                </button>
+              </Link>
+
+              <Link to="/sign-up">
+                <button className="px-4 py-2 rounded-xl bg-black text-white text-sm font-medium hover:bg-primary/90 transition shadow-sm">
+                  Sign Up
+                </button>
               </Link>
             </>
           )}
@@ -146,53 +165,26 @@ export default function Navbar() {
             mobileOpen ? "translate-x-0" : "translate-x-full",
           ].join(" ")}
         >
-          {/* Drawer Header */}
-          <div className="flex items-center justify-between px-4 h-16">
-            <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-sunset">
-                <Plane className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="text-lg font-bold text-foreground">Rahhal</span>
-            </div>
+          <div className="p-4 flex flex-col gap-3 mt-16">
+            {hasToken ? (
+              <>
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-muted rounded-xl"
+                >
+                  <User className="h-5 w-5" />
+                  Profile
+                </Link>
 
-            <button
-              className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition"
-              onClick={() => setMobileOpen(false)}
-            >
-              <X className="h-5 w-5 text-foreground" />
-            </button>
-          </div>
-
-          {/* Drawer Content */}
-          <div className="p-4 flex flex-col gap-3">
-            {/* Nav Items */}
-            <div className="flex flex-col gap-1">
-              {navItems.map(({ icon: Icon, label, path }) => {
-                const isActive = isActivePath(path);
-
-                return (
-                  <Link
-                    key={path}
-                    to={path}
-                    onClick={() => setMobileOpen(false)}
-                    className={[
-                      "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition",
-                      isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted",
-                    ].join(" ")}
-                  >
-                    <Icon className="h-5 w-5" />
-                    <span>{label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-
-            <div className="h-px bg-border" />
-
-            {/* Mobile Actions */}
-            {isLandingPage ? (
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 px-4 py-3 bg-red-500 text-white rounded-xl"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
               <>
                 <Link
                   to="/login"
@@ -209,22 +201,6 @@ export default function Navbar() {
                 >
                   Sign Up
                 </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/profile"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-muted rounded-xl"
-                >
-                  <User className="h-5 w-5" />
-                  Profile
-                </Link>
-
-                <button className="flex items-center gap-3 px-4 py-3 hover:bg-muted rounded-xl">
-                  <Bell className="h-5 w-5" />
-                  Notifications
-                </button>
               </>
             )}
           </div>

@@ -20,32 +20,48 @@ export const useProfileStore = create<ProfileState>((set) => ({
   setProfile: (data) => set({ profile: data }),
 
   fetchProfile: async () => {
-    try {
-      set({ loading: true, error: null });
+  try {
+    set({ loading: true, error: null });
 
-      const auth = localStorage.getItem("auth");
-      const profileId = auth ? JSON.parse(auth).profileId : null;
+    const auth = localStorage.getItem("auth");
+    const parsedAuth = auth ? JSON.parse(auth) : null;
 
-      if (!profileId) throw new Error("No profileId found");
+    const profileId = parsedAuth?.profileId;
+    const token = parsedAuth?.token; // مهم جدا
 
-      const res = await fetch(
-        `https://rahhal-api.runasp.net/Profile/GetUserProfile?ProfileId=${profileId}`
-      );
+    if (!profileId || !token) throw new Error("No profileId or token found");
 
-      const result = await res.json();
+    const res = await fetch(
+      `https://rahhal-api.runasp.net/Profile/GetUserProfile?ProfileId=${profileId}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`, // 🔥 ده المهم
+        },
+      }
+    );
 
-      set({
-        profile: result.data,
-        loading: false,
-      });
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
-      set({
-        error: errorMessage,
-        loading: false,
-      });
+    if (!res.ok) {
+      throw new Error("Failed to fetch profile");
     }
-  },
+
+    const result = await res.json();
+
+    set({
+      profile: result.data,
+      loading: false,
+    });
+
+  } catch (err: unknown) {
+    const errorMessage =
+      err instanceof Error ? err.message : "An unknown error occurred";
+
+    set({
+      error: errorMessage,
+      loading: false,
+    });
+  }
+},
 
   updateProfile: async (data: UpdateProfileRequest) => {
     const auth = localStorage.getItem("auth");
@@ -77,33 +93,38 @@ export const useProfileStore = create<ProfileState>((set) => ({
       console.error(err);
     }
   },
-ChangePassword: async (data: { oldPassword: string; newPassword: string; confirmNewPassword: string }) => {
+ChangePassword: async (data: {
+  oldPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
+}) => {
+  console.log("Changing password with data:", data, localStorage.getItem("token"));
   try {
-    const token = localStorage.getItem("token");
+    const auth = localStorage.getItem("auth");
+    const parsedAuth = auth ? JSON.parse(auth) : null;
+    const token = parsedAuth?.token;
+
     if (!token) {
       console.error("No token found");
       return;
-    
     }
-    const res = await fetch(`https://rahhal-api.runasp.net/Auth/ChangePassword`, {  
-      method: "PATCH",
-      headers: { 
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}` 
-      },
-      body: JSON.stringify(data),
-    });
 
-    if (!res.ok) {
-      
-      const text = await res.text(); 
-      console.error("Failed to change password:", res.status, text);
-      return;
-    }
+    const res = await fetch(
+      `https://rahhal-api.runasp.net/Auth/ChangePassword`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      }
+    );
 
     const result = await res.json();
     console.log("Password changed:", result);
-  } catch(err) {
+
+  } catch (err) {
     console.error(err);
   }
 },
