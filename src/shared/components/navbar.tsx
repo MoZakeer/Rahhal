@@ -32,7 +32,7 @@ export default function Navbar() {
     return !!localStorage.getItem("token");
   });
 
-  const isLandingPage = location.pathname === "/landing-page";
+  // const isLandingPage = location.pathname === "/landing-page";
 
   const handleLogout = () => {
     localStorage.removeItem("token");
