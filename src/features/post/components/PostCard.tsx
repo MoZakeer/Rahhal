@@ -18,8 +18,10 @@ import { CommentsModal } from "../components/CommentsModal";
 import { useNavigate } from "react-router-dom";
 import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 // import { motion, AnimatePresence } from "framer-motion";
+import { ReportModal } from "../../reports/components/ReportModal";
 
 export function PostHeader({
+  id,
   userName,
   profileUrl,
   profileId,
@@ -27,8 +29,8 @@ export function PostHeader({
   createdAt,
   onEdit,
   onDelete,
-  onReport,
 }: {
+  id: string;
   userName: string;
   profileUrl: string;
   profileId: string;
@@ -59,7 +61,9 @@ console.log("post owner:", profileId);
   }, []);
 
   const isOwner = currentUserId === profileId;
-  profileUrl = profileUrl ?? "./avater.png";
+  profileUrl = profileUrl ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}`;
+  const [isReportOpen, setIsReportOpen] = useState(false);
+
   function formatTime(date?: string) {
     if (!date) return "";
 
@@ -113,7 +117,15 @@ console.log("post owner:", profileId);
           >
             <MoreHorizontal className="w-5 h-5" />
           </button>
-
+{isReportOpen && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <ReportModal
+      entityType="post"
+      entityId={id}
+      onClose={() => setIsReportOpen(false)}
+    />
+  </div>
+)}
           {dropdownOpen && (
             <div className="absolute top-full right-0 mt-2 w-36 bg-white rounded-xl shadow-lg ring-1 ring-black/5 z-50 overflow-hidden translate-x-3">
               {isOwner ? (
@@ -136,7 +148,9 @@ console.log("post owner:", profileId);
               ) : (
                 <button
                   className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 transition-colors"
-                  onClick={onReport}
+                  onClick={() => {
+setDropdownOpen(!dropdownOpen);                    setIsReportOpen(true);
+                  }}
                 >
                   <Flag className="w-4 h-4" />
                   Report
@@ -367,6 +381,7 @@ export default function PostCard({
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm mb-6 max-w-xl mx-auto">
       <PostHeader
+        id={post.id}
         userName={post.userName}
         profileUrl={post.profileUrl}
         profileId={post.userId}

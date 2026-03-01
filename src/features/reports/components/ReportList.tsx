@@ -4,16 +4,16 @@ import { useReports } from "../hooks/useReports";
 import { CommentReportCard } from "./CommentReportCard";
 import { PostReportCard } from "./PostReportCard";
 import { UserReportCard } from "./UserReportCard";
+import Spinner from "../../../shared/components/Spinner";
 
 interface Props {
   type: ReportType;
 }
 
 export const ReportList = ({ type }: Props) => {
-  const [pageIndex, setPageIndex] = useState(0);
   const [sortDesc, setSortDesc] = useState(true);
 
-  const { data, isLoading } = useReports(type, pageIndex, 10);
+  const { data, isLoading } = useReports(type, 0, 10000); // Fetch all for sorting
 
   const sortedReports = useMemo(() => {
     return [...(data?.items ?? [])].sort((a, b) =>
@@ -23,7 +23,7 @@ export const ReportList = ({ type }: Props) => {
     );
   }, [data, sortDesc]);
 
-  if (isLoading) return <div>Loading...</div>;
+if (isLoading && !data) return <Spinner />;;
 
   return (
     <div className="space-y-4">
@@ -31,9 +31,9 @@ export const ReportList = ({ type }: Props) => {
       <div className="flex justify-end">
         <button
           onClick={() => setSortDesc((prev) => !prev)}
-          className="border px-4 py-2 rounded-lg"
+          className="border border-gray-300 px-2 py-1 rounded-lg text-gray-600 text-sm hover:bg-gray-100"
         >
-          Sort by Reports {sortDesc ? "↓" : "↑"}
+          Sort {sortDesc ? "↓" : "↑"}
         </button>
       </div>
 
@@ -51,7 +51,7 @@ export const ReportList = ({ type }: Props) => {
           case "posts":
             return (
               <PostReportCard
-                key={report.postId}
+                key={report.id}
                 report={report}
               />
             );
@@ -59,7 +59,7 @@ export const ReportList = ({ type }: Props) => {
           case "users":
             return (
               <UserReportCard
-                key={report.userId}
+                key={report.reportedUserId}
                 report={report}
               />
             );
@@ -69,28 +69,7 @@ export const ReportList = ({ type }: Props) => {
         }
       })}
 
-      {/* Pagination */}
-      <div className="flex justify-between items-center mt-6">
-        <button
-          disabled={pageIndex === 0}
-          onClick={() => setPageIndex((prev) => prev - 1)}
-          className="px-4 py-2 border rounded disabled:opacity-50"
-        >
-          Previous
-        </button>
-
-        <span>
-          Page {pageIndex + 1} of {data?.pages ?? 1}
-        </span>
-
-        <button
-          disabled={pageIndex + 1 >= (data?.pages ?? 0)}
-          onClick={() => setPageIndex((prev) => prev + 1)}
-          className="px-4 py-2 border rounded disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+      
     </div>
   );
 };

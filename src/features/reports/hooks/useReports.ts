@@ -1,4 +1,4 @@
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { fetchReportsByType } from "../services/reportApi";
 import type { ReportType } from "../types";
 
@@ -10,6 +10,5 @@ export const useReports = (
   return useQuery({
     queryKey: ["reports", type, pageIndex, pageSize],
     queryFn: () => fetchReportsByType(type, pageIndex, pageSize),
-    placeholderData: keepPreviousData,
   });
 };
