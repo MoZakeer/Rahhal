@@ -41,8 +41,7 @@ export default function ProfileSettingsDrawer({
             animate={{ x: 0 }}
             exit={{ x: 300 }}
             transition={{ duration: 0.3 }}
-            className="fixed right-0 top-0 h-full w-72 bg-white shadow-2xl z-50 p-6 flex flex-col gap-6"
-          >
+           className="fixed right-6 top-20 w-72 bg-white shadow-2xl rounded-2xl z-50 p-6 flex flex-col gap-6">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-bold">Settings</h3>
               <button onClick={onClose}>

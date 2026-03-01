@@ -5,17 +5,16 @@ import {
   Compass,
   Plane,
   MessageCircle,
-  User,
+  // User,
   Bell,
-  Menu,
-  X,
+  // Menu,
+  // X,
   Settings,
   LogOut,
   CircleUser,
 } from "lucide-react";
 
-import { getUserId } from "../../utils/auth";
-
+// import { AnimatePresence, motion } from "framer-motion";
 const navItems = [
   { icon: Home, label: "Home", path: "/" },
   { icon: Compass, label: "Explore", path: "/explore" },
@@ -28,7 +27,7 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [, setProfileMenuOpen] = useState(false);
   const [hasToken, setHasToken] = useState<boolean>(() => {
     return !!localStorage.getItem("token");
   });
@@ -63,189 +62,92 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white">
-      <div className="container flex h-16 items-center justify-between gap-4">
-        {/* Logo */}
-        <Link
-          to="/"
-          className="flex items-center gap-2"
-          onClick={() => setMobileOpen(false)}
-        >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-sunset">
-            <Plane className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="text-xl font-bold">Rahhal</span>
-        </Link>
+   <header className="sticky top-0 bg-white shadow-sm">
+  <div className="container mx-auto flex items-center h-16 justify-between px-4">
+    {/* Left: Logo */}
+    <Link
+      to="/"
+      className="flex items-center gap-2"
+      onClick={() => setMobileOpen(false)}
+    >
+      <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-sunset">
+        <Plane className="h-5 w-5 text-primary-foreground" />
+      </div>
+      <span className="text-xl font-bold">Rahhal</span>
+    </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1">
-          {navItems.map(({ icon: Icon, label, path }) => {
-            const isActive = isActivePath(path);
-
-            return (
-              <Link
-                key={path}
-                to={path}
-                className={[
-                  "flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition",
-                  isActive
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted",
-                ].join(" ")}
-              >
-                <Icon className="h-4 w-4" />
-                {label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-2">
-          {hasToken ? (
-            <>
-              <button className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted">
-                <Bell className="h-5 w-5" />
-              </button>
-
-              <div className="relative">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setProfileMenuOpen((prev) => !prev);
-                  }}
-                  className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted"
-                >
-                  <CircleUser className="h-5 w-5" />
-                </button>
-
-                {profileMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white border rounded-xl shadow-lg overflow-hidden z-50">
-                    <button
-                      onClick={() => {
-                        navigate(`/profile/${getUserId()}`);
-                        setProfileMenuOpen(false);
-                      }}
-                      className="flex items-center gap-3 w-full px-4 py-3 text-sm hover:bg-gray-50"
-                    >
-                      <User className="w-4 h-4" />
-                      Profile
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        navigate("/settings");
-                        setProfileMenuOpen(false);
-                      }}
-                      className="flex items-center gap-3 w-full px-4 py-3 text-sm hover:bg-gray-50"
-                    >
-                      <Settings className="w-4 h-4" />
-                      Settings
-                    </button>
-
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-500 hover:bg-red-50"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </div>
-            </>
-          ) : (
-            <>
-              <Link to="/login">
-                <button className="px-4 py-2 rounded-xl text-sm font-medium hover:text-primary">
-                  Sign In
-                </button>
-              </Link>
-
-              <Link to="/sign-up">
-                <button className="px-4 py-2 rounded-xl bg-black text-white text-sm font-medium">
-                  Sign Up
-                </button>
-              </Link>
-            </>
-          )}
-        </div>
-
-        {/* Mobile Buttons */}
-        <div className="md:hidden flex items-center gap-2">
-          {!isLandingPage && (
-            <button className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted">
-              <Bell className="h-5 w-5" />
-            </button>
-          )}
-
-          <button
-            className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted"
-            onClick={() => setMobileOpen(true)}
+    {/* Center: Navigation (4 items) */}
+    <nav className="hidden md:flex items-center gap-4 absolute left-1/2 transform -translate-x-1/2">
+      {navItems.slice(0, 4).map(({ icon: Icon, label, path }) => {
+        const isActive = isActivePath(path);
+        return (
+          <Link
+            key={path}
+            to={path}
+            className={[
+              "flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition",
+              isActive
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted",
+            ].join(" ")}
           >
-            <Menu className="h-5 w-5" />
+            <Icon className="h-4 w-4" />
+            {label}
+          </Link>
+        );
+      })}
+    </nav>
+
+    {/* Right: User Actions (3 icons) */}
+    <div className="hidden md:flex items-center gap-3">
+      {hasToken ? (
+        <>
+          {/* Notification */}
+          <button className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition cursor-pointer">
+            <Bell className="h-5 w-5" />
           </button>
-        </div>
-      </div>
 
-      {/* Mobile Drawer */}
-      <div
-        className={`fixed inset-0 z-[60] md:hidden transition ${
-          mobileOpen ? "pointer-events-auto" : "pointer-events-none"
-        }`}
-      >
-        <div
-          onClick={() => setMobileOpen(false)}
-          className={`absolute inset-0 bg-black/60 transition-opacity ${
-            mobileOpen ? "opacity-100" : "opacity-0"
-          }`}
-        />
+          {/* Profile */}
+          <button
+            onClick={() => navigate(`/profile`)}
+            className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition cursor-pointer"
+          >
+            <CircleUser className="h-5 w-5" />
+          </button>
 
-        <div
-          className={`absolute right-0 top-0 h-full w-[85%] max-w-sm bg-white transition-transform ${
-            mobileOpen ? "translate-x-0" : "translate-x-full"
-          }`}
-        >
-          <div className="flex justify-end p-4">
-            <button onClick={() => setMobileOpen(false)}>
-              <X className="h-5 w-5" />
+          {/* Settings */}
+          <button
+            onClick={() => navigate("/settings")}
+            className="h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition cursor-pointer"
+          >
+            <Settings className="h-5 w-5" />
+          </button>
+
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            className="h-10 px-4 rounded-xl flex items-center gap-2 text-sm font-medium text-red-600 hover:bg-red-50 transition"
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </button>
+        </>
+      ) : (
+        <>
+          <Link to="/login">
+            <button className="px-4 py-2 rounded-xl text-sm font-medium hover:text-primary transition">
+              Sign In
             </button>
-          </div>
-
-          <div className="p-4 flex flex-col gap-2">
-            {navItems.map(({ icon: Icon, label, path }) => (
-              <Link
-                key={path}
-                to={path}
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-3 rounded-xl px-4 py-3 hover:bg-muted"
-              >
-                <Icon className="h-5 w-5" />
-                {label}
-              </Link>
-            ))}
-
-            {hasToken ? (
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-3 px-4 py-3 text-red-500"
-              >
-                <LogOut className="h-5 w-5" />
-                Logout
-              </button>
-            ) : (
-              <>
-                <Link to="/login" onClick={() => setMobileOpen(false)}>
-                  Sign In
-                </Link>
-                <Link to="/sign-up" onClick={() => setMobileOpen(false)}>
-                  Sign Up
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </header>
+          </Link>
+          <Link to="/sign-up">
+            <button className="px-4 py-2 rounded-xl bg-black text-white text-sm font-medium transition">
+              Sign Up
+            </button>
+          </Link>
+        </>
+      )}
+    </div>
+  </div>
+</header>
   );
 }
