@@ -8,7 +8,7 @@ interface Props {
 export const UserReportCard = ({ report }: Props) => {
     const navigate = useNavigate();
   return (
-    <div className="bg-white shadow-sm rounded-xl p-5 flex justify-between items-center border border-gray-300">
+    <div className="bg-white shadow-sm rounded-xl p-5 flex justify-between items-center border border-gray-300 ">
             <div >
 
  <div className="flex items-center gap-3">
@@ -17,10 +17,16 @@ export const UserReportCard = ({ report }: Props) => {
                   alt="profile"
                   className="w-12 h-12 rounded-full object-cover"
                 />
-        <h5 className="font-semibold text-gray-600">
-          User {report.reportedUserName}
+                        <div className="min-w-0">
+
+        <h5 className="font-semibold text-gray-600 cursor-pointer"             onClick={() => navigate(`/profile/${report.reportedUserId}`)}
+>
+           {report.reportedUserName}
         </h5>
-       
+       <p className="text-sm text-gray-400 truncate">
+            Reported user
+          </p>
+          </div>
        </div>
       </div>
   <div className="flex flex-col items-end "> 

@@ -14,7 +14,6 @@ export const PostReportCard = ({ report }: Props) => {
     <div className="bg-white shadow-sm rounded-xl p-5 border border-gray-300">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        {/* LEFT SIDE — Content */}
         <div className="flex flex-col gap-3">
           {/* Header */}
           <div className="flex items-center gap-3">
@@ -41,7 +40,7 @@ export const PostReportCard = ({ report }: Props) => {
           </div>
 
           {/* Description */}
-          <p className="text-gray-700 line-clamp-2">
+          <p className="text-gray-700 line-clamp-2 bg-gray-100 rounded-lg p-3">
             {report.description}
           </p>
 

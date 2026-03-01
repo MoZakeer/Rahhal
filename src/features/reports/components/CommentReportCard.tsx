@@ -28,7 +28,7 @@ export const CommentReportCard = ({ report }: Props) => {
         </div>
       </div>
 
-        <p className="text-gray-600 mt-2 line-clamp-2">
+        <p className="text-gray-600 mt-2 line-clamp-2 bg-gray-100 rounded-lg p-3">
           {report.commentContent}
         </p>
 
