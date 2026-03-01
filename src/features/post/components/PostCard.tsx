@@ -19,31 +19,34 @@ import { useNavigate } from "react-router-dom";
 import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 // import { motion, AnimatePresence } from "framer-motion";
 import { ReportModal } from "../../reports/components/ReportModal";
-
+import { followUser } from "./services/posts.api";
 export function PostHeader({
   id,
   userName,
   profileUrl,
   profileId,
   currentUserId,
+  isFollowing,
   createdAt,
   onEdit,
   onDelete,
+  onFollow,
 }: {
   id: string;
   userName: string;
   profileUrl: string;
   profileId: string;
   currentUserId: string;
+  isFollowing?: boolean;
   createdAt?: string;
   onEdit?: () => void;
   onDelete?: () => void;
   onReport?: () => void;
+  onFollow?: () => void;
 }) {
   const navigate = useNavigate();
 console.log("logged:", currentUserId);
 console.log("post owner:", profileId);
-  const [isFollowing, setIsFollowing] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   // Close dropdown when clicking outside
@@ -100,7 +103,7 @@ console.log("post owner:", profileId);
       <div className="flex items-center gap-2">
         {!isOwner && (
           <button
-            onClick={() => setIsFollowing(!isFollowing)}
+            onClick={onFollow}
             className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${isFollowing
                 ? "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
                 : "bg-white border border-black text-black hover:bg-gray-100"
@@ -335,6 +338,7 @@ export default function PostCard({
   const [isSaved, setIsSaved] = useState(post.isSaved ?? false);
   const [isLiked, setIsLiked] = useState(post.isLiked ?? false);
   const [likesCount, setLikesCount] = useState(post.likes ?? 0);
+  const [isFollowing, setIsFollowing] = useState(post.isFollowedByCurrentUser ?? false);
 
   const navigate = useNavigate();
   async function handleSaveToggle() {
@@ -378,6 +382,20 @@ export default function PostCard({
       console.error("Like failed", error);
     }
   }
+  async function handleFollow() {
+    const prevFollowing = isFollowing;
+
+    // optimistic update
+    setIsFollowing(!prevFollowing);
+
+    try {
+      await followUser(post.userId);
+    } catch (error) {
+      setIsFollowing(prevFollowing);
+      console.error("Follow failed", error);
+    }
+  }
+    
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm mb-6 max-w-xl mx-auto">
       <PostHeader
@@ -385,10 +403,12 @@ export default function PostCard({
         userName={post.userName}
         profileUrl={post.profileUrl}
         profileId={post.userId}
+        isFollowing={isFollowing}
         currentUserId={getUserId()}
         createdAt={post.createdDate}
         onDelete={handleDeletePost}
         onEdit={handleEditPost}
+        onFollow={handleFollow}
       />
 
       {!hasMedia && (

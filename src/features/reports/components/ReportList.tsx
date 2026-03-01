@@ -13,10 +13,11 @@ interface Props {
 export const ReportList = ({ type }: Props) => {
   const [sortDesc, setSortDesc] = useState(true);
 
-  const { data, isLoading } = useReports(type, 0, 10000); // Fetch all for sorting
+  const { data, isLoading } = useReports(type, 0, 10000); 
 
   const sortedReports = useMemo(() => {
     return [...(data?.items ?? [])].sort((a, b) =>
+      
       sortDesc
         ? b.countReports - a.countReports
         : a.countReports - b.countReports
