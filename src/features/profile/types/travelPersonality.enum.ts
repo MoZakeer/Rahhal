@@ -1,8 +1,9 @@
 export const TravelPersonality = {
-    Adventurer: 0,
+    Explorer: 0,
     Relaxer: 1,
-    Explorer: 2,
-    LuxuryTraveler: 3
+    SocialTraveler: 2,
+    Backpacker: 3,
+    LuxuryTraveler: 4,
 } as const;
 
 export type TravelPersonality = typeof TravelPersonality[keyof typeof TravelPersonality];

@@ -1,12 +1,14 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 import type { ProfileTab } from "../types/profile.types";
 
 const tabs: ProfileTab[] = ["Posts", "My trips", "Saved"];
 
-const ProfileTabs: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<ProfileTab>("Posts");
+interface Props {
+  activeTab: ProfileTab;
+  setActiveTab: (tab: ProfileTab) => void;
+}
 
+const ProfileTabs: React.FC<Props> = ({ activeTab, setActiveTab }) => {
   return (
     <div className="mt-6 border-b border-gray-200">
       <div className="flex gap-6 relative">

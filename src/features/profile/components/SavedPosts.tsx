@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-interface Post {
-  id: string;
+interface SavedPost {
+  savedPostId: string;
+  postId: string;
   userId: string;
   userName: string;
   profileUrl: string;
@@ -18,27 +19,23 @@ interface Post {
   }[];
 }
 
-interface Props {
-  userId: string;
-}
-
-const ProfilePosts = ({ userId }: Props) => {
-  const [posts, setPosts] = useState<Post[]>([]);
+const SavedPosts = () => {
+  const [posts, setPosts] = useState<SavedPost[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const getUserPosts = async () => {
+  const getSavedPosts = async () => {
     try {
       setLoading(true);
 
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        `https://rahhal-api.runasp.net/Post/GetUserPosts`,
+        "https://rahhal-api.runasp.net/Post/GetSavedPosts",
         {
           params: {
-            UserId: userId,
             PageNumber: 1,
             PageSize: 10,
+            SortByLastAdded: true,
           },
           headers: {
             Authorization: `Bearer ${token}`,
@@ -50,17 +47,15 @@ const ProfilePosts = ({ userId }: Props) => {
         setPosts(res.data.data.items || []);
       }
     } catch (error) {
-      console.error("Error fetching posts", error);
+      console.error("Error fetching saved posts", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (userId) {
-      getUserPosts();
-    }
-  }, [userId]);
+    getSavedPosts();
+  }, []);
 
   return (
     <div className="space-y-6 min-h-75">
@@ -68,45 +63,42 @@ const ProfilePosts = ({ userId }: Props) => {
       {/* Loading */}
       {loading && (
         <div className="flex justify-center py-10">
-          <p className="text-gray-500">Loading posts...</p>
+          <p className="text-gray-500">Loading saved posts...</p>
         </div>
       )}
 
-      {/* No Posts */}
+      {/* Empty */}
       {!loading && posts.length === 0 && (
         <div className="flex justify-center py-16">
           <div
             className="w-full max-w-md bg-linear-to-br from-gray-50 to-gray-100 
                        border border-dashed border-gray-300 
-                       rounded-2xl p-10 text-center shadow-sm 
-                       transition-all duration-300 hover:shadow-md"
+                       rounded-2xl p-10 text-center shadow-sm"
           >
             <div className="flex justify-center mb-4">
-              <div
-                className="w-14 h-14 flex items-center justify-center 
-                           bg-white rounded-full shadow-sm text-2xl"
-              >
-                📷
+              <div className="w-14 h-14 flex items-center justify-center 
+                              bg-white rounded-full shadow-sm text-2xl">
+                🔖
               </div>
             </div>
 
             <h2 className="text-lg font-semibold text-gray-700">
-              No Posts Yet
+              No Saved Posts
             </h2>
 
             <p className="text-gray-500 mt-2 text-sm">
-              When this user shares posts, they will appear here.
+              Posts you save will appear here.
             </p>
           </div>
         </div>
       )}
 
-      {/* Posts List */}
+      {/* Posts */}
       {!loading &&
         posts.length > 0 &&
         posts.map((post) => (
           <div
-            key={post.id}
+            key={post.savedPostId}
             className="bg-white p-4 rounded-xl shadow hover:shadow-md transition-all duration-300"
           >
             {/* Header */}
@@ -146,4 +138,4 @@ const ProfilePosts = ({ userId }: Props) => {
   );
 };
 
-export default ProfilePosts;
+export default SavedPosts;

@@ -5,6 +5,7 @@
 //   followers: number;
 // }
 export interface ProfileResponse {
+  data: ProfileData | null | undefined;
   Id: string;
   Fname: string;
   Lname: string;

@@ -6,14 +6,12 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onEditProfile: () => void;
-  onChangePassword: () => void;
 }
 
 export default function ProfileSettingsDrawer({
   isOpen,
   onClose,
   onEditProfile,
-  onChangePassword,
 }: Props) {
   const navigate = useNavigate();
 
@@ -41,7 +39,8 @@ export default function ProfileSettingsDrawer({
             animate={{ x: 0 }}
             exit={{ x: 300 }}
             transition={{ duration: 0.3 }}
-           className="fixed right-6 top-20 w-72 bg-white shadow-2xl rounded-2xl z-50 p-6 flex flex-col gap-6">
+            className="fixed right-6 top-20 w-72 bg-white shadow-2xl rounded-2xl z-50 p-6 flex flex-col gap-6"
+          >
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-bold">Settings</h3>
               <button onClick={onClose}>
@@ -62,8 +61,8 @@ export default function ProfileSettingsDrawer({
 
             <button
               onClick={() => {
-                onChangePassword();
-                onClose();
+                navigate("/profile/change_password"); 
+                onClose(); 
               }}
               className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 transition"
             >

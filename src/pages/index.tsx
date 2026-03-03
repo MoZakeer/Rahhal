@@ -46,6 +46,8 @@ import AuthLayout from "../layouts/AuthLayout";
 import SettingPage from "./settings/settingpage";
 // Admin Pages
 import { ReportsPage } from "./reports/ReportsPage.tsx";
+import EditProfilePage from "../pages/profile/EditProfilePage.tsx";
+import ChangePasswordPage from "./profile/ChangePasswordPage.tsx";
 const Pages = () => {
   const isAuthenticated = true; 
 
@@ -74,7 +76,18 @@ const Pages = () => {
               isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />
             }
           />
-
+          <Route
+            path="/profile/edit"
+            element={
+              isAuthenticated ? <EditProfilePage /> : <Navigate to="/login" />
+            }
+          />
+          <Route 
+          path="/profile/change_password"
+          element={
+            isAuthenticated ? <ChangePasswordPage /> : <Navigate to="/login" />
+          }
+          />
           <Route
             path="/feed"
             element={
