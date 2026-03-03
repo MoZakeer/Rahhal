@@ -1,6 +1,9 @@
 import { NavLink } from "react-router";
+
 import Avatar from "./Avatar";
 import type { ChatType } from "../../../types/ChatType";
+import { HiOutlinePhoto } from "react-icons/hi2";
+import { conversationImage } from "../../../utils/helper";
 
 type Props = {
   chat: ChatType;
@@ -15,10 +18,8 @@ function ChatItem({ chat }: Props) {
     conversationPicture,
     otherUserName,
     otherUserProfilePicture,
+    lastMessageType,
   } = chat;
-  const src = isGroup
-    ? (conversationPicture ?? "./group-default.png")
-    : (otherUserProfilePicture ?? "../private-default.png");
 
   return (
     <NavLink
@@ -27,13 +28,26 @@ function ChatItem({ chat }: Props) {
         `flex items-center gap-2  px-4 py-2.5 rounded-lg cursor-pointer   transition-all duration-300 hover:bg-gray-100  active:bg-gray-100 ${isActive && "bg-gray-100"} `
       }
     >
-      <Avatar src={src} />
+      <Avatar
+        src={conversationImage({
+          isGroup,
+          conversationPictureURL: conversationPicture,
+          otherUserProfilePicture,
+        })}
+      />
       <div className="flex flex-col">
         <h4 className="text-xl font-medium">
           {isGroup ? groupTitle : otherUserName}
         </h4>
         <p className="whitespace-nowrap overflow-hidden text-ellipsis text-gray-500 w-64 sm:w-56">
-          {lastMessageContent}
+          {lastMessageType === 1 || lastMessageType === 5 ? (
+            lastMessageContent
+          ) : (
+            <div className="flex items-center gap-1 font-medium">
+              <HiOutlinePhoto className="text-gray-900" />
+              <span className="text-gray-700">Photo</span>
+            </div>
+          )}
         </p>
       </div>
       {Boolean(unreadMessagesCount > 0) && (

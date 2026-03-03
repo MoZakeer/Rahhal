@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+
 import {
   Home,
   Compass,
@@ -17,7 +18,7 @@ const navItems = [
   { icon: Home, label: "Home", path: "/" },
   { icon: Compass, label: "Explore", path: "/explore" },
   { icon: Plane, label: "My Trips", path: "/my-trips" },
-  { icon: MessageCircle, label: "Messages", path: "/messages" },
+  { icon: MessageCircle, label: "Messages", path: "/chat" },
 ];
 
 export default function Navbar() {

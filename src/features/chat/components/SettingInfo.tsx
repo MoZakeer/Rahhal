@@ -2,11 +2,17 @@ import SettingAvatar from "./SettingAvatar";
 import EditInput from "./EditInput";
 import { useState } from "react";
 
-function SettingInfo() {
-  const [name, setName] = useState("Mohamed Abdelnaser");
-  const [description, setDescription] = useState(
-    "Frontend developer & chat app enthusiast",
-  );
+function SettingInfo({
+  info,
+}: {
+  info: {
+    title: string;
+    description: string;
+    avatar: string;
+  };
+}) {
+  const [name, setName] = useState(info?.title);
+  const [description, setDescription] = useState(info?.description);
 
   return (
     <div
@@ -14,7 +20,7 @@ function SettingInfo() {
         bg-gray-0 w-full max-w-md sm:max-w-xl
         flex flex-col items-center gap-6 px-6 py-6 "
     >
-      <SettingAvatar />
+      <SettingAvatar avatar={info?.avatar} />
 
       <EditInput
         label="Chat name"

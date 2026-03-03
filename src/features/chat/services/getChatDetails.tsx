@@ -1,29 +1,25 @@
-import { BASE_URL, PAGE_SIZE } from "../../../utils/constant";
+import { BASE_URL } from "../../../utils/constant";
+import { getToken } from "../../../utils/getToken";
 
-export async function getChatById({
-  token,
+export async function getChatDetails({
   conversationId,
-  page,
 }: {
-  token: string;
   conversationId: string;
-  page: number;
 }) {
+  const token = getToken();
   const res = await fetch(
-    `${BASE_URL}/Chat/GetChatById?conversationId=${conversationId}&page=${page}&pageSize=${PAGE_SIZE}`,
+    `${BASE_URL}/Chat/GetChatDetails?conversationId=${conversationId}`,
     {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: token ? `Bearer  ${token}` : "",
       },
     },
   );
-
   if (!res.ok) throw new Error("Failed to fetch chat");
 
   const data = await res.json();
 
   if (!data.isSuccess) throw new Error(data.message);
-
   return data;
 }

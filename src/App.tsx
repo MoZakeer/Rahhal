@@ -3,6 +3,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Pages from "./pages";
 import CustomToaster from "./shared/components/CustomToaster";
 import { UserProvider } from "./context/UserContext";
+import "react-loading-skeleton/dist/skeleton.css";
 
 const queryClient = new QueryClient({
   defaultOptions: {

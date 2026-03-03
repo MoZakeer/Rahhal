@@ -8,7 +8,7 @@ type Props = {
 };
 function EditInput({ label, value, setValue, textClass = "" }: Props) {
   const [isEditing, setIsEditing] = useState(false);
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   function startEdit() {
     setIsEditing(true);
