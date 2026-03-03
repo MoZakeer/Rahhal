@@ -64,29 +64,30 @@ export default function Navbar() {
     </Link>
 
     {/* Center: Navigation */}
-    <nav className="hidden md:flex flex-1 justify-center gap-2 md:gap-4 flex-wrap">
-      {navItems.map(({ icon: Icon, label, path }) => {
-        const isActive = isActivePath(path);
-        return (
-          <Link
-            key={path}
-            to={path}
-            className={[
-              "flex items-center gap-1 md:gap-2 rounded-xl px-3 py-2 md:px-4 md:py-2 text-sm md:text-base font-medium transition",
-              isActive
-                ? "bg-primary/10 text-primary"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted",
-            ].join(" ")}
-          >
-            <Icon className="h-4 w-4 md:h-5 md:w-5" />
-            <span className="hidden sm:inline">{label}</span>
-          </Link>
-        );
-      })}
-    </nav>
+
+<nav className="hidden lg:flex gap-4 flex-wrap py-2 px-2 justify-center flex-1">
+  {navItems.map(({ icon: Icon, label, path }) => {
+    const isActive = isActivePath(path);
+    return (
+      <Link
+        key={path}
+        to={path}
+        className={[
+          "flex items-center gap-1 rounded-xl px-3 py-2 text-base font-medium transition",
+          isActive
+            ? "bg-primary/10 text-primary"
+            : "text-muted-foreground hover:text-foreground hover:bg-muted",
+        ].join(" ")}
+      >
+        <Icon className="h-5 w-5" />
+        <span>{label}</span>
+      </Link>
+    );
+  })}
+</nav>
 
     {/* Right: User Actions */}
-    <div className="hidden md:flex items-center gap-2 md:gap-3 ml-auto">
+    <div className="hidden lg:flex items-center gap-2 md:gap-3 ml-auto">
       {hasToken ? (
         <>
           {/* Notification */}
@@ -136,7 +137,7 @@ export default function Navbar() {
     </div>
 
     {/* Mobile Hamburger */}
-    <div className="md:hidden flex items-center">
+    <div className="lg:hidden flex items-center">
       <button
         onClick={() => setMobileOpen(true)}
         className="h-10 w-10 flex items-center justify-center rounded-md hover:bg-muted transition"
