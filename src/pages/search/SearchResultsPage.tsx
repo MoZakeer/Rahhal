@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { motion, AnimateSharedLayout } from "framer-motion";
 import SearchComponent from "../../features/search/components/SearchComponent";
 import Image from "../../../public/profile_img.jpg";
+import SearchPostCard from "../../features/search/components/SearchPostCard";
 
 interface User {
   profileId: string;
@@ -12,16 +13,20 @@ interface User {
   profilePictureUrl?: string;
 }
 
-interface Post {
+interface PostPreview {
   postId: string;
   description: string;
+  authorUsername: string;
+  authorProfilePicture?: string;
+  createdAt: string;
+  mediaUrLs?: { id: string; url: string }[];
 }
 
 interface SearchResults {
   users?: { items?: User[] };
   usersPreview?: User[];
-  posts?: { items?: Post[] };
-  postsPreview?: Post[];
+  posts?: { items?: PostPreview[] };
+  postsPreview?: PostPreview[];
 }
 
 function useQuery() {
@@ -37,6 +42,11 @@ const Skeleton = ({ count = 3 }: { count?: number }) => (
   </div>
 );
 
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
+
 export default function SearchResults() {
   const query = useQuery();
   const navigate = useNavigate();
@@ -49,7 +59,7 @@ export default function SearchResults() {
   const [error, setError] = useState("");
 
   const BASE_URL = "https://rahhal-api.runasp.net";
-  const tabs = ["Posts", "Users"]; // Tab 0 = Posts, Tab 1 = Users
+  const tabs = ["All", "Users", "Posts"]; // 0 = All, 1 = Users, 2 = Posts
 
   const fetchData = async (currentTab: number) => {
     if (!keyword) return;
@@ -61,21 +71,17 @@ export default function SearchResults() {
         Keyword: keyword,
         Tab: currentTab.toString(),
         PageNumber: "1",
-        PageSize: "5",
+        PageSize: "10",
       });
-      const res = await fetch(
-        `https://rahhal-api.runasp.net/Search/Global?${params}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        }
-      );
+      const res = await fetch(`${BASE_URL}/Search/Global?${params}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setResults(data.data);
-      console.log("SearchResults - API response:", data);
     } catch (err) {
       console.error(err);
       setError("Something went wrong. Please try again.");
@@ -88,9 +94,12 @@ export default function SearchResults() {
     fetchData(tab);
   }, [tab, keyword]);
 
+  const allPosts = results?.posts?.items || results?.postsPreview || [];
+  const allUsers = results?.users?.items || results?.usersPreview || [];
+
   return (
-    <div className="max-w-3xl mx-auto p-4">
-      {/* Header with Back Arrow */}
+    <div className="max-w-7xl mx-auto p-4">
+      {/* Header */}
       <div
         className="flex items-center gap-3 mb-6 cursor-pointer"
         onClick={() => navigate("/feed")}
@@ -105,7 +114,7 @@ export default function SearchResults() {
 
       {/* Tabs */}
       <AnimateSharedLayout>
-        <div className="flex gap-6 border-b border-gray-300 mb-6 relative">
+        <div className="flex gap-6 border-b border-gray-300 mb-6 relative overflow-x-auto">
           {tabs.map((t, idx) => (
             <button
               key={t}
@@ -132,64 +141,147 @@ export default function SearchResults() {
       {loading ? (
         <Skeleton count={5} />
       ) : (
-        <div className="space-y-4">
-          {/* Tab 0 = Posts */}
-          {tab === 0 &&
-            (results?.posts?.items?.length
-              ? results.posts.items
-              : results?.postsPreview ?? []
-            ).map((p) => (
-              <div
-                key={p.postId}
-                className="border p-3 rounded bg-white shadow-sm"
-              >
-                <p className="text-gray-900">{p.description}</p>
+        <div className="flex flex-col gap-6">
+          {/* Tab 0 = All */}
+          {tab === 0 && (
+            <>
+              {/* Users  */}
+              <div className="flex flex-col gap-4">
+                {allUsers.map((user: User) => (
+                  <motion.div
+                    key={user.profileId}
+                    variants={cardVariants}
+                    initial="hidden"
+                    animate="visible"
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <div
+                      className="flex items-center justify-between w-full gap-4 p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                      onClick={() => navigate(`/profile/${user.profileId}`)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <motion.img
+                          whileHover={{ scale: 1.08 }}
+                          transition={{ type: "spring", stiffness: 300 }}
+                          src={
+                            user.profilePictureUrl
+                              ? `${BASE_URL}${user.profilePictureUrl}`
+                              : Image
+                          }
+                          className="w-14 h-14 rounded-full object-cover ring-2 ring-gray-100"
+                          alt={user.username}
+                        />
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-gray-900 text-sm">
+                            {user.username}
+                          </span>
+                          {user.bio && (
+                            <span className="text-gray-500 text-xs line-clamp-1">
+                              {user.bio}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
-            ))}
+
+              
+              {allPosts.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                  {allPosts.map((post: PostPreview) => (
+                    <motion.div
+                      key={post.postId}
+                      variants={cardVariants}
+                      initial="hidden"
+                      animate="visible"
+                      transition={{ duration: 0.4, ease: "easeOut" }}
+                      whileHover={{ scale: 1.03 }}
+                    >
+                      <SearchPostCard post={post} baseUrl={BASE_URL} />
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
 
           {/* Tab 1 = Users */}
-          {tab === 1 &&
-            (results?.users?.items?.length
-              ? results.users.items
-              : results?.usersPreview ?? []
-            ).map((u) => (
-              <div
-                key={u.profileId}
-                className="flex items-center justify-between gap-4 p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
-                onClick={() => navigate(`/profile/${u.profileId}`)}
-              >
-                <div className="flex items-center gap-3">
-                  <img
-                    src={
-                      u.profilePictureUrl
-                        ? `${BASE_URL}${u.profilePictureUrl}`
-                        : Image
-                    }
-                    className="w-14 h-14 rounded-full object-cover ring-2 ring-gray-100"
-                    alt={u.username}
-                  />
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-gray-900 text-sm">
-                      {u.username}
-                    </span>
-                    {u.bio && (
-                      <span className="text-gray-500 text-xs line-clamp-1">
-                        {u.bio}
-                      </span>
-                    )}
+          {tab === 1 && (
+            <div className="flex flex-col gap-4">
+              {allUsers.map((u: User) => (
+                <motion.div
+                  key={u.profileId}
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <div
+                    className="flex items-center justify-between w-full gap-4 p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                    onClick={() => navigate(`/profile/${u.profileId}`)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <motion.img
+                        whileHover={{ scale: 1.08 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                        src={
+                          u.profilePictureUrl
+                            ? `${BASE_URL}${u.profilePictureUrl}`
+                            : Image
+                        }
+                        className="w-14 h-14 rounded-full object-cover ring-2 ring-gray-100"
+                        alt={u.username}
+                      />
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-gray-900 text-sm">
+                          {u.username}
+                        </span>
+                        {u.bio && (
+                          <span className="text-gray-500 text-xs line-clamp-1">
+                            {u.bio}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                </motion.div>
+              ))}
+            </div>
+          )}
+
+          {/* Tab 2 = Posts */}
+          {tab === 2 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {allPosts.map((p: PostPreview) => (
+                <motion.div
+                  key={p.postId}
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  whileHover={{ scale: 1.03 }}
+                >
+                  <SearchPostCard post={p} baseUrl={BASE_URL} />
+                </motion.div>
+              ))}
+            </div>
+          )}
 
           {/* No results */}
-          {(
-            (tab === 0 &&
-              !(results?.posts?.items?.length || results?.postsPreview?.length)) ||
-            (tab === 1 &&
-              !(results?.users?.items?.length || results?.usersPreview?.length))
-          ) && (
-            <p className="text-gray-500 text-center mt-4">No results found.</p>
+          {((tab === 0 && !allPosts.length && !allUsers.length) ||
+            (tab === 1 && !allUsers.length) ||
+            (tab === 2 && !allPosts.length)) && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-gray-500 text-center mt-8"
+            >
+              No results found.
+            </motion.p>
           )}
         </div>
       )}

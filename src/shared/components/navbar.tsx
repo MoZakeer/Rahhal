@@ -32,9 +32,12 @@ export default function Navbar() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("auth");
+    localStorage.removeItem("user");
+    
     setHasToken(false);
     setMobileOpen(false);
-    navigate("/login");
+    navigate("/landing-page");
   };
 
   const isActivePath = useMemo(() => {
