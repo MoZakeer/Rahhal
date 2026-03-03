@@ -1,24 +1,33 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router";
 import { HiOutlineXMark } from "react-icons/hi2";
 import SettingInfo from "./SettingInfo";
 import GroupMembers from "./GroupMembers";
-import GroupRequests from "./GroupRequests";
 import LeaveGroup from "./LeaveGroup";
+import { useChatDetails } from "../hooks/useChatDetails";
+import ChatSettingsSkeleton from "./ChatSettingSkeleton";
+import { conversationImage } from "../../../utils/helper";
 
 function ChatSettings() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    setOpen(true);
-  }, []);
-
+  const { conversationId } = useParams<{ conversationId: string }>();
+  const { isPending, data } = useChatDetails({
+    conversationId: conversationId || "",
+  });
   function close() {
     setOpen(false);
     setTimeout(() => navigate(-1), 250);
   }
-
+  const settings = data?.data;
+  const mainInfo = {
+    title: settings?.title || "",
+    description: settings?.description || "",
+    avatar: conversationImage({
+      isGroup: settings?.isGroup || false,
+      conversationPictureURL: settings?.conversationPictureURL,
+    }),
+  };
   return (
     <div
       className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm"
@@ -36,7 +45,6 @@ function ChatSettings() {
     ${open ? "translate-x-0" : "translate-x-full"}
   `}
       >
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <h2 className="text-base font-semibold tracking-tight">
             Chat Settings
@@ -49,14 +57,22 @@ function ChatSettings() {
             <HiOutlineXMark className="w-5 h-5 text-gray-600" />
           </button>
         </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-8 space-y-12">
-          <SettingInfo />
-          <GroupMembers />
-          <GroupRequests />
-          <LeaveGroup />
-        </div>
+        {isPending ? (
+          <ChatSettingsSkeleton />
+        ) : (
+          <div className="flex-1 overflow-y-auto px-6 py-8 space-y-12">
+            <SettingInfo info={mainInfo} />
+            {settings?.isGroup && (
+              <>
+                <GroupMembers
+                  participants={settings.participants}
+                  isAdmin={settings?.isCurrentUserAdmin}
+                />
+                <LeaveGroup />
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

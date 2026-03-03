@@ -1,32 +1,59 @@
-import Spinner from "../../../shared/components/Spinner";
+import { useParams, useOutletContext } from "react-router";
 import { useGetChatById } from "../hooks/useGetChatById";
+import { useChatWindowUpdates } from "../hooks/useChatWindowUpdates";
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import MessageList from "./MessageList";
+import ChatSkeleton from "./ChatSkeleton";
+import type { HubConnection } from "@microsoft/signalr";
+import { useUser } from "../../../context/UserContext";
+import { conversationImage } from "../../../utils/helper";
+
+type ChatContextType = { connection: HubConnection | null };
 
 function ChatWindow() {
-  const { isPending, data } = useGetChatById();
-  if (isPending)
-    return (
-      <div className="flex justify-center items-center w-full">
-        <Spinner />
-      </div>
-    );
-  const { isGroup, conversationPictureURL, messages, title } = data.data;
+  const { conversationId } = useParams<{ conversationId: string }>();
+
+  const { isPending, data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useGetChatById();
+
+  const context = useOutletContext<ChatContextType>() as
+    | ChatContextType
+    | undefined;
+  const connection = context?.connection ?? null;
+  const { user } = useUser();
+  useChatWindowUpdates(connection, conversationId, user?.userId);
+
+  if (isPending) return <ChatSkeleton />;
+
+  const chatInfo = data?.pages?.[0]?.data;
+
+  const allMessages = data?.pages
+    ? [...data.pages].reverse().flatMap((page) => page?.data?.messages.items)
+    : [];
+  const uniqueMessages = Array.from(
+    new Map(allMessages.map((msg) => [msg.messageId, msg])).values(),
+  );
+
   return (
-    <div className=" flex flex-col w-full h-dvh overflow-auto">
+    <div className="flex flex-col w-full h-dvh overflow-hidden">
       <ChatHeader
-        title={title}
-        avatar={
-          (conversationPictureURL ?? isGroup)
-            ? "../group-default.png"
-            : "../private-default.png"
-        }
+        title={chatInfo?.title || ""}
+        avatar={conversationImage({
+          isGroup: chatInfo?.isGroup || false,
+          conversationPictureURL: chatInfo?.conversationPictureURL,
+        })}
       />
 
-      <MessageList messages={messages} />
+      <MessageList
+        messages={uniqueMessages}
+        fetchNextPage={fetchNextPage}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        isGroup={chatInfo?.isGroup || false}
+      />
 
-      <MessageInput />
+      <MessageInput conversationId={conversationId || ""} />
     </div>
   );
 }

@@ -1,14 +1,14 @@
 import { HiOutlinePencilSquare } from "react-icons/hi2";
 
-function SettingAvatar() {
+function SettingAvatar({ avatar }: { avatar: string }) {
   return (
     <div className="relative w-fit">
       <img
-        src="/profile.jpg"
+        src={avatar}
         alt="chat avatar"
         className="w-32 h-32 aspect-square rounded-full border-4 border-solid border-gray-100"
       />
-      <input type="file" hidden id="change-avatar" />
+      <input type="file" hidden id="change-avatar" accept="image/*" />
       <label
         htmlFor="change-avatar"
         className="absolute right-0 bottom-1.5

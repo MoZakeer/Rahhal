@@ -64,9 +64,21 @@ const Pages = () => {
           <Route path="/landing-page" element={<LandingPage />} />
         </Route>
 
+        <Route
+          path="/chat"
+          element={isAuthenticated ? <ChatPage /> : <Navigate to="/login" />}
+        >
+          <Route index element={<EmptyState />} />
+          <Route path=":conversationId" element={<ChatWindow />} />
+          <Route path=":conversationId/settings" element={<ChatSetting />} />
+        </Route>
+
+        <Route
+          path="/settings"
+          element={isAuthenticated ? <SettingPage /> : <Navigate to="/login" />}
+        />
         {/* Main App */}
         <Route element={<MainLayout />}>
-
           <Route
             path="/profile"
             element={
@@ -76,40 +88,18 @@ const Pages = () => {
 
           <Route
             path="/feed"
-            element={
-              isAuthenticated ? <HomeFeed /> : <Navigate to="/login" />
-            }
+            element={isAuthenticated ? <HomeFeed /> : <Navigate to="/login" />}
           />
 
           <Route
             path="/trips"
-            element={
-              isAuthenticated ? <MyTrips /> : <Navigate to="/login" />
-            }
+            element={isAuthenticated ? <MyTrips /> : <Navigate to="/login" />}
           />
 
           <Route
             path="/groups/:groupId"
             element={
               isAuthenticated ? <GroupDetails /> : <Navigate to="/login" />
-            }
-          />
-
-          <Route
-            path="/chat"
-            element={
-              isAuthenticated ? <ChatPage /> : <Navigate to="/login" />
-            }
-          >
-            <Route index element={<EmptyState />} />
-            <Route path=":chatId" element={<ChatWindow />} />
-            <Route path=":chatId/settings" element={<ChatSetting />} />
-          </Route>
-
-          <Route
-            path="/settings"
-            element={
-              isAuthenticated ? <SettingPage /> : <Navigate to="/login" />
             }
           />
 

@@ -8,4 +8,5 @@ export type ChatType = {
   conversationPicture: string;
   otherUserName: string;
   otherUserProfilePicture: string;
+  lastMessageType:number
 };

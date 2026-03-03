@@ -23,10 +23,7 @@ function SignUpForm() {
   function onSubmit(payload: TSignUpType) {
     signUp(payload, {
       onSuccess: (data) => {
-        navigate({
-          pathname: "/verify-email",
-          search: "?type=sign-up",
-        });
+        navigate("/login");
         toast.success(data?.message);
       },
       onError: (error: Error) => {
