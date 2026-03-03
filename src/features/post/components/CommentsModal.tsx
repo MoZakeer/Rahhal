@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { X, Heart, MoreHorizontal } from "lucide-react";
+import { X, Heart, MoreHorizontal, Flag } from "lucide-react";
 import * as commentApi from "../components/services/commentApi";
 import {  normalizeMediaUrl } from "./services/posts.api";
 import { useNavigate } from "react-router-dom";
-
+import { ReportModal } from "../../reports/components/ReportModal";
 type CommentItem = {
   commentId: string;
   profileId: string;
@@ -40,8 +40,6 @@ function formatDate(dateStr: string) {
   return date.toLocaleString([], { dateStyle: "short", timeStyle: "short" });
 }
 
-const FALLBACK_AVATAR =
-  "https://cdn.vectorstock.com/i/500p/48/12/travel-icon-male-user-person-profile-avatar-vector-20894812.jpg";
 
 export function CommentsModal({
   open,
@@ -63,7 +61,7 @@ export function CommentsModal({
   const [menuOpenMap, setMenuOpenMap] = useState<Record<string, boolean>>({});
   const [repliesMap, setRepliesMap] = useState<Record<string, ReplyItem[]>>({});
   const [repliesOpenMap, setRepliesOpenMap] = useState<Record<string, boolean>>({});
-
+const [isReportOpen, setIsReportOpen] = useState(false);
   const commentsEndRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
 
@@ -231,10 +229,36 @@ export function CommentsModal({
 
     const menuKey = `${isReply ? "r" : "c"}-${id}`;
 
+     const renderWithMentions = (text: string) => {
+const HIDDEN = "\u200B";
+const regex = new RegExp(`@[^${HIDDEN}]+${HIDDEN}`, "g");
+  const parts = text.split(regex);
+  const matches = text.match(regex) || [];
+
+  const result: React.ReactNode[] = [];
+
+  parts.forEach((part, index) => {
+    result.push(<span key={`text-${index}`}>{part}</span>);
+
+    if (matches[index]) {
+      result.push(
+        <span
+          key={`mention-${index}`}
+          className="text-primary-500 font-semibold"
+        >
+          {matches[index]}
+        </span>
+      );
+    }
+  });
+
+  return result;
+};
+    
     return (
       <div key={id} className="flex gap-3 w-full">
         <img
-          src={normalizeMediaUrl(comment.profilePicture) || FALLBACK_AVATAR}
+          src={normalizeMediaUrl(comment.profilePicture) || `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.userName)}`}
           className={`${
             isReply ? "w-7 h-7" : "w-9 h-9"
           } rounded-full object-cover mt-0.5 flex-shrink-0`}
@@ -269,8 +293,7 @@ export function CommentsModal({
                   <p className="text-sm leading-5 break-words">
                     <span onClick={() => navigate(`/profile/${comment.profileId}`)}
   className="font-semibold cursor-pointer hover:underline">{comment.userName}</span>
-                    {comment.description}
-                  </p>
+{renderWithMentions(comment.description)}               </p>
                 </div>
               )}
             </div>
@@ -286,7 +309,16 @@ export function CommentsModal({
               >
                 <MoreHorizontal className="w-4 h-4" />
               </button>
-
+{isReportOpen && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <ReportModal
+      entityType="comment"
+      entityId={id}
+        profileId={comment.profileId}
+      onClose={() => setIsReportOpen(false)}
+    />
+  </div>
+)}
               {menuOpenMap[menuKey] && (
   <div className="absolute right-0 mt-2 z-50 bg-white border border-black/10 rounded-xl shadow-lg w-36 overflow-visible">
                   <div className="flex flex-col">
@@ -310,12 +342,17 @@ export function CommentsModal({
                         </button>
                       </>
                     ) : (
-                      <button
-                        className="w-full px-3 py-2 text-sm hover:bg-black/5 text-left"
-                        onClick={() => console.log("Report")}
-                      >
-                        Report
-                      </button>
+                    <button
+                  className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 transition-colors"
+onClick={() => {
+ 
+                  toggleMenu(menuKey);  setIsReportOpen(true);
+}}>
+                    <Flag className="w-4 h-4" />
+
+  Report
+</button>
+
                     )}
                   </div>
                 </div>
@@ -346,11 +383,23 @@ export function CommentsModal({
       : (comment as CommentItem).likesCount}
   </span>
 </button>
-           <button
+        <button
   onClick={() => {
-    const mainParentId = parentId ?? id; 
+    const mainParentId = parentId ?? id;
+    const isReplyingToSelf = comment.profileId === currentUserId;
+
     setReplyingTo(mainParentId);
     setReplyingToName(comment.userName);
+
+    if (!isReplyingToSelf) {
+const HIDDEN = "\u200B";
+const mention = `@${comment.userName}${HIDDEN}`;
+      setReplyText(prev =>
+        prev.startsWith(mention) ? prev : mention
+      );
+    } else {
+      setReplyText(""); 
+    }
 
     setRepliesOpenMap(prev => ({
       ...prev,

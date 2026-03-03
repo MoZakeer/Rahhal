@@ -6,6 +6,12 @@ export interface CommentReport {
   commentAuthorPicture: string;
   countReports: number;
 }
+export interface UserReport {
+  reportedUserId: string;
+  reportedUserName: string;
+  reportedUserPicture: string ;
+  countReports: number;
+}
 
 export interface PaginatedResponse<T> {
   pageSize: number;
@@ -22,15 +28,18 @@ export interface ApiResponse<T> {
   errorCode: number;
 }
 export type ReportType = "comments" | "posts" | "users";
+export type ReportEntityType = "post" | "comment" | "user";
 export interface PostReport {
   id: string;
   userId: string;
   userName: string;
-  profileUrl?: string | null;
+  profileUrl: string ;
   description: string;
   likes: number;
   comments: number;
   createdDate: string;
+  countReports: number;
+
 
   mediaUrLs?: {
     id: string;

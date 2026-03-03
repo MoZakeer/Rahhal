@@ -23,7 +23,6 @@ export async function getAllPosts(): Promise<PostsResponse> {
   if (!res.ok) {
     throw new Error("Failed to fetch posts");
   }
-  console.log("TOKEN:", token);
 
   return res.json();
 }
@@ -97,4 +96,20 @@ export async function likePost(postId: string) {
   if (!res.ok) throw new Error("Failed to like post");
   return res.json();
 }
+export async function followUser(userId: string) {
+  const token = getToken();
 
+  const res = await fetch(`${BASE_URL}/Followers/Follow`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      followingProfileId: userId, 
+    }),
+  });
+  if (!res.ok) throw new Error("Failed to follow user");
+
+  return res.json();
+}

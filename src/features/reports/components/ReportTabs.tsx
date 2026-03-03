@@ -2,11 +2,11 @@ import { NavLink } from "react-router-dom";
 
 export const ReportTabs = () => {
   return (
-    <div className="flex gap-6 border-b mb-6">
+    <div className="flex gap-6  mb-6">
       <NavLink
         to="/admin/reports/users"
         className={({ isActive }) =>
-          isActive ? "border-b-2 border-black pb-2" : "pb-2"
+          isActive ? "border-b-2 border-black pb-2 text-black" : "pb-2 text-gray-600"
         }
       >
         Users
@@ -15,7 +15,7 @@ export const ReportTabs = () => {
       <NavLink
         to="/admin/reports/posts"
         className={({ isActive }) =>
-          isActive ? "border-b-2 border-black pb-2" : "pb-2"
+          isActive ? "border-b-2 border-black pb-2 text-black" : "pb-2 text-gray-600"
         }
       >
         Posts
@@ -24,7 +24,7 @@ export const ReportTabs = () => {
       <NavLink
         to="/admin/reports/comments"
         className={({ isActive }) =>
-          isActive ? "border-b-2 border-black pb-2" : "pb-2"
+          isActive ? "border-b-2 border-black pb-2 text-black" : "pb-2 text-gray-600"
         }
       >
         Comments

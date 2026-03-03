@@ -7,9 +7,11 @@ export const ReportsPage = () => {
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
+            <h1 className="text-2xl text-gray-700 font-bold mb-3">Report Queue</h1>
+            <p className=" text-gray-500  mb-6">Review and manage reported content to maintain platform safety.</p>
+
       <ReportTabs ></ReportTabs>
 
-      <h1 className="text-2xl font-bold mb-6">Report Queue</h1>
 
       <ReportList type={type as ReportType} />
     </div>

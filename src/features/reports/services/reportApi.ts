@@ -21,6 +21,58 @@ export const fetchReportsByType = async (
       Authorization: `Bearer ${token}`,
     },
   });
-  console.log("Fetched reports:", data);
-  return data.data ?? [];
+ 
+  return data.data ;
 };
+export const createPostReport = (postId: string, type: string, description: string) =>
+  axios.post(`${BASE_URL}/Report/ReportPost`, {
+    postId,
+    type,
+    description,
+  },{headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },}
+);
+
+export const createCommentReport = async (
+  profileId: string,
+  commentId: string,
+  type: string,
+  description: string
+) => {
+  const response = await axios.post(
+    `${BASE_URL}/Report/CreateCommentReport`,
+    {
+      profileId,
+      commentId,
+      type,
+      description,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+
+  
+
+  return response.data;
+};
+
+export const createUserReport = (
+  reporterId: string,
+  reportedUserId: string,
+  messageId: string,
+  type: string,
+  description: string
+) =>
+  axios.post(`${BASE_URL}/Report/CreateUserReport`, {
+    reporterId,
+    reportedUserId,
+    messageId,
+    type,
+    description,
+  },{headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },});

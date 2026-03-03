@@ -9,7 +9,7 @@ export default function PostsList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const hasFetched = useRef(false); // 👈 guard
+  const hasFetched = useRef(false); 
 
   async function fetchPosts() {
     setLoading(true);
@@ -31,7 +31,7 @@ export default function PostsList() {
   }
 
   useEffect(() => {
-    if (hasFetched.current) return; // 👈 prevents second call
+    if (hasFetched.current) return; 
     hasFetched.current = true;
 
     fetchPosts();

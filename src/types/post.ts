@@ -10,6 +10,7 @@ createdDate?: string;
   comments?: number;
   isLiked: boolean;
   isSaved: boolean;
+  isFollowedByCurrentUser: boolean;
 }
 export interface PostMediaItem {
   id: string;
