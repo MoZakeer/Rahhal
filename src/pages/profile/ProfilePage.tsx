@@ -10,7 +10,7 @@ const ProfilePage: React.FC = () => {
   
   const auth = localStorage.getItem("auth");
   const parsedAuth = auth ? JSON.parse(auth) : null;
-  const userid = parsedAuth?.userId || "";
+  const profileId = parsedAuth?.profileId || "";
 
   const [activeTab, setActiveTab] = useState<ProfileTab>("Posts");
 
@@ -29,7 +29,7 @@ const ProfilePage: React.FC = () => {
         {/* Main Content */}
         <div className="flex-1 space-y-6">
 
-          {activeTab === "Posts" && <ProfilePosts userId={userid} />}
+          {activeTab === "Posts" && <ProfilePosts profileId={profileId} />}
           {activeTab === "Saved" && <SavedPosts />}
           {activeTab === "My trips" && (
             <div className="py-10 text-center text-gray-500">

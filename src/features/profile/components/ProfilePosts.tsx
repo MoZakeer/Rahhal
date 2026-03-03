@@ -1,44 +1,30 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
-interface Post {
-  id: string;
-  userId: string;
-  userName: string;
-  profileUrl: string;
-  description: string;
-  isLiked: boolean;
-  isSaved: boolean;
-  likes: number;
-  comments: number;
-  createdDate: string;
-  mediaUrLs: {
-    id: string;
-    url: string;
-  }[];
-}
+import PostCard from "../../post/components/PostCard";
+// import { getUserId } from "../../../utils/auth";
+import type { Post } from "../../../types/post";
 
 interface Props {
-  userId: string;
+  profileId: string;
 }
 
-const ProfilePosts = ({ userId }: Props) => {
+const ProfilePosts = ({ profileId }: Props) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
+  // const currentUserId = getUserId();
 
   const getUserPosts = async () => {
     try {
       setLoading(true);
-
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
         `https://rahhal-api.runasp.net/Post/GetUserPosts`,
         {
           params: {
-            UserId: userId,
+            UserId: profileId,
             PageNumber: 1,
-            PageSize: 10,
+            PageSize: 20,
           },
           headers: {
             Authorization: `Bearer ${token}`,
@@ -57,22 +43,17 @@ const ProfilePosts = ({ userId }: Props) => {
   };
 
   useEffect(() => {
-    if (userId) {
-      getUserPosts();
-    }
-  }, [userId]);
+    if (profileId) getUserPosts();
+  }, [profileId]);
 
   return (
-    <div className="space-y-6 min-h-75">
-
-      {/* Loading */}
+    <div className="min-h-[75vh]">
       {loading && (
         <div className="flex justify-center py-10">
           <p className="text-gray-500">Loading posts...</p>
         </div>
       )}
 
-      {/* No Posts */}
       {!loading && posts.length === 0 && (
         <div className="flex justify-center py-16">
           <div
@@ -101,47 +82,22 @@ const ProfilePosts = ({ userId }: Props) => {
         </div>
       )}
 
-      {/* Posts List */}
-      {!loading &&
-        posts.length > 0 &&
-        posts.map((post) => (
-          <div
-            key={post.id}
-            className="bg-white p-4 rounded-xl shadow hover:shadow-md transition-all duration-300"
-          >
-            {/* Header */}
-            <div className="flex items-center gap-3 mb-2">
-              <img
-                src={post.profileUrl}
-                className="w-10 h-10 rounded-full object-cover"
-                alt="profile"
+      {!loading && posts.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {posts.map((post) => (
+            <div key={post.id} className="max-w-full">
+              <PostCard
+                post={post}
+                onPostDeleted={() => {
+                  setPosts((prev) => prev.filter((p) => p.id !== post.id));
+                }}
+                // لو حبيتي ممكن تعمل نسخة صغيرة للكارد
+                // عن طريق تعديل الـ padding أو font-size داخل PostCard
               />
-              <span className="font-semibold text-gray-800">
-                {post.userName}
-              </span>
             </div>
-
-            {/* Description */}
-            {post.description && (
-              <p className="mb-3 text-gray-700">{post.description}</p>
-            )}
-
-            {/* Media */}
-            {post.mediaUrLs?.length > 0 && (
-              <img
-                src={post.mediaUrLs[0].url}
-                className="w-full rounded-lg object-cover max-h-100"
-                alt="post"
-              />
-            )}
-
-            {/* Footer */}
-            <div className="flex gap-6 text-sm text-gray-500 mt-3">
-              <span>❤️ {post.likes}</span>
-              <span>💬 {post.comments}</span>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
+      )}
     </div>
   );
 };
