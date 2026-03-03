@@ -28,7 +28,7 @@ const statsToShow = [
   { label: "Followers", value: profile.followersCount },
   { label: "Following", value: profile.followingCount },
 ];
-
+console.log("ProfileStats - profile:", profile.followersCount, profile.followingCount, profile.countriesCount);
   return (
     <motion.div
       variants={container}

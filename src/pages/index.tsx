@@ -48,6 +48,7 @@ import SettingPage from "./settings/settingpage";
 import { ReportsPage } from "./reports/ReportsPage.tsx";
 import EditProfilePage from "../pages/profile/EditProfilePage.tsx";
 import ChangePasswordPage from "./profile/ChangePasswordPage.tsx";
+import SearchResultsPage from "./search/SearchResultsPage.tsx";
 const Pages = () => {
   const isAuthenticated = true; 
 
@@ -71,7 +72,7 @@ const Pages = () => {
         <Route element={<MainLayout />}>
 
           <Route
-            path="/profile"
+            path="/profile/:profileId?"
             element={
               isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />
             }
@@ -92,6 +93,13 @@ const Pages = () => {
             path="/feed"
             element={
               isAuthenticated ? <HomeFeed /> : <Navigate to="/login" />
+            }
+          />
+          {/* search */}
+          <Route
+            path="/search-results"
+            element={
+              isAuthenticated ? <SearchResultsPage /> : <Navigate to="/login" />
             }
           />
  {/* Admin */}

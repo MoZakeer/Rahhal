@@ -7,6 +7,7 @@ import SavedPosts from "../../features/profile/components/SavedPosts";
 import type { ProfileTab } from "../../features/profile/types/profile.types";
 
 const ProfilePage: React.FC = () => {
+  
   const auth = localStorage.getItem("auth");
   const parsedAuth = auth ? JSON.parse(auth) : null;
   const userid = parsedAuth?.userId || "";
