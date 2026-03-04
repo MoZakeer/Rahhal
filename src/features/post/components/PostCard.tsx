@@ -1,6 +1,7 @@
 import type { Post } from "../../../types/post";
 import type { PostMediaItem } from "../../../types/post";
 import { PostContent } from "./PostContent";
+import type { PostsResponse } from "../../../types/post";
 import {
   MoreHorizontal,
   Edit,
@@ -20,6 +21,7 @@ import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 // import { motion, AnimatePresence } from "framer-motion";
 import { ReportModal } from "../../reports/components/ReportModal";
 import { followUser } from "./services/posts.api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 export function PostHeader({
   id,
   userName,
@@ -338,7 +340,6 @@ export default function PostCard({
   const [isSaved, setIsSaved] = useState(post.isSaved ?? false);
   const [isLiked, setIsLiked] = useState(post.isLiked ?? false);
   const [likesCount, setLikesCount] = useState(post.likes ?? 0);
-  const [isFollowing, setIsFollowing] = useState(post.isFollowedByCurrentUser ?? false);
 
   const navigate = useNavigate();
   async function handleSaveToggle() {
@@ -382,20 +383,47 @@ export default function PostCard({
       console.error("Like failed", error);
     }
   }
-  async function handleFollow() {
-    const prevFollowing = isFollowing;
+  
+    const queryClient = useQueryClient();
 
-    // optimistic update
-    setIsFollowing(!prevFollowing);
+const followMutation = useMutation({
+  mutationFn: followUser,
 
-    try {
-      await followUser(post.userId);
-    } catch (error) {
-      setIsFollowing(prevFollowing);
-      console.error("Follow failed", error);
+  onMutate: async (userId: string) => {
+    await queryClient.cancelQueries({ queryKey: ["posts"] });
+
+const previousPosts = queryClient.getQueryData<PostsResponse>(["posts"]);
+   queryClient.setQueryData<PostsResponse>(["posts"], (old) => {
+  if (!old) return old;
+
+  return {
+    ...old,
+    data: {
+      ...old.data,
+      items: old.data.items.map((p) =>
+        p.userId === userId
+          ? {
+              ...p,
+              isFollowedByCurrentUser: !p.isFollowedByCurrentUser,
+            }
+          : p
+      ),
+    },
+  };
+});
+
+    return { previousPosts };
+  },
+
+  onError: (_err, _userId, context) => {
+    if (context?.previousPosts) {
+      queryClient.setQueryData(["posts"], context.previousPosts);
     }
-  }
-    
+  },
+});
+function handleFollow() {
+  followMutation.mutate(post.userId);
+}
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm mb-6 max-w-xl mx-auto">
       <PostHeader
@@ -403,12 +431,11 @@ export default function PostCard({
         userName={post.userName}
         profileUrl={post.profileUrl}
         profileId={post.userId}
-        isFollowing={isFollowing}
-        currentUserId={getUserId()}
+isFollowing={post.isFollowedByCurrentUser}
+  onFollow={handleFollow}        currentUserId={getUserId()}
         createdAt={post.createdDate}
         onDelete={handleDeletePost}
         onEdit={handleEditPost}
-        onFollow={handleFollow}
       />
 
       {!hasMedia && (

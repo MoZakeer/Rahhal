@@ -4,6 +4,7 @@ import * as commentApi from "../components/services/commentApi";
 import {  normalizeMediaUrl } from "./services/posts.api";
 import { useNavigate } from "react-router-dom";
 import { ReportModal } from "../../reports/components/ReportModal";
+import Skeleton from "react-loading-skeleton";
 type CommentItem = {
   commentId: string;
   profileId: string;
@@ -504,7 +505,12 @@ const mention = `@${comment.userName}${HIDDEN}`;
 
         <div className="max-h-[60vh] overflow-y-auto px-4 py-4 space-y-5">
           {loading ? (
-            <div className="text-center text-gray-500"></div>
+    <div className="space-y-4">
+      <Skeleton height={20} width={200} />
+      <Skeleton height={15} count={3} />
+      <Skeleton height={200} />
+    </div>
+  
           ) : comments.length === 0 ? (
             <div className="text-center text-gray-500">No comments yet</div>
           ) : (

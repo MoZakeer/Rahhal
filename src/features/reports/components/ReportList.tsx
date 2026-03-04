@@ -4,8 +4,8 @@ import { useReports } from "../hooks/useReports";
 import { CommentReportCard } from "./CommentReportCard";
 import { PostReportCard } from "./PostReportCard";
 import { UserReportCard } from "./UserReportCard";
-import Spinner from "../../../shared/components/Spinner";
-
+// import Spinner from "../../../shared/components/Spinner";
+import Skeleton from "react-loading-skeleton";
 interface Props {
   type: ReportType;
 }
@@ -24,7 +24,13 @@ export const ReportList = ({ type }: Props) => {
     );
   }, [data, sortDesc]);
 
-if (isLoading && !data) return <Spinner />;;
+if (isLoading && !data)  return (
+    <div className="space-y-4">
+      <Skeleton height={20} width={200} />
+      <Skeleton height={15} count={3} />
+      <Skeleton height={200} />
+    </div>
+  );;;
 
   return (
     <div className="space-y-4">
