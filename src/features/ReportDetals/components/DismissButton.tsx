@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { toast } from "react-hot-toast";
 
 type Props = {
@@ -16,6 +16,7 @@ export default function DismissButton({ type, id, onDismissSuccess }: Props) {
 
   const handleDismiss = async () => {
     setLoading(true);
+
     try {
       const token = JSON.parse(localStorage.getItem("user") || "{}")?.token;
       if (!token) throw new Error("Not authenticated");
@@ -43,15 +44,23 @@ export default function DismissButton({ type, id, onDismissSuccess }: Props) {
         data,
       });
 
-    
       setDismissed(true);
       setFlash(true);
       setTimeout(() => setFlash(false), 1000);
 
       onDismissSuccess?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      toast.error(error?.response?.data?.message || "Something went wrong");
+
+      if (axios.isAxiosError(error)) {
+        const message =
+          error.response?.data?.message || "Something went wrong";
+        toast.error(message);
+      } else if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Something went wrong");
+      }
     } finally {
       setLoading(false);
     }
@@ -62,7 +71,9 @@ export default function DismissButton({ type, id, onDismissSuccess }: Props) {
       onClick={handleDismiss}
       disabled={loading || dismissed}
       className={`flex items-center gap-2 text-sm transition px-2 py-1 rounded ${
-        dismissed ? "text-gray-300 cursor-not-allowed" : "text-gray-500 hover:text-gray-700"
+        dismissed
+          ? "text-gray-300 cursor-not-allowed"
+          : "text-gray-500 hover:text-gray-700"
       } ${flash ? "bg-green-100" : ""}`}
     >
       {loading ? (

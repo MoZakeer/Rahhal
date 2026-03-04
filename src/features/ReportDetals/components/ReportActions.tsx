@@ -42,7 +42,10 @@ export default function ReportActions({
   const handleConfirm = () => {
     if (type === "comments" && commentId) {
       removeCommentMutation.mutate(commentId, {
-        onSuccess: () => setOpenModal(false),
+        onSuccess: () => {
+          setOpenModal(false),
+          navigate("/reports");
+        }
       });
     }
 
@@ -70,6 +73,7 @@ export default function ReportActions({
           id={id}
           onDismissSuccess={() => {
             console.log("Reports dismissed successfully");
+            navigate("/reports");
           }}
         />
 

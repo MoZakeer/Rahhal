@@ -10,7 +10,7 @@ export interface BanPayload {
   targetId?: string;
 }
 
-export const banUser = async (payload: BanPayload): Promise<any> => {
+export const banUser = async (payload: BanPayload): Promise<unknown> => {
   const userJS = localStorage.getItem("user");
   if (!userJS) throw new Error("No token found");
 
