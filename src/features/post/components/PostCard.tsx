@@ -8,10 +8,8 @@ import {
   Trash2,
   Flag,
 } from "lucide-react";
-import { MapPinIcon as MapPinSolid } from "@heroicons/react/24/solid";
-import { MapPinIcon as MapPinOutline } from "@heroicons/react/24/outline";
+import { Bookmark } from "lucide-react";
 import { HeartIcon } from "@heroicons/react/24/outline";
-import { PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import { useState, useRef, useEffect } from "react";
 import { deletePost, normalizeMediaUrl, savePost, likePost } from "./services/posts.api";
 import { getUserId } from "../../../utils/auth";
@@ -311,17 +309,15 @@ export function PostActions({
   transition-all duration-500" />
   
         </button>
-       <button className="hover:scale-105 transition">
-  <PaperAirplaneIcon className="w-6 h-6 text-black rotate-315" />
-</button>
+      
       </div>
 
      <button onClick={onSave}>
   {saved ? (
-    <MapPinSolid className="w-6 h-6 text-primary-500 fill-primary-500 scale-100 hover:scale-110 
+    <Bookmark className="w-6 h-6 text-primary-500 fill-primary-500 scale-100 hover:scale-110 
   transition-all duration-500" />
   ) : (
-    <MapPinOutline className="w-6 h-6 text-black scale-100 transition-all duration-300" />
+    <Bookmark className="w-6 h-6 text-black scale-100 transition-all duration-300" />
   )}
 </button>
     </div>
