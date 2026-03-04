@@ -1,26 +1,27 @@
-import { createPortal } from "react-dom";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
-interface Props {
+
+interface BanDurationModalProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (hours: number | null) => void;
+  onConfirm: (hours: number | null) => Promise<void>;
 }
 
-export const BanDurationModal = ({ open, onClose, onConfirm }: Props) => {
+export const BanDurationModal = ({ open, onClose, onConfirm }: BanDurationModalProps) => {
   const [hours, setHours] = useState<number | null | "">("");
   const [loading, setLoading] = useState(false);
 
   if (!open) return null;
 
-  const isDisabled = hours === "" || loading;
+  const isDisabled = hours === "" || hours === 0 || loading;
 
   const handleSubmit = async () => {
-    if (hours === "") return;
-
+     console.log("handleSubmit called, hours:", hours);
+    if (isDisabled) return;
+    setLoading(true);
     try {
-      setLoading(true);
       await onConfirm(hours);
       onClose();
     } finally {
@@ -30,15 +31,11 @@ export const BanDurationModal = ({ open, onClose, onConfirm }: Props) => {
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      
       <div
         onClick={onClose}
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
       />
-
-      
       <div className="relative w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl p-6 space-y-5">
-        
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold text-gray-800">Ban Duration</h2>
           <button
@@ -48,13 +45,10 @@ export const BanDurationModal = ({ open, onClose, onConfirm }: Props) => {
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
-
-   
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-600">
             Select duration
           </label>
-
           <select
             value={hours === null ? "null" : hours}
             onChange={(e) => {
@@ -73,8 +67,6 @@ export const BanDurationModal = ({ open, onClose, onConfirm }: Props) => {
             <option value="null">Permanent</option>
           </select>
         </div>
-
-        
         <div className="flex gap-3 pt-2">
           <button
             onClick={onClose}
@@ -83,15 +75,14 @@ export const BanDurationModal = ({ open, onClose, onConfirm }: Props) => {
           >
             Cancel
           </button>
-
           <button
             onClick={handleSubmit}
             disabled={isDisabled}
-            className={`flex-1 py-2 rounded-xl text-white font-medium transition
-              ${isDisabled
+            className={`flex-1 py-2 rounded-xl text-white font-medium transition ${
+              isDisabled
                 ? "bg-red-300 cursor-not-allowed"
                 : "bg-red-500 hover:bg-red-600 active:scale-95"
-              }`}
+            }`}
           >
             {loading ? "Banning..." : "Confirm Ban"}
           </button>

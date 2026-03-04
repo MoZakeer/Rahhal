@@ -19,7 +19,7 @@ export function useEditPost(postId: string) {
     return userJS ? JSON.parse(userJS) : null;
   }
 
-  // ================= Fetch Post =================
+
   const fetchPost = async () => {
     const storedUser = getUserFromStorage();
     if (!storedUser) return;
@@ -37,10 +37,10 @@ export function useEditPost(postId: string) {
       const data = json.data;
       if (!data) return;
 
-      // ====== Set Caption ======
+      
       setCaption(data.description || "");
 
-      // ====== Set Media ======
+    
       const mediaData = data.media_URLs || [];
       setMedia(
         mediaData.map((m: { id: string; url: string }) => ({
@@ -49,7 +49,7 @@ export function useEditPost(postId: string) {
         }))
       );
 
-      // ====== Set User from Post data ======
+    
       setUser({
         name: data.userName || "Unknown User",
         username: data.userName || "unknown",
@@ -65,7 +65,7 @@ export function useEditPost(postId: string) {
     fetchPost();
   }, [postId]);
 
-  // ================= Update Post =================
+
   const handleUpdatePost = async () => {
     if (!caption.trim()) return;
 
