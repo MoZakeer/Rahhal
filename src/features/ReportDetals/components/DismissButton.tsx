@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { X } from "lucide-react";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { toast } from "react-hot-toast";
 
 type Props = {

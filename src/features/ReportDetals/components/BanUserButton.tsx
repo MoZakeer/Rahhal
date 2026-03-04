@@ -1,5 +1,3 @@
-// components/BanUserButton.tsx
-import React from "react";
 import { UserX } from "lucide-react";
 
 export default function BanUserButton({ onClick }: { onClick?: () => void }) {

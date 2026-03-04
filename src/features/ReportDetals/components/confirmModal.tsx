@@ -1,6 +1,4 @@
 
-import React from "react";
-
 interface Props {
   open: boolean;
   onClose: () => void;
