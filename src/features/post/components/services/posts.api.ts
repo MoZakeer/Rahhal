@@ -17,6 +17,33 @@ export async function getPosts(): Promise<PostsResponse> {
 
   return res.json();
 }
+export async function getPostsInfinite(
+  pageIndex = 1,
+  pageSize = 10,
+  SortByLastAdded = true
+): Promise<PostsResponse> {
+
+  const queryParams = new URLSearchParams({
+    PageNumber: pageIndex.toString(),
+    PageSize: pageSize.toString(),
+    SortByLastAdded: SortByLastAdded.toString(),
+  });
+
+  const res = await fetch(
+    `${BASE_URL}/Post/GetAll?${queryParams}`,
+    {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch posts");
+  }
+
+  return res.json();
+}
 
 export async function likePost(postId: string) {
   const res = await fetch(`${BASE_URL}/Like/AddToPost`, {
