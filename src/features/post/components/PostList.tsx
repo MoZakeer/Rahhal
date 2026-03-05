@@ -1,30 +1,60 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useRef,  useCallback } from "react";
 import Skeleton from "react-loading-skeleton";
-import { getPosts } from "../../post/components/services/posts.api";
+import { getPostsInfinite } from "../../post/components/services/posts.api";
 import PostCard from "../components/PostCard";
 
 export default function PostsList() {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["posts"],
-    queryFn: getPosts,
-   staleTime: 0,
-  refetchOnMount: true,
-  refetchOnWindowFocus: true,
-    select: (data) => ({
-      ...data,
-      data: {
-        ...data.data,
-        items: [...(data.data.items ?? [])].sort(
-          (a, b) =>
-            new Date(b.createdDate ?? 0).getTime() -
-            new Date(a.createdDate ?? 0).getTime()
-        ),
-      },
-    }),
 
+  const observer = useRef<IntersectionObserver | null>(null);
+
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["posts"],
+    queryFn: ({ pageParam }) =>
+      getPostsInfinite(pageParam as number, 10, true),
+
+    initialPageParam: 1,
+
+    getNextPageParam: (lastPage) => {
+      if (lastPage.data.pageIndex < lastPage.data.pages) {
+        return lastPage.data.pageIndex + 1;
+      }
+      return undefined;
+    },
+staleTime:0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
-  const posts = data?.data?.items ?? [];
+  const posts =
+    data?.pages.flatMap((page) => page.data?.items ?? []) ?? [];
+
+  const lastPostRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (isFetchingNextPage) return;
+
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasNextPage) {
+          fetchNextPage();
+        }
+      },
+      {
+        rootMargin: "300px"
+      });
+
+      if (node) observer.current.observe(node);
+    },
+    [isFetchingNextPage, hasNextPage, fetchNextPage]
+  );
 
   if (isLoading) {
     return (
@@ -46,9 +76,22 @@ export default function PostsList() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-6">
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
+      {posts.map((post, index) => {
+
+        if (index === posts.length - 1) {
+          return (
+            <div ref={lastPostRef} key={post.id}>
+              <PostCard post={post} />
+            </div>
+          );
+        }
+
+        return <PostCard key={post.id} post={post} />;
+      })}
+
+      {isFetchingNextPage && (
+        <Skeleton height={200} className="rounded-xl" />
+      )}
     </div>
   );
 }
