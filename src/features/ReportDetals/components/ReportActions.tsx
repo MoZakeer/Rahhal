@@ -77,7 +77,7 @@ export default function ReportActions({
     setMessage("");
 
     const durationInHours = hours === null ? null : Math.max(hours, 1);
-    const targetType = type === "posts" ? 2 : type === "comments" ? 3 : 1;
+    const targetType = type === "posts" ? 1 : type === "comments" ? 2 : 3;
     const targetId = type === "posts" ? postId : type === "comments" ? commentId : null;
 
     console.log("Ban payload:", {
@@ -99,7 +99,7 @@ export default function ReportActions({
       });
 
       if (data.isSuccess) {
-        setMessage("User banned successfully ✅");
+        navigate("/reports");
       } else {
         setMessage(`Error: ${data.message}`);
       }
@@ -130,6 +130,7 @@ export default function ReportActions({
           <BanUserButton
             onClick={() => setOpenBanModal(true)}
             disabled={loadingBan}
+            
           />
         </div>
       </div>
