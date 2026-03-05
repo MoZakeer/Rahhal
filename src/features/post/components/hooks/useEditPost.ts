@@ -99,7 +99,7 @@ export function useEditPost(postId: string) {
 
       await fetchPost();
       navigate("/feed");
-toast("Updated post!", {
+toast("Updating post!", {
             duration: 2000,
   style: {
     border: "1px solid #gray", 
