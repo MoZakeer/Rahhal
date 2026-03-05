@@ -2,6 +2,8 @@ import type { Post } from "../../../types/post";
 import type { PostMediaItem } from "../../../types/post";
 import { PostContent } from "./PostContent";
 import type { PostsResponse } from "../../../types/post";
+import toast from "react-hot-toast";
+
 import {
   MoreHorizontal,
   Edit,
@@ -356,6 +358,20 @@ export default function PostCard({
 
   function handleDelete() {
     deleteMutation.mutate(post.id);
+           toast("Deleting post!", {
+            duration: 2000,
+  style: {
+    border: "1px solid #ef4444", 
+    padding: "5px",
+    color: "#ef4444",
+    background: "#FFFfff",
+  },
+  iconTheme: {
+    primary: "#ef4444",
+    secondary: "#FFFfff",
+  },
+});
+
   }
   
     const queryClient = useQueryClient();
