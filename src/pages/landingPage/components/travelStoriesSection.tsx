@@ -4,16 +4,16 @@ import { useNavigate } from "react-router-dom";
 
 import PostCard from "../../../features/post/components/PostCard";
 import type { Post, PostsResponse } from "../../../types/post";
-import { getAllPosts } from "../../../features/post/components/services/posts.api";
+import { getPosts } from "../../../features/post/components/services/posts.api";
 
-interface Props {
-  onPostDeleted?: (id: string) => void;
-}
+// interface Props {
+//   onPostDeleted?: (id: string) => void;
+// }
 
-export default function TravelStoriesSection({ onPostDeleted }: Props) {
+export default function TravelStoriesSection( ) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error] = useState<string | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -22,10 +22,11 @@ export default function TravelStoriesSection({ onPostDeleted }: Props) {
     async function fetchPosts() {
       try {
         setLoading(true);
-        const response: PostsResponse = await getAllPosts();
+        const response: PostsResponse = await getPosts();
         setPosts(response.data.items || []);
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch posts");
+      } catch (error
+      ) {
+        console.error("Error fetching posts", error);
       } finally {
         setLoading(false);
       }
@@ -34,10 +35,10 @@ export default function TravelStoriesSection({ onPostDeleted }: Props) {
     fetchPosts();
   }, []);
 
-  const handleDelete = (id: string) => {
-    setPosts((prev) => prev.filter((p) => p.id !== id));
-    if (onPostDeleted) onPostDeleted(id);
-  };
+  // const handleDelete = (id: string) => {
+  //   setPosts((prev) => prev.filter((p) => p.id !== id));
+  //   if (onPostDeleted) onPostDeleted(id);
+  // };
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -132,7 +133,7 @@ export default function TravelStoriesSection({ onPostDeleted }: Props) {
               >
                 <PostCard
                   post={post}
-                  onPostDeleted={handleDelete}
+                  // onPostDeleted={handleDelete}
                 />
               </div>
             ))}

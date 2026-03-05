@@ -11,7 +11,8 @@ import {
 import { Bookmark } from "lucide-react";
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { useState, useRef, useEffect } from "react";
-import { deletePost, normalizeMediaUrl, savePost, likePost } from "./services/posts.api";
+// import { deletePost, normalizeMediaUrl, savePost, likePost } from "./services/posts.api";
+import { normalizeMediaUrl } from "./services/posts.api";
 import { getUserId } from "../../../utils/auth";
 import { CommentsModal } from "../components/CommentsModal";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +21,8 @@ import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import { ReportModal } from "../../reports/components/ReportModal";
 import { followUser } from "./services/posts.api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLikePost, useSavePost, useDeletePost } from "./hooks/usePosts";
+
 export function PostHeader({
   id,
   userName,
@@ -326,58 +329,33 @@ export function PostActions({
 
 export default function PostCard({
   post,
-  onPostDeleted,
+  // onPostDeleted,
 }: {
   post: Post;
-  onPostDeleted?: (postId: string) => void;
+  // onPostDeleted?: (postId: string) => void;
 }) {
   const hasMedia = post.mediaUrLs && post.mediaUrLs.length > 0;
   const [commentsOpen, setCommentsOpen] = useState(false);
-  const [isSaved, setIsSaved] = useState(post.isSaved ?? false);
-  const [isLiked, setIsLiked] = useState(post.isLiked ?? false);
-  const [likesCount, setLikesCount] = useState(post.likes ?? 0);
-
+  
   const navigate = useNavigate();
-  async function handleSaveToggle() {
-    const prev = isSaved;
-    setIsSaved(!prev);
-
-    try {
-      await savePost(post.id);
-    } catch (err) {
-      console.error(err);
-      setIsSaved(prev);
-
-    }
-  }
-
-  async function handleDeletePost() {
-    try {
-      await deletePost(post.id);
-      onPostDeleted?.(post.id);
-    } catch (err) {
-      console.error(err);
-    }
-  }
 
   function handleEditPost() {
     navigate(`/edit-post/${post.id}`);
   }
-  async function handleLike() {
-    const prevLiked = isLiked;
+  const likeMutation = useLikePost();
+  const saveMutation = useSavePost();
+  const deleteMutation = useDeletePost();
 
-    // optimistic update
-    setIsLiked(!prevLiked);
-    setLikesCount(prevLiked ? likesCount - 1 : likesCount + 1);
+  function handleLike() {
+    likeMutation.mutate(post.id);
+  }
 
-    try {
-      await likePost(post.id);
-    } catch (error) {
-      setIsLiked(prevLiked);
-      setLikesCount(likesCount);
+  function handleSave() {
+    saveMutation.mutate(post.id);
+  }
 
-      console.error("Like failed", error);
-    }
+  function handleDelete() {
+    deleteMutation.mutate(post.id);
   }
   
     const queryClient = useQueryClient();
@@ -430,7 +408,7 @@ function handleFollow() {
 isFollowing={post.isFollowedByCurrentUser}
   onFollow={handleFollow}        currentUserId={getUserId()}
         createdAt={post.createdDate}
-        onDelete={handleDeletePost}
+        onDelete={handleDelete}
         onEdit={handleEditPost}
       />
 
@@ -445,15 +423,15 @@ isFollowing={post.isFollowedByCurrentUser}
 
       <PostActions
 
-        liked={isLiked}
-        saved={isSaved}
+        liked={post.isLiked ?? false}
+        saved={post.isSaved ?? false}
         onLike={handleLike}
-        onSave={handleSaveToggle}
+        onSave={handleSave}
         onComment={() => setCommentsOpen(true)}
       />
 
       <div className="px-4 text-sm font-semibold mt-1">
-        {likesCount} likes
+        {post.likes} likes
       </div>
 
       {hasMedia && (
@@ -467,7 +445,6 @@ isFollowing={post.isFollowedByCurrentUser}
     className="px-4 pb-3 text-sm text-gray-500 cursor-pointer"
     onClick={() => setCommentsOpen(true)}
   >
-    View all {post.comments ?? 0} comments
   </div>
 )}
       <CommentsModal
