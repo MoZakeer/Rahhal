@@ -50,8 +50,6 @@ export function PostHeader({
   onFollow?: () => void;
 }) {
   const navigate = useNavigate();
-console.log("logged:", currentUserId);
-console.log("post owner:", profileId);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   // Close dropdown when clicking outside
