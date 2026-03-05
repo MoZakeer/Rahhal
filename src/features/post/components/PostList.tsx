@@ -7,7 +7,9 @@ export default function PostsList() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["posts"],
     queryFn: getPosts,
-
+   staleTime: 0,
+  refetchOnMount: true,
+  refetchOnWindowFocus: true,
     select: (data) => ({
       ...data,
       data: {
@@ -20,7 +22,6 @@ export default function PostsList() {
       },
     }),
 
-    staleTime: 1000 * 60, // 1 minute cache
   });
 
   const posts = data?.data?.items ?? [];

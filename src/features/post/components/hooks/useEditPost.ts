@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import type { EditMedia } from "../services/editPost";
+import toast from "react-hot-toast";
 
 export function useEditPost(postId: string) {
   const navigate = useNavigate();
@@ -96,9 +97,21 @@ export function useEditPost(postId: string) {
 
       if (!res.ok) throw new Error("Failed to update post");
 
-      console.log("Post updated successfully ✅");
       await fetchPost();
       navigate("/feed");
+toast("Updated post!", {
+            duration: 2000,
+  style: {
+    border: "1px solid #gray", 
+    padding: "5px",
+    color: "gray",
+    background: "#FFFfff",
+  },
+  iconTheme: {
+    primary: "#06b6d4",
+    secondary: "#FFFfff",
+  },
+});   
     } catch (err) {
       console.log("Error updating post ❌", err);
     } finally {

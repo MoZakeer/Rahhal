@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import type { EditMedia } from "../services/createPost";
-
+import toast from "react-hot-toast";
 export function useCreatePost() {
   const navigate = useNavigate();
   const DEFAULT_AVATAR = "https://www.gravatar.com/avatar/?d=mp&f=y";
@@ -88,8 +88,20 @@ export function useCreatePost() {
       setCaption("");
       setMedia([]);
       navigate("/feed");
-    } catch (err: any) {
-      console.log("ERROR", err.response?.data || err.message);
+ toast("All set! Your post is out there", {
+            duration: 2000,
+  style: {
+    border: "1px solid #gray", 
+    padding: "5px",
+    color: "gray",
+    background: "#FFFfff",
+  },
+  iconTheme: {
+    primary: "#06b6d4",
+    secondary: "#FFFfff",
+  },
+});    } catch (error) {
+      console.log("ERROR", error);
     } finally {
       setIsPosting(false);
     }
