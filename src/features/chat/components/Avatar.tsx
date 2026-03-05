@@ -1,4 +1,4 @@
-function Avatar({ src }) {
+function Avatar({ src }: { src: string }) {
   const source = !src ? "./avater.png" : src;
   return (
     <img

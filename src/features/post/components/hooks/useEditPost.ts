@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import type { EditMedia } from "../services/editPost";
+import toast from "react-hot-toast";
 
 export function useEditPost(postId: string) {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ export function useEditPost(postId: string) {
     return userJS ? JSON.parse(userJS) : null;
   }
 
-  // ================= Fetch Post =================
+
   const fetchPost = async () => {
     const storedUser = getUserFromStorage();
     if (!storedUser) return;
@@ -37,10 +38,10 @@ export function useEditPost(postId: string) {
       const data = json.data;
       if (!data) return;
 
-      // ====== Set Caption ======
+      
       setCaption(data.description || "");
 
-      // ====== Set Media ======
+    
       const mediaData = data.media_URLs || [];
       setMedia(
         mediaData.map((m: { id: string; url: string }) => ({
@@ -49,7 +50,7 @@ export function useEditPost(postId: string) {
         }))
       );
 
-      // ====== Set User from Post data ======
+    
       setUser({
         name: data.userName || "Unknown User",
         username: data.userName || "unknown",
@@ -65,7 +66,7 @@ export function useEditPost(postId: string) {
     fetchPost();
   }, [postId]);
 
-  // ================= Update Post =================
+
   const handleUpdatePost = async () => {
     if (!caption.trim()) return;
 
@@ -96,9 +97,21 @@ export function useEditPost(postId: string) {
 
       if (!res.ok) throw new Error("Failed to update post");
 
-      console.log("Post updated successfully ✅");
       await fetchPost();
       navigate("/feed");
+toast("Updating post!", {
+            duration: 2000,
+  style: {
+    border: "1px solid #gray", 
+    padding: "5px",
+    color: "gray",
+    background: "#FFFfff",
+  },
+  iconTheme: {
+    primary: "#06b6d4",
+    secondary: "#FFFfff",
+  },
+});   
     } catch (err) {
       console.log("Error updating post ❌", err);
     } finally {

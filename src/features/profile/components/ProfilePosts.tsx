@@ -88,9 +88,9 @@ const ProfilePosts = ({ profileId }: Props) => {
             <div key={post.id} className="max-w-full">
               <PostCard
                 post={post}
-                onPostDeleted={() => {
-                  setPosts((prev) => prev.filter((p) => p.id !== post.id));
-                }}
+                // onPostDeleted={() => {
+                //   setPosts((prev) => prev.filter((p) => p.id !== post.id));
+                // }}
                 // لو حبيتي ممكن تعمل نسخة صغيرة للكارد
                 // عن طريق تعديل الـ padding أو font-size داخل PostCard
               />

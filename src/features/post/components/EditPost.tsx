@@ -16,20 +16,18 @@ export default function EditPostPage() {
 
   return (
     <div className="box px-4 py-8 sm:px-8 sm:py-10 gap-8">
-      {/* Header */}
+      
       <PostHeader onPost={handleUpdatePost} isPosting={loading} title="Edit Post" mode="edit" />
 
-      {/* User Info */}
+      
       {user ? <PostUser {...user} /> : 
        <div className="text-gray-500 text-sm">
           <Spinner />
           <p className="mt-4 text-gray-600">Loading user...</p>
         </div>}
 
-      {/* Caption */}
       <PostCaption caption={caption} onChange={setCaption} maxChars={MAX_CHARS} />
 
-      {/* Media */}
       <PostMedia media={media} setMedia={setMedia} fileRef={fileRef} />
     </div>
   );

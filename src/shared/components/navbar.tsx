@@ -32,6 +32,9 @@ export default function Navbar() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("auth");
+    localStorage.removeItem("user");
+    
     setHasToken(false);
     setMobileOpen(false);
     navigate("/landing-page");

@@ -1,66 +1,54 @@
-import { useEffect, useRef, useState } from "react";
-import { getAllPosts } from "../../post/components/services/posts.api";
-import type { Post } from "../../../types/post";
+import { useQuery } from "@tanstack/react-query";
+import Skeleton from "react-loading-skeleton";
+import { getPosts } from "../../post/components/services/posts.api";
 import PostCard from "../components/PostCard";
-import Spinner from "../../../shared/components/Spinner";
 
 export default function PostsList() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["posts"],
+    queryFn: getPosts,
+   staleTime: 0,
+  refetchOnMount: true,
+  refetchOnWindowFocus: true,
+    select: (data) => ({
+      ...data,
+      data: {
+        ...data.data,
+        items: [...(data.data.items ?? [])].sort(
+          (a, b) =>
+            new Date(b.createdDate ?? 0).getTime() -
+            new Date(a.createdDate ?? 0).getTime()
+        ),
+      },
+    }),
 
-  const hasFetched = useRef(false); 
+  });
 
-  async function fetchPosts() {
-    setLoading(true);
-    setError(null);
+  const posts = data?.data?.items ?? [];
 
-    try {
-      const res = await getAllPosts();
-
-      if (res.isSuccess) {
-        setPosts(res.data.items ?? []);
-      } else {
-        setError(res.message || "Failed to load posts");
-      }
-    } catch {
-      setError("Something went wrong");
-    } finally {
-      setLoading(false);
-    }
+  if (isLoading) {
+    return (
+      <div className="space-y-6 max-w-xl mx-auto">
+        {[...Array(3)].map((_, i) => (
+          <Skeleton key={i} height={300} className="rounded-xl" />
+        ))}
+      </div>
+    );
   }
 
-  useEffect(() => {
-    if (hasFetched.current) return; 
-    hasFetched.current = true;
-
-    fetchPosts();
-  }, []);
-
-  function handleRemovePost(postId: string) {
-    setPosts((prev) => prev.filter((p) => p.id !== postId));
+  if (isError) {
+    return (
+      <p className="text-center text-red-500">
+        Failed to load posts
+      </p>
+    );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 space-y-4">
-      {loading ? (
-        <div className="flex flex-col items-center my-20">
-          <Spinner />
-          <p className="mt-4 text-gray-600">Loading posts...</p>
-        </div>
-      ) : error ? (
-        <p className="text-red-500 text-center my-4">{error}</p>
-      ) : posts.length === 0 ? (
-        <p className="text-center text-gray-500 my-4">No posts available.</p>
-      ) : (
-        posts.map((post) => (
-          <PostCard
-            key={post.id}
-            post={post}
-            onPostDeleted={handleRemovePost}
-          />
-        ))
-      )}
+    <div className="max-w-4xl mx-auto p-4 space-y-6">
+      {posts.map((post) => (
+        <PostCard key={post.id} post={post} />
+      ))}
     </div>
   );
 }

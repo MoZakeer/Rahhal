@@ -16,9 +16,9 @@ export default function ProfileSettingsDrawer({
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
+  localStorage.clear();
+  navigate("/landing-page");
+};
 
   return (
     <AnimatePresence>

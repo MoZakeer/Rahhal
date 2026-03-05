@@ -49,6 +49,7 @@ import { ReportsPage } from "./reports/ReportsPage.tsx";
 import EditProfilePage from "../pages/profile/EditProfilePage.tsx";
 import ChangePasswordPage from "./profile/ChangePasswordPage.tsx";
 import SearchResultsPage from "./search/SearchResultsPage.tsx";
+import ReportsDetails from "./reports/reportDetailsPage.tsx";
 const Pages = () => {
   const isAuthenticated = true; 
 
@@ -66,6 +67,8 @@ const Pages = () => {
           <Route path="/create-post" element={<CreatePost />} />
           <Route path="/edit-post/:postId" element={<EditPost />} />
           <Route path="/landing-page" element={<LandingPage />} />
+          <Route path="/report_details/:id" element={<ReportsDetails />} />
+          <Route path="/reports" element={<ReportsPage />} />
         </Route>
 
         <Route

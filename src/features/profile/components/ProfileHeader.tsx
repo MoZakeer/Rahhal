@@ -23,8 +23,10 @@ const ProfileHeader = () => {
     if (option === "edit") navigate("/profile/edit");
     else if (option === "settings") navigate("/settings");
     else if (option === "logout") {
+      localStorage.removeItem("auth");
       localStorage.removeItem("token");
-      navigate("/login");
+      localStorage.removeItem("user");
+      navigate("/landing-page");
     }
   };
 
@@ -38,7 +40,7 @@ const ProfileHeader = () => {
       >
         {/* Left: Image + Info */}
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 w-full sm:w-auto">
-          <motion.div className="rounded-full overflow-hidden flex-shrink-0">
+          <motion.div className="rounded-full overflow-hidden shrink-0">
             <img
               src={
                 profile.profilePicture

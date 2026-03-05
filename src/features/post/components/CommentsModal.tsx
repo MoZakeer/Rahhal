@@ -4,6 +4,10 @@ import * as commentApi from "../components/services/commentApi";
 import {  normalizeMediaUrl } from "./services/posts.api";
 import { useNavigate } from "react-router-dom";
 import { ReportModal } from "../../reports/components/ReportModal";
+import Skeleton from "react-loading-skeleton";
+import MyEmojiPicker from "../../chat/components/EmojiPicker";
+import { HiOutlineFaceSmile } from "react-icons/hi2";
+
 type CommentItem = {
   commentId: string;
   profileId: string;
@@ -64,7 +68,14 @@ export function CommentsModal({
 const [isReportOpen, setIsReportOpen] = useState(false);
   const commentsEndRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
-
+const [showReplyEmoji, setShowReplyEmoji] = useState(false);
+const [showCommentEmoji, setShowCommentEmoji] = useState(false);  
+function handleEmojiSelect(emoji: string) {
+    setReplyText((text) => text + emoji);
+}
+    function handleEmojiSelectComment(emoji: string) {
+    setNewComment((text) => text + emoji);
+  }
   const fetchComments = async () => {
     setLoading(true);
     try {
@@ -289,11 +300,11 @@ const regex = new RegExp(`@[^${HIDDEN}]+${HIDDEN}`, "g");
                   </button>
                 </div>
               ) : (
-                <div className="rounded-2xl bg-gray-50 border border-black/5 px-3 py-2">
+                <div className="rounded-2xl  ">
                   <p className="text-sm leading-5 break-words">
                     <span onClick={() => navigate(`/profile/${comment.profileId}`)}
-  className="font-semibold cursor-pointer hover:underline">{comment.userName}</span>
-{renderWithMentions(comment.description)}               </p>
+  className="font-semibold cursor-pointer  ">{comment.userName}</span>
+ <p className="rounded-2xl bg-gray-50 border border-black/5 px-3 py-2">{renderWithMentions(comment.description)}</p>               </p>
                 </div>
               )}
             </div>
@@ -425,7 +436,7 @@ const mention = `@${comment.userName}${HIDDEN}`;
           )}
 
           {!isReply && repliesOpenMap[id] && (
-            <div className="mt-2 flex gap-3 w-full">
+            <div  className="mt-2 flex gap-3 w-full">
               <div className="w-9 flex justify-center">
                 <div className="relative w-px bg-gray-200 rounded-full">
                   <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-gray-200" />
@@ -451,8 +462,29 @@ const mention = `@${comment.userName}${HIDDEN}`;
                 <span className="font-semibold text-gray-700">@{replyingToName}</span>
               </div>
 
-              <div className="flex gap-2 items-center flex-wrap w-full">
-                <input
+              <div className="relative flex gap-2 items-center flex-wrap w-full">
+  <button 
+    type="button"
+onClick={() => {
+  setShowReplyEmoji(prev => !prev);
+  setShowCommentEmoji(false);
+}}    className="cursor-pointer transition-all duration-300 hover:bg-gray-100 p-2 rounded-full"
+  >
+    <HiOutlineFaceSmile className="w-7 h-7 text-gray-700" />
+  </button>
+
+{showReplyEmoji && (    <div
+      className="absolute -left-8 bottom-full -mb-17 z-50 flex"
+      onClick={() => setShowReplyEmoji(false)}
+    >
+      <div
+        className="ml-6 mb-24"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <MyEmojiPicker onSelect={handleEmojiSelect} width={300} height={320} />
+      </div>
+    </div>
+  )}           <input
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   placeholder="Write a reply..."
@@ -504,7 +536,12 @@ const mention = `@${comment.userName}${HIDDEN}`;
 
         <div className="max-h-[60vh] overflow-y-auto px-4 py-4 space-y-5">
           {loading ? (
-            <div className="text-center text-gray-500"></div>
+    <div className="space-y-4">
+      <Skeleton height={20} width={200} />
+      <Skeleton height={15} count={3} />
+      <Skeleton height={200} />
+    </div>
+  
           ) : comments.length === 0 ? (
             <div className="text-center text-gray-500">No comments yet</div>
           ) : (
@@ -513,7 +550,30 @@ const mention = `@${comment.userName}${HIDDEN}`;
           <div ref={commentsEndRef} />
         </div>
 
-        <div className="border-t px-4 py-3 flex gap-3 items-center bg-white flex-wrap">
+        <div className=" relative w-full border-t px-4 py-3 flex gap-3 items-center bg-white flex-wrap">
+  <button 
+    type="button"
+onClick={() => {
+  setShowCommentEmoji(prev => !prev);
+  setShowReplyEmoji(false);
+}}    className="cursor-pointer transition-all duration-300 hover:bg-gray-100 p-2 rounded-full"
+  >
+    <HiOutlineFaceSmile className="w-8 h-8 text-gray-700" />
+  </button>
+
+  {showCommentEmoji && (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-start"
+      onClick={() => setShowCommentEmoji(false)}
+    >
+      <div
+        className="ml-6 mb-24"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <MyEmojiPicker onSelect={handleEmojiSelectComment} />
+      </div>
+    </div>
+  )}
           <input
             placeholder="Add a comment..."
             value={newComment}

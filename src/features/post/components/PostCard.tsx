@@ -1,18 +1,20 @@
 import type { Post } from "../../../types/post";
 import type { PostMediaItem } from "../../../types/post";
 import { PostContent } from "./PostContent";
+import type { PostsResponse } from "../../../types/post";
+import toast from "react-hot-toast";
+
 import {
   MoreHorizontal,
   Edit,
   Trash2,
   Flag,
 } from "lucide-react";
-import { MapPinIcon as MapPinSolid } from "@heroicons/react/24/solid";
-import { MapPinIcon as MapPinOutline } from "@heroicons/react/24/outline";
+import { Bookmark } from "lucide-react";
 import { HeartIcon } from "@heroicons/react/24/outline";
-import { PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import { useState, useRef, useEffect } from "react";
-import { deletePost, normalizeMediaUrl, savePost, likePost } from "./services/posts.api";
+// import { deletePost, normalizeMediaUrl, savePost, likePost } from "./services/posts.api";
+import { normalizeMediaUrl } from "./services/posts.api";
 import { getUserId } from "../../../utils/auth";
 import { CommentsModal } from "../components/CommentsModal";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +22,9 @@ import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 // import { motion, AnimatePresence } from "framer-motion";
 import { ReportModal } from "../../reports/components/ReportModal";
 import { followUser } from "./services/posts.api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLikePost, useSavePost, useDeletePost } from "./hooks/usePosts";
+
 export function PostHeader({
   id,
   userName,
@@ -309,17 +314,15 @@ export function PostActions({
   transition-all duration-500" />
   
         </button>
-       <button className="hover:scale-105 transition">
-  <PaperAirplaneIcon className="w-6 h-6 text-black rotate-315" />
-</button>
+      
       </div>
 
      <button onClick={onSave}>
   {saved ? (
-    <MapPinSolid className="w-6 h-6 text-primary-500 fill-primary-500 scale-100 hover:scale-110 
+    <Bookmark className="w-6 h-6 text-primary-500 fill-primary-500 scale-100 hover:scale-110 
   transition-all duration-500" />
   ) : (
-    <MapPinOutline className="w-6 h-6 text-black scale-100 transition-all duration-300" />
+    <Bookmark className="w-6 h-6 text-black scale-100 transition-all duration-300" />
   )}
 </button>
     </div>
@@ -328,74 +331,89 @@ export function PostActions({
 
 export default function PostCard({
   post,
-  onPostDeleted,
+  // onPostDeleted,
 }: {
   post: Post;
-  onPostDeleted?: (postId: string) => void;
+  // onPostDeleted?: (postId: string) => void;
 }) {
   const hasMedia = post.mediaUrLs && post.mediaUrLs.length > 0;
   const [commentsOpen, setCommentsOpen] = useState(false);
-  const [isSaved, setIsSaved] = useState(post.isSaved ?? false);
-  const [isLiked, setIsLiked] = useState(post.isLiked ?? false);
-  const [likesCount, setLikesCount] = useState(post.likes ?? 0);
-  const [isFollowing, setIsFollowing] = useState(post.isFollowedByCurrentUser ?? false);
-
+  
   const navigate = useNavigate();
-  async function handleSaveToggle() {
-    const prev = isSaved;
-    setIsSaved(!prev);
-
-    try {
-      await savePost(post.id);
-    } catch (err) {
-      console.error(err);
-      setIsSaved(prev);
-
-    }
-  }
-
-  async function handleDeletePost() {
-    try {
-      await deletePost(post.id);
-      onPostDeleted?.(post.id);
-    } catch (err) {
-      console.error(err);
-    }
-  }
 
   function handleEditPost() {
     navigate(`/edit-post/${post.id}`);
   }
-  async function handleLike() {
-    const prevLiked = isLiked;
+  const likeMutation = useLikePost();
+  const saveMutation = useSavePost();
+  const deleteMutation = useDeletePost();
 
-    // optimistic update
-    setIsLiked(!prevLiked);
-    setLikesCount(prevLiked ? likesCount - 1 : likesCount + 1);
-
-    try {
-      await likePost(post.id);
-    } catch (error) {
-      setIsLiked(prevLiked);
-      setLikesCount(likesCount);
-
-      console.error("Like failed", error);
-    }
+  function handleLike() {
+    likeMutation.mutate(post.id);
   }
-  async function handleFollow() {
-    const prevFollowing = isFollowing;
 
-    // optimistic update
-    setIsFollowing(!prevFollowing);
-
-    try {
-      await followUser(post.userId);
-    } catch (error) {
-      setIsFollowing(prevFollowing);
-      console.error("Follow failed", error);
-    }
+  function handleSave() {
+    saveMutation.mutate(post.id);
   }
-    
+
+  function handleDelete() {
+    deleteMutation.mutate(post.id);
+           toast("Deleting post!", {
+            duration: 2000,
+  style: {
+    border: "1px solid #ef4444", 
+    padding: "5px",
+    color: "#ef4444",
+    background: "#FFFfff",
+  },
+  iconTheme: {
+    primary: "#ef4444",
+    secondary: "#FFFfff",
+  },
+});
+
+  }
+  
+    const queryClient = useQueryClient();
+
+const followMutation = useMutation({
+  mutationFn: followUser,
+
+  onMutate: async (userId: string) => {
+    await queryClient.cancelQueries({ queryKey: ["posts"] });
+
+const previousPosts = queryClient.getQueryData<PostsResponse>(["posts"]);
+   queryClient.setQueryData<PostsResponse>(["posts"], (old) => {
+  if (!old) return old;
+
+  return {
+    ...old,
+    data: {
+      ...old.data,
+      items: old.data.items.map((p) =>
+        p.userId === userId
+          ? {
+              ...p,
+              isFollowedByCurrentUser: !p.isFollowedByCurrentUser,
+            }
+          : p
+      ),
+    },
+  };
+});
+
+    return { previousPosts };
+  },
+
+  onError: (_err, _userId, context) => {
+    if (context?.previousPosts) {
+      queryClient.setQueryData(["posts"], context.previousPosts);
+    }
+  },
+});
+function handleFollow() {
+  followMutation.mutate(post.userId);
+}
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm mb-6 max-w-xl mx-auto">
       <PostHeader
@@ -403,12 +421,11 @@ export default function PostCard({
         userName={post.userName}
         profileUrl={post.profileUrl}
         profileId={post.userId}
-        isFollowing={isFollowing}
-        currentUserId={getUserId()}
+isFollowing={post.isFollowedByCurrentUser}
+  onFollow={handleFollow}        currentUserId={getUserId()}
         createdAt={post.createdDate}
-        onDelete={handleDeletePost}
+        onDelete={handleDelete}
         onEdit={handleEditPost}
-        onFollow={handleFollow}
       />
 
       {!hasMedia && (
@@ -422,15 +439,15 @@ export default function PostCard({
 
       <PostActions
 
-        liked={isLiked}
-        saved={isSaved}
+        liked={post.isLiked ?? false}
+        saved={post.isSaved ?? false}
         onLike={handleLike}
-        onSave={handleSaveToggle}
+        onSave={handleSave}
         onComment={() => setCommentsOpen(true)}
       />
 
       <div className="px-4 text-sm font-semibold mt-1">
-        {likesCount} likes
+        {post.likes} likes
       </div>
 
       {hasMedia && (
@@ -444,7 +461,6 @@ export default function PostCard({
     className="px-4 pb-3 text-sm text-gray-500 cursor-pointer"
     onClick={() => setCommentsOpen(true)}
   >
-    View all {post.comments ?? 0} comments
   </div>
 )}
       <CommentsModal
