@@ -3,7 +3,7 @@ function Avatar({ src }) {
   return (
     <img
       src={source}
-      className="w-12 h-12 aspect-square object-center rounded-full "
+      className="w-12 h-12 aspect-square object-center rounded-full object-cover"
     />
   );
 }

@@ -7,24 +7,23 @@ import type { Message } from "../types/message.types";
 export const useChatWindowUpdates = (
   connection: HubConnection | null,
   conversationId: string | undefined,
-  userId: string | undefined, // أضفنا الـ userId هنا لإبلاغ الـ DB
+  userId: string | undefined,
 ) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!connection || !conversationId) return;
 
-    // 1. الدخول لغرفة المحادثة لاستقبال الرسائل
     connection.invoke("JoinConversation", conversationId).catch(console.error);
 
-    // 2. 🔥 التبليغ بفتح الشات لتصفير العداد في الـ DB
     if (userId) {
-      connection.invoke("MarkAsRead", {
-        ConversationId: conversationId,
-        ProfileId: userId,
-      })
-      .then(() => console.log("✅ DB notified: Conversation marked as read"))
-      .catch((err) => console.error("❌ Failed to notify DB:", err));
+      connection
+        .invoke("MarkAsRead", {
+          ConversationId: conversationId,
+          ProfileId: userId,
+        })
+        .then(() => console.log("✅ DB notified: Conversation marked as read"))
+        .catch((err) => console.error("❌ Failed to notify DB:", err));
     }
 
     const handleReceiveMessage = (newMessage: Message) => {
@@ -58,12 +57,13 @@ export const useChatWindowUpdates = (
         },
       );
 
-      // 3. 🔥 إذا وصلت رسالة جديدة وأنت "فاتح الشات"، بلغ الـ DB فوراً لتظل مقروءة
       if (userId && newMessage.senderProfileId !== userId) {
-        connection.invoke("MarkAsRead", {
-          ConversationId: conversationId,
-          ProfileId: userId,
-        }).catch(() => {});
+        connection
+          .invoke("MarkAsRead", {
+            ConversationId: conversationId,
+            ProfileId: userId,
+          })
+          .catch(() => {});
       }
     };
 
@@ -73,6 +73,5 @@ export const useChatWindowUpdates = (
       connection.off("ReceiveMessage", handleReceiveMessage);
       connection.invoke("LeaveConversation", conversationId).catch(() => {});
     };
-    // أضفنا userId و conversationId هنا لضمان إعادة التنفيذ عند تغيير المحادثة
-  }, [connection, conversationId, userId, queryClient]); 
+  }, [connection, conversationId, userId, queryClient]);
 };

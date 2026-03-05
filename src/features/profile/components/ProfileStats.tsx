@@ -21,14 +21,20 @@ const ProfileStats = () => {
   if (!profile) return null; // guard against null profile
 
   // pick only the last three stats you want to display
-if (!profile || !("countriesCount" in profile)) return null;
+  if (!profile || typeof profile !== "object" || !("countriesCount" in profile))
+    return null;
 
-const statsToShow = [
-  { label: "Countries", value: profile.countriesCount },
-  { label: "Followers", value: profile.followersCount },
-  { label: "Following", value: profile.followingCount },
-];
-console.log("ProfileStats - profile:", profile.followersCount, profile.followingCount, profile.countriesCount);
+  const statsToShow = [
+    { label: "Countries", value: profile.countriesCount },
+    { label: "Followers", value: profile.followersCount },
+    { label: "Following", value: profile.followingCount },
+  ];
+  console.log(
+    "ProfileStats - profile:",
+    profile.followersCount,
+    profile.followingCount,
+    profile.countriesCount,
+  );
   return (
     <motion.div
       variants={container}
