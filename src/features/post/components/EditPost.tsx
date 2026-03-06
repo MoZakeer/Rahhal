@@ -15,20 +15,27 @@ export default function EditPostPage() {
     useEditPost(postId!);
 
   return (
-    <div className="box px-4 py-8 sm:px-8 sm:py-10 gap-8">
-      
-      <PostHeader onPost={handleUpdatePost} isPosting={loading} title="Edit Post" mode="edit" />
+    <div className="w-full min-h-screen bg-white px-5 py-5">
+      <div className="w-full min-h-screen mx-auto flex flex-col gap-8">
 
-      
-      {user ? <PostUser {...user} /> : 
-       <div className="text-gray-500 text-sm">
-          <Spinner />
-          <p className="mt-4 text-gray-600">Loading user...</p>
-        </div>}
+        <PostHeader onPost={handleUpdatePost} isPosting={loading} title="Edit Post" mode="edit" />
 
-      <PostCaption caption={caption} onChange={setCaption} maxChars={MAX_CHARS} />
+        
+        {user ? (
+          <PostUser {...user} />
+        ) : (
+          <div className="flex flex-col items-center justify-center py-6 text-gray-500 text-sm">
+            <Spinner />
+            <p className="mt-3">Loading user...</p>
+          </div>
+        )}
 
-      <PostMedia media={media} setMedia={setMedia} fileRef={fileRef} />
+       
+        <PostCaption caption={caption} onChange={setCaption} maxChars={MAX_CHARS} />
+
+        <PostMedia media={media} setMedia={setMedia} fileRef={fileRef} />
+
+      </div>
     </div>
   );
 }

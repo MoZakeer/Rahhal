@@ -13,7 +13,6 @@ type Props = {
 };
 
 export default function PostMedia({ media, setMedia, fileRef }: Props) {
-
   const uploadFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
@@ -42,13 +41,36 @@ export default function PostMedia({ media, setMedia, fileRef }: Props) {
   };
 
   return (
-    <div>
-
+    <div className="flex flex-col gap-4">
       <button
         onClick={() => fileRef.current?.click()}
-        className="mt-4 bg-[var(--color-gray-50)] text-[var(--color-primary-500)] px-4 py-2 rounded-full text-sm"
+        className="
+        flex items-center gap-2
+        bg-gray-100 hover:bg-gray-200
+        text-gray-700
+        px-4 py-2
+        rounded-full
+        text-sm
+        w-fit
+        transition
+        "
       >
-        + Add Media
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4 md:h-5 md:w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        Add Photo
       </button>
 
       <input
@@ -61,27 +83,34 @@ export default function PostMedia({ media, setMedia, fileRef }: Props) {
       />
 
       {media.length > 0 && (
-        <div className="flex gap-3 mt-4 overflow-x-auto">
+        <div className="flex gap-3 overflow-x-auto pb-2">
           {media.map((m, i) => (
-            <div key={i} className="relative w-32 h-24 flex-shrink-0">
-
+            <div
+              key={i}
+              className="relative w-36 h-28 flex-shrink-0 rounded-xl overflow-hidden"
+            >
               <img
                 src={m.preview || (typeof m.file === "string" ? m.file : "")}
-                className="w-full h-full object-cover rounded-lg"
+                className="w-full h-full object-cover"
               />
 
               <button
                 onClick={() => removeMedia(m.mediaId)}
-                className="absolute top-1 right-1 bg-white text-red-500 w-5 h-5 rounded-full text-xs flex items-center justify-center"
+                className="
+                absolute top-2 right-2
+                bg-black/60 text-white
+                w-6 h-6
+                rounded-full
+                text-xs
+                flex items-center justify-center
+                "
               >
                 ✕
               </button>
-
             </div>
           ))}
         </div>
       )}
-
     </div>
   );
 }
