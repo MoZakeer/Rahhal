@@ -18,7 +18,7 @@ const travelPersonalityMap = {
 
 export default function EditProfilePage() {
     const navigate = useNavigate();
-    const { profile, updateProfile } = useProfileStore();
+    const { profile, updateProfile,fetchProfile } = useProfileStore();
     const { register, handleSubmit } = useForm<UpdateProfileRequest>();
 
     const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -104,7 +104,8 @@ export default function EditProfilePage() {
         }
 
         await updateProfile(formDataToSend);
-        toast("Profile updated!");
+        await fetchProfile();
+        toast.success("Profile updated!");
         navigate("/profile");
     };
 
@@ -289,7 +290,7 @@ export default function EditProfilePage() {
                         </section>
 
                         <div className="flex justify-end">
-                            <motion.button type="submit" whileHover={{ scale: 1.03 }} className="px-8 py-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 transition shadow-lg">
+                            <motion.button type="submit" whileHover={{ scale: 1.03 }} className="px-8 py-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 transition shadow-lg cursor--pointer">
                                 Save Changes
                             </motion.button>
                         </div>
