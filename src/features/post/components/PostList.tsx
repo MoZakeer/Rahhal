@@ -1,11 +1,10 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useRef,  useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react"; // ضفنا useEffect هنا
 import Skeleton from "react-loading-skeleton";
 import { getPostsInfinite } from "../../post/components/services/posts.api";
 import PostCard from "../components/PostCard";
 
 export default function PostsList() {
-
   const observer = useRef<IntersectionObserver | null>(null);
 
   const {
@@ -15,6 +14,7 @@ export default function PostsList() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    refetch,
   } = useInfiniteQuery({
     queryKey: ["posts"],
     queryFn: ({ pageParam }) =>
@@ -28,10 +28,22 @@ export default function PostsList() {
       }
       return undefined;
     },
-staleTime:0,
+    staleTime: 0,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
   });
+
+  useEffect(() => {
+    const handleRefresh = () => {
+      refetch();
+    };
+
+    window.addEventListener("refreshFeed", handleRefresh);
+
+    return () => {
+      window.removeEventListener("refreshFeed", handleRefresh);
+    };
+  }, [refetch]);
 
   const posts =
     data?.pages.flatMap((page) => page.data?.items ?? []) ?? [];
@@ -42,14 +54,16 @@ staleTime:0,
 
       if (observer.current) observer.current.disconnect();
 
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasNextPage) {
-          fetchNextPage();
+      observer.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasNextPage) {
+            fetchNextPage();
+          }
+        },
+        {
+          rootMargin: "300px",
         }
-      },
-      {
-        rootMargin: "300px"
-      });
+      );
 
       if (node) observer.current.observe(node);
     },
@@ -68,16 +82,13 @@ staleTime:0,
 
   if (isError) {
     return (
-      <p className="text-center text-red-500">
-        Failed to load posts
-      </p>
+      <p className="text-center text-red-500">Failed to load posts</p>
     );
   }
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-6">
       {posts.map((post, index) => {
-
         if (index === posts.length - 1) {
           return (
             <div ref={lastPostRef} key={post.id}>
