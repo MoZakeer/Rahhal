@@ -7,6 +7,7 @@ import { ReportModal } from "../../reports/components/ReportModal";
 import Skeleton from "react-loading-skeleton";
 import MyEmojiPicker from "../../chat/components/EmojiPicker";
 import { HiOutlineFaceSmile } from "react-icons/hi2";
+import { LikesList } from "./LikesList";
 
 type CommentItem = {
   commentId: string;
@@ -58,7 +59,7 @@ export function CommentsModal({
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyingToName, setReplyingToName] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
-
+const [openLikes, setOpenLikes] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
 
@@ -301,10 +302,10 @@ const regex = new RegExp(`@[^${HIDDEN}]+${HIDDEN}`, "g");
                 </div>
               ) : (
                 <div className="rounded-2xl  ">
-                  <p className="text-sm leading-5 break-words">
+                  <div className="text-sm leading-5 break-words">
                     <span onClick={() => navigate(`/profile/${comment.profileId}`)}
   className="font-semibold cursor-pointer  ">{comment.userName}</span>
- <p className="rounded-2xl bg-gray-50 border border-black/5 px-3 py-2">{renderWithMentions(comment.description)}</p>               </p>
+ <p className="rounded-2xl bg-gray-50 border border-black/5 px-3 py-2">{renderWithMentions(comment.description)}</p>               </div>
                 </div>
               )}
             </div>
@@ -373,7 +374,7 @@ onClick={() => {
 
           <div className="mt-1 flex items-center gap-4 text-xs text-gray-500 flex-wrap">
             <span>{formatDate(comment.createdDate)}</span>
-
+<div className="flex items-center gap-1">
          <button
   onClick={() => handleLike(id, parentId)}
   className="flex items-center gap-1"
@@ -388,12 +389,40 @@ onClick={() => {
   }`}
 />
 
-  <span className="text-xs font-medium">
+ 
+ 
+</button>
+ <span   onClick={() => setOpenLikes(true)}
+ className="text-xs font-medium cursor-pointer">
     {isReply
       ? (comment as ReplyItem).likesCount
       : (comment as CommentItem).likesCount}
   </span>
-</button>
+  </div>
+ {openLikes && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-5 relative">
+      
+      <button
+        onClick={() => setOpenLikes(false)}
+        className="absolute top-3 right-3 text-gray-500 hover:text-black"
+      >
+        ✕
+      </button>
+
+      <h3 className="text-lg font-semibold mb-4">Likes</h3>
+
+      <LikesList
+        type="comment"
+        id={
+          isReply
+            ? (comment as ReplyItem).replyId
+            : (comment as CommentItem).commentId
+        }
+      />
+    </div>
+  </div>
+)}
         <button
   onClick={() => {
     const mainParentId = parentId ?? id;
