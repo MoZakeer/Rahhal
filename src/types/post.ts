@@ -1,5 +1,10 @@
 export interface Post {
+  postId: string;
+  savedPostId:   null | undefined;
   id: string;
+  authorUsername: string;
+  authorProfilePicture: string;
+  createdAt: string;
   userId: string;
   userName: string;
   profileUrl: string;
