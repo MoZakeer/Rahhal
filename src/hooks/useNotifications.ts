@@ -10,7 +10,7 @@ export interface NotificationData {
 }
 
 export const useNotifications = (hasToken: boolean) => {
-  const [notifications, setNotifications] = useState<NotificationData[]>([]);
+  const [notifications] = useState<NotificationData[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
