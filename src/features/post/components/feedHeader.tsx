@@ -1,4 +1,5 @@
 import SearchComponent from "../../search/components/SearchComponent";
+import { PenSquare, Image as ImageIcon } from "lucide-react";
 
 type Props = {
   onCreatePost: () => void;
@@ -6,51 +7,50 @@ type Props = {
 
 export default function FeedHeader({ onCreatePost }: Props) {
   return (
-    <div className="w-full mb-6 px-4 sm:px-8">
-      <div className="flex flex-col md:grid md:grid-cols-3 md:items-center gap-4 md:gap-6">
-        
-        
-        <div className="flex flex-col justify-center md:justify-start text-center md:text-left">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-            Rahhal Feed
+    <div className="flex flex-col gap-5 w-full">
+      
+      {/* Top Header & Desktop Search */}
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+            Feed
           </h1>
-          <p className="text-sm md:text-base text-gray-500">
-            Share your adventures with the community
+          <p className="text-sm text-slate-500 font-medium mt-1">
+            Discover latest adventures
           </p>
         </div>
-
-    
-        <div className="flex justify-center md:justify-center w-full">
-          <div className="w-full max-w-md">
-            <SearchComponent />
-          </div>
+        
+        <div className="hidden sm:block w-[280px]">
+          <SearchComponent />
         </div>
-
-       
-        <div className="flex justify-center md:justify-end">
-          <button
-            onClick={onCreatePost} 
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm md:text-base text-white bg-cyan-500 hover:bg-cyan-600 transition-colors shadow"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 md:h-5 md:w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            Create post
-          </button>
-        </div>
-
       </div>
+
+      {/* Mobile Search */}
+      <div className="block sm:hidden w-full">
+        <SearchComponent />
+      </div>
+
+      {/* Modern Interactive "Create Post" Trigger */}
+      <div 
+        onClick={onCreatePost}
+        className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-3 cursor-text transition-all hover:shadow-md group"
+      >
+        <div className="h-10 w-10 rounded-full bg-slate-50 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-50 transition-colors">
+          <PenSquare className="h-5 w-5 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+        </div>
+        
+        <div className="flex-1 bg-slate-50 group-hover:bg-slate-100/50 transition-colors rounded-full py-2.5 px-4 text-slate-500 text-sm font-medium">
+          Share your adventure with the community...
+        </div>
+        
+        <button 
+          className="p-2 rounded-full hover:bg-slate-100 text-indigo-500 transition-colors focus:outline-none"
+          aria-label="Add Photo"
+        >
+          <ImageIcon className="h-5 w-5" />
+        </button>
+      </div>
+
     </div>
   );
 }
