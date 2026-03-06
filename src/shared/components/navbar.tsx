@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Popover, Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import {
@@ -38,6 +38,31 @@ export default function Navbar() {
     document.documentElement.dir = "ltr";
   }, []);
 
+
+  // --- Scroll Magic (Twitter Style) ---
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > lastScrollY.current && currentScrollY > 60) {
+        setIsNavVisible(false);
+      } 
+      else if (currentScrollY < lastScrollY.current) {
+        setIsNavVisible(true);
+      }
+      
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+  // ------------------------------------
+  
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("auth");
@@ -52,7 +77,8 @@ export default function Navbar() {
   }, [location.pathname]);
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm">
+    <header className={`fixed top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm transition-transform duration-300 ease-in-out ${isNavVisible ? "translate-y-0" : "-translate-y-full"}`}>
+
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
 
         {/* Logo */}

@@ -1,8 +1,19 @@
+import { useLocation, Outlet } from "react-router-dom";
 import Navbar from "../shared/components/navbar";
 import Footer from "../shared/components/footer";
-import { Outlet } from "react-router-dom";
 
 const MainLayout = () => {
+  const location = useLocation();
+
+  // 1. قائمة المسارات التي سيتم إخفاء الفوتر منها
+  const hiddenFooterPaths = [
+    "/",            
+    "/feed",        
+    "/create-post",            
+  ];
+
+  const shouldHideFooter = hiddenFooterPaths.includes(location.pathname);
+
   return (
     <>
       <Navbar />
@@ -11,7 +22,7 @@ const MainLayout = () => {
         <Outlet />
       </main>
 
-      <Footer />
+      {!shouldHideFooter && <Footer />}
     </>
   );
 };

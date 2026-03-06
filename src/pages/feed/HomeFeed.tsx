@@ -6,7 +6,7 @@ export default function HomeFeed() {
 
   return (
 
-    <div className="p-4 min-h-screen bg-gray-100">
+    <div className="p-4 min-h-screen bg-gray-100 mt-[60px]">
       <FeedHeader />
       <PostsList />
 
