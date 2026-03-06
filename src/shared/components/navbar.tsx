@@ -23,7 +23,6 @@ export default function Navbar() {
 
   const { notifications, unreadCount, markAsRead } = useNotifications(hasToken);
 
-  // 1. Force LTR Direction on Mount
   useEffect(() => {
     document.documentElement.dir = "ltr";
     document.documentElement.lang = "en";
@@ -46,32 +45,16 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm transition-all">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         
-        {/* Dynamic Logo */}
-        {/* <Link to="/" className="flex items-center gap-2.5 group cursor-pointer" onClick={() => setMobileOpen(false)}>
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 transition-all duration-300 group-hover:bg-indigo-600 group-hover:text-white group-active:scale-95">
-            <Compass className="h-6 w-6 transition-transform duration-700 group-hover:rotate-180" strokeWidth={2.5} />
-          </div>
-          <span className="text-2xl font-black tracking-tighter bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
-            Rahhal
-          </span>
-        </Link> */}
-
-        {/* <Link to="/" className="flex items-center gap-3 group cursor-pointer" onClick={() => setMobileOpen(false)}>
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 text-white shadow-lg transition-transform group-hover:scale-105 group-active:scale-95">
-             <span className="font-serif font-bold text-xl">R</span>
-          </div>
-          <div className="flex flex-col justify-center">
-            <span className="text-xl font-black tracking-tight leading-none text-slate-900">RAHHAL</span>
-            <span className="text-[9px] font-bold tracking-[0.2em] text-slate-400 uppercase mt-0.5">Explore the world</span>
-          </div>
-        </Link> */}
-
         {/* Social Logo */}
-        <Link to="/" className="flex items-center gap-2 group cursor-pointer" onClick={() => setMobileOpen(false)}>
+        <Link 
+          to="/feed" 
+          onClick={(e) => {
+            setMobileOpen(false);
+          }}
+          className="flex items-center gap-2 group cursor-pointer"
+        >
           <div className="relative flex h-10 w-10 items-center justify-center group-active:scale-95 transition-transform">
-
             <div className="absolute inset-0 rounded-xl bg-orange-400 rotate-6 transition-transform group-hover:rotate-12 duration-300 opacity-80" />
-
             <div className="absolute inset-0 rounded-xl bg-indigo-600 -rotate-3 transition-transform group-hover:rotate-0 duration-300" />
             <Plane className="relative h-5 w-5 text-white -rotate-45 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
           </div>
@@ -88,6 +71,10 @@ export default function Navbar() {
               <Link
                 key={path}
                 to={path}
+                onClick={(e) => {
+                  // لو هو في نفس الصفحة، تجاهل الكليك تماماً
+                  if (isActive) e.preventDefault();
+                }}
                 className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
                   isActive
                     ? "text-indigo-600 bg-indigo-50"
@@ -111,12 +98,11 @@ export default function Navbar() {
              {/* Notifications Popover */}
               <Popover className="relative">
                 <Popover.Button 
-                  onClick={markAsRead} // تصفير العداد لما يضغط
+                  onClick={markAsRead}
                   className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer"
                 >
                   <Bell className="h-5 w-5 text-slate-600" />
                   
-                  {/* العداد الجديد (Counter Badge) بدلاً من النقطة */}
                   {unreadCount > 0 && (
                     <span className="absolute top-1 right-1 flex min-w-[18px] h-[18px] items-center justify-center rounded-full bg-orange-500 px-1 text-[10px] font-bold text-white ring-2 ring-white shadow-sm">
                       {unreadCount > 9 ? "9+" : unreadCount}
@@ -157,11 +143,21 @@ export default function Navbar() {
               </Popover>
               <div className="h-6 w-px bg-slate-200 mx-1" />
 
-              <button onClick={() => navigate("/profile")} className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors cursor-pointer">
+              <button 
+                onClick={() => {
+                  if (location.pathname !== "/profile") navigate("/profile");
+                }} 
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors cursor-pointer"
+              >
                 <CircleUser className="h-5 w-5" />
               </button>
 
-              <button onClick={() => navigate("/settings")} className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer">
+              <button 
+                onClick={() => {
+                  if (location.pathname !== "/settings") navigate("/settings");
+                }} 
+                className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer"
+              >
                 <Settings className="h-5 w-5" />
               </button>
 
@@ -206,7 +202,10 @@ export default function Navbar() {
                   <Link
                     key={path}
                     to={path}
-                    onClick={() => setMobileOpen(false)}
+                    onClick={(e) => {
+                      if (isActive) e.preventDefault();
+                      setMobileOpen(false);
+                    }}
                     className={`flex items-center gap-4 rounded-xl p-4 text-base font-semibold transition-colors ${
                       isActive ? "bg-indigo-50 text-indigo-600" : "text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
                     }`}
@@ -221,10 +220,10 @@ export default function Navbar() {
             <div className="mt-auto flex flex-col gap-3 pt-6 border-t border-slate-100">
               {hasToken ? (
                 <>
-                  <button onClick={() => { navigate("/profile"); setMobileOpen(false); }} className="flex items-center gap-4 rounded-xl p-4 text-slate-600 hover:bg-slate-50 font-semibold cursor-pointer">
+                  <button onClick={() => { if(location.pathname !== "/profile") navigate("/profile"); setMobileOpen(false); }} className="flex items-center gap-4 rounded-xl p-4 text-slate-600 hover:bg-slate-50 font-semibold cursor-pointer">
                     <CircleUser className="h-6 w-6" /> Profile
                   </button>
-                  <button onClick={() => { navigate("/settings"); setMobileOpen(false); }} className="flex items-center gap-4 rounded-xl p-4 text-slate-600 hover:bg-slate-50 font-semibold cursor-pointer">
+                  <button onClick={() => { if(location.pathname !== "/settings") navigate("/settings"); setMobileOpen(false); }} className="flex items-center gap-4 rounded-xl p-4 text-slate-600 hover:bg-slate-50 font-semibold cursor-pointer">
                     <Settings className="h-6 w-6" /> Settings
                   </button>
                   <button onClick={handleLogout} className="flex items-center gap-4 rounded-xl bg-red-50 p-4 text-red-600 font-bold hover:bg-red-100 cursor-pointer">
@@ -233,10 +232,24 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link to="/login" onClick={() => setMobileOpen(false)} className="flex items-center justify-center rounded-xl bg-slate-100 p-4 font-bold text-slate-700 hover:bg-slate-200">
+                  <Link 
+                    to="/login" 
+                    onClick={(e) => {
+                      if (location.pathname === "/login") e.preventDefault();
+                      setMobileOpen(false);
+                    }} 
+                    className="flex items-center justify-center rounded-xl bg-slate-100 p-4 font-bold text-slate-700 hover:bg-slate-200"
+                  >
                     Sign In
                   </Link>
-                  <Link to="/sign-up" onClick={() => setMobileOpen(false)} className="flex items-center justify-center rounded-xl bg-indigo-600 p-4 font-bold text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200">
+                  <Link 
+                    to="/sign-up" 
+                    onClick={(e) => {
+                      if (location.pathname === "/sign-up") e.preventDefault();
+                      setMobileOpen(false);
+                    }} 
+                    className="flex items-center justify-center rounded-xl bg-indigo-600 p-4 font-bold text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200"
+                  >
                     Sign Up
                   </Link>
                 </>

@@ -13,7 +13,7 @@ interface Props {
 
 const ProfileStats: React.FC<Props> = ({ profileId }) => {
   const { profile } = useProfileStore();
-
+  console.log(profileId)
   if (!profile) return null;
 
   // pick only the last three stats you want to display
