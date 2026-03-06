@@ -46,7 +46,6 @@ export const LikesList = ({ type, id }: Props) => {
   const likes =
     data?.pages.flatMap((page) => page.data.items as LikeUser[]) ?? [];
 
-  // Intersection observer for infinite scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -74,7 +73,7 @@ export const LikesList = ({ type, id }: Props) => {
 
   return (
     
-<div className="max-h-[400px] overflow-y-auto space-y-3">
+<div className="max-h-400 overflow-y-auto space-y-3 max-w-400">
           {likes.map((user) => (
         <div onClick={() => navigate(`/profile/${user.profileId}`)}
           key={user.likeId}
@@ -93,7 +92,6 @@ src={
         </div>
       ))}
 
-      {/* loader */}
       <div ref={loaderRef} />
 
       {isFetchingNextPage && (
