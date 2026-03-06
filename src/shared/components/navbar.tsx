@@ -44,13 +44,13 @@ export default function Navbar() {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       if (currentScrollY > lastScrollY.current && currentScrollY > 60) {
         setIsNavVisible(false);
       } else if (currentScrollY < lastScrollY.current) {
         setIsNavVisible(true);
       }
-      
+
       lastScrollY.current = currentScrollY;
     };
 
@@ -81,7 +81,7 @@ export default function Navbar() {
           to="/feed"
           className="flex items-center gap-2 group cursor-pointer"
           onClick={(e) => {
-            if (location.pathname === "/feed") e.preventDefault(); 
+            if (location.pathname === "/feed") e.preventDefault();
             window.scrollTo({ top: 0, behavior: "smooth" });
             window.dispatchEvent(new CustomEvent("refreshFeed"));
             setMobileOpen(false);
@@ -100,17 +100,18 @@ export default function Navbar() {
         {/* Desktop Nav */}
         <nav className="hidden lg:flex items-center gap-2 flex-1 justify-center">
           {navItems.map(({ icon: Icon, label, path }) => {
+            if (label === "Messages" && !hasToken) return null;
+
             const isActive = isActivePath(path);
             return (
               <Link
                 key={path}
                 to={path}
                 onClick={(e) => { if (isActive) e.preventDefault(); }}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                  isActive
+                className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${isActive
                     ? "text-indigo-600 bg-indigo-50"
                     : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
-                }`}
+                  }`}
               >
                 <Icon className="h-5 w-5" />
                 <span>{label}</span>
@@ -121,7 +122,6 @@ export default function Navbar() {
             );
           })}
         </nav>
-
         {/* Right Section (Desktop & Mobile combined) */}
         <div className="flex items-center gap-2 ml-auto lg:gap-3">
           {hasToken ? (
@@ -214,14 +214,14 @@ export default function Navbar() {
       {/* Mobile Drawer */}
       <Dialog open={mobileOpen} onClose={setMobileOpen} className="relative z-50 lg:hidden">
         {/* Animated Backdrop */}
-        <DialogBackdrop 
+        <DialogBackdrop
           transition
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 ease-linear data-[closed]:opacity-0" 
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 ease-linear data-[closed]:opacity-0"
         />
 
         <div className="fixed inset-0 flex justify-end">
           {/* Animated Panel */}
-          <DialogPanel 
+          <DialogPanel
             transition
             className="relative flex h-full w-full max-w-sm flex-col bg-white px-6 py-6 shadow-2xl transition duration-300 ease-in-out data-[closed]:translate-x-full"
           >
@@ -237,20 +237,21 @@ export default function Navbar() {
 
             <div className="flex flex-col gap-2">
               {navItems.map(({ icon: Icon, label, path }) => {
+                if (label === "Messages" && !hasToken) return null;
+
                 const isActive = isActivePath(path);
                 return (
                   <Link
                     key={path}
                     to={path}
                     onClick={(e) => {
-                      if (isActive) e.preventDefault(); 
+                      if (isActive) e.preventDefault();
                       setMobileOpen(false);
                     }}
-                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-semibold transition-colors ${
-                      isActive
+                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-semibold transition-colors ${isActive
                         ? "bg-indigo-50 text-indigo-600"
                         : "text-slate-600 hover:bg-slate-50"
-                    }`}
+                      }`}
                   >
                     <Icon className="h-6 w-6" />
                     {label}
@@ -284,7 +285,7 @@ export default function Navbar() {
                   <Link
                     to="/sign-up"
                     onClick={(e) => {
-                      if (location.pathname === "/sign-up") e.preventDefault(); 
+                      if (location.pathname === "/sign-up") e.preventDefault();
                       setMobileOpen(false);
                     }}
                     className="flex items-center justify-center rounded-xl bg-indigo-600 p-4 font-bold text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-colors"
