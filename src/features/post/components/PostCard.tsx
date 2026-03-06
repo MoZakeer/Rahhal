@@ -24,6 +24,7 @@ import { ReportModal } from "../../reports/components/ReportModal";
 import { followUser } from "./services/posts.api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLikePost, useSavePost, useDeletePost } from "./hooks/usePosts";
+import type { InfiniteData } from "@tanstack/react-query";
 
 export function PostHeader({
   id,
@@ -380,25 +381,33 @@ const followMutation = useMutation({
   onMutate: async (userId: string) => {
     await queryClient.cancelQueries({ queryKey: ["posts"] });
 
-const previousPosts = queryClient.getQueryData<PostsResponse>(["posts"]);
-   queryClient.setQueryData<PostsResponse>(["posts"], (old) => {
-  if (!old) return old;
+    const previousPosts =
+      queryClient.getQueryData<InfiniteData<PostsResponse>>(["posts"]);
 
-  return {
-    ...old,
-    data: {
-      ...old.data,
-      items: old.data.items.map((p) =>
-        p.userId === userId
-          ? {
-              ...p,
-              isFollowedByCurrentUser: !p.isFollowedByCurrentUser,
-            }
-          : p
-      ),
-    },
-  };
-});
+    queryClient.setQueryData<InfiniteData<PostsResponse>>(
+      ["posts"],
+      (old) => {
+        if (!old) return old;
+
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            data: {
+              ...page.data,
+              items: page.data.items.map((p) =>
+                p.userId === userId
+                  ? {
+                      ...p,
+                      isFollowedByCurrentUser: !p.isFollowedByCurrentUser,
+                    }
+                  : p
+              ),
+            },
+          })),
+        };
+      }
+    );
 
     return { previousPosts };
   },
@@ -445,7 +454,7 @@ isFollowing={post.isFollowedByCurrentUser}
       />
 
       <div className="px-4 text-sm font-semibold mt-1">
-        {post.likes} likes
+         {post.likes} likes
       </div>
 
       {hasMedia && (
