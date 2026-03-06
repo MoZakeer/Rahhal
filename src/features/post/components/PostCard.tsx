@@ -96,7 +96,7 @@ export function PostHeader({
         <div className="flex flex-col leading-tight">
           <span
             onClick={() => navigate(`/profile/${profileId}`)}
-            className="font-semibold cursor-pointer hover:underline"
+            className="font-semibold cursor-pointer "
           >
             {userName}
           </span>          {createdAt && (
@@ -462,7 +462,8 @@ export default function PostCard({
         {post.likes} likes
       </div>
       {openLikes && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <div               onClick={() => setOpenLikes(false)}
+ className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-5 relative">
 
             <button
@@ -472,7 +473,7 @@ export default function PostCard({
               ✕
             </button>
 
-            <h3 className="text-lg font-semibold mb-4">Likes</h3>
+            <h3 className="text-lg font-semibold  mb-4">Likes</h3>
 
             <LikesList type="post" id={post.id} />
 
@@ -490,8 +491,7 @@ export default function PostCard({
           className="px-4 pb-3 text-sm text-gray-500 cursor-pointer"
           onClick={() => setCommentsOpen(true)}
         >
-          View all {post.comments} comments
-        </div>
+View all {post.comments} {post.comments === 1 ? "comment" : "comments"}        </div>
 
       )}
       <CommentsModal
@@ -509,7 +509,7 @@ export default function PostCard({
       {editModalOpen && (
         <EditPostModal
           postId={post.id}
-          onCancel={() => setEditModalOpen(false)} // يغلق المودال عند الضغط على Cancel أو بعد حفظ
+          onCancel={() => setEditModalOpen(false)} 
         />
       )}
     </div>

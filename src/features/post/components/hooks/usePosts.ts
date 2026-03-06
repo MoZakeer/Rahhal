@@ -61,7 +61,9 @@ export function useLikePost() {
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["likes"] });
     },
+     
   });
 }
 export function useSavePost() {

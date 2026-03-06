@@ -8,7 +8,7 @@ import Skeleton from "react-loading-skeleton";
 import MyEmojiPicker from "../../chat/components/EmojiPicker";
 import { HiOutlineFaceSmile } from "react-icons/hi2";
 import { LikesList } from "./LikesList";
-
+import { useQueryClient } from "@tanstack/react-query";
 type CommentItem = {
   commentId: string;
   profileId: string;
@@ -108,8 +108,11 @@ function handleEmojiSelect(emoji: string) {
     const text = parentId ? replyText : newComment;
     if (!text.trim()) return;
 
-    await commentApi.createComment(currentUserId, postId, text.trim(), parentId);
+await commentApi.createComment(currentUserId, postId, text.trim(), parentId);
 
+queryClient.invalidateQueries({
+  queryKey: ["posts"],
+});
     if (parentId) {
       setReplyText("");
       setReplyingTo(null);
@@ -129,15 +132,24 @@ function handleEmojiSelect(emoji: string) {
 
   const handleEdit = async (id: string) => {
     if (!editText.trim()) return;
-    await commentApi.editComment(id, editText.trim());
-    setEditingId(null);
+await commentApi.editComment(id, editText.trim());
+
+queryClient.invalidateQueries({
+  queryKey: ["posts"],
+});
+queryClient.invalidateQueries({
+  queryKey: ["comments", postId],
+});    setEditingId(null);
     fetchComments();
     Object.keys(repliesMap).forEach((parentId) => fetchReplies(parentId));
   };
 
   const handleDelete = async (id: string, parentId?: string) => {
-    await commentApi.deleteComment(id);
-    if (parentId) {
+await commentApi.deleteComment(id);
+
+queryClient.invalidateQueries({
+  queryKey: ["posts"],
+});    if (parentId) {
       setRepliesMap((prev) => ({
         ...prev,
         [parentId]: prev[parentId]?.filter((r) => r.replyId !== id) || [],
@@ -146,6 +158,7 @@ function handleEmojiSelect(emoji: string) {
       fetchComments();
     }
   };
+  const queryClient = useQueryClient();
  
   const handleLike = async (commentId: string, parentId?: string) => {
 
@@ -182,6 +195,10 @@ function handleEmojiSelect(emoji: string) {
 
   try {
     await commentApi.likeComment(currentUserId, commentId);
+    queryClient.invalidateQueries({
+      queryKey: ["likes", "comment", commentId],
+    });
+
   } catch (error) {
     console.error("Like failed", error);
 
@@ -413,8 +430,11 @@ onClick={() => {
   </span>
   </div>
  {likesModal.open && likesModal.id && (
-  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-    <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-5 relative">
+  <div  className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={(e) => {
+      e.stopPropagation(); 
+      setLikesModal({ open: false });
+    }}>
+    <div  className="bg-white w-full max-w-md rounded-2xl shadow-lg p-5 relative" onClick={(e) => e.stopPropagation()}>
 
       <button
         onClick={() =>
@@ -568,11 +588,11 @@ onClick={() => {
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       <div className="absolute left-1/2 top-1/2 w-[94%] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-black/10">
           <div className="w-8" />
-          <div className="font-semibold">Comments</div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5">
-            <X className="w-5 h-5" />
+          <div className="font-semibold text-gray-600">Comments</div>
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100">
+            <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
@@ -592,7 +612,7 @@ onClick={() => {
           <div ref={commentsEndRef} />
         </div>
 
-        <div className=" relative w-full border-t px-4 py-3 flex gap-3 items-center bg-white flex-wrap">
+        <div className=" relative w-full border-t border-gray-100 px-4 py-3 flex gap-3 items-center bg-white flex-wrap">
   <button 
     type="button"
 onClick={() => {
@@ -600,7 +620,7 @@ onClick={() => {
   setShowReplyEmoji(false);
 }}    className="cursor-pointer transition-all duration-300 hover:bg-gray-100 p-2 rounded-full"
   >
-    <HiOutlineFaceSmile className="w-8 h-8 text-gray-700" />
+    <HiOutlineFaceSmile className="w-8 h-8 text-gray-500" />
   </button>
 
   {showCommentEmoji && (
@@ -620,7 +640,7 @@ onClick={() => {
             placeholder="Add a comment..."
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            className="flex-1 min-w-0 rounded-full border px-4 py-2 text-sm outline-none focus:border-black"
+            className="flex-1 min-w-0 rounded-full border border-gray-400 px-4 py-2 text-sm outline-none focus:border-gray-600"
           />
 
           <button
