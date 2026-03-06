@@ -79,6 +79,7 @@ function MessageList({
               time={formatDate(message?.createdDate)}
               attachments={message.attachments}
               isGroup={isGroup}
+              isSeen={message.isSeen}
             >
               {message?.content}
             </Message>
