@@ -17,7 +17,7 @@ export default function PostUser({ name, username, avatar }: PostUserProps) {
 
       <div className="leading-tight">
         <h1 className="font-medium text-sm text-gray-900">{name}</h1>
-        <p className="text-xs text-gray-400">@{username}</p>
+        <p className="text-xs text-gray-400">Posting as @{username}</p>
       </div>
     </div>
   );

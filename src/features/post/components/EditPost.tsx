@@ -4,7 +4,8 @@ import PostCaption from "../components/Shared/postCaption";
 import PostMedia from "../components/Shared/postMedia";
 import { useEditPost } from "./hooks/useEditPost";
 import { useParams } from "react-router-dom";
-import Spinner from "../../../shared/components/SpinnerMini";
+import Skeleton from "react-loading-skeleton";
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const MAX_CHARS = 300;
 
@@ -20,17 +21,15 @@ export default function EditPostPage() {
 
         <PostHeader onPost={handleUpdatePost} isPosting={loading} title="Edit Post" mode="edit" />
 
-        
         {user ? (
           <PostUser {...user} />
         ) : (
-          <div className="flex flex-col items-center justify-center py-6 text-gray-500 text-sm">
-            <Spinner />
-            <p className="mt-3">Loading user...</p>
+          <div className="flex flex-col justify-center py-6 text-gray-500 text-sm w-full gap-2">
+            <Skeleton circle={true} height={40} width={40} />
+            <Skeleton height={20} width={120} />
           </div>
         )}
 
-       
         <PostCaption caption={caption} onChange={setCaption} maxChars={MAX_CHARS} />
 
         <PostMedia media={media} setMedia={setMedia} fileRef={fileRef} />
