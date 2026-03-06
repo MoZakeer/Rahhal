@@ -50,14 +50,14 @@ export default function ReportActions({
       removeCommentMutation.mutate(commentId, {
         onSuccess: () => {
           setOpenModal(false);
-          navigate("/reports");
+          navigate("/admin/reports/comments");
         },
       });
     } else if (type === "posts" && postId) {
       removePostMutation.mutate(postId, {
         onSuccess: () => {
           setOpenModal(false);
-          navigate("/reports");
+          navigate("/admin/reports/posts");
         },
       });
     }
@@ -99,7 +99,7 @@ export default function ReportActions({
       });
 
       if (data.isSuccess) {
-        navigate("/reports");
+        navigate("/admin/reports/users");
       } else {
         setMessage(`Error: ${data.message}`);
       }
@@ -119,7 +119,7 @@ export default function ReportActions({
           id={id}
           onDismissSuccess={() => {
             console.log("Reports dismissed successfully");
-            navigate("/reports");
+            navigate("/admin/reports/users");
           }}
         />
 

@@ -25,6 +25,7 @@ import { followUser } from "./services/posts.api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLikePost, useSavePost, useDeletePost } from "./hooks/usePosts";
 import type { InfiniteData } from "@tanstack/react-query";
+import ConfirmModal from "../../ReportDetals/components/confirmModal";
 
 export function PostHeader({
   id,
@@ -337,7 +338,8 @@ export default function PostCard({
 }) {
   const hasMedia = post.mediaUrLs && post.mediaUrLs.length > 0;
   const [commentsOpen, setCommentsOpen] = useState(false);
-  
+    const [openModal, setOpenModal] = useState(false);
+
   const navigate = useNavigate();
 
   function handleEditPost() {
@@ -431,7 +433,7 @@ function handleFollow() {
 isFollowing={post.isFollowedByCurrentUser}
   onFollow={handleFollow}        currentUserId={getUserId()}
         createdAt={post.createdDate}
-        onDelete={handleDelete}
+        onDelete={()=>setOpenModal(true)}
         onEdit={handleEditPost}
       />
 
@@ -476,6 +478,12 @@ isFollowing={post.isFollowedByCurrentUser}
         postId={post.id}
         currentUserId={getUserId() || ""}
       />
+      <ConfirmModal
+                open={openModal}
+                onClose={() => setOpenModal(false)}
+                onConfirm={handleDelete}
+                itemType={ "post"}
+              />
     </div>
   );
 }
