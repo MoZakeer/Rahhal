@@ -34,7 +34,7 @@ if (!profileId) return <div>Profile not found</div>;
 
         <div className="flex-1 space-y-6">
           {activeTab === "Posts" && <ProfilePosts profileId={profileId} />}
-          {activeTab === "Saved" && isMyProfile && <SavedPosts profileId={profileId} isMyProfile={isMyProfile} />}
+          {activeTab === "Saved" && isMyProfile && <SavedPosts profileId={profileId} isMyProfile={isMyProfile} baseUrl={""} />}
           {activeTab === "My trips" && (
             <div className="py-10 text-center text-gray-500">
               My Trips Coming Soon...

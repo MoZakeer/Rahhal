@@ -45,11 +45,15 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
       >
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 w-full sm:w-auto">
           <motion.div className="rounded-full overflow-hidden shrink-0">
-            <img
-              src={profile.profilePicture ? `https://rahhal-api.runasp.net${profile.profilePicture}` : Image}
-              alt="Profile Picture"
-              className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-cyan-500"
-            />
+           <img
+  src={
+    profile.profilePicture && profile.profilePicture !== "string"
+      ? `https://rahhal-api.runasp.net${profile.profilePicture}`
+      : Image
+  }
+  alt="Profile Picture"
+  className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-cyan-500 bg-gray-200"
+/>
           </motion.div>
 
           <div className="flex flex-col items-center sm:items-start text-center sm:text-left">

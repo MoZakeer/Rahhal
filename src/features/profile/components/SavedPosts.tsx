@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import PostCard from "../../post/components/PostCard";
+import PostCardSkeleton from "../skeletons/PostCardSkeleton";
+import type { Post, PostMediaItem } from "../../../types/post";
 
-interface SavedPost {
+interface SavedPostAPI {
   savedPostId: string;
   postId: string;
   userId: string;
@@ -13,41 +16,50 @@ interface SavedPost {
   likes: number;
   comments: number;
   createdDate: string;
-  mediaUrLs: {
-    id: string;
-    url: string;
-  }[];
+  mediaUrLs: PostMediaItem[];
 }
 
 interface Props {
   profileId: string;
   isMyProfile: boolean;
+  baseUrl: string;
 }
 
-const SavedPosts: React.FC<Props> = ({ isMyProfile }) => {
-  const [posts, setPosts] = useState<SavedPost[]>([]);
+const SavedPosts: React.FC<Props> = ({ isMyProfile, baseUrl }) => {
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
 
   const getSavedPosts = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const res = await axios.get(
-        "https://rahhal-api.runasp.net/Post/GetSavedPosts",
-        {
-          params: {
-            PageNumber: 1,
-            PageSize: 10,
-            SortByLastAdded: true,
-          },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await axios.get("https://rahhal-api.runasp.net/Post/GetSavedPosts", {
+        params: { PageNumber: 1, PageSize: 20, SortByLastAdded: true },
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (res.data?.isSuccess) {
-        setPosts(res.data.data.items || []);
+        const mappedPosts: Post[] = res.data.data.items.map((post: SavedPostAPI) => ({
+          id: post.postId,
+          postId: post.postId,
+          savedPostId: post.savedPostId || null,
+          authorUsername: post.userName,
+          authorProfilePicture: post.profileUrl ? `${baseUrl}${post.profileUrl}` : "",
+          createdAt: post.createdDate,
+          description: post.description || "",
+          mediaUrLs: post.mediaUrLs?.map((m) => ({
+            id: m.id,
+            url: m.url.startsWith("http") ? m.url : `${baseUrl}${m.url}`,
+          })) || [],
+          likes: post.likes,
+          comments: post.comments,
+          isLiked: post.isLiked,
+          isSaved: post.isSaved,
+          isFollowedByCurrentUser: false, // ممكن تعدلي لو عندك API يجيب info ده
+          userId: post.userId,
+          profileUrl: post.profileUrl,
+        }));
+        setPosts(mappedPosts);
       }
     } catch (error) {
       console.error("Error fetching saved posts", error);
@@ -57,22 +69,16 @@ const SavedPosts: React.FC<Props> = ({ isMyProfile }) => {
   };
 
   useEffect(() => {
-    if (isMyProfile) {
-      getSavedPosts();
-    }
+    if (isMyProfile) getSavedPosts();
   }, [isMyProfile]);
 
   if (!isMyProfile) return null;
 
   if (loading) {
-    
     return (
-      <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="bg-gray-200 animate-pulse rounded-xl h-60 w-full"
-          ></div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {[...Array(6)].map((_, i) => (
+          <PostCardSkeleton key={i} />
         ))}
       </div>
     );
@@ -99,41 +105,10 @@ const SavedPosts: React.FC<Props> = ({ isMyProfile }) => {
   }
 
   return (
-    <div className="space-y-6 min-h-75">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {posts.map((post) => (
-        <div
-          key={post.savedPostId}
-          className="bg-white p-4 rounded-xl shadow hover:shadow-md transition-all duration-300"
-        >
-          {/* Header */}
-          <div className="flex items-center gap-3 mb-2">
-            <img
-              src={post.profileUrl}
-              className="w-10 h-10 rounded-full object-cover"
-              alt="profile"
-            />
-            <span className="font-semibold text-gray-800">{post.userName}</span>
-          </div>
-
-          {/* Description */}
-          {post.description && (
-            <p className="mb-3 text-gray-700">{post.description}</p>
-          )}
-
-          {/* Media */}
-          {post.mediaUrLs?.length > 0 && (
-            <img
-              src={post.mediaUrLs[0].url}
-              className="w-full rounded-lg object-cover max-h-100"
-              alt="post"
-            />
-          )}
-
-          {/* Footer */}
-          <div className="flex gap-6 text-sm text-gray-500 mt-3">
-            <span>❤️ {post.likes}</span>
-            <span>💬 {post.comments}</span>
-          </div>
+        <div key={post.id} className="max-w-full">
+          <PostCard post={post} />
         </div>
       ))}
     </div>
