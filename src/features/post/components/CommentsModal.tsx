@@ -59,8 +59,13 @@ export function CommentsModal({
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyingToName, setReplyingToName] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
-const [openLikes, setOpenLikes] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+const [likesModal, setLikesModal] = useState<{
+  open: boolean;
+  id?: string;
+  type?: "comment" | "reply";
+}>({
+  open: false,
+});  const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
 
   const [menuOpenMap, setMenuOpenMap] = useState<Record<string, boolean>>({});
@@ -392,19 +397,31 @@ onClick={() => {
  
  
 </button>
- <span   onClick={() => setOpenLikes(true)}
+ <span  onClick={() =>
+  setLikesModal({
+    open: true,
+    id: isReply
+      ? (comment as ReplyItem).replyId
+      : (comment as CommentItem).commentId,
+    type: "comment",
+  })
+}
  className="text-xs font-medium cursor-pointer">
     {isReply
       ? (comment as ReplyItem).likesCount
       : (comment as CommentItem).likesCount}
   </span>
   </div>
- {openLikes && (
+ {likesModal.open && likesModal.id && (
   <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
     <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-5 relative">
-      
+
       <button
-        onClick={() => setOpenLikes(false)}
+        onClick={() =>
+          setLikesModal({
+            open: false,
+          })
+        }
         className="absolute top-3 right-3 text-gray-500 hover:text-black"
       >
         ✕
@@ -414,11 +431,7 @@ onClick={() => {
 
       <LikesList
         type="comment"
-        id={
-          isReply
-            ? (comment as ReplyItem).replyId
-            : (comment as CommentItem).commentId
-        }
+        id={likesModal.id}
       />
     </div>
   </div>
