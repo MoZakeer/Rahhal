@@ -5,6 +5,7 @@ import {
   Home, Compass, Plane, MessageCircle, Bell, Settings,
   LogOut, CircleUser, Menu, X
 } from "lucide-react";
+import { useNotifications } from "../../hooks/useNotifications";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/" },
@@ -19,6 +20,8 @@ export default function Navbar() {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hasToken, setHasToken] = useState<boolean>(() => !!localStorage.getItem("token"));
+
+  const { notifications, unreadCount, markAsRead } = useNotifications(hasToken);
 
   // 1. Force LTR Direction on Mount
   useEffect(() => {
@@ -105,29 +108,53 @@ export default function Navbar() {
         <div className="hidden lg:flex items-center gap-3 ml-auto">
           {hasToken ? (
             <div className="flex items-center gap-2">
-              {/* Notifications */}
+             {/* Notifications Popover */}
               <Popover className="relative">
-                <Popover.Button className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer">
+                <Popover.Button 
+                  onClick={markAsRead} // تصفير العداد لما يضغط
+                  className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer"
+                >
                   <Bell className="h-5 w-5 text-slate-600" />
-                  <span className="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-orange-500 ring-2 ring-white" />
+                  
+                  {/* العداد الجديد (Counter Badge) بدلاً من النقطة */}
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 flex min-w-[18px] h-[18px] items-center justify-center rounded-full bg-orange-500 px-1 text-[10px] font-bold text-white ring-2 ring-white shadow-sm">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
                 </Popover.Button>
 
                 <Popover.Panel className="absolute right-0 mt-3 w-80 origin-top-right rounded-2xl bg-white p-4 shadow-xl ring-1 ring-slate-100 focus:outline-none transition data-[closed]:scale-95 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150">
                   <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-2">
                     <span className="font-bold text-slate-800">Notifications</span>
+                    {unreadCount > 0 && (
+                      <span className="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full font-bold">
+                        {unreadCount} New
+                      </span>
+                    )}
                   </div>
-                  <div className="flex items-start gap-3 rounded-lg p-2 transition-colors hover:bg-slate-50 cursor-pointer">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 text-orange-600">
-                      <Plane className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-slate-800">New trip has been added!</p>
-                      <p className="text-xs text-slate-400">5 mins ago</p>
-                    </div>
+                  
+                  <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
+                    {notifications.length > 0 ? (
+                      notifications.map((notif, index) => (
+                        <div key={index} className="flex items-start gap-3 rounded-lg p-2 transition-colors hover:bg-slate-50 cursor-pointer">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-600">
+                            <Plane className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-slate-800">{notif.title}</p>
+                            <p className="text-xs text-slate-400">{notif.timeAgo}</p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-4 text-sm text-slate-500">
+                        No new notifications
+                      </div>
+                    )}
                   </div>
                 </Popover.Panel>
               </Popover>
-
               <div className="h-6 w-px bg-slate-200 mx-1" />
 
               <button onClick={() => navigate("/profile")} className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors cursor-pointer">
