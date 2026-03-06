@@ -14,5 +14,6 @@ export interface ChatResponse {
     title: string;
     conversationPictureURL: string;
     messages: PaginatedMessages;
+   
   };
 }

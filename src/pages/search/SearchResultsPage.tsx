@@ -96,7 +96,7 @@ export default function SearchResults() {
 
   const allPosts = results?.posts?.items || results?.postsPreview || [];
   const allUsers = results?.users?.items || results?.usersPreview || [];
-
+  // console.log("Search results:", { allUsers, allPosts });
   return (
     <div className="max-w-7xl mx-auto p-4">
       {/* Header */}

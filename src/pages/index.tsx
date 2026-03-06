@@ -87,7 +87,7 @@ const Pages = () => {
         {/* Main App */}
         <Route element={<MainLayout />}>
           <Route
-            path="/profile/:profileId?"
+            path="/profile/:profileId"
             element={
               isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />
             }
