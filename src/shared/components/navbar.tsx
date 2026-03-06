@@ -7,7 +7,7 @@ import {
   Plane,
   MessageCircle,
   Bell,
-  Settings,
+  // Settings,
   LogOut,
   CircleUser,
   Menu,
@@ -113,12 +113,12 @@ export default function Navbar() {
               </button>
 
               {/* Settings */}
-              <button
+              {/* <button
                 onClick={() => navigate("/settings")}
                 className="h-9 w-9 md:h-10 md:w-10 rounded-full flex items-center justify-center hover:bg-muted transition cursor-pointer"
               >
                 <Settings className="h-4 w-4 md:h-5 md:w-5" />
-              </button>
+              </button> */}
 
               {/* Logout */}
               <button
@@ -195,7 +195,7 @@ export default function Navbar() {
                     <CircleUser className="h-5 w-5" />
                     Profile
                   </button>
-                  <button
+                  {/* <button
                     onClick={() => {
                       navigate("/settings");
                       setMobileOpen(false);
@@ -204,7 +204,7 @@ export default function Navbar() {
                   >
                     <Settings className="h-5 w-5" />
                     Settings
-                  </button>
+                  </button> */}
                   <button
                     onClick={handleLogout}
                     className="flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 transition"

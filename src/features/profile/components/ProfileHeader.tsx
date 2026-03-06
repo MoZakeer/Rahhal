@@ -6,6 +6,7 @@ import Image from "../../../../public/avater.png";
 import { IoMdSettings } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import ProfileHeaderSkeleton from "../skeletons/ProfileHeaderSkeleton";
+import FollowButton from "../../../shared/components/followButton"; 
 
 interface Props {
   profileId?: string;
@@ -17,9 +18,9 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const navigate = useNavigate();
 
- useEffect(() => {
-  if (profileId) fetchProfile(profileId);
-}, [profileId, fetchProfile]);
+  useEffect(() => {
+    if (profileId) fetchProfile(profileId);
+  }, [profileId, fetchProfile]);
 
   if (loading || !profile) return <ProfileHeaderSkeleton />;
 
@@ -45,15 +46,15 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
       >
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 w-full sm:w-auto">
           <motion.div className="rounded-full overflow-hidden shrink-0">
-           <img
-  src={
-    profile.profilePicture && profile.profilePicture !== "string"
-      ? `https://rahhal-api.runasp.net${profile.profilePicture}`
-      : Image
-  }
-  alt="Profile Picture"
-  className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-cyan-500 bg-gray-200"
-/>
+            <img
+              src={
+                profile.profilePicture && profile.profilePicture !== "string"
+                  ? `https://rahhal-api.runasp.net${profile.profilePicture}`
+                  : Image
+              }
+              alt="Profile Picture"
+              className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-cyan-500 bg-gray-200"
+            />
           </motion.div>
 
           <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
@@ -63,15 +64,19 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
           </div>
         </div>
 
-        {isMyProfile && (
-          <motion.button
-            onClick={() => setIsDrawerOpen(true)}
-            whileHover={{ scale: 1.05 }}
-            className="mt-3 sm:mt-0 p-2 bg-gray-100 rounded-lg flex items-center justify-center shadow-sm"
-          >
-            <IoMdSettings size={20} className="text-gray-600 hover:text-gray-800 transition" />
-          </motion.button>
-        )}
+        <div className="flex items-center gap-3 mt-3 sm:mt-0">
+          {isMyProfile ? (
+            <motion.button
+              onClick={() => setIsDrawerOpen(true)}
+              whileHover={{ scale: 1.05 }}
+              className="p-2 bg-gray-100 rounded-lg flex items-center justify-center shadow-sm"
+            >
+              <IoMdSettings size={20} className="text-gray-600 hover:text-gray-800 transition" />
+            </motion.button>
+          ) : (
+            profileId && <FollowButton profileId={profileId} isMyProfile={isMyProfile} />
+          )}
+        </div>
       </motion.div>
 
       {isMyProfile && (
