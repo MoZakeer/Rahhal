@@ -90,19 +90,7 @@ export default function EditPostModal({ postId, onCancel }: Props) {
               />
             </div>
 
-            <div className="px-6 py-4 mt-2 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleTriggerUpload}
-                  className="flex items-center justify-center h-10 w-10 rounded-full text-emerald-600 bg-emerald-100/50 hover:bg-emerald-100 transition-colors cursor-pointer group"
-                  title="Change Photo/Video"
-                >
-                  <ImageIcon className="h-5 w-5 group-active:scale-90 transition-transform" />
-                </button>
-
-              </div>
-
+            <div className="px-6 py-4 mt-2 bg-slate-50 border-t border-slate-100 flex items-center justify-end">
               <div className="flex items-center gap-4">
                 <span className={`text-xs font-semibold ${caption?.length > MAX_CHARS - 20 ? 'text-rose-500' : 'text-slate-400'}`}>
                   {caption?.length || 0}/{MAX_CHARS}
