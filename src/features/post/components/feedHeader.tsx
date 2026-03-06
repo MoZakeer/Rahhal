@@ -6,10 +6,10 @@ export default function FeedHeader() {
 
   return (
     <div className="w-full mb-6 px-4 sm:px-8">
-      {/* Responsive Container */}
+      
       <div className="flex flex-col md:grid md:grid-cols-3 md:items-center gap-4 md:gap-6">
         
-        {/* Left: Title */}
+        
         <div className="flex flex-col justify-center md:justify-start text-center md:text-left">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
             Rahhal Feed
@@ -19,14 +19,14 @@ export default function FeedHeader() {
           </p>
         </div>
 
-        {/* Center: Search Component */}
+        
         <div className="flex justify-center md:justify-center w-full">
           <div className="w-full max-w-md">
             <SearchComponent />
           </div>
         </div>
 
-        {/* Right: Create Post */}
+        
         <div className="flex justify-center md:justify-end">
           <button
             onClick={() => navigate("/create-post")}

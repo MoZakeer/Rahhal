@@ -3,10 +3,12 @@ import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useProfileStore } from "../../features/profile/store/profile.store";
-import type { UpdateProfileRequest } from "../../features/profile/types/profile.types";
+// import type { UpdateProfileRequest } from "../../features/profile/types/profile.types";
 import { TravelPersonality } from "../../features/profile/types/travelPersonality.enum";
 import { ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const travelPersonalityMap = {
     Explorer: TravelPersonality.Explorer,
@@ -18,9 +20,13 @@ const travelPersonalityMap = {
 
 export default function EditProfilePage() {
     const navigate = useNavigate();
-    const { profile, updateProfile } = useProfileStore();
-    const { register, handleSubmit } = useForm<UpdateProfileRequest>();
+    const { profile, updateProfile, fetchProfile } = useProfileStore();
+    // const { register, handleSubmit } = useForm<UpdateProfileRequest>();
 
+    const auth = localStorage.getItem("auth");
+    const parsedAuth = auth ? JSON.parse(auth) : null;
+
+    const profileId = parsedAuth?.profileId;
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [allCountries, setAllCountries] = useState<{ id: string; name: string }[]>([]);
     const [travelPreferences, setTravelPreferences] = useState<{ id: string; name: string }[]>([]);
@@ -32,6 +38,23 @@ export default function EditProfilePage() {
 
     const [showVisitedDropdown, setShowVisitedDropdown] = useState(false);
     const [showDreamDropdown, setShowDreamDropdown] = useState(false);
+
+
+    const profileSchema = z.object({
+        Fname: z.string().min(1, "First name is required"),
+        Lname: z.string().min(1, "Last name is required"),
+        UserName: z.string().min(1, "Username is required"),
+        Bio: z.string().min(1, "Bio is required"),
+        Location: z.string().min(1, "Location is required"),
+        BirthDate: z.string().min(1, "Birth date is required"),
+        Gender: z.string().min(1, "Gender is required"),
+    });
+
+    type ProfileFormData = z.infer<typeof profileSchema>;
+
+    const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormData>({
+        resolver: zodResolver(profileSchema),
+    });
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -80,15 +103,23 @@ export default function EditProfilePage() {
         );
     };
 
-    const onSubmit = async (data: UpdateProfileRequest) => {
+    const onSubmit = async (data: ProfileFormData) => {
+        if (!selectedPersonality) {
+            toast.error("Please select a travel personality!");
+            return;
+        }
+
         const formDataToSend = new FormData();
-        formDataToSend.append("Fname", data.Fname || "");
-        formDataToSend.append("Lname", data.Lname || "");
-        formDataToSend.append("UserName", data.UserName || "");
-        formDataToSend.append("Bio", data.Bio || "");
-        formDataToSend.append("Location", data.Location || "");
-        formDataToSend.append("Gender", data.Gender?.toString() || "");
-        formDataToSend.append("TravelPersonality", (travelPersonalityMap[selectedPersonality as keyof typeof travelPersonalityMap] ?? 0).toString());
+        formDataToSend.append("Fname", data.Fname);
+        formDataToSend.append("Lname", data.Lname);
+        formDataToSend.append("UserName", data.UserName);
+        formDataToSend.append("Bio", data.Bio);
+        formDataToSend.append("Location", data.Location);
+        formDataToSend.append("Gender", data.Gender);
+        formDataToSend.append(
+            "TravelPersonality",
+            (travelPersonalityMap[selectedPersonality as keyof typeof travelPersonalityMap] ?? 0).toString()
+        );
 
         selectedPreferences.forEach((pref, idx) => {
             const tp = travelPreferences.find((t) => t.name === pref);
@@ -104,8 +135,9 @@ export default function EditProfilePage() {
         }
 
         await updateProfile(formDataToSend);
-        toast("Profile updated!");
-        navigate("/profile");
+        await fetchProfile(profileId);
+        toast.success("Profile updated!");
+        navigate(`/profile/${profileId}`);
     };
 
     if (!profile) {
@@ -123,7 +155,7 @@ export default function EditProfilePage() {
                     {/* Header */}
                     <div className="relative px-6 pt-10 pb-8 bg-linear-to-b from-cyan-50/70 to-white flex flex-col items-center gap-4">
                         <button
-                            onClick={() => navigate("/profile")}
+                            onClick={() => navigate(`/profile/${profileId}`)}
                             className="absolute left-6 top-6 flex items-center gap-2 px-4 py-2    rounded-lg cursor-pointer text-gray-600   transition-all duration-200"
                         >
                             <ArrowLeft className="w-5 h-5" />
@@ -153,11 +185,15 @@ export default function EditProfilePage() {
                                     placeholder="First Name"
                                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
                                 />
+                                {errors.Fname && <p className="text-red-500 text-sm mt-1">{errors.Fname.message}</p>}
+
                                 <input
                                     {...register("Lname")}
                                     placeholder="Last Name"
                                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
                                 />
+                                {errors.Lname && <p className="text-red-500 text-sm mt-1">{errors.Lname.message}</p>}
+
                             </div>
 
                             <input
@@ -165,6 +201,7 @@ export default function EditProfilePage() {
                                 placeholder="Username"
                                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
                             />
+                            {errors.UserName && <p className="text-red-500 text-sm mt-1">{errors.UserName.message}</p>}
 
                             <textarea
                                 {...register("Bio")}
@@ -172,12 +209,13 @@ export default function EditProfilePage() {
                                 rows={3}
                                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400 resize-none"
                             />
-
+                            {errors.Bio && <p className="text-red-500 text-sm mt-1">{errors.Bio.message}</p>}
                             <input
                                 {...register("Location")}
                                 placeholder="Current City / Country"
                                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
                             />
+                            {errors.Location && <p className="text-red-500 text-sm mt-1">{errors.Location.message}</p>}
 
                             <input
                                 {...register("BirthDate")}
@@ -185,7 +223,7 @@ export default function EditProfilePage() {
                                 placeholder="Birth Date"
                                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
                             />
-
+                            {errors.BirthDate && <p className="text-red-500 text-sm mt-1">{errors.BirthDate.message}</p>}
                             <select
                                 {...register("Gender")}
                                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
@@ -196,7 +234,7 @@ export default function EditProfilePage() {
                                 <option value="3">Other / Prefer not to say</option>
                             </select>
                         </section>
-
+                        {/* {errors.Gender && <p className="text-red-500 text-sm mt-1">{errors.Gender.message}</p>} */}
                         {/* Travel Personality */}
                         <section className="space-y-4">
                             <h2 className="text-lg font-semibold text-cyan-700">Travel Personality</h2>
@@ -289,7 +327,7 @@ export default function EditProfilePage() {
                         </section>
 
                         <div className="flex justify-end">
-                            <motion.button type="submit" whileHover={{ scale: 1.03 }} className="px-8 py-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 transition shadow-lg">
+                            <motion.button type="submit" whileHover={{ scale: 1.03 }} className="px-8 py-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 transition shadow-lg cursor--pointer">
                                 Save Changes
                             </motion.button>
                         </div>

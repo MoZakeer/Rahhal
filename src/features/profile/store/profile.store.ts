@@ -5,11 +5,11 @@ interface ProfileState {
   profile: ProfileData | null;
   loading: boolean;
   error: string | null;
-  fetchProfile: () => Promise<void>;
+  fetchProfile: (profileId: string) => Promise<void>;
   setProfile: (data: ProfileResponse | ProfileData) => void;
   updateProfile: (data: FormData) => Promise<void>;
   ChangePassword: (data: { oldPassword: string; newPassword: string; confirmNewPassword: string }) => Promise<void>;
-  GetUserPosts: (pageNum: number, pageSize: number) => Promise<void>;
+  GetUserPosts: (UserId: string, pageNum: number, pageSize: number) => Promise<void>;
 }
 
 export const useProfileStore = create<ProfileState>((set) => ({
@@ -19,49 +19,38 @@ export const useProfileStore = create<ProfileState>((set) => ({
 
   setProfile: (data) => set({ profile: data instanceof Object && 'data' in data ? (data as ProfileResponse).data : data as ProfileData }),
 
-  fetchProfile: async () => {
-    try {
-      set({ loading: true, error: null });
+  fetchProfile: async (profileId: string) => {
+  try {
+    set({ loading: true, error: null });
 
-      const auth = localStorage.getItem("auth");
-      const parsedAuth = auth ? JSON.parse(auth) : null;
+    const auth = localStorage.getItem("auth");
+    const parsedAuth = auth ? JSON.parse(auth) : null;
+    const token = parsedAuth?.token;
 
-      const profileId = parsedAuth?.profileId;
-      const token = parsedAuth?.token;
+    if (!profileId || !token) throw new Error("No profileId or token found");
 
-      if (!profileId || !token) throw new Error("No profileId or token found");
-
-      const res = await fetch(
-        `https://rahhal-api.runasp.net/Profile/GetUserProfile?ProfileId=${profileId}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch profile");
+    const res = await fetch(
+      `https://rahhal-api.runasp.net/Profile/GetUserProfile?ProfileId=${profileId}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
       }
+    );
 
-      const result = await res.json();
+    if (!res.ok) throw new Error("Failed to fetch profile");
 
-      set({
-        profile: result.data,
-        loading: false,
-      });
+    const result = await res.json();
 
-    } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : "An unknown error occurred";
+    set({ profile: result.data, loading: false });
+  } catch (err: unknown) {
+    const errorMessage =
+      err instanceof Error ? err.message : "An unknown error occurred";
 
-      set({
-        error: errorMessage,
-        loading: false,
-      });
-    }
-  },
+    set({ error: errorMessage, loading: false });
+  }
+},
 
   updateProfile: async (formData: FormData) => {
     const auth = localStorage.getItem("auth");
@@ -124,10 +113,9 @@ export const useProfileStore = create<ProfileState>((set) => ({
       console.error(err);
     }
   },
-  GetUserPosts: async (pageNum: number, pageSize: number) => {
+  GetUserPosts: async (UserId: string, pageNum: number, pageSize: number) => {
     const auth = localStorage.getItem("auth");
     const parsedAuth = auth ? JSON.parse(auth) : null;
-    const UserId = parsedAuth?.UserId;
     const token = parsedAuth?.token;
     if (!UserId || !token) return;
 

@@ -1,13 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getPosts, likePost, savePost, deletePost } from "../services/posts.api";
 import type { PostsResponse } from "../../../../types/post";
-
+import type { InfiniteData } from "@tanstack/react-query";
 export function usePosts() {
   return useQuery({
     queryKey: ["posts"],
     queryFn: getPosts,
   });
 }
+
+
 export function useLikePost() {
   const queryClient = useQueryClient();
 
@@ -18,26 +20,35 @@ export function useLikePost() {
       await queryClient.cancelQueries({ queryKey: ["posts"] });
 
       const previousPosts =
-        queryClient.getQueryData<PostsResponse>(["posts"]);
+        queryClient.getQueryData<InfiniteData<PostsResponse>>(["posts"]);
 
-      queryClient.setQueryData<PostsResponse>(["posts"], (old) => {
-        if (!old) return old;
+      queryClient.setQueryData<InfiniteData<PostsResponse>>(
+        ["posts"],
+        (old) => {
+          if (!old) return old;
 
-        return {
-          ...old,
-          data: {
-            ...old.data,
-            items: old.data.items.map((p) =>
-              p.id === postId
-                ? {
-                    ...p,
-                    isLiked: !p.isLiked,
-likes: p.isLiked ? (p.likes ?? 0) - 1 : (p.likes ?? 0) + 1                  }
-                : p
-            ),
-          },
-        };
-      });
+          return {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              data: {
+                ...page.data,
+                items: page.data.items.map((p) =>
+                  p.id === postId
+                    ? {
+                        ...p,
+                        isLiked: !p.isLiked,
+                        likes: p.isLiked
+                          ? (p.likes ?? 0) - 1
+                          : (p.likes ?? 0) + 1,
+                      }
+                    : p
+                ),
+              },
+            })),
+          };
+        }
+      );
 
       return { previousPosts };
     },
@@ -62,21 +73,25 @@ export function useSavePost() {
     onMutate: async (postId: string) => {
       await queryClient.cancelQueries({ queryKey: ["posts"] });
 
-      const previousPosts = queryClient.getQueryData<PostsResponse>(["posts"]);
+      const previousPosts = queryClient.getQueryData(["posts"]);
 
-      queryClient.setQueryData<PostsResponse>(["posts"], (old) => {
-        if (!old) return old;
+queryClient.setQueryData<InfiniteData<PostsResponse>>(
+        ["posts"],
+        (old) => {        if (!old) return old;
 
         return {
           ...old,
-          data: {
-            ...old.data,
-            items: old.data.items.map((p) =>
-              p.id === postId
-                ? { ...p, isSaved: !p.isSaved }
-                : p
-            ),
-          },
+          pages: old.pages.map((page) => ({
+            ...page,
+            data: {
+              ...page.data,
+              items: page.data.items.map((p) =>
+                p.id === postId
+                  ? { ...p, isSaved: !p.isSaved }
+                  : p
+              ),
+            },
+          })),
         };
       });
 

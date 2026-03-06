@@ -24,6 +24,10 @@ const navItems = [
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
+  
+  const auth = localStorage.getItem("auth");
+  const parsedAuth = auth ? JSON.parse(auth) : null;
+  const profileId = parsedAuth?.profileId;
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hasToken, setHasToken] = useState<boolean>(() => {
@@ -34,7 +38,7 @@ export default function Navbar() {
     localStorage.removeItem("token");
     localStorage.removeItem("auth");
     localStorage.removeItem("user");
-    
+
     setHasToken(false);
     setMobileOpen(false);
     navigate("/landing-page");
@@ -101,7 +105,8 @@ export default function Navbar() {
 
               {/* Profile */}
               <button
-                onClick={() => navigate("/profile")}
+
+                onClick={() => navigate(`/profile/${profileId}`)}
                 className="h-9 w-9 md:h-10 md:w-10 rounded-full flex items-center justify-center hover:bg-muted transition cursor-pointer"
               >
                 <CircleUser className="h-4 w-4 md:h-5 md:w-5" />
@@ -181,7 +186,8 @@ export default function Navbar() {
                 <>
                   <button
                     onClick={() => {
-                      navigate("/profile");
+                      navigate(`/profile/${profileId}`);
+
                       setMobileOpen(false);
                     }}
                     className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition"

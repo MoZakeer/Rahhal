@@ -7,17 +7,18 @@ export function useCreatePost() {
   const navigate = useNavigate();
   const DEFAULT_AVATAR = "https://www.gravatar.com/avatar/?d=mp&f=y";
 
+  const BASE_URL = "https://rahhal-api.runasp.net";
   const [caption, setCaption] = useState("");
   const [media, setMedia] = useState<EditMedia[]>([]);
   const [user, setUser] = useState<{ name: string; username: string; avatar: string } | null>(null);
   const [isPosting, setIsPosting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Helper to get user & token from localStorage
+
   function getUserFromStorage() {
     const userJS = localStorage.getItem("user");
     if (!userJS) return null;
-    return JSON.parse(userJS); // { token, userId }
+    return JSON.parse(userJS); 
   }
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export function useCreatePost() {
       const { token, userId } = storedUser;
 
       try {
-        const res = await axios.get("https://rahhal-api.runasp.net/Profile/GetUserProfile", {
+        const res = await axios.get(`${BASE_URL}/Profile/GetUserProfile`, {
           params: { ProfileId: userId },
           headers: { Authorization: `Bearer ${token}`, accept: "application/json" },
         });
@@ -46,7 +47,7 @@ export function useCreatePost() {
         setUser({
           name: data.fullName || "Unknown User",
           username: data.userName || "unknown",
-          avatar: data.profilePicture || DEFAULT_AVATAR,
+          avatar: data.profilePicture ? (data.profilePicture.startsWith("http") ? data.profilePicture : `${BASE_URL}${data.profilePicture}`) : DEFAULT_AVATAR,
         });
       } catch (err) {
         console.log("Error fetching user", err);

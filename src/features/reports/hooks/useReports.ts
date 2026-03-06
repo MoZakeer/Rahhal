@@ -10,5 +10,8 @@ export const useReports = (
   return useQuery({
     queryKey: ["reports", type, pageIndex, pageSize],
     queryFn: () => fetchReportsByType(type, pageIndex, pageSize),
+    staleTime:0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 };

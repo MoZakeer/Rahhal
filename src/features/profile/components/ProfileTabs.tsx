@@ -1,14 +1,16 @@
 import { motion } from "framer-motion";
 import type { ProfileTab } from "../types/profile.types";
 
-const tabs: ProfileTab[] = ["Posts", "My trips", "Saved"];
-
 interface Props {
   activeTab: ProfileTab;
   setActiveTab: (tab: ProfileTab) => void;
+  isMyProfile?: boolean;
 }
 
-const ProfileTabs: React.FC<Props> = ({ activeTab, setActiveTab }) => {
+const ProfileTabs: React.FC<Props> = ({ activeTab, setActiveTab, isMyProfile }) => {
+  const tabs: ProfileTab[] = ["Posts"];
+  if (isMyProfile) tabs.push("Saved");
+
   return (
     <div className="mt-6 border-b border-gray-200">
       <div className="flex gap-6 relative">
@@ -17,13 +19,10 @@ const ProfileTabs: React.FC<Props> = ({ activeTab, setActiveTab }) => {
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`relative pb-3 text-sm font-medium transition ${
-              activeTab === tab
-                ? "text-black"
-                : "text-gray-500 hover:text-gray-800"
+              activeTab === tab ? "text-black" : "text-gray-500 hover:text-gray-800"
             }`}
           >
             {tab}
-
             {activeTab === tab && (
               <motion.div
                 layoutId="tabUnderline"

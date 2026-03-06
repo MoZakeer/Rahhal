@@ -24,6 +24,9 @@ import { ReportModal } from "../../reports/components/ReportModal";
 import { followUser } from "./services/posts.api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLikePost, useSavePost, useDeletePost } from "./hooks/usePosts";
+import type { InfiniteData } from "@tanstack/react-query";
+import ConfirmModal from "../../ReportDetals/components/confirmModal";
+import { LikesList } from "./LikesList";
 
 export function PostHeader({
   id,
@@ -50,8 +53,6 @@ export function PostHeader({
   onFollow?: () => void;
 }) {
   const navigate = useNavigate();
-console.log("logged:", currentUserId);
-console.log("post owner:", profileId);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   // Close dropdown when clicking outside
@@ -338,7 +339,8 @@ export default function PostCard({
 }) {
   const hasMedia = post.mediaUrLs && post.mediaUrLs.length > 0;
   const [commentsOpen, setCommentsOpen] = useState(false);
-  
+    const [openModal, setOpenModal] = useState(false);
+
   const navigate = useNavigate();
 
   function handleEditPost() {
@@ -347,7 +349,7 @@ export default function PostCard({
   const likeMutation = useLikePost();
   const saveMutation = useSavePost();
   const deleteMutation = useDeletePost();
-
+const [openLikes, setOpenLikes] = useState(false);
   function handleLike() {
     likeMutation.mutate(post.id);
   }
@@ -382,25 +384,33 @@ const followMutation = useMutation({
   onMutate: async (userId: string) => {
     await queryClient.cancelQueries({ queryKey: ["posts"] });
 
-const previousPosts = queryClient.getQueryData<PostsResponse>(["posts"]);
-   queryClient.setQueryData<PostsResponse>(["posts"], (old) => {
-  if (!old) return old;
+    const previousPosts =
+      queryClient.getQueryData<InfiniteData<PostsResponse>>(["posts"]);
 
-  return {
-    ...old,
-    data: {
-      ...old.data,
-      items: old.data.items.map((p) =>
-        p.userId === userId
-          ? {
-              ...p,
-              isFollowedByCurrentUser: !p.isFollowedByCurrentUser,
-            }
-          : p
-      ),
-    },
-  };
-});
+    queryClient.setQueryData<InfiniteData<PostsResponse>>(
+      ["posts"],
+      (old) => {
+        if (!old) return old;
+
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            data: {
+              ...page.data,
+              items: page.data.items.map((p) =>
+                p.userId === userId
+                  ? {
+                      ...p,
+                      isFollowedByCurrentUser: !p.isFollowedByCurrentUser,
+                    }
+                  : p
+              ),
+            },
+          })),
+        };
+      }
+    );
 
     return { previousPosts };
   },
@@ -424,7 +434,7 @@ function handleFollow() {
 isFollowing={post.isFollowedByCurrentUser}
   onFollow={handleFollow}        currentUserId={getUserId()}
         createdAt={post.createdDate}
-        onDelete={handleDelete}
+        onDelete={()=>setOpenModal(true)}
         onEdit={handleEditPost}
       />
 
@@ -446,10 +456,28 @@ isFollowing={post.isFollowedByCurrentUser}
         onComment={() => setCommentsOpen(true)}
       />
 
-      <div className="px-4 text-sm font-semibold mt-1">
-        {post.likes} likes
+      <div   onClick={() => setOpenLikes(true)}
+ className="px-4 text-sm font-semibold mt-1 cursor-pointer">
+         {post.likes} likes
       </div>
+{openLikes && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-5 relative">
+      
+      <button
+        onClick={() => setOpenLikes(false)}
+        className="absolute top-3 right-3 text-gray-500 hover:text-black"
+      >
+        ✕
+      </button>
 
+      <h3 className="text-lg font-semibold mb-4">Likes</h3>
+
+     <LikesList type="post" id={post.id} />
+
+    </div>
+  </div>
+)}
       {hasMedia && (
         <PostContent
           description={post.description}
@@ -461,7 +489,9 @@ isFollowing={post.isFollowedByCurrentUser}
     className="px-4 pb-3 text-sm text-gray-500 cursor-pointer"
     onClick={() => setCommentsOpen(true)}
   >
+    View all {post.comments} comments
   </div>
+
 )}
       <CommentsModal
         open={commentsOpen}
@@ -469,6 +499,12 @@ isFollowing={post.isFollowedByCurrentUser}
         postId={post.id}
         currentUserId={getUserId() || ""}
       />
+      <ConfirmModal
+                open={openModal}
+                onClose={() => setOpenModal(false)}
+                onConfirm={handleDelete}
+                itemType={ "post"}
+              />
     </div>
   );
 }
