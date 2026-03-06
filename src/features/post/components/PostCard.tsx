@@ -27,6 +27,7 @@ import { useLikePost, useSavePost, useDeletePost } from "./hooks/usePosts";
 import type { InfiniteData } from "@tanstack/react-query";
 import ConfirmModal from "../../ReportDetals/components/confirmModal";
 import { LikesList } from "./LikesList";
+import EditPostModal from "../components/EditPostModal"
 
 export function PostHeader({
   id,
@@ -111,8 +112,8 @@ export function PostHeader({
           <button
             onClick={onFollow}
             className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${isFollowing
-                ? "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
-                : "bg-white border border-black text-black hover:bg-gray-100"
+              ? "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
+              : "bg-white border border-black text-black hover:bg-gray-100"
               }`}
           >
             {isFollowing ? "Following" : "Follow"}
@@ -126,15 +127,15 @@ export function PostHeader({
           >
             <MoreHorizontal className="w-5 h-5" />
           </button>
-{isReportOpen && (
-  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-    <ReportModal
-      entityType="post"
-      entityId={id}
-      onClose={() => setIsReportOpen(false)}
-    />
-  </div>
-)}
+          {isReportOpen && (
+            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+              <ReportModal
+                entityType="post"
+                entityId={id}
+                onClose={() => setIsReportOpen(false)}
+              />
+            </div>
+          )}
           {dropdownOpen && (
             <div className="absolute top-full right-0 mt-2 w-36 bg-white rounded-xl shadow-lg ring-1 ring-black/5 z-50 overflow-hidden translate-x-3">
               {isOwner ? (
@@ -158,7 +159,7 @@ export function PostHeader({
                 <button
                   className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 transition-colors"
                   onClick={() => {
-setDropdownOpen(!dropdownOpen);                    setIsReportOpen(true);
+                    setDropdownOpen(!dropdownOpen); setIsReportOpen(true);
                   }}
                 >
                   <Flag className="w-4 h-4" />
@@ -257,11 +258,10 @@ transition-all duration-300">
               key={m.id}
               onClick={() => setCurrent(i)}
               onMouseEnter={() => setCurrent(i)}
-              className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${
-                i === current
+              className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${i === current
                   ? "ring-2 ring-blue-200"
                   : "opacity-80 hover:opacity-100"
-              }`}
+                }`}
             >
               <img
                 src={normalizeMediaUrl(m.url)}
@@ -282,7 +282,7 @@ export function PostActions({
   onComment,
   onSave,
 }: {
-  
+
   liked: boolean;
   saved: boolean;
   onLike: () => void;
@@ -298,7 +298,7 @@ export function PostActions({
         >
           {liked ? (
             <HeartIcon
-  className="w-6 h-6 text-primary-500 fill-primary-500
+              className="w-6 h-6 text-primary-500 fill-primary-500
   hover:text-primary-200 
   hover:scale-125 
   hover:rotate-12 
@@ -306,26 +306,26 @@ export function PostActions({
           ) : (
             <HeartIcon className="w-6 h-6 text-black scale-100 transition-all duration-300" />
           )}
-          
+
         </button>
-        
+
         <button onClick={onComment} className=" flex flex-col items-center transition-transform duration-200 ease-in-out">
           <ChatBubbleLeftRightIcon className="w-6 h-6 text-black hover:scale-105 
   hover:rotate-1 
   transition-all duration-500" />
-  
+
         </button>
-      
+
       </div>
 
-     <button onClick={onSave}>
-  {saved ? (
-    <Bookmark className="w-6 h-6 text-primary-500 fill-primary-500 scale-100 hover:scale-110 
+      <button onClick={onSave}>
+        {saved ? (
+          <Bookmark className="w-6 h-6 text-primary-500 fill-primary-500 scale-100 hover:scale-110 
   transition-all duration-500" />
-  ) : (
-    <Bookmark className="w-6 h-6 text-black scale-100 transition-all duration-300" />
-  )}
-</button>
+        ) : (
+          <Bookmark className="w-6 h-6 text-black scale-100 transition-all duration-300" />
+        )}
+      </button>
     </div>
   );
 }
@@ -339,17 +339,18 @@ export default function PostCard({
 }) {
   const hasMedia = post.mediaUrLs && post.mediaUrLs.length > 0;
   const [commentsOpen, setCommentsOpen] = useState(false);
-    const [openModal, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
-  const navigate = useNavigate();
+
 
   function handleEditPost() {
-    navigate(`/edit-post/${post.id}`);
+    setEditModalOpen(true);
   }
   const likeMutation = useLikePost();
   const saveMutation = useSavePost();
   const deleteMutation = useDeletePost();
-const [openLikes, setOpenLikes] = useState(false);
+  const [openLikes, setOpenLikes] = useState(false);
   function handleLike() {
     likeMutation.mutate(post.id);
   }
@@ -360,70 +361,70 @@ const [openLikes, setOpenLikes] = useState(false);
 
   function handleDelete() {
     deleteMutation.mutate(post.id);
-           toast("Deleting post!", {
-            duration: 2000,
-  style: {
-    border: "1px solid #ef4444", 
-    padding: "5px",
-    color: "#ef4444",
-    background: "#FFFfff",
-  },
-  iconTheme: {
-    primary: "#ef4444",
-    secondary: "#FFFfff",
-  },
-});
+    toast("Deleting post!", {
+      duration: 2000,
+      style: {
+        border: "1px solid #ef4444",
+        padding: "5px",
+        color: "#ef4444",
+        background: "#FFFfff",
+      },
+      iconTheme: {
+        primary: "#ef4444",
+        secondary: "#FFFfff",
+      },
+    });
 
   }
-  
-    const queryClient = useQueryClient();
 
-const followMutation = useMutation({
-  mutationFn: followUser,
+  const queryClient = useQueryClient();
 
-  onMutate: async (userId: string) => {
-    await queryClient.cancelQueries({ queryKey: ["posts"] });
+  const followMutation = useMutation({
+    mutationFn: followUser,
 
-    const previousPosts =
-      queryClient.getQueryData<InfiniteData<PostsResponse>>(["posts"]);
+    onMutate: async (userId: string) => {
+      await queryClient.cancelQueries({ queryKey: ["posts"] });
 
-    queryClient.setQueryData<InfiniteData<PostsResponse>>(
-      ["posts"],
-      (old) => {
-        if (!old) return old;
+      const previousPosts =
+        queryClient.getQueryData<InfiniteData<PostsResponse>>(["posts"]);
 
-        return {
-          ...old,
-          pages: old.pages.map((page) => ({
-            ...page,
-            data: {
-              ...page.data,
-              items: page.data.items.map((p) =>
-                p.userId === userId
-                  ? {
+      queryClient.setQueryData<InfiniteData<PostsResponse>>(
+        ["posts"],
+        (old) => {
+          if (!old) return old;
+
+          return {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              data: {
+                ...page.data,
+                items: page.data.items.map((p) =>
+                  p.userId === userId
+                    ? {
                       ...p,
                       isFollowedByCurrentUser: !p.isFollowedByCurrentUser,
                     }
-                  : p
-              ),
-            },
-          })),
-        };
+                    : p
+                ),
+              },
+            })),
+          };
+        }
+      );
+
+      return { previousPosts };
+    },
+
+    onError: (_err, _userId, context) => {
+      if (context?.previousPosts) {
+        queryClient.setQueryData(["posts"], context.previousPosts);
       }
-    );
-
-    return { previousPosts };
-  },
-
-  onError: (_err, _userId, context) => {
-    if (context?.previousPosts) {
-      queryClient.setQueryData(["posts"], context.previousPosts);
-    }
-  },
-});
-function handleFollow() {
-  followMutation.mutate(post.userId);
-}
+    },
+  });
+  function handleFollow() {
+    followMutation.mutate(post.userId);
+  }
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm mb-6 max-w-xl mx-auto">
       <PostHeader
@@ -431,10 +432,10 @@ function handleFollow() {
         userName={post.userName}
         profileUrl={post.profileUrl}
         profileId={post.userId}
-isFollowing={post.isFollowedByCurrentUser}
-  onFollow={handleFollow}        currentUserId={getUserId()}
+        isFollowing={post.isFollowedByCurrentUser}
+        onFollow={handleFollow} currentUserId={getUserId()}
         createdAt={post.createdDate}
-        onDelete={()=>setOpenModal(true)}
+        onDelete={() => setOpenModal(true)}
         onEdit={handleEditPost}
       />
 
@@ -456,43 +457,43 @@ isFollowing={post.isFollowedByCurrentUser}
         onComment={() => setCommentsOpen(true)}
       />
 
-      <div   onClick={() => setOpenLikes(true)}
- className="px-4 text-sm font-semibold mt-1 cursor-pointer">
-         {post.likes} likes
+      <div onClick={() => setOpenLikes(true)}
+        className="px-4 text-sm font-semibold mt-1 cursor-pointer">
+        {post.likes} likes
       </div>
-{openLikes && (
-  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-    <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-5 relative">
-      
-      <button
-        onClick={() => setOpenLikes(false)}
-        className="absolute top-3 right-3 text-gray-500 hover:text-black"
-      >
-        ✕
-      </button>
+      {openLikes && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-5 relative">
 
-      <h3 className="text-lg font-semibold mb-4">Likes</h3>
+            <button
+              onClick={() => setOpenLikes(false)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-black"
+            >
+              ✕
+            </button>
 
-     <LikesList type="post" id={post.id} />
+            <h3 className="text-lg font-semibold mb-4">Likes</h3>
 
-    </div>
-  </div>
-)}
+            <LikesList type="post" id={post.id} />
+
+          </div>
+        </div>
+      )}
       {hasMedia && (
         <PostContent
           description={post.description}
           className="px-4 mt-1 text-sm"
         />
       )}
-{(post.comments ?? 0) > 0 && (
-  <div
-    className="px-4 pb-3 text-sm text-gray-500 cursor-pointer"
-    onClick={() => setCommentsOpen(true)}
-  >
-    View all {post.comments} comments
-  </div>
+      {(post.comments ?? 0) > 0 && (
+        <div
+          className="px-4 pb-3 text-sm text-gray-500 cursor-pointer"
+          onClick={() => setCommentsOpen(true)}
+        >
+          View all {post.comments} comments
+        </div>
 
-)}
+      )}
       <CommentsModal
         open={commentsOpen}
         onClose={() => setCommentsOpen(false)}
@@ -500,11 +501,17 @@ isFollowing={post.isFollowedByCurrentUser}
         currentUserId={getUserId() || ""}
       />
       <ConfirmModal
-                open={openModal}
-                onClose={() => setOpenModal(false)}
-                onConfirm={handleDelete}
-                itemType={ "post"}
-              />
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        onConfirm={handleDelete}
+        itemType={"post"}
+      />
+      {editModalOpen && (
+        <EditPostModal
+          postId={post.id}
+          onCancel={() => setEditModalOpen(false)} // يغلق المودال عند الضغط على Cancel أو بعد حفظ
+        />
+      )}
     </div>
   );
 }

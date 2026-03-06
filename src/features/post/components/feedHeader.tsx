@@ -1,12 +1,12 @@
-import { useNavigate } from "react-router-dom";
 import SearchComponent from "../../search/components/SearchComponent";
 
-export default function FeedHeader() {
-  const navigate = useNavigate();
+type Props = {
+  onCreatePost: () => void;
+};
 
+export default function FeedHeader({ onCreatePost }: Props) {
   return (
     <div className="w-full mb-6 px-4 sm:px-8">
-      
       <div className="flex flex-col md:grid md:grid-cols-3 md:items-center gap-4 md:gap-6">
         
         
@@ -19,17 +19,17 @@ export default function FeedHeader() {
           </p>
         </div>
 
-        
+    
         <div className="flex justify-center md:justify-center w-full">
           <div className="w-full max-w-md">
             <SearchComponent />
           </div>
         </div>
 
-        
+       
         <div className="flex justify-center md:justify-end">
           <button
-            onClick={() => navigate("/create-post")}
+            onClick={onCreatePost} 
             className="flex items-center gap-2 px-4 py-2 rounded-full text-sm md:text-base text-white bg-cyan-500 hover:bg-cyan-600 transition-colors shadow"
           >
             <svg

@@ -21,8 +21,7 @@ import ProfilePage from "./profile/ProfilePage";
 
 // Feed Pages
 import HomeFeed from "./feed/HomeFeed";
-import CreatePost from "./feed/CreatePost";
-import EditPost from "./feed/EditPost.tsx";
+
 
 // Trips Pages
 import MyTrips from "./trips/MyTrips";
@@ -64,8 +63,7 @@ const Pages = () => {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/change-password" element={<ChangePassword />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/create-post" element={<CreatePost />} />
-          <Route path="/edit-post/:postId" element={<EditPost />} />
+          
           <Route path="/landing-page" element={<LandingPage />} />
           <Route path="/report_details/:id" element={<ReportsDetails />} />
           <Route path="/reports" element={<ReportsPage />} />
