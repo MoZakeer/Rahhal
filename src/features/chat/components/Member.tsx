@@ -4,6 +4,7 @@ import type { Participant } from "../types/chatDetails.type";
 import { conversationImage } from "../../../utils/helper";
 import { useRemoveParticipant } from "../hooks/useRemoveParticipant";
 import { useParams } from "react-router";
+import { useUser } from "../../../context/UserContext";
 type Props = {
   type?: "request" | "member";
   participant: Participant;
@@ -11,6 +12,9 @@ type Props = {
 };
 function Member({ type = "member", participant, isAdmin }: Props) {
   const { conversationId } = useParams<{ conversationId: string }>();
+  const {
+    user: { userId },
+  } = useUser();
   const { isPending, removeParticipant } = useRemoveParticipant({
     profileId: participant?.profileId,
     conversationId: conversationId || "",
@@ -41,7 +45,7 @@ function Member({ type = "member", participant, isAdmin }: Props) {
       </div>
 
       <div className="flex items-center gap-2 ml-3">
-        {isAdmin && (
+        {isAdmin && userId !== participant?.profileId && (
           <>
             {type === "member" ? (
               <button

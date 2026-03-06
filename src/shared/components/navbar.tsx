@@ -105,6 +105,7 @@ export default function Navbar() {
 
               {/* Profile */}
               <button
+
                 onClick={() => navigate(`/profile/${profileId}`)}
                 className="h-9 w-9 md:h-10 md:w-10 rounded-full flex items-center justify-center hover:bg-muted transition cursor-pointer"
               >
@@ -186,6 +187,7 @@ export default function Navbar() {
                   <button
                     onClick={() => {
                       navigate(`/profile/${profileId}`);
+
                       setMobileOpen(false);
                     }}
                     className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition"

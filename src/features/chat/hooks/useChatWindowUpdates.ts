@@ -7,26 +7,30 @@ import type { Message } from "../types/message.types";
 export const useChatWindowUpdates = (
   connection: HubConnection | null,
   conversationId: string | undefined,
-  userId: string | undefined, // أضفنا الـ userId هنا لإبلاغ الـ DB
+  userId: string | undefined,
 ) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!connection || !conversationId) return;
 
-    // 1. الدخول لغرفة المحادثة لاستقبال الرسائل
+    // 1. الانضمام للمحادثة لإرسال/استقبال الأحداث في الوقت الفعلي
     connection.invoke("JoinConversation", conversationId).catch(console.error);
 
-    // 2. 🔥 التبليغ بفتح الشات لتصفير العداد في الـ DB
+    // 2. إبلاغ الباك إند فور فتح الشات بأنني قرأت الرسائل الحالية
     if (userId) {
-      connection.invoke("MarkAsRead", {
-        ConversationId: conversationId,
-        ProfileId: userId,
-      })
-      .then(() => console.log("✅ DB notified: Conversation marked as read"))
-      .catch((err) => console.error("❌ Failed to notify DB:", err));
+      connection
+        .invoke("MarkAsRead", {
+          ConversationId: conversationId,
+          ProfileId: userId,
+        })
+        .then(() => console.log("✅ DB notified: Conversation marked as read"))
+        .catch((err) => console.error("❌ Failed to notify DB:", err));
     }
 
+    // --- Handlers ---
+
+    // التعامل مع استقبال رسالة جديدة
     const handleReceiveMessage = (newMessage: Message) => {
       queryClient.setQueryData<InfiniteData<ChatResponse>>(
         ["chat", conversationId],
@@ -42,7 +46,6 @@ export const useChatWindowUpdates = (
           if (isDuplicate) return oldData;
 
           const newPages = [...oldData.pages];
-
           newPages[0] = {
             ...newPages[0],
             data: {
@@ -58,21 +61,63 @@ export const useChatWindowUpdates = (
         },
       );
 
-      // 3. 🔥 إذا وصلت رسالة جديدة وأنت "فاتح الشات"، بلغ الـ DB فوراً لتظل مقروءة
+      // إذا كنت أنا المستقبل (ولست الراسل)، أبلغ الباك إند فوراً أنني قرأت الرسالة الجديدة
       if (userId && newMessage.senderProfileId !== userId) {
-        connection.invoke("MarkAsRead", {
-          ConversationId: conversationId,
-          ProfileId: userId,
-        }).catch(() => {});
+        connection
+          .invoke("MarkAsRead", {
+            ConversationId: conversationId,
+            ProfileId: userId,
+          })
+          .catch(() => {});
       }
     };
 
+    // التعامل مع إشعار "الطرف الآخر قرأ رسائلي"
+    const handleMessageSeen = (data: {
+      conversationId: string;
+      messageId: string;
+    }) => {
+      // التأكد أن الإشعار يخص المحادثة المفتوحة حالياً
+      if (data.conversationId !== conversationId) return;
+
+      queryClient.setQueryData<InfiniteData<ChatResponse>>(
+        ["chat", conversationId],
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: {
+                ...page.data,
+                messages: {
+                  ...page.data.messages,
+                  items: page.data.messages.items.map((msg: Message) => {
+                    // إذا كانت الرسالة من إرسالي ولم تُقرأ بعد، نحولها لـ Seen
+                    // (المنطق: طالما آخر رسالة قرأت، فكل ما قبلها قرأ أيضاً)
+                    if (msg.senderProfileId === userId && !msg.isSeen) {
+                      return { ...msg, isSeen: true };
+                    }
+                    return msg;
+                  }),
+                },
+              },
+            })),
+          };
+        },
+      );
+    };
+
+    // --- Listeners Registration ---
     connection.on("ReceiveMessage", handleReceiveMessage);
+    connection.on("MessageFullySeen", handleMessageSeen);
 
     return () => {
+      // Clean up
       connection.off("ReceiveMessage", handleReceiveMessage);
+      connection.off("MessageFullySeen", handleMessageSeen);
       connection.invoke("LeaveConversation", conversationId).catch(() => {});
     };
-    // أضفنا userId و conversationId هنا لضمان إعادة التنفيذ عند تغيير المحادثة
-  }, [connection, conversationId, userId, queryClient]); 
+  }, [connection, conversationId, userId, queryClient]);
 };

@@ -8,4 +8,5 @@ export interface Message {
   content: string;
   createdDate: string; // ISO Date
   attachments: Attachment[];
+  isSeen: boolean;
 }

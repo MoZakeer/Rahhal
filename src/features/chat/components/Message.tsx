@@ -1,3 +1,4 @@
+import { IoCheckmarkDoneOutline } from "react-icons/io5";
 import type { Attachment } from "../types/attachment.types";
 import MessageAttachments from "./MessageAttachments";
 
@@ -8,9 +9,18 @@ type Props = {
   name?: string;
   attachments?: Attachment[];
   isGroup: boolean;
+  isSeen: boolean;
 };
 
-function Message({ type, children, time, name, attachments, isGroup }: Props) {
+function Message({
+  type,
+  children,
+  time,
+  name,
+  attachments,
+  isGroup,
+  isSeen,
+}: Props) {
   const isSend = type === "send";
   return (
     <li className={`flex w-full ${isSend ? "justify-start" : "justify-end"}`}>
@@ -37,15 +47,29 @@ function Message({ type, children, time, name, attachments, isGroup }: Props) {
         <span className="text-sm leading-relaxed wrap-break-word px-3">
           {children}
         </span>
+        <div
+          className={`
+          absolute right-2 bottom-1 flex items-center gap-1
+          ${isSend ? "text-primary-200" : "text-gray-400"}
+        `}
+        >
+          <span className="text-[10px]">{time}</span>
 
-        <span
+          {isSend && (
+            <IoCheckmarkDoneOutline
+              size={14}
+              className={`${isSeen ? "text-primary-700" : "text-gray-400"}`}
+            />
+          )}
+        </div>
+        {/* <span
           className={`
             text-[10px] absolute right-2 bottom-1
             ${isSend ? "text-gray-400" : "text-primary-200"}
           `}
         >
           {time}
-        </span>
+        </span> */}
       </div>
     </li>
   );
