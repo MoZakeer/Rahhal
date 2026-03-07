@@ -13,7 +13,7 @@ function ImageAttachButton({ onSelectFiles }: ImageAttachProps) {
       const selectedFiles = Array.from(e.target.files);
       const validFiles = selectedFiles.filter((file) => {
         const isValidType = file.type.startsWith("image/");
-        const isValidSize = file.size <= 5 * 1024 * 1024;
+        const isValidSize = file.size <= 16 * 1024 * 1024;
         return isValidType && isValidSize;
       });
 
