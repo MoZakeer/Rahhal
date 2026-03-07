@@ -59,7 +59,6 @@ export default function EditProfilePage() {
     const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormData>({
         resolver: zodResolver(profileSchema),
     });
-// ==================== useEffect ====================
 useEffect(() => {
     const token = localStorage.getItem("token");
 
