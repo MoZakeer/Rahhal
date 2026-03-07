@@ -6,9 +6,15 @@ type Props = {
   caption: string;
   onChange: (value: string) => void;
   maxChars: number;
+  placeholder?: string;
 };
 
-export default function PostCaption({ caption, onChange, maxChars }: Props) {
+export default function PostCaption({
+  caption,
+  onChange,
+  maxChars,
+  placeholder,
+}: Props) {
   const [showEmoji, setShowEmoji] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
 
@@ -17,9 +23,7 @@ export default function PostCaption({ caption, onChange, maxChars }: Props) {
 
   const handleEmojiSelect = (emoji: string) => {
     onChange(caption + emoji);
-
   };
-
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -49,7 +53,7 @@ export default function PostCaption({ caption, onChange, maxChars }: Props) {
           value={caption}
           onChange={(e) => onChange(e.target.value)}
           maxLength={maxChars}
-          placeholder="Share your adventure..."
+          placeholder={placeholder}
           rows={5}
           className="
             w-full
@@ -80,11 +84,11 @@ export default function PostCaption({ caption, onChange, maxChars }: Props) {
         </button>
       </div>
 
-
-      <div className={`text-right text-xs ${warning ? "text-red-500" : "text-gray-400"}`}>
+      <div
+        className={`text-right text-xs ${warning ? "text-red-500" : "text-gray-400"}`}
+      >
         {caption.length}/{maxChars}
       </div>
-
 
       {showEmoji && (
         <div
@@ -92,7 +96,11 @@ export default function PostCaption({ caption, onChange, maxChars }: Props) {
           className="absolute top-full right-0 mt-1 z-50"
           onClick={(e) => e.stopPropagation()}
         >
-          <MyEmojiPicker onSelect={handleEmojiSelect} width={300} height={320} />
+          <MyEmojiPicker
+            onSelect={handleEmojiSelect}
+            width={300}
+            height={320}
+          />
         </div>
       )}
     </div>
