@@ -32,11 +32,11 @@ export default function EditPostModal({ postId, onCancel }: Props) {
     onCancel();
   };
 
-  const handleTriggerUpload = () => {
-    if (fileRef.current) {
-      fileRef.current.click();
-    }
-  };
+  // const handleTriggerUpload = () => {
+  //   if (fileRef.current) {
+  //     fileRef.current.click();
+  //   }
+  // };
 
   return (
     <Dialog open={true} onClose={onCancel} className="relative z-50">
