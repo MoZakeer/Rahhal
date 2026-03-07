@@ -348,7 +348,7 @@ const regex = new RegExp(`@[^${HIDDEN}]+${HIDDEN}`, "g");
     <ReportModal
       entityType="comment"
       entityId={id}
-        profileId={comment.profileId}
+        profileId={currentUserId}
       onClose={() => setIsReportOpen(false)}
     />
   </div>
