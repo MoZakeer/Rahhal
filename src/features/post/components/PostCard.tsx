@@ -3,7 +3,7 @@ import type { PostMediaItem } from "../../../types/post";
 import { PostContent } from "./PostContent";
 import type { PostsResponse } from "../../../types/post";
 import toast from "react-hot-toast";
-import { MessageCircle, Heart, Share2, Globe, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { MessageCircle, Heart, Share2, Globe, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserPlus, UserCheck } from "lucide-react"; // أيقونات مودرن ورفيعة
 
@@ -22,7 +22,7 @@ import { normalizeMediaUrl } from "./services/posts.api";
 import { getUserId } from "../../../utils/auth";
 import { CommentsModal } from "../components/CommentsModal";
 import { useNavigate } from "react-router-dom";
-import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
+
 // import { motion, AnimatePresence } from "framer-motion";
 import { ReportModal } from "../../reports/components/ReportModal";
 import { followUser } from "./services/posts.api";
@@ -597,11 +597,7 @@ export default function PostCard({
           open={commentsOpen}
           onClose={() => setCommentsOpen(false)}
           postId={post.id}
-<<<<<<< Updated upstream
-          currentUserId={getUserId() || ""}
-=======
-          onCancel={() => setEditModalOpen(false)}
->>>>>>> Stashed changes
+          currentUserId={getUserId()}
         />
         <ConfirmModal
           open={openModal}
