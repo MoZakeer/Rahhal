@@ -3,7 +3,7 @@ import { useState, useRef, useLayoutEffect, type KeyboardEvent } from "react";
 type Props = {
   value: string;
   onChange: (value: string) => void;
-  onEnter?: () => void; // ضفنا دي عشان نبعت الرسالة لما يدوس Enter
+  onEnter?: () => void;
   placeholder?: string;
 };
 
@@ -11,28 +11,23 @@ function ChatTextarea({ value, onChange, onEnter, placeholder }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  // استخدمنا useLayoutEffect عشان التعديل يحصل قبل ما الشاشة تترسم (يمنع الرعشة)
   useLayoutEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
 
-    // بنحفظ الارتفاع الأساسي عشان نقارن بيه (بدل الرقم 48)
-    const baseHeight = 48; // لو حبيت تحسبها ديناميكي: el.style.lineHeight أو غيره، بس الـ 48 هنا آمنة لو الـ CSS ثابت
+    const baseHeight = 48;
 
     el.style.height = "auto";
     const newHeight = el.scrollHeight;
 
-    // بنخلي الـ max-height يشتغل صح مع الـ inline style
-    el.style.height = `${Math.min(newHeight, 128)}px`; // 128px اللي هي max-h-32
+    el.style.height = `${Math.min(newHeight, 128)}px`;
 
     setIsExpanded(newHeight > baseHeight);
   }, [value]);
 
-  // دالة للتعامل مع زراير الكيبورد
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    // لو داس Enter من غير Shift، نبعت الرسالة ونمنع النزول لسطر جديد
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault(); // نمنع سطر جديد
+      e.preventDefault();
       if (onEnter && value.trim()) {
         onEnter();
       }

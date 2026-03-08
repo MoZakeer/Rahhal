@@ -34,7 +34,10 @@ function MessageInput({ conversationId }: { conversationId: string }) {
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!message.trim() && attachments.length == 0) return;
+
+    if (isPending) return;
+    if (!message.trim() && attachments.length === 0) return;
+
     sendMessage(
       {
         conversationId,

@@ -51,7 +51,6 @@ function ChatWindow() {
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
         isGroup={chatInfo?.isGroup || false}
-        
       />
 
       <MessageInput conversationId={conversationId || ""} />
