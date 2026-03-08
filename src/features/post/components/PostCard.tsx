@@ -3,6 +3,10 @@ import type { PostMediaItem } from "../../../types/post";
 import { PostContent } from "./PostContent";
 import type { PostsResponse } from "../../../types/post";
 import toast from "react-hot-toast";
+import { MessageCircle, Heart, Share2, Globe, ChevronLeft, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { UserPlus, UserCheck } from "lucide-react"; // أيقونات مودرن ورفيعة
+
 
 import {
   MoreHorizontal,
@@ -18,7 +22,7 @@ import { normalizeMediaUrl } from "./services/posts.api";
 import { getUserId } from "../../../utils/auth";
 import { CommentsModal } from "../components/CommentsModal";
 import { useNavigate } from "react-router-dom";
-import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
+
 // import { motion, AnimatePresence } from "framer-motion";
 import { ReportModal } from "../../reports/components/ReportModal";
 import { followUser } from "./services/posts.api";
@@ -92,32 +96,36 @@ export function PostHeader({
   return (
     <div className="flex items-center justify-between px-4 py-3 relative">
       <div className="flex items-center gap-3">
-        <img src={normalizeMediaUrl(profileUrl)} className="w-10 h-10 rounded-full object-cover" />
+
+        <img src={normalizeMediaUrl(profileUrl)} onClick={() => navigate(`/profile/${profileId}`)} className="w-10 h-10 rounded-full object-cover cursor-pointer" />
         <div className="flex flex-col leading-tight">
-          <span
-            onClick={() => navigate(`/profile/${profileId}`)}
-            className="font-semibold cursor-pointer "
-          >
+          <span onClick={() => navigate(`/profile/${profileId}`)} className="font-extrabold text-slate-950 cursor-pointer hover:text-indigo-600 hover:underline text-[15px] tracking-tight">
             {userName}
-          </span>          {createdAt && (
-            <span className="text-xs text-gray-500">
-              {formatTime(createdAt)}
+          </span>
+          {createdAt && (
+            <span className="text-[11px] text-slate-400 font-semibold flex items-center gap-1.5 mt-0.5">
+              {formatTime(createdAt)} <Globe className="w-3 h-3" />
             </span>
           )}
         </div>
+
       </div>
 
       <div className="flex items-center gap-2">
         {!isOwner && (
-          <button
-            onClick={onFollow}
-            className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${isFollowing
-              ? "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
-              : "bg-white border border-black text-black hover:bg-gray-100"
-              }`}
-          >
-            {isFollowing ? "Following" : "Follow"}
-          </button>
+          // <button
+          //   onClick={onFollow}
+          //   className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${isFollowing
+          //     ? "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
+          //     : "bg-white border border-black text-black hover:bg-gray-100"
+          //     }`}
+          // >
+          //   {isFollowing ? "Following" : "Follow"}
+          // </button>
+          <FollowButton
+            isFollowing={isFollowing ?? false}
+            onClick={onFollow || (() => { })}
+          />
         )}
 
         <div className="relative" ref={dropdownRef}>
@@ -259,8 +267,8 @@ transition-all duration-300">
               onClick={() => setCurrent(i)}
               onMouseEnter={() => setCurrent(i)}
               className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${i === current
-                  ? "ring-2 ring-blue-200"
-                  : "opacity-80 hover:opacity-100"
+                ? "ring-2 ring-blue-200"
+                : "opacity-80 hover:opacity-100"
                 }`}
             >
               <img
@@ -275,56 +283,45 @@ transition-all duration-300">
     </div>
   );
 }
+
 export function PostActions({
   liked,
   saved,
   onLike,
   onComment,
   onSave,
+  onShare,
 }: {
-
   liked: boolean;
   saved: boolean;
   onLike: () => void;
   onComment: () => void;
   onSave: () => void;
+  onShare: () => void;
 }) {
   return (
-    <div className="flex justify-between px-5 py-2">
-      <div className="flex gap-6">
-        <button
-          onClick={onLike}
-          className=" flex flex-col items-center transition-transform duration-200 ease-in-out"
-        >
-          {liked ? (
-            <HeartIcon
-              className="w-6 h-6 text-primary-500 fill-primary-500
-  hover:text-primary-200 
-  hover:scale-125 
-  hover:rotate-12 
-  transition-all duration-500" />
-          ) : (
-            <HeartIcon className="w-6 h-6 text-black scale-100 transition-all duration-300" />
-          )}
-
+    <div className="flex justify-between px-6 py-4 border-t border-slate-50">
+      <div className="flex gap-7">
+        {/* زرار اللايك */}
+        <button onClick={onLike} className="flex items-center gap-2 group relative">
+          <Heart className={`w-5 h-5 transition-all duration-300 ${liked ? 'text-rose-500 fill-rose-500 scale-110' : 'text-slate-400 group-hover:text-rose-400'}`} />
+          {liked && <motion.div layoutId="likeGlow" className="absolute -inset-2 bg-rose-100 rounded-full blur-xl opacity-50 z-0" />}
         </button>
 
-        <button onClick={onComment} className=" flex flex-col items-center transition-transform duration-200 ease-in-out">
-          <ChatBubbleLeftRightIcon className="w-6 h-6 text-black hover:scale-105 
-  hover:rotate-1 
-  transition-all duration-500" />
-
+        {/* زرار الكومنت */}
+        <button onClick={onComment} className="group transition-transform active:scale-110 focus:outline-none">
+          <MessageCircle className="w-4 h-4 text-slate-400 group-hover:text-indigo-500 group-hover:fill-indigo-50/30 transition-all duration-300 ease-out" />
         </button>
 
+        {/* زرار الشير (تم التعديل) */}
+        <button onClick={onShare} className="group transition-transform active:scale-110">
+          <Share2 className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
+        </button>
       </div>
 
-      <button onClick={onSave}>
-        {saved ? (
-          <Bookmark className="w-6 h-6 text-primary-500 fill-primary-500 scale-100 hover:scale-110 
-  transition-all duration-500" />
-        ) : (
-          <Bookmark className="w-6 h-6 text-black scale-100 transition-all duration-300" />
-        )}
+      {/* زرار الحفظ */}
+      <button onClick={onSave} className="transition-transform active:scale-110 focus:outline-none">
+        {saved ? <Bookmark className="w-4 h-4 text-indigo-600 fill-indigo-600 shadow-indigo-100" /> : <Bookmark className="w-4 h-4 text-slate-400 hover:text-indigo-400 transition-colors" />}
       </button>
     </div>
   );
@@ -425,93 +422,341 @@ export default function PostCard({
   function handleFollow() {
     followMutation.mutate(post.userId);
   }
+
+
+  // 1. حالة لإظهار القلب الكبير لما يعمل دبل تاب
+  const [showHeart, setShowHeart] = useState(false);
+
+  // 2. متغير خارجي (Ref) عشان يسجل وقت الضغط
+  const lastTap = useRef(0);
+
+  const handleDoubleTap = () => {
+    const now = Date.now();
+    const DOUBLE_PRESS_DELAY = 300; // الفرق بالملي ثانية
+
+    if (now - lastTap.current < DOUBLE_PRESS_DELAY) {
+      // لو مش عامل لايك، نفذ الـ mutation بتاعك
+      if (!post.isLiked) {
+        handleLike();
+      }
+      // شغل أنميشن القلب
+      setShowHeart(true);
+      setTimeout(() => setShowHeart(false), 1000); // يختفي بعد ثانية
+    }
+    lastTap.current = now;
+  };
+
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/post/${post.id}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `رحلة ${post.userName} على رحال`,
+          text: post.description || "شوف المغامرة دي!",
+          url: shareUrl,
+        });
+      } catch (err) {
+        if (err instanceof Error && err.name !== 'AbortError') {
+          toast.error("Sharing failed");
+        }
+      }
+    } else {
+
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success("Link copied! Share it anywhere", {
+          icon: '📋',
+          style: { borderRadius: '15px', background: '#333', color: '#fff' }
+        });
+      } catch (err) {
+        toast.error("Could not copy link");
+      }
+    }
+  };
+
   return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-sm mb-6 max-w-xl mx-auto">
-      <PostHeader
-        id={post.id}
-        userName={post.userName}
-        profileUrl={post.profileUrl}
-        profileId={post.userId}
-        isFollowing={post.isFollowedByCurrentUser}
-        onFollow={handleFollow} currentUserId={getUserId()}
-        createdAt={post.createdDate}
-        onDelete={() => setOpenModal(true)}
-        onEdit={handleEditPost}
-      />
-
-      {!hasMedia && (
-        <PostContent
-          description={post.description}
-          className="px-4 py-8 text-lg font-medium leading-relaxed"
+    <motion.div
+      initial={{ opacity: 0, y: 5 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      className="bg-white rounded-[2rem] border border-slate-100/70 shadow-sm overflow-hidden mb-6 max-w-xl mx-auto transition-all hover:shadow-lg hover:border-slate-100 group/card pb-2"
+    >
+      <div>
+        <PostHeader
+          id={post.id}
+          userName={post.userName}
+          profileUrl={post.profileUrl}
+          profileId={post.userId}
+          isFollowing={post.isFollowedByCurrentUser}
+          onFollow={handleFollow} currentUserId={getUserId()}
+          createdAt={post.createdDate}
+          onDelete={() => setOpenModal(true)}
+          onEdit={handleEditPost}
         />
-      )}
 
-      {hasMedia && <PostMedia media={post.mediaUrLs} />}
+        <div className="relative select-none" onClick={handleDoubleTap}>
+          {/* {!hasMedia && (
+          <PostContent
+            description={post.description}
+            className="px-4 py-8 text-lg font-medium leading-relaxed"
+          />
+        )} */}
 
-      <PostActions
 
-        liked={post.isLiked ?? false}
-        saved={post.isSaved ?? false}
-        onLike={handleLike}
-        onSave={handleSave}
-        onComment={() => setCommentsOpen(true)}
-      />
 
-      <div onClick={() => setOpenLikes(true)}
-        className="px-4 text-sm font-semibold mt-1 cursor-pointer">
-        {post.likes} likes
-      </div>
-      {openLikes && (
-        <div               onClick={() => setOpenLikes(false)}
- className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-5 relative">
+          {/* {hasMedia && <PostMedia media={post.mediaUrLs} />} */}
+          {post.mediaUrLs?.length ? <PostMediaScroll media={post.mediaUrLs} /> : (
+            <div className="mx-4 flex text-center text-slate-800 font-medium text-sm mb-2">
+              {/* {post.description} */}
+              {!hasMedia && (
+                <PostContent
+                  description={post.description}
+                />
+              )}
+            </div>
 
-            <button
-              onClick={() => setOpenLikes(false)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-black"
-            >
-              ✕
-            </button>
+          )}
 
-            <h3 className="text-lg font-semibold  mb-4">Likes</h3>
+          {/* أنميشن القلب الكبير (Instagram Style) */}
+          {/* لو عندك Framer Motion مفعل، شيل التعليق واستخدمه، لو لأ استخدم CSS عادي */}
+          <AnimatePresence>
+            {showHeart && (
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{
+                  scale: [0, 1.3, 1], // نبضة سريعة
+                  rotate: [-15, 15, 0], // ميلة شقية يمين وشمال
+                  opacity: 1
+                }}
+                exit={{ scale: 0, opacity: 0, transition: { duration: 0.2 } }}
+                transition={{
+                  type: "spring",
+                  stiffness: 500,
+                  damping: 15
+                }}
+                className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none"
+              >
+                {/* القلب الأحمر مع توهج (Glow) خلفي */}
+                <HeartIcon className="w-22 h-22 text-red-500 fill-red-500 drop-shadow-[0_0_25px_rgba(239,68,68,0.6)]" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-            <LikesList type="post" id={post.id} />
 
+        <PostActions
+
+          liked={post.isLiked ?? false}
+          saved={post.isSaved ?? false}
+          onLike={handleLike}
+          onSave={handleSave}
+          onComment={() => setCommentsOpen(true)}
+          onShare={handleShare}
+        />
+
+        <div onClick={() => setOpenLikes(true)}
+          className="px-[24px] text-sm font-semibold cursor-pointer">
+          {post.likes} likes
+        </div>
+        {openLikes && (
+          <div onClick={() => setOpenLikes(false)}
+            className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-5 relative">
+
+              <button
+                onClick={() => setOpenLikes(false)}
+                className="absolute top-3 right-3 text-gray-500 hover:text-black"
+              >
+                ✕
+              </button>
+
+              <h3 className="text-lg font-semibold  mb-4">Likes</h3>
+
+              <LikesList type="post" id={post.id} />
+
+            </div>
           </div>
+        )}
+        {hasMedia && (
+          <PostContent
+            description={post.description}
+            className="px-[24px] mt-1 text-sm"
+          />
+        )}
+        {(post.comments ?? 0) > 0 && (
+          <div
+            className="px-4 pb-3 text-sm text-gray-500 cursor-pointer"
+            onClick={() => setCommentsOpen(true)}
+          >
+            View all {post.comments} {post.comments === 1 ? "comment" : "comments"}        </div>
+
+        )}
+        <CommentsModal
+          open={commentsOpen}
+          onClose={() => setCommentsOpen(false)}
+          postId={post.id}
+          currentUserId={getUserId()}
+        />
+        <ConfirmModal
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+          onConfirm={handleDelete}
+          itemType={"post"}
+        />
+        {editModalOpen && (
+          <EditPostModal
+            postId={post.id}
+            onCancel={() => setEditModalOpen(false)}
+          />
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+
+
+function PostMediaScroll({ media }: { media: PostMediaItem[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(media.length > 1);
+
+  const checkArrows = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setShowLeftArrow(scrollLeft > 20);
+      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 20);
+    }
+  };
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const { clientWidth } = scrollRef.current;
+      const scrollAmount = direction === 'left' ? -clientWidth : clientWidth;
+      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  if (!media.length) return null;
+
+  return (
+    <div className="relative group w-full px-4 mb-2">
+      {/* Container الرئيسي للـ Scroll */}
+      <div
+        ref={scrollRef}
+        onScroll={checkArrows}
+        className="flex gap-2.5 overflow-x-auto snap-x snap-mandatory no-scrollbar rounded-2xl pb-1"
+      >
+        {media.map((item, index) => (
+          <div key={item.id || index} className="relative flex-none w-full aspect-[16/10] snap-center rounded-[2rem] overflow-hidden bg-slate-900">
+
+            {/* 1. الصورة اللي في الخلفية (المغبشة) عشان تملأ الفراغات */}
+            <img
+              src={normalizeMediaUrl(item.url)}
+              className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-50 scale-110"
+              aria-hidden="true"
+            />
+
+            {/* 2. الصورة الأصلية (كاملة) */}
+            <img
+              src={normalizeMediaUrl(item.url)}
+              // هنا استخدمنا contain عشان تظهر كلها
+              className="relative z-10 w-full h-full object-contain shadow-2xl"
+              alt={`Adventure ${index + 1}`}
+              loading="lazy"
+              draggable={false}
+            />
+
+            {/* Location Tag */}
+            {/* <div className="absolute bottom-4 left-4 z-20 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 text-white border border-white/10">
+              <MapPin className="h-3.5 w-3.5" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Sinai, Egypt</span>
+            </div> */}
+          </div>
+          // <div key={item.id} className="relative flex-none w-[92%] sm:w-full aspect-[16/10] snap-center rounded-2xl overflow-hidden shadow-inner bg-slate-100 border border-slate-100">
+          //   <img
+          //     src={normalizeMediaUrl(item.url)}
+          //     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          //     alt={`Adventure ${index + 1}`}
+          //     loading="lazy"
+          //   />
+          // </div>
+        ))}
+      </div>
+
+      {/* عداد الصور (Glassmorphism) */}
+      {media.length > 1 && (
+        <div className="absolute top-6 right-6 z-20 bg-black/40 backdrop-blur-sm text-white text-[10px] font-black px-2.5 py-1 rounded-full border border-white/10 tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+          1 / {media.length}
         </div>
       )}
-      {hasMedia && (
-        <PostContent
-          description={post.description}
-          className="px-4 mt-1 text-sm"
-        />
-      )}
-      {(post.comments ?? 0) > 0 && (
-        <div
-          className="px-4 pb-3 text-sm text-gray-500 cursor-pointer"
-          onClick={() => setCommentsOpen(true)}
-        >
-View all {post.comments} {post.comments === 1 ? "comment" : "comments"}        </div>
 
-      )}
-      <CommentsModal
-        open={commentsOpen}
-        onClose={() => setCommentsOpen(false)}
-        postId={post.id}
-        currentUserId={getUserId() || ""}
-      />
-      <ConfirmModal
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        onConfirm={handleDelete}
-        itemType={"post"}
-      />
-      {editModalOpen && (
-        <EditPostModal
-          postId={post.id}
-          onCancel={() => setEditModalOpen(false)} 
-        />
-      )}
+      {/* أزرار التنقل (تظهر عند الـ Hover) */}
+      <AnimatePresence>
+        {showLeftArrow && (
+          <motion.button initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} onClick={() => scroll('left')} className="absolute left-6 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-white/70 backdrop-blur-sm rounded-full shadow-lg border border-white/50 text-slate-700 hover:bg-white transition-all">
+            <ChevronLeft className="w-5 h-5" />
+          </motion.button>
+        )}
+        {showRightArrow && (
+          <motion.button initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} onClick={() => scroll('right')} className="absolute right-6 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-white/70 backdrop-blur-sm rounded-full shadow-lg border border-white/50 text-slate-700 hover:bg-white transition-all">
+            <ChevronRight className="w-5 h-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
+  );
+}
+
+
+
+export function FollowButton({ isFollowing, onClick }: { isFollowing: boolean, onClick: () => void }) {
+  return (
+    <motion.button
+      whileTap={{ scale: 0.95 }} // تأثير ضغط خفيف جداً
+      onClick={(e) => {
+        e.stopPropagation(); // منع انتشار الحدث
+        onClick();
+      }}
+      className={`
+        relative h-9 px-5 rounded-full text-[12px] font-bold tracking-tight 
+        transition-all duration-300 ease-in-out border flex items-center gap-1.5
+        ${isFollowing
+          ? "bg-slate-50 border-slate-200 text-slate-400" // حالة الـ Following (هادية)
+          : "bg-slate-950 border-slate-950 text-white hover:bg-slate-800" // حالة الـ Follow (قوية)
+        }
+      `}
+    >
+      {/* أنميشن تبديل المحتوى (أيقونة + نص) */}
+      <AnimatePresence mode="wait">
+        {isFollowing ? (
+          <motion.span
+            key="following"
+            initial={{ opacity: 0, y: 3 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -3 }}
+            transition={{ duration: 0.15 }}
+            className="flex items-center gap-1.5"
+          >
+            <UserCheck className="w-3.5 h-3.5" strokeWidth={2.5} /> {/* أيقونة التأكيد */}
+            Following
+          </motion.span>
+        ) : (
+          <motion.span
+            key="follow"
+            initial={{ opacity: 0, y: 3 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -3 }}
+            transition={{ duration: 0.15 }}
+            className="flex items-center gap-1.5"
+          >
+            <UserPlus className="w-3.5 h-3.5" strokeWidth={2.5} /> {/* أيقونة الإضافة */}
+            Follow
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </motion.button>
   );
 }

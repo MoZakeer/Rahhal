@@ -1,108 +1,51 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useRef, useCallback, useEffect } from "react"; // ضفنا useEffect هنا
+import { useRef, useCallback } from "react";
 import Skeleton from "react-loading-skeleton";
 import { getPostsInfinite } from "../../post/components/services/posts.api";
 import PostCard from "../components/PostCard";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function PostsList() {
   const observer = useRef<IntersectionObserver | null>(null);
 
-  const {
-    data,
-    isLoading,
-    isError,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    refetch,
-  } = useInfiniteQuery({
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ["posts"],
-    queryFn: ({ pageParam }) =>
-      getPostsInfinite(pageParam as number, 10, true),
-
+    queryFn: ({ pageParam }) => getPostsInfinite(pageParam as number, 10, true),
     initialPageParam: 1,
-
-    getNextPageParam: (lastPage) => {
-      if (lastPage.data.pageIndex < lastPage.data.pages) {
-        return lastPage.data.pageIndex + 1;
-      }
-      return undefined;
-    },
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    getNextPageParam: (lastPage) => lastPage.data.pageIndex < lastPage.data.pages ? lastPage.data.pageIndex + 1 : undefined,
   });
 
-  useEffect(() => {
-    const handleRefresh = () => {
-      refetch();
-    };
+  const lastPostRef = useCallback((node: HTMLDivElement | null) => {
+    if (isFetchingNextPage) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasNextPage) fetchNextPage();
+    }, { rootMargin: "400px" });
+    if (node) observer.current.observe(node);
+  }, [isFetchingNextPage, hasNextPage, fetchNextPage]);
 
-    window.addEventListener("refreshFeed", handleRefresh);
+  if (isLoading) return <div className="space-y-8">{[1,2,3].map(i => <Skeleton key={i} height={400} borderRadius={32} />)}</div>;
+  if (isError) return <div className="p-10 text-center text-rose-500 font-bold">Failed to load adventures.</div>;
 
-    return () => {
-      window.removeEventListener("refreshFeed", handleRefresh);
-    };
-  }, [refetch]);
-
-  const posts =
-    data?.pages.flatMap((page) => page.data?.items ?? []) ?? [];
-
-  const lastPostRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (isFetchingNextPage) return;
-
-      if (observer.current) observer.current.disconnect();
-
-      observer.current = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting && hasNextPage) {
-            fetchNextPage();
-          }
-        },
-        {
-          rootMargin: "300px",
-        }
-      );
-
-      if (node) observer.current.observe(node);
-    },
-    [isFetchingNextPage, hasNextPage, fetchNextPage]
-  );
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6 max-w-xl mx-auto">
-        {[...Array(3)].map((_, i) => (
-          <Skeleton key={i} height={300} className="rounded-xl" />
-        ))}
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <p className="text-center text-red-500">Failed to load posts</p>
-    );
-  }
+  const posts = data?.pages.flatMap(page => page.data?.items ?? []) ?? [];
 
   return (
-    <div className="max-w-4xl mx-auto p-4 space-y-6">
-      {posts.map((post, index) => {
-        if (index === posts.length - 1) {
-          return (
-            <div ref={lastPostRef} key={post.id}>
-              <PostCard post={post} />
-            </div>
-          );
-        }
-
-        return <PostCard key={post.id} post={post} />;
-      })}
-
-      {isFetchingNextPage && (
-        <Skeleton height={200} className="rounded-xl" />
-      )}
+    <div className="space-y-8">
+      <AnimatePresence mode="popLayout">
+        {posts.map((post, index) => (
+          <motion.div
+            key={post.id}
+            ref={index === posts.length - 1 ? lastPostRef : null}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <PostCard post={post} />
+          </motion.div>
+        ))}
+      </AnimatePresence>
+      {isFetchingNextPage && <div className="flex justify-center p-8"><div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" /></div>}
     </div>
   );
 }

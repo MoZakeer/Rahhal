@@ -91,9 +91,7 @@ export default function CreatePostModal({ isOpen, onClose }: CreatePostModalProp
 
               {/* Submit Button */}
               <div className="flex items-center gap-4">
-                <span className={`text-xs font-semibold ${caption.length > MAX_CHARS - 20 ? 'text-rose-500' : 'text-slate-400'}`}>
-                  {caption.length}/{MAX_CHARS}
-                </span>
+               
 
                 <button
                   onClick={handlePost}

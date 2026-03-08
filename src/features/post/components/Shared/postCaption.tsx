@@ -1,6 +1,3 @@
-import { useState, useEffect, useRef } from "react";
-import { HiOutlineFaceSmile } from "react-icons/hi2";
-import MyEmojiPicker from "../../../chat/components/EmojiPicker";
 
 type Props = {
   caption: string;
@@ -15,36 +12,10 @@ export default function PostCaption({
   maxChars,
   placeholder,
 }: Props) {
-  const [showEmoji, setShowEmoji] = useState(false);
-  const pickerRef = useRef<HTMLDivElement>(null);
+
 
   const remaining = maxChars - caption.length;
   const warning = remaining <= 50;
-
-  const handleEmojiSelect = (emoji: string) => {
-    onChange(caption + emoji);
-  };
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        pickerRef.current &&
-        !pickerRef.current.contains(event.target as Node)
-      ) {
-        setShowEmoji(false);
-      }
-    }
-
-    if (showEmoji) {
-      document.addEventListener("click", handleClickOutside);
-    } else {
-      document.removeEventListener("click", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [showEmoji]);
 
   return (
     <div className="flex flex-col gap-2 relative w-full">
@@ -72,16 +43,7 @@ export default function PostCaption({
           "
         />
 
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowEmoji((prev) => !prev);
-          }}
-          className="absolute right-2 bottom-2 p-1 rounded-full hover:bg-gray-100 transition"
-        >
-          <HiOutlineFaceSmile className="w-6 h-6 text-gray-700" />
-        </button>
+
       </div>
 
       <div
@@ -90,19 +52,7 @@ export default function PostCaption({
         {caption.length}/{maxChars}
       </div>
 
-      {showEmoji && (
-        <div
-          ref={pickerRef}
-          className="absolute top-full right-0 mt-1 z-50"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <MyEmojiPicker
-            onSelect={handleEmojiSelect}
-            width={300}
-            height={320}
-          />
-        </div>
-      )}
+
     </div>
   );
 }

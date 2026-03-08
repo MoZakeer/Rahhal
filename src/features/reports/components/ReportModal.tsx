@@ -99,11 +99,11 @@ export const ReportModal = ({
             className="w-full border border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none p-3 rounded-xl transition"
           >
             <option value="">Select reason</option>
-            <option value="IllegalActivities">Illegal activities</option>
-            <option value="HateOrBullying">Hate or bullying</option>
-            <option value="SexualContent">Sexual content</option>
+            <option value="Illegal Activities">Illegal activities</option>
+            <option value="Hate Or Bullying">Hate or bullying</option>
+            <option value="Sexual Content">Sexual content</option>
             <option value="Impersonation">Impersonation</option>
-            <option value="PrivacyViolation">Privacy violation</option>
+            <option value="Privacy Violation">Privacy violation</option>
             <option value="Other">Other</option>
           </select>
         </div>
