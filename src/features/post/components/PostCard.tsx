@@ -290,46 +290,38 @@ export function PostActions({
   onLike,
   onComment,
   onSave,
+  onShare,
 }: {
   liked: boolean;
   saved: boolean;
   onLike: () => void;
   onComment: () => void;
   onSave: () => void;
+  onShare: () => void;
 }) {
   return (
     <div className="flex justify-between px-6 py-4 border-t border-slate-50">
       <div className="flex gap-7">
-
+        {/* زرار اللايك */}
         <button onClick={onLike} className="flex items-center gap-2 group relative">
           <Heart className={`w-5 h-5 transition-all duration-300 ${liked ? 'text-rose-500 fill-rose-500 scale-110' : 'text-slate-400 group-hover:text-rose-400'}`} />
           {liked && <motion.div layoutId="likeGlow" className="absolute -inset-2 bg-rose-100 rounded-full blur-xl opacity-50 z-0" />}
         </button>
 
-        <button
-          onClick={onComment}
-          className="group transition-transform active:scale-110 focus:outline-none"
-        >
-          <MessageCircle
-            className="w-4 h-4 text-slate-400 group-hover:text-indigo-500 group-hover:fill-indigo-50/30 transition-all duration-300 ease-out"
-          />
+        {/* زرار الكومنت */}
+        <button onClick={onComment} className="group transition-transform active:scale-110 focus:outline-none">
+          <MessageCircle className="w-4 h-4 text-slate-400 group-hover:text-indigo-500 group-hover:fill-indigo-50/30 transition-all duration-300 ease-out" />
         </button>
 
-        {/* To Do: share functionality */}
-        <button className="group transition-transform active:scale-110">
+        {/* زرار الشير (تم التعديل) */}
+        <button onClick={onShare} className="group transition-transform active:scale-110">
           <Share2 className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
         </button>
       </div>
 
-      <button
-        onClick={onSave}
-        className="transition-transform active:scale-110 focus:outline-none"
-      >
-        {saved ? (
-          <Bookmark className="w-4 h-4 text-indigo-600 fill-indigo-600 shadow-indigo-100" />
-        ) : (
-          <Bookmark className="w-4 h-4 text-slate-400 hover:text-indigo-400 transition-colors" />
-        )}
+      {/* زرار الحفظ */}
+      <button onClick={onSave} className="transition-transform active:scale-110 focus:outline-none">
+        {saved ? <Bookmark className="w-4 h-4 text-indigo-600 fill-indigo-600 shadow-indigo-100" /> : <Bookmark className="w-4 h-4 text-slate-400 hover:text-indigo-400 transition-colors" />}
       </button>
     </div>
   );
@@ -454,6 +446,35 @@ export default function PostCard({
     lastTap.current = now;
   };
 
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/post/${post.id}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `رحلة ${post.userName} على رحال`,
+          text: post.description || "شوف المغامرة دي!",
+          url: shareUrl,
+        });
+      } catch (err) {
+        if (err instanceof Error && err.name !== 'AbortError') {
+          toast.error("Sharing failed");
+        }
+      }
+    } else {
+
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success("Link copied! Share it anywhere", {
+          icon: '📋',
+          style: { borderRadius: '15px', background: '#333', color: '#fff' }
+        });
+      } catch (err) {
+        toast.error("Could not copy link");
+      }
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 5 }}
@@ -532,6 +553,7 @@ export default function PostCard({
           onLike={handleLike}
           onSave={handleSave}
           onComment={() => setCommentsOpen(true)}
+          onShare={handleShare}
         />
 
         <div onClick={() => setOpenLikes(true)}
