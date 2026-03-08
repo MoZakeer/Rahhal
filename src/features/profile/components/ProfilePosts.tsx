@@ -32,7 +32,7 @@ const ProfilePosts = ({ profileId }: Props) => {
       );
 
       const data = await res.json(); 
-      console.log("Fetched posts:", data);
+      // console.log("Fetched posts:", data);
 
       if (data?.isSuccess) {
         setPosts(data.data.items || []);

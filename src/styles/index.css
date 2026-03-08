@@ -115,3 +115,6 @@ NavLink {
 .no-scrollbar {
   -ms-overflow-style: none;
 }
+button {
+  cursor: pointer;
+}

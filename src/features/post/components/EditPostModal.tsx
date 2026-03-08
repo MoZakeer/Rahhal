@@ -1,5 +1,5 @@
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
-import { X, Save, Loader2, Image as ImageIcon } from "lucide-react";
+import { X, Save, Loader2 } from "lucide-react";
 import PostUser from "./Shared/postUser";
 import PostCaption from "./Shared/postCaption";
 import PostMedia from "./Shared/postMedia";
@@ -23,7 +23,7 @@ export default function EditPostModal({ postId, onCancel }: Props) {
     loading,
     user,
     handleUpdatePost,
-    fileRef
+    fileRef,
   } = useEditPost(postId);
 
   const handleSave = async () => {
@@ -32,15 +32,14 @@ export default function EditPostModal({ postId, onCancel }: Props) {
     onCancel();
   };
 
-  const handleTriggerUpload = () => {
-    if (fileRef.current) {
-      fileRef.current.click();
-    }
-  };
+  // const handleTriggerUpload = () => {
+  //   if (fileRef.current) {
+  //     fileRef.current.click();
+  //   }
+  // };
 
   return (
     <Dialog open={true} onClose={onCancel} className="relative z-50">
-
       <DialogBackdrop
         transition
         className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200"
@@ -48,7 +47,6 @@ export default function EditPostModal({ postId, onCancel }: Props) {
 
       <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
         <div className="flex min-h-full items-end justify-center sm:items-center p-0 sm:p-4">
-
           <DialogPanel
             transition
             className="relative w-full max-w-2xl flex flex-col bg-white sm:rounded-[2rem] rounded-t-[2rem] shadow-2xl transition-all data-[closed]:translate-y-full sm:data-[closed]:translate-y-0 sm:data-[closed]:scale-95 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 overflow-hidden"
@@ -83,16 +81,14 @@ export default function EditPostModal({ postId, onCancel }: Props) {
                 placeholder="Edit your adventure..."
               />
 
-              <PostMedia
-                media={media}
-                setMedia={setMedia}
-                fileRef={fileRef}
-              />
+              <PostMedia media={media} setMedia={setMedia} fileRef={fileRef} />
             </div>
 
             <div className="px-6 py-4 mt-2 bg-slate-50 border-t border-slate-100 flex items-center justify-end">
               <div className="flex items-center gap-4">
-                <span className={`text-xs font-semibold ${caption?.length > MAX_CHARS - 20 ? 'text-rose-500' : 'text-slate-400'}`}>
+                <span
+                  className={`text-xs font-semibold ${caption?.length > MAX_CHARS - 20 ? "text-rose-500" : "text-slate-400"}`}
+                >
                   {caption?.length || 0}/{MAX_CHARS}
                 </span>
 
@@ -111,7 +107,6 @@ export default function EditPostModal({ postId, onCancel }: Props) {
                   )}
                 </button>
               </div>
-
             </div>
           </DialogPanel>
         </div>

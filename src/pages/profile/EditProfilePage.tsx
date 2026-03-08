@@ -9,6 +9,7 @@ import { ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 
 const travelPersonalityMap = {
     Explorer: TravelPersonality.Explorer,
@@ -39,55 +40,113 @@ export default function EditProfilePage() {
     const [showVisitedDropdown, setShowVisitedDropdown] = useState(false);
     const [showDreamDropdown, setShowDreamDropdown] = useState(false);
 
+    const [loading, setLoading] = useState(false);
 
+    // const [travelPersonality, setTravelPersonality] = useState("");
     const profileSchema = z.object({
         Fname: z.string().min(1, "First name is required"),
         Lname: z.string().min(1, "Last name is required"),
         UserName: z.string().min(1, "Username is required"),
         Bio: z.string().min(1, "Bio is required"),
         Location: z.string().min(1, "Location is required"),
-        BirthDate: z.string().min(1, "Birth date is required"),
+        birthDate: z.string().min(1, "Birth date is required"),
         Gender: z.string().min(1, "Gender is required"),
+        TravelPersonality: z.string().optional(),
     });
 
     type ProfileFormData = z.infer<typeof profileSchema>;
 
-    const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormData>({
+    const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormData>({
         resolver: zodResolver(profileSchema),
     });
+useEffect(() => {
+    const token = localStorage.getItem("token");
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
+    const fetchUserdata = async () => {
+        try {
+            setLoading(true);
 
-        const fetchCountries = async () => {
-            try {
-                const res = await fetch("https://rahhal-api.runasp.net/Country/GetAll?SortByLastAdded=true", {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                const json = await res.json();
-                if (Array.isArray(json.data)) setAllCountries(json.data);
-            } catch (err) {
-                console.error("Error fetching countries:", err);
-            }
-        };
-
-        const fetchTravelPreferences = async () => {
-            try {
-                const res = await fetch("https://rahhal-api.runasp.net/TravelPreference/GetAll", {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                const json = await res.json();
-                if (Array.isArray(json.data)) {
-                    setTravelPreferences(json.data);
+            const res = await axios.get(
+                `https://rahhal-api.runasp.net/Profile/GetUserProfile?ProfileId=${profileId}`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
-            } catch (err) {
-                console.error("Error fetching travel preferences:", err);
-            }
-        };
+            );
 
-        fetchCountries();
-        fetchTravelPreferences();
-    }, []);
+            const data = res.data.data;
+            const names = data.fullName?.split(" ") || [];
+
+            // Reset basic form fields
+            reset({
+                Fname: names[0] || "",
+                Lname: names.slice(1).join(" ") || "",
+                UserName: data.userName || "",
+                Bio: data.bio || "",
+                Location: data.location || "",
+                birthDate: data.birthDate ? data.birthDate.split("T")[0] : "",
+                Gender: data.gender?.toString() || "",
+                TravelPersonality: data.travelPersonality?.toString() || ""
+            });
+
+            // Set travel personality
+            const personalityEntry = Object.entries(travelPersonalityMap).find(
+                ([, value]) => value.toString() === (data.travelPersonality?.toString() || "")
+            );
+            setSelectedPersonality(personalityEntry ? personalityEntry[0] : "");
+
+            // Set countries
+            setVisitedCountries(data.visitedCountries || []);
+            setDreamCountries(data.dreamDestinations || []);
+
+            
+            const preferenceNames = (data.travelPreferences || []).map((p: { name: string }) => p.name);
+            setSelectedPreferences(preferenceNames);
+
+            // Profile image
+            setPreviewImage(
+                data.profilePicture
+                    ? `https://rahhal-api.runasp.net${data.profilePicture}`
+                    : "/avatar.png"
+            );
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchCountries = async () => {
+        try {
+            const res = await fetch("https://rahhal-api.runasp.net/Country/GetAll?SortByLastAdded=true", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const json = await res.json();
+            if (Array.isArray(json.data)) setAllCountries(json.data);
+        } catch (err) {
+            console.error("Error fetching countries:", err);
+        }
+    };
+
+    const fetchTravelPreferences = async () => {
+        try {
+            const res = await fetch("https://rahhal-api.runasp.net/TravelPreference/GetAll", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const json = await res.json();
+            if (Array.isArray(json.data)) setTravelPreferences(json.data);
+        } catch (err) {
+            console.error("Error fetching travel preferences:", err);
+        }
+    };
+
+    fetchUserdata();
+    fetchCountries();
+    fetchTravelPreferences();
+}, []);
+  
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -108,12 +167,15 @@ export default function EditProfilePage() {
             toast.error("Please select a travel personality!");
             return;
         }
-
+        const birthDateISO = new Date(data.birthDate).toISOString();
         const formDataToSend = new FormData();
         formDataToSend.append("Fname", data.Fname);
         formDataToSend.append("Lname", data.Lname);
         formDataToSend.append("UserName", data.UserName);
         formDataToSend.append("Bio", data.Bio);
+
+        formDataToSend.append("birthDate", birthDateISO);
+
         formDataToSend.append("Location", data.Location);
         formDataToSend.append("Gender", data.Gender);
         formDataToSend.append(
@@ -133,7 +195,7 @@ export default function EditProfilePage() {
             const blob = await fetch(previewImage).then((r) => r.blob());
             formDataToSend.append("ProfilePicture", blob, "avatar.png");
         }
-
+        console.log("Form data prepared, sending update request...", formDataToSend);
         await updateProfile(formDataToSend);
         await fetchProfile(profileId);
         toast.success("Profile updated!");
@@ -147,7 +209,72 @@ export default function EditProfilePage() {
             </div>
         );
     }
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-4xl mx-auto">
+                    <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden animate-pulse">
 
+                        {/* Header */}
+                        <div className="px-6 pt-10 pb-8 flex flex-col items-center gap-4">
+                            <div className="w-32 h-32 rounded-full bg-gray-200"></div>
+                            <div className="h-6 w-40 bg-gray-200 rounded"></div>
+                            <div className="h-4 w-60 bg-gray-200 rounded"></div>
+                        </div>
+
+                        <div className="p-6 sm:p-10 space-y-8">
+
+                            {/* name inputs */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                <div className="h-12 bg-gray-200 rounded-xl"></div>
+                                <div className="h-12 bg-gray-200 rounded-xl"></div>
+                            </div>
+
+                            {/* username */}
+                            <div className="h-12 bg-gray-200 rounded-xl"></div>
+
+                            {/* bio */}
+                            <div className="h-20 bg-gray-200 rounded-xl"></div>
+
+                            {/* location */}
+                            <div className="h-12 bg-gray-200 rounded-xl"></div>
+
+                            {/* birthdate */}
+                            <div className="h-12 bg-gray-200 rounded-xl"></div>
+
+                            {/* gender */}
+                            <div className="h-12 bg-gray-200 rounded-xl"></div>
+
+                            {/* personality buttons */}
+                            <div className="flex gap-3 flex-wrap">
+                                <div className="h-10 w-28 bg-gray-200 rounded-xl"></div>
+                                <div className="h-10 w-28 bg-gray-200 rounded-xl"></div>
+                                <div className="h-10 w-28 bg-gray-200 rounded-xl"></div>
+                                <div className="h-10 w-28 bg-gray-200 rounded-xl"></div>
+                            </div>
+
+                            {/* preferences */}
+                            <div className="flex gap-2 flex-wrap">
+                                <div className="h-8 w-24 bg-gray-200 rounded-full"></div>
+                                <div className="h-8 w-24 bg-gray-200 rounded-full"></div>
+                                <div className="h-8 w-24 bg-gray-200 rounded-full"></div>
+                                <div className="h-8 w-24 bg-gray-200 rounded-full"></div>
+                            </div>
+
+                            {/* countries */}
+                            <div className="h-12 bg-gray-200 rounded-xl"></div>
+
+                            {/* button */}
+                            <div className="flex justify-end">
+                                <div className="h-12 w-40 bg-gray-200 rounded-xl"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
     return (
         <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
@@ -163,7 +290,7 @@ export default function EditProfilePage() {
                         </button>
                         <div className="relative group">
                             <div className="w-32 h-32 rounded-full ring-4 ring-white shadow-xl overflow-hidden">
-                                <img src={previewImage || "/avater.png"} alt="Profile" className="w-full h-full object-cover" />
+                                <img src={previewImage || '/avatar.png'} alt="Profile" className="w-full h-full object-cover" />
                             </div>
                             <label htmlFor="avatar-upload" className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                 <span className="text-white text-sm font-medium">Change</span>
@@ -218,12 +345,12 @@ export default function EditProfilePage() {
                             {errors.Location && <p className="text-red-500 text-sm mt-1">{errors.Location.message}</p>}
 
                             <input
-                                {...register("BirthDate")}
+                                {...register("birthDate")}
                                 type="date"
                                 placeholder="Birth Date"
                                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
                             />
-                            {errors.BirthDate && <p className="text-red-500 text-sm mt-1">{errors.BirthDate.message}</p>}
+                            {errors.birthDate && <p className="text-red-500 text-sm mt-1">{errors.birthDate.message}</p>}
                             <select
                                 {...register("Gender")}
                                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
