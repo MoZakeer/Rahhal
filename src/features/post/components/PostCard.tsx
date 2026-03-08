@@ -597,7 +597,11 @@ export default function PostCard({
           open={commentsOpen}
           onClose={() => setCommentsOpen(false)}
           postId={post.id}
+<<<<<<< Updated upstream
           currentUserId={getUserId() || ""}
+=======
+          onCancel={() => setEditModalOpen(false)}
+>>>>>>> Stashed changes
         />
         <ConfirmModal
           open={openModal}

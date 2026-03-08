@@ -1,44 +1,66 @@
 import ReportDetailItem from "./ReportDetailItem";
 import { normalizeMediaUrl } from "../../../features/post/components/services/posts.api";
 import { useReportDetails } from "../hooks/useReportDetails";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 interface Props {
   type: string;
   id: string;
 }
 
+function ReportDetailSkeleton() {
+  return (
+    <div className="flex gap-3 items-start">
+      <Skeleton circle width={40} height={40} />
+
+      <div className="flex-1 space-y-2">
+        <Skeleton width={140} height={16} />
+        <Skeleton width={100} height={12} />
+        <Skeleton count={2} />
+      </div>
+    </div>
+  );
+}
+
 export default function ReportDetailsList({ type, id }: Props) {
   const { data: reports, isLoading, isError } = useReportDetails(type, id);
 
-  if (isLoading) return <div>Loading reports...</div>;
   if (isError) return <div>Error loading reports</div>;
-  if (!reports || reports.length === 0) return null;
 
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
       <h2 className="text-sm font-semibold text-gray-700">
-        Report Details ({reports.length} Reports)
+        {isLoading ? (
+          <Skeleton width={180} />
+        ) : (
+          `Report Details (${reports?.length || 0} Reports)`
+        )}
       </h2>
 
-      {reports.map((report) => (
-        <ReportDetailItem
-          key={report.reportId}
-          name={report.reporterUserName || "Anonymous User"}
-          username={
-            report.reporterUserName
-              ? `@${report.reporterUserName}`
-              : ""
-          }
-          type={report.type || "unknown"}
-          time={new Date(report.createdDate).toLocaleString()}
-          comment={report.description || "No comment provided"}
-          avatar={
-            report.reporterPicture
-              ? normalizeMediaUrl(report.reporterPicture)
-              : undefined
-          }
-        />
-      ))}
+      {isLoading
+        ? Array(2)
+            .fill(0)
+            .map((_, i) => <ReportDetailSkeleton key={i} />)
+        : reports?.map((report) => (
+            <ReportDetailItem
+              key={report.reportId}
+              name={report.reporterUserName || "Anonymous User"}
+              username={
+                report.reporterUserName
+                  ? `@${report.reporterUserName}`
+                  : ""
+              }
+              type={report.type || "unknown"}
+              time={new Date(report.createdDate).toLocaleString()}
+              comment={report.description || "No comment provided"}
+              avatar={
+                report.reporterPicture
+                  ? normalizeMediaUrl(report.reporterPicture)
+                  : undefined
+              }
+            />
+          ))}
     </div>
   );
 }
