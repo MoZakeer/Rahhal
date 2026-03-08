@@ -1,4 +1,3 @@
-import SearchComponent from "../../search/components/SearchComponent";
 import { PenSquare, Image as ImageIcon } from "lucide-react";
 
 type Props = {
@@ -7,50 +6,34 @@ type Props = {
 
 export default function FeedHeader({ onCreatePost }: Props) {
   return (
-    <div className="flex flex-col gap-5 w-full">
-      
-      {/* Top Header & Desktop Search */}
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
-            Feed
-          </h1>
-          <p className="text-sm text-slate-500 font-medium mt-1">
-            Discover latest adventures
-          </p>
-        </div>
-        
-        <div className="hidden sm:block w-[280px]">
-          <SearchComponent />
-        </div>
+    <div className="flex flex-col gap-6 w-full">
+      {/* Header Text */}
+      <div>
+        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+          Feed
+        </h1>
+        <p className="text-slate-500 font-medium mt-1">
+          Explore world through travelers' eyes
+        </p>
       </div>
 
-      {/* Mobile Search */}
-      <div className="block sm:hidden w-full">
-        <SearchComponent />
-      </div>
-
-      {/* Modern Interactive "Create Post" Trigger */}
+      {/* Create Post Trigger */}
       <div 
         onClick={onCreatePost}
-        className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-3 cursor-text transition-all hover:shadow-md group"
+        className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex items-center gap-4 cursor-text transition-all hover:shadow-lg hover:border-indigo-100 group"
       >
-        <div className="h-10 w-10 rounded-full bg-slate-50 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-50 transition-colors">
-          <PenSquare className="h-5 w-5 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+        <div className="h-12 w-12 rounded-2xl bg-indigo-50 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-600 transition-all duration-300">
+          <PenSquare className="h-6 w-6 text-indigo-600 group-hover:text-white transition-colors" />
         </div>
         
-        <div className="flex-1 bg-slate-50 group-hover:bg-slate-100/50 transition-colors rounded-full py-2.5 px-4 text-slate-500 text-sm font-medium">
-          Share your adventure with the community...
+        <div className="flex-1 bg-slate-50 group-hover:bg-white transition-colors rounded-2xl py-3 px-5 text-slate-400 text-sm font-medium border border-transparent group-hover:border-slate-100">
+          Share your next adventure, {localStorage.getItem('username') || 'Traveler'}...
         </div>
         
-        <button 
-          className="p-2 rounded-full hover:bg-slate-100 text-indigo-500 transition-colors focus:outline-none"
-          aria-label="Add Photo"
-        >
-          <ImageIcon className="h-5 w-5" />
+        <button className="p-3 rounded-2xl hover:bg-indigo-50 text-indigo-500 transition-all">
+          <ImageIcon className="h-6 w-6" />
         </button>
       </div>
-
     </div>
   );
 }
