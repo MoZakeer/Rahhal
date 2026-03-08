@@ -86,16 +86,11 @@ export default function EditPostModal({ postId, onCancel }: Props) {
 
             <div className="px-6 py-4 mt-2 bg-slate-50 border-t border-slate-100 flex items-center justify-end">
               <div className="flex items-center gap-4">
-                <span
-                  className={`text-xs font-semibold ${caption?.length > MAX_CHARS - 20 ? "text-rose-500" : "text-slate-400"}`}
-                >
-                  {caption?.length || 0}/{MAX_CHARS}
-                </span>
 
                 <button
                   onClick={handleSave}
                   disabled={loading || (!caption?.trim() && !media)}
-                  className="flex items-center gap-2 bg-cyan-600 text-white px-6 py-2.5 rounded-full font-bold shadow-lg shadow-cyan-600/20 hover:bg-cyan-700 hover:shadow-cyan-600/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed group active:scale-95 cursor-pointer"
+                  className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-full font-bold shadow-lg shadow-cyan-600/20 hover:bg-cyan-700 hover:shadow-cyan-600/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed group active:scale-95 cursor-pointer"
                 >
                   {loading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
