@@ -48,17 +48,17 @@ export default function HiddenGemsHighlight() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-amber-500 fill-amber-500" />
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Hidden Gem Spotlight</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">Hidden Gem Spotlight</span>
         </div>
         {/* مؤشر النقط (Dots) عشان المستخدم يعرف فيه كام واحدة */}
         <div className="flex gap-1">
           {GEMS_DATA.map((_, i) => (
-            <div key={i} className={`h-1 w-3 rounded-full transition-all ${i === index ? 'bg-indigo-500 w-5' : 'bg-slate-200'}`} />
+            <div key={i} className={`h-1 w-3 rounded-full transition-all ${i === index ? 'bg-indigo-500 dark:bg-indigo-400 w-5' : 'bg-slate-200 dark:bg-slate-700'}`} />
           ))}
         </div>
       </div>
 
-      <div className="relative h-80 w-full rounded-[2.5rem] overflow-hidden shadow-2xl shadow-indigo-100/50">
+      <div className="relative h-80 w-full rounded-[2.5rem] overflow-hidden shadow-2xl shadow-indigo-100/50 dark:shadow-slate-900/50">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentGem.id} // الـ Key مهم جداً عشان الأنميشن يشتغل
@@ -86,14 +86,14 @@ export default function HiddenGemsHighlight() {
             </div>
 
             <div className="absolute bottom-0 left-0 right-0 p-6">
-              <div className="flex items-center gap-1 text-indigo-300 mb-1">
+              <div className="flex items-center gap-1 text-indigo-300 dark:text-indigo-400 mb-1">
                 <MapPin className="h-3 w-3" />
                 <span className="text-[10px] font-bold uppercase tracking-wider">{currentGem.location}</span>
               </div>
               <h4 className="text-xl font-black text-white mb-2 leading-tight">{currentGem.name}</h4>
               <p className="text-[11px] text-slate-300 line-clamp-2 mb-4 italic leading-relaxed">"{currentGem.description}"</p>
 
-              <button className="w-full flex items-center justify-center gap-2 py-3.5 bg-white text-slate-950 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all active:scale-95">
+              <button className="w-full flex items-center justify-center gap-2 py-3.5 bg-white dark:bg-slate-800 text-slate-950 dark:text-slate-100 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 dark:hover:bg-indigo-500 hover:text-white dark:hover:text-white transition-all active:scale-95 border border-transparent dark:border-slate-700/50">
                 <Navigation2 className="h-3 w-3 fill-current" />
                 Teleport Now
               </button>

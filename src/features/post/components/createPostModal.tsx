@@ -41,7 +41,7 @@ export default function CreatePostModal({ isOpen, onClose }: CreatePostModalProp
 
       <DialogBackdrop
         transition
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200"
+        className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200"
       />
 
       <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
@@ -49,7 +49,7 @@ export default function CreatePostModal({ isOpen, onClose }: CreatePostModalProp
 
           <DialogPanel
             transition
-            className="relative w-full max-w-2xl flex flex-col bg-white sm:rounded-[2rem] rounded-t-[2rem] shadow-2xl transition-all data-[closed]:translate-y-full sm:data-[closed]:translate-y-0 sm:data-[closed]:scale-95 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 overflow-hidden"
+            className="relative w-full max-w-2xl flex flex-col bg-white dark:bg-slate-800 sm:rounded-[2rem] rounded-t-[2rem] shadow-2xl dark:shadow-slate-900/50 transition-all data-[closed]:translate-y-full sm:data-[closed]:translate-y-0 sm:data-[closed]:scale-95 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 overflow-hidden border border-transparent dark:border-slate-700/50"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 pt-6 pb-2 border-b border-transparent">
@@ -64,7 +64,7 @@ export default function CreatePostModal({ isOpen, onClose }: CreatePostModalProp
 
               <button
                 onClick={onClose}
-                className="h-10 w-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
+                className="h-10 w-10 flex items-center justify-center rounded-full bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -87,16 +87,14 @@ export default function CreatePostModal({ isOpen, onClose }: CreatePostModalProp
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end mt-auto">
+            <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/30 flex items-center justify-end mt-auto">
 
               {/* Submit Button */}
               <div className="flex items-center gap-4">
-               
-
                 <button
                   onClick={handlePost}
                   disabled={isPosting || (!caption.trim() && !media)}
-                  className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-full font-bold shadow-md shadow-indigo-200 hover:bg-indigo-700 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed group active:scale-95 cursor-pointer"
+                  className="flex items-center gap-2 bg-indigo-600 dark:bg-indigo-500 text-white px-5 py-2.5 rounded-full font-bold shadow-md shadow-indigo-200 dark:shadow-indigo-900/20 hover:bg-indigo-700 dark:hover:bg-indigo-600 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed group active:scale-95 cursor-pointer"
                 >
                   {isPosting ? (
                     <Loader2 className="h-5 w-5 animate-spin" />

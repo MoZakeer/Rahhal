@@ -32,24 +32,18 @@ export default function EditPostModal({ postId, onCancel }: Props) {
     onCancel();
   };
 
-  // const handleTriggerUpload = () => {
-  //   if (fileRef.current) {
-  //     fileRef.current.click();
-  //   }
-  // };
-
   return (
     <Dialog open={true} onClose={onCancel} className="relative z-50">
       <DialogBackdrop
         transition
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200"
+        className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200"
       />
 
       <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
         <div className="flex min-h-full items-end justify-center sm:items-center p-0 sm:p-4">
           <DialogPanel
             transition
-            className="relative w-full max-w-2xl flex flex-col bg-white sm:rounded-[2rem] rounded-t-[2rem] shadow-2xl transition-all data-[closed]:translate-y-full sm:data-[closed]:translate-y-0 sm:data-[closed]:scale-95 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 overflow-hidden"
+            className="relative w-full max-w-2xl flex flex-col bg-white dark:bg-slate-800 sm:rounded-[2rem] rounded-t-[2rem] shadow-2xl dark:shadow-slate-900/50 transition-all data-[closed]:translate-y-full sm:data-[closed]:translate-y-0 sm:data-[closed]:scale-95 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 overflow-hidden border border-transparent dark:border-slate-700/50"
           >
             <div className="flex items-center justify-between px-6 pt-6 pb-4">
               {user ? (
@@ -66,7 +60,7 @@ export default function EditPostModal({ postId, onCancel }: Props) {
 
               <button
                 onClick={onCancel}
-                className="h-10 w-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition-colors focus:outline-none cursor-pointer"
+                className="h-10 w-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-200 transition-colors focus:outline-none cursor-pointer"
                 title="Cancel"
               >
                 <X className="h-5 w-5" />
@@ -84,13 +78,13 @@ export default function EditPostModal({ postId, onCancel }: Props) {
               <PostMedia media={media} setMedia={setMedia} fileRef={fileRef} />
             </div>
 
-            <div className="px-6 py-4 mt-2 bg-slate-50 border-t border-slate-100 flex items-center justify-end">
+            <div className="px-6 py-4 mt-2 bg-slate-50 dark:bg-slate-900/30 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-end">
               <div className="flex items-center gap-4">
 
                 <button
                   onClick={handleSave}
                   disabled={loading || (!caption?.trim() && !media)}
-                  className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-full font-bold shadow-lg shadow-cyan-600/20 hover:bg-cyan-700 hover:shadow-cyan-600/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed group active:scale-95 cursor-pointer"
+                  className="flex items-center gap-2 bg-indigo-600 dark:bg-indigo-500 text-white px-6 py-2.5 rounded-full font-bold shadow-lg shadow-cyan-600/20 dark:shadow-cyan-900/20 hover:bg-cyan-700 dark:hover:bg-cyan-600 hover:shadow-cyan-600/40 dark:hover:shadow-cyan-900/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed group active:scale-95 cursor-pointer"
                 >
                   {loading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />

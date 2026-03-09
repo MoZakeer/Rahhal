@@ -26,7 +26,10 @@ export default function HomeFeed() {
   }, [lastScrollY]);
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] pb-20 transition-all duration-500 relative">
+    /* 1. تم تغيير bg-[#F8FAFC] لـ الكلاسات الخاصة بالـ Palette 
+      عشان الخلفية تقلب كحلي غامق في الدارك مود 
+    */
+    <main className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20 transition-colors duration-500 relative">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
@@ -55,11 +58,14 @@ export default function HomeFeed() {
               }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
               onClick={() => setIsModalOpen(true)}
-              className="fixed bottom-24 right-6 lg:bottom-10 lg:right-[calc(25vw)] z-50 flex items-center justify-center w-14 h-14 bg-blue-500 text-white rounded-full shadow-lg shadow-blue-500/30 hover:bg-blue-600 active:scale-95 transition-colors"
+              /* 2. تم تعديل ألوان الزرار ليتماشى مع لون البراند (Indigo) 
+                وتعديل الـ Shadow والـ Hover للدارك مود 
+              */
+              className="fixed bottom-24 right-6 lg:bottom-10 lg:right-[calc(25vw)] z-50 flex items-center justify-center w-14 h-14 bg-indigo-600 dark:bg-indigo-500 text-white rounded-full shadow-lg shadow-indigo-500/30 dark:shadow-indigo-900/50 hover:bg-indigo-700 dark:hover:bg-indigo-600 active:scale-95 transition-colors"
               aria-label="Create Post"
             >
               {/*(Plus Icon) */}
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6 text-white dark:text-slate-100">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
             </motion.button>

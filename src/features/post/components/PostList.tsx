@@ -24,8 +24,19 @@ export default function PostsList() {
     if (node) observer.current.observe(node);
   }, [isFetchingNextPage, hasNextPage, fetchNextPage]);
 
-  if (isLoading) return <div className="space-y-8">{[1,2,3].map(i => <Skeleton key={i} height={400} borderRadius={32} />)}</div>;
-  if (isError) return <div className="p-10 text-center text-rose-500 font-bold">Failed to load adventures.</div>;
+  // قللنا سطوع الـ Skeleton في الدارك مود عشان ميوجعش العين
+  if (isLoading) return (
+    <div className="space-y-8 dark:opacity-60 transition-opacity">
+      {[1, 2, 3].map(i => <Skeleton key={i} height={400} borderRadius={32} />)}
+    </div>
+  );
+  
+  // ظبطنا لون رسالة الخطأ
+  if (isError) return (
+    <div className="p-10 text-center text-rose-500 dark:text-rose-400 font-bold">
+      Failed to load adventures.
+    </div>
+  );
 
   const posts = data?.pages.flatMap(page => page.data?.items ?? []) ?? [];
 
@@ -45,7 +56,13 @@ export default function PostsList() {
           </motion.div>
         ))}
       </AnimatePresence>
-      {isFetchingNextPage && <div className="flex justify-center p-8"><div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" /></div>}
+      
+      {/* الـ Spinner بتاع التحميل الإضافي (Infinite Scroll) */}
+      {isFetchingNextPage && (
+        <div className="flex justify-center p-8">
+          <div className="w-8 h-8 border-4 border-indigo-600 dark:border-indigo-500 border-t-transparent dark:border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
     </div>
   );
 }
