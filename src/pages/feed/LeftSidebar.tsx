@@ -10,7 +10,7 @@ export function LeftSidebar() {
         <SearchComponent />
       </div>
 
-      <LiveRadar />
+      {/* <LiveRadar /> */}
 
       {/* Trending Topics */}
       <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
