@@ -6,6 +6,7 @@
    Design Tokens (Theme)
    Source of Truth
 ========================================= */
+@custom-variant dark (&:where(.dark, .dark *));
 @theme {
   /* ===== primary ===== */
   --color-primary-50: #eff6ff;
@@ -61,6 +62,33 @@ body {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* Light Mode (Default) */
+:root {
+  --bg-primary: #f8fafc;       /* لون الخلفية الأساسي للموقع */
+  --bg-secondary: #ffffff;     /* لون الكروت، البوستات، والـ Profile */
+  --text-primary: #0f172a;     /* لون العناوين والنصوص الأساسية */
+  --text-secondary: #475569;   /* لون النصوص الفرعية والتفاصيل */
+  --brand-primary: #0284c7;    /* لون البراند (أزرق بيعبر عن السفر والثقة) */
+  --brand-hover: #0369a1;      /* لون البراند عند الـ Hover */
+  --border-color: #e2e8f0;     /* لون الفواصل والحدود */
+  --message-bg-sender: #e0f2fe;/* خلفية رسايل المرسل */
+  --message-bg-receiver: #f1f5f9;/* خلفية رسايل المستقبل */
+}
+
+/* Dark Mode */
+.dark {
+  --bg-primary: #0f172a;       /* لون الخلفية الأساسي (كحلي غامق جداً) */
+  --bg-secondary: #1e293b;     /* لون الكروت والبوستات */
+  --text-primary: #f8fafc;     /* لون العناوين (أبيض مائل للرمادي لراحة العين) */
+  --text-secondary: #94a3b8;   /* لون النصوص الفرعية */
+  --brand-primary: #38bdf8;    /* أزرق فاتح عشان ينطق في الدارك مود */
+  --brand-hover: #7dd3fc;      /* لون البراند عند الـ Hover */
+  --border-color: #334155;     /* لون الفواصل والحدود */
+  --message-bg-sender: #0c4a6e;/* خلفية رسايل المرسل */
+  --message-bg-receiver: #334155;/* خلفية رسايل المستقبل */
 }
 
 /* =========================================

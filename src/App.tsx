@@ -4,7 +4,7 @@ import Pages from "./pages";
 import CustomToaster from "./shared/components/CustomToaster";
 import { UserProvider } from "./context/UserContext";
 import "react-loading-skeleton/dist/skeleton.css";
-
+import { ThemeProvider } from "./context/ThemeContext";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -14,12 +14,14 @@ const queryClient = new QueryClient({
 });
 export default function App() {
   return (
-    <UserProvider>
-      <QueryClientProvider client={queryClient}>
-        <ReactQueryDevtools />
-        <Pages />
-        <CustomToaster />
-      </QueryClientProvider>
-    </UserProvider>
+    <ThemeProvider>
+      <UserProvider>
+        <QueryClientProvider client={queryClient}>
+          <ReactQueryDevtools />
+          <Pages />
+          <CustomToaster />
+        </QueryClientProvider>
+      </UserProvider>
+    </ThemeProvider>
   );
 }
