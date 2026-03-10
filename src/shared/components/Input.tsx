@@ -66,7 +66,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 : "px-3",
               error
                 ? "border-red-500 focus:ring-red-500"
-                : "border-gray-300 focus:ring-primary-600",
+                : "border-gray-200 focus:ring-primary-600",
               className,
             )}
           />
