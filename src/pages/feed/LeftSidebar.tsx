@@ -1,7 +1,5 @@
 import { TrendingUp } from "lucide-react";
 import SearchComponent from "./SearchComponent";
-import LiveRadar from "./LiveRadar";
-
 export function LeftSidebar() {
   return (
     <div className="flex flex-col gap-10">

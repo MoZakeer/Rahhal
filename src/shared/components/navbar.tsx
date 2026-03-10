@@ -72,7 +72,7 @@ export default function Navbar() {
     navigate("/landing-page");
   };
 
-  const isActivePath = (path) => location.pathname === path;
+ const isActivePath = (path: string) => location.pathname === path;
 
   return (
     <header className={`fixed top-0 z-40 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${isNavVisible ? "translate-y-0" : "-translate-y-full"}`}>

@@ -1,32 +1,44 @@
-import React, { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect } from "react";
+import type { ReactNode } from "react";
 
-// إنشاء الـ Context
-export const ThemeContext = createContext();
+type Theme = "light" | "dark";
 
-export const ThemeProvider = ({ children }) => {
-  // التحقق من الـ LocalStorage أو تفضيلات النظام
-  const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('theme');
+interface ThemeContextType {
+  theme: Theme;
+  toggleTheme: () => void;
+}
+
+export const ThemeContext = createContext<ThemeContextType | undefined>(
+  undefined
+);
+
+interface ThemeProviderProps {
+  children: ReactNode;
+}
+
+export const ThemeProvider = ({ children }: ThemeProviderProps) => {
+  const [theme, setTheme] = useState<Theme>(() => {
+    const savedTheme = localStorage.getItem("theme") as Theme | null;
+
     if (savedTheme) return savedTheme;
-    // لو مفيش حاجة محفوظة، بنشوف الـ System Preference
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
   });
 
-useEffect(() => {
-    // إضافة أو إزالة الكلاسات من الـ HTML root
-    if (theme === 'dark') {
-      // ضفنا dark و dark-mode عشان نرضي Tailwind وشغلك القديم
-      document.documentElement.classList.add('dark', 'dark-mode'); 
+  useEffect(() => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark", "dark-mode");
     } else {
-      document.documentElement.classList.remove('dark', 'dark-mode');
+      document.documentElement.classList.remove("dark", "dark-mode");
     }
-    // حفظ الاختيار
-    localStorage.setItem('theme', theme);
+
+    localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // دالة للتبديل بين الوضعين
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
   };
 
   return (
