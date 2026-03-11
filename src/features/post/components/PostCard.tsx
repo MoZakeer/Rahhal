@@ -94,15 +94,25 @@ export function PostHeader({
   }
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 relative">
+    <div
+      className="flex items-center justify-between px-4 py-3 relative cursor-pointer"
+      onClick={() => navigate(`/post/${id}`)}
+    >
       <div className="flex items-center gap-3">
         <img
+        onClick={(e) => {
+    e.stopPropagation(); 
+    navigate(`/profile/${profileId}`);
+  }}
           src={normalizeMediaUrl(profileUrl)}
           className="w-10 h-10 rounded-full object-cover"
         />
         <div className="flex flex-col leading-tight">
           <span
-            onClick={() => navigate(`/profile/${profileId}`)}
+         onClick={(e) => {
+    e.stopPropagation(); 
+    navigate(`/profile/${profileId}`);
+  }}
             className="font-semibold cursor-pointer text-slate-900 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
           >
             {userName}
