@@ -21,7 +21,7 @@ import ProfilePage from "./profile/ProfilePage";
 
 // Feed Pages
 import HomeFeed from "./feed/HomeFeed";
-
+import PostDetailsPage from "./feed/PostDetails";
 
 // Trips Pages
 import MyTrips from "./trips/MyTrips";
@@ -107,6 +107,13 @@ const Pages = () => {
             path="/feed"
             element={isAuthenticated ? <HomeFeed /> : <Navigate to="/login" />}
           />
+          <Route
+            path="/post/:postId"
+            element={
+              isAuthenticated ? <PostDetailsPage /> : <Navigate to="/login" />
+            }
+           />
+          
           {/* search */}
           <Route
             path="/search-results"

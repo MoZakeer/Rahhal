@@ -123,3 +123,14 @@ export async function followUser(userId: string) {
 
   return res.json();
 }
+export async function getPostById(postId: string) {
+  const res = await fetch(`${BASE_URL}/Post/GetById?postId=${postId}`, {
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  });
+
+  if (!res.ok) throw new Error("Failed to fetch post");
+
+  return res.json();
+}
