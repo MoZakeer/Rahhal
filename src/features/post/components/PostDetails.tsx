@@ -348,7 +348,7 @@ export function PostActions({
   onShare?: () => void;
 }) {
   return (
-    <div className="flex justify-between px-6 py-4 border-t border-slate-50 dark:border-slate-700/50">
+    <div className="flex justify-between px-6 py-4  border-slate-50 dark:border-slate-700/50">
       <div className="flex gap-7">
         <button
           onClick={onLike}
@@ -979,9 +979,9 @@ export function CommentsModal({
   };
 
   return (
-  <div className="w-full mt-2 border-t border-slate-100 dark:border-slate-700/50 bg-white dark:bg-slate-800 rounded-b-2xl overflow-hidden">
+  <div className="w-full mt-2 border-t border-slate-50 dark:border-slate-700/50 bg-white dark:bg-slate-800 rounded-b-2xl overflow-hidden">
   <div className="flex items-center justify-between px-4 py-3  border-slate-100 dark:border-slate-700/50">
-    <div className="font-semibold text-slate-800 dark:text-slate-100 text-sm">
+    <div className=" text-slate-400 dark:text-slate-100 text-sm">
       Comments {comments.length}
     </div>
   </div>
@@ -1118,7 +1118,7 @@ export default function PostDetailsPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 min-h-screen pb-2 border-x border-slate-100 dark:border-slate-700/50 border rounded-2xl overflow-hidden">
+    <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900  pb-2 border-x border-slate-100 dark:border-slate-700/50 border rounded-2xl overflow-hidden">
       <PostHeader
         id={PostDetails.id}
         userName={PostDetails.userName}
