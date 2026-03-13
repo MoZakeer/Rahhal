@@ -6,6 +6,7 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   onClick?: () => void;
+  className?: string; 
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -14,9 +15,10 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   disabled = false,
   loading = false,
+  className = "", 
 }) => {
   const base =
-    "!rounded-md px-5 cursor-pointer py-2 text-md font-medium transition  disabled:bg-primary-700 disabled:cursor-not-allowed";
+    "!rounded-md px-5 cursor-pointer py-2 text-md font-medium transition disabled:bg-primary-700 disabled:cursor-not-allowed";
 
   const variations = {
     outline: "border border-gray-300 text-gray-700 hover:bg-gray-100",
@@ -25,7 +27,7 @@ const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
-      className={`${base} ${variations[variant]} ${loading && "flex items-center justify-center gap-2"} `}
+      className={`${base} ${variations[variant]} ${loading ? "flex items-center justify-center gap-2" : ""} ${className}`}
       onClick={onClick}
       disabled={disabled || loading}
     >

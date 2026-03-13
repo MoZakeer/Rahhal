@@ -4,7 +4,6 @@
 
 /* =========================================
    Design Tokens (Theme)
-   Source of Truth
 ========================================= */
 @custom-variant dark (&:where(.dark, .dark *));
 @theme {
@@ -62,6 +61,7 @@ body {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 
@@ -103,9 +103,7 @@ body {
   outline: none;
   background-color: var(--color-gray-0);
   color: var(--color-gray-900);
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input::placeholder {
@@ -113,22 +111,38 @@ body {
 }
 
 .input:focus {
-  border-color: var(--color-brand-500);
+  border-color: var(--color-primary-500);
   box-shadow: 0 0 0 2px
-    color-mix(in srgb, var(--color-brand-500) 40%, transparent);
+    color-mix(in srgb, var(--color-primary-500) 40%, transparent);
 }
-button,
-Link,
-NavLink {
+
+/* =========================================
+   Button & Links
+========================================= */
+button, a {
   outline: none;
+  cursor: pointer;
 }
+
+button.gradient-btn {
+  @apply bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-full py-2 px-6 transition-all;
+}
+button.gradient-btn:hover {
+  @apply from-purple-600 to-pink-600 scale-95;
+}
+
+/* =========================================
+   Components
+========================================= */
 @layer components {
   .box {
-    @apply flex flex-col gap-5 sm:gap-4 w-full sm:w-md 
-    bg-gray-0 rounded-lg sm:shadow-lg;
+    @apply flex flex-col gap-5 sm:gap-4 w-full sm:w-md bg-gray-0 rounded-lg sm:shadow-lg;
   }
 }
 
+/* =========================================
+   Scrollbar Hiding
+========================================= */
 /* Chrome, Edge, Safari */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -143,6 +157,55 @@ NavLink {
 .no-scrollbar {
   -ms-overflow-style: none;
 }
-button {
-  cursor: pointer;
+
+/* =========================================
+   Animations
+========================================= */
+@keyframes blob {
+  0%, 100% { transform: translate(0px,0px) scale(1); }
+  33% { transform: translate(30px,-50px) scale(1.1); }
+  66% { transform: translate(-20px,20px) scale(0.9); }
+}
+.animate-blob { animation: blob 8s infinite; }
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-4000 { animation-delay: 4s; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+.animate-float { animation: float 6s ease-in-out infinite; }
+
+@keyframes fade-in {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fade-in 1s ease forwards; }
+.delay-200 { animation-delay: 0.2s; }
+
+/* =========================================
+   Gradient Text Utility
+========================================= */
+.text-gradient {
+  background: linear-gradient(to right, #7c3aed, #ec4899, #f43f5e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.text-gradient-blue-gray {
+  background: linear-gradient(to right, var(--color-primary-500), var(--color-primary-700), var(--color-gray-500));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+/* Hide scrollbar but keep scrolling */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

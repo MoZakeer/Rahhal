@@ -1,108 +1,97 @@
-import { Link, useNavigate } from "react-router";
-import Button from "../../../shared/components/button.tsx";
+import { motion } from "framer-motion";
+import AuthLayout from "./AuthLayout";
+import { Link, useNavigate } from "react-router-dom";
+import Button from "../../../shared/components/button";
 import Input from "../../../shared/components/Input";
 import PasswordInput from "../../../shared/components/PasswordInput";
 import { useForm } from "react-hook-form";
-import {
-  loginSchema,
-  type TLoginInputsType,
-} from "../validation/loginSchema.ts";
+import { loginSchema, type TLoginInputsType } from "../validation/loginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useLogin } from "../hooks/useLogin.ts";
+import { useLogin } from "../hooks/useLogin";
 import toast from "react-hot-toast";
 
 function LoginForm() {
-  const { isPending, login } = useLogin();
-  const navigate = useNavigate();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-  } = useForm<TLoginInputsType>({
-    mode: "onBlur",
-    resolver: zodResolver(loginSchema),
-    shouldFocusError: true,
-  });
+ const { isPending, login } = useLogin();
+ const navigate = useNavigate();
 
-  function onSubmit(payload: TLoginInputsType) {
-    login(payload, {
-      onSuccess: (response) => {
-        const { data, message } = response || {};
+ const { register, handleSubmit, formState:{errors,isSubmitting}, reset } =
+ useForm<TLoginInputsType>({
+   resolver:zodResolver(loginSchema),
+   mode:"onBlur"
+ });
 
-        if (!data?.profileId) {
-          toast.error("Invalid server response");
-          return;
-        }
+ function onSubmit(payload:TLoginInputsType){
+   login(payload,{
+     onSuccess:(response)=>{
+       const {data,message}=response||{};
+       localStorage.setItem("auth",JSON.stringify(data));
+       localStorage.setItem("token",data.token);
+       toast.success(message ?? "Welcome");
+       navigate("/feed");
+     },
+     onError:(error:Error)=>toast.error(error.message),
+     onSettled:()=>reset()
+   })
+ }
 
-        // ✅ store full login data
-        localStorage.setItem("auth", JSON.stringify(data));
-        localStorage.setItem("token", data.token);
+ const isWaiting=isSubmitting||isPending;
 
-        toast.success(message ?? "Welcome to your Rahhal account");
+ return (
 
-        navigate("/feed");
-      },
+  <AuthLayout>
 
-      onError: (error: Error) => {
-        toast.error(error.message);
-      },
+   <motion.div
+   initial={{opacity:0,y:40}}
+   animate={{opacity:1,y:0}}
+   transition={{duration:0.5}}
+   >
 
-      onSettled: () => {
-        reset();
-      },
-    });
-  }
+    <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">
+      Login to your profile
+    </h1>
 
-  const isWaiting: boolean = isSubmitting || isPending;
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
 
-  return (
-    <div className="box px-4 py-8 sm:px-8 sm:py-10 gap-6">
-      <h1 className="text-center text-2xl font-semibold text-gray-800">
-        Login to your profile
-      </h1>
+     <Input
+      label="Email or Username"
+      placeholder="username or email"
+      {...register("email")}
+      error={errors.email?.message}
+     />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <Input
-          label="Email or Username"
-          id="username"
-          placeholder="username or email"
-          {...register("email")}
-          error={errors.email?.message}
-        />
+     <PasswordInput
+      label="Password"
+      placeholder="Password"
+      {...register("password")}
+      error={errors.password?.message}
+     />
 
-        <PasswordInput
-          label="Password"
-          id="password"
-          placeholder="Password"
-          {...register("password")}
-          error={errors.password?.message}
-        />
+     <Link
+      to="/forget-password"
+      className="self-end text-sm font-medium text-primary-700 hover:underline"
+     >
+      Forgot password?
+     </Link>
 
-        <Link
-          to="/forget-password"
-          className="self-end text-sm font-medium text-primary-600 hover:underline"
-        >
-          Forgot password?
-        </Link>
+     <Button disabled={isWaiting} loading={isWaiting}>
+      Login
+     </Button>
 
-        <Button disabled={isWaiting} loading={isWaiting}>
-          Login
-        </Button>
+     <p className="text-center text-sm text-gray-600">
+      Don’t have an account?{" "}
+      <Link to="/sign-up" className="text-primary-700 font-medium">
+       Sign up
+      </Link>
+     </p>
 
-        <p className="text-center text-sm text-gray-600">
-          Don’t have an account?
-          <Link
-            to="/sign-up"
-            className="font-medium text-primary-700 hover:underline"
-          >
-            Sign up
-          </Link>
-        </p>
-      </form>
-    </div>
-  );
+    </form>
+
+   </motion.div>
+
+  </AuthLayout>
+
+ )
 }
 
 export default LoginForm;

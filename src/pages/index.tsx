@@ -21,7 +21,7 @@ import ProfilePage from "./profile/ProfilePage";
 
 // Feed Pages
 import HomeFeed from "./feed/HomeFeed";
-
+import PostDetailsPage from "./feed/PostDetails";
 
 // Trips Pages
 import MyTrips from "./trips/MyTrips";
@@ -50,25 +50,26 @@ import ChangePasswordPage from "./profile/ChangePasswordPage.tsx";
 import SearchResultsPage from "./search/SearchResultsPage.tsx";
 import ReportsDetails from "./reports/reportDetailsPage.tsx";
 const Pages = () => {
-  const isAuthenticated = true; 
+  const isAuthenticated = true;
 
   return (
     <Router>
       <Routes>
         {/* Auth */}
         <Route element={<AuthLayout />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/sign-up" element={<SignUp />} />
+
+
           <Route path="/forget-password" element={<ForgetPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/change-password" element={<ChangePassword />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
-          
+
           <Route path="/landing-page" element={<LandingPage />} />
           <Route path="/report_details/:id" element={<ReportsDetails />} />
           <Route path="/reports" element={<ReportsPage />} />
         </Route>
-
+        <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
         <Route
           path="/chat"
           element={isAuthenticated ? <ChatPage /> : <Navigate to="/login" />}
@@ -96,16 +97,23 @@ const Pages = () => {
               isAuthenticated ? <EditProfilePage /> : <Navigate to="/login" />
             }
           />
-          <Route 
-          path="/profile/change_password"
-          element={
-            isAuthenticated ? <ChangePasswordPage /> : <Navigate to="/login" />
-          }
+          <Route
+            path="/profile/change_password"
+            element={
+              isAuthenticated ? <ChangePasswordPage /> : <Navigate to="/login" />
+            }
           />
           <Route
             path="/feed"
             element={isAuthenticated ? <HomeFeed /> : <Navigate to="/login" />}
           />
+          <Route
+            path="/post/:postId"
+            element={
+              isAuthenticated ? <PostDetailsPage /> : <Navigate to="/login" />
+            }
+           />
+          
           {/* search */}
           <Route
             path="/search-results"
@@ -113,13 +121,13 @@ const Pages = () => {
               isAuthenticated ? <SearchResultsPage /> : <Navigate to="/login" />
             }
           />
- {/* Admin */}
+          {/* Admin */}
           <Route
-  path="/admin/reports/:type"
-  element={
-    isAuthenticated ? <ReportsPage /> : <Navigate to="/login" />
-  }
-/>
+            path="/admin/reports/:type"
+            element={
+              isAuthenticated ? <ReportsPage /> : <Navigate to="/login" />
+            }
+          />
           <Route
             path="/trips"
             element={isAuthenticated ? <MyTrips /> : <Navigate to="/login" />}
@@ -141,7 +149,7 @@ const Pages = () => {
                 : <Navigate to="/landing-page" replace />
             }
           />
-         
+
         </Route>
 
         {/* 404 */}

@@ -1,13 +1,44 @@
-import { useEffect, useRef, useState } from "react";
-import { X, Heart, MoreHorizontal, Flag } from "lucide-react";
-import * as commentApi from "../components/services/commentApi";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
+
+// Types
+import type { PostDetails } from "../../../types/post";
+import type { PostMediaItem } from "../../../types/post";
+
+// Components & Services
+import { LikesList } from "./LikesList";
+import { getUserId } from "../../../utils/auth";
+import { PostContent } from "./PostContent";
+import { getPostById } from "../components/services/posts.api";
+import EditPostModal from "../components/EditPostModal";
+import ConfirmModal from "../../ReportDetals/components/confirmModal";
 import { normalizeMediaUrl } from "./services/posts.api";
-import { useNavigate } from "react-router-dom";
+import {
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  Flag,
+  GlobeIcon,
+    MessageCircle,
+    Share2,
+} from "lucide-react";
+import { Bookmark } from "lucide-react";
+import { HeartIcon } from "@heroicons/react/24/outline";
 import { ReportModal } from "../../reports/components/ReportModal";
+import { useNavigate } from "react-router-dom";
+import { useRef } from "react";
+import { useEffect } from "react";
+// The New Hook
+import { usePostDetailsActions } from "./hooks/usePostDetails";
+import {  Heart } from "lucide-react";
+import * as commentApi from "../components/services/commentApi";
+
 import Skeleton from "react-loading-skeleton";
 import MyEmojiPicker from "../../chat/components/EmojiPicker";
 import { HiOutlineFaceSmile } from "react-icons/hi2";
-import { LikesList } from "./LikesList";
+
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 
 type CommentItem = {
@@ -45,10 +76,317 @@ function formatDate(dateStr: string) {
   const date = new Date(dateStr);
   return date.toLocaleString([], { dateStyle: "short", timeStyle: "short" });
 }
+export function PostHeader({
+  id,
+  userName,
+  profileUrl,
+  profileId,
+  currentUserId,
+  isFollowing,
+  createdAt,
+  onEdit,
+  onDelete,
+  onFollow,
+}: {
+  id: string;
+  userName: string;
+  profileUrl: string;
+  profileId: string;
+  currentUserId: string;
+  isFollowing?: boolean;
+  createdAt?: string;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onReport?: () => void;
+  onFollow?: () => void;
+}) {
+  const navigate = useNavigate();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const isOwner = currentUserId === profileId;
+  profileUrl =
+    profileUrl ??
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}`;
+  const [isReportOpen, setIsReportOpen] = useState(false);
+
+  function formatTime(date?: string) {
+    if (!date) return "";
+
+    const now = new Date();
+    const created = new Date(date);
+    const diff = Math.floor((now.getTime() - created.getTime()) / 1000);
+
+    if (diff < 60) return "Just now";
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+
+    return created.toLocaleDateString();
+  }
+
+  return (
+    <div className="flex items-center justify-between px-4 py-3 relative">
+      <div className="flex items-center gap-3">
+        <img
+          src={normalizeMediaUrl(profileUrl)}
+          className="w-10 h-10 rounded-full object-cover"
+        />
+        <div className="flex flex-col leading-tight">
+          <span
+            onClick={() => navigate(`/profile/${profileId}`)}
+            className="font-semibold cursor-pointer text-slate-900 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+          >
+            {userName}
+          </span>
+          {createdAt && (
+            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold flex items-center gap-1.5 mt-0.5">
+              {formatTime(createdAt)} <GlobeIcon className="w-3 h-3" />
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        {!isOwner && (
+          <button
+            onClick={onFollow}
+            className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${
+              isFollowing
+                ? "bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                : "bg-slate-900 dark:bg-indigo-600 border border-slate-900 dark:border-indigo-600 text-white hover:bg-slate-800 dark:hover:bg-indigo-700"
+            }`}
+          >
+            {isFollowing ? "Following" : "Follow"}
+          </button>
+        )}
+
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors"
+          >
+            <MoreHorizontal className="w-5 h-5" />
+          </button>
+          {isReportOpen && (
+            <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
+              <ReportModal
+                entityType="post"
+                entityId={id}
+                onClose={() => setIsReportOpen(false)}
+              />
+            </div>
+          )}
+          {dropdownOpen && (
+            <div className="absolute top-full right-0 mt-2 w-36 bg-white dark:bg-slate-800 rounded-xl shadow-lg ring-1 ring-black/5 dark:ring-white/10 z-50 overflow-hidden translate-x-3 border border-transparent dark:border-slate-700">
+              {isOwner ? (
+                <>
+                  <button
+                    className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    onClick={onEdit}
+                  >
+                    <Edit className="w-4 h-4" />
+                    Edit
+                  </button>
+                  <button
+                    className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                    onClick={onDelete}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </button>
+                </>
+              ) : (
+                <button
+                  className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                  onClick={() => {
+                    setDropdownOpen(!dropdownOpen);
+                    setIsReportOpen(true);
+                  }}
+                >
+                  <Flag className="w-4 h-4" />
+                  Report
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+export function PostMedia({ media }: { media: PostMediaItem[] }) {
+  const [current, setCurrent] = useState(0);
+
+  const startX = useRef<number | null>(null);
+  const isDragging = useRef(false);
+
+  if (!media.length) return null;
+
+  const next = () => {
+    setCurrent((prev) => (prev + 1) % media.length);
+  };
+
+  const prev = () => {
+    setCurrent((prev) => (prev - 1 + media.length) % media.length);
+  };
+
+  // Drag Start
+  const handleStart = (x: number) => {
+    startX.current = x;
+    isDragging.current = true;
+  };
+
+  // Drag Move
+  const handleMove = (x: number) => {
+    if (!isDragging.current || startX.current === null) return;
+
+    const diff = x - startX.current;
+
+    // Threshold prevents accidental swipes
+    if (diff > 80) {
+      prev();
+      isDragging.current = false;
+    }
+
+    if (diff < -80) {
+      next();
+      isDragging.current = false;
+    }
+  };
+
+  const handleEnd = () => {
+    isDragging.current = false;
+    startX.current = null;
+  };
+
+  return (
+    <div className="w-full">
+      {/* Main Image (Swipe Area) */}
+      <div
+        className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden group select-none bg-slate-100 dark:bg-slate-900"
+        onMouseDown={(e) => handleStart(e.clientX)}
+        onMouseMove={(e) => handleMove(e.clientX)}
+        onMouseUp={handleEnd}
+        onMouseLeave={handleEnd}
+        onTouchStart={(e) => handleStart(e.touches[0].clientX)}
+        onTouchMove={(e) => handleMove(e.touches[0].clientX)}
+        onTouchEnd={handleEnd}
+      >
+        <img
+          src={normalizeMediaUrl(media[current].url)}
+          className="w-full h-full object-cover transition-transform duration-300"
+          draggable={false}
+        />
+
+        {/* Counter */}
+        <div
+          className="absolute top-2 right-2 
+bg-black/60 text-white text-xs 
+px-2 py-0.5 rounded-full backdrop-blur-sm
+opacity-0 translate-y-1 
+group-hover:opacity-100 group-hover:translate-y-0
+transition-all duration-300"
+        >
+          {current + 1} / {media.length}
+        </div>
+      </div>
+
+      {/* Thumbnails */}
+      {media.length > 1 && (
+        <div className="flex gap-3 mt-4 overflow-x-auto pb-2 scrollbar-hide scroll-smooth">
+          {media.map((m, i) => (
+            <div
+              key={m.id}
+              onClick={() => setCurrent(i)}
+              onMouseEnter={() => setCurrent(i)}
+              className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${
+                i === current
+                  ? "ring-2 ring-indigo-500 dark:ring-indigo-400 opacity-100"
+                  : "opacity-60 hover:opacity-100"
+              }`}
+            >
+              <img
+                src={normalizeMediaUrl(m.url)}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+export function PostActions({
+  liked,
+  saved,
+  onLike,
+  onComment,
+  onSave,
+  onShare,
+}: {
+  liked: boolean;
+  saved: boolean;
+  onLike: () => void;
+  onComment: () => void;
+  onSave: () => void;
+  onShare?: () => void;
+}) {
+  return (
+    <div className="flex justify-between px-6 py-4  border-slate-50 dark:border-slate-700/50">
+      <div className="flex gap-7">
+        <button
+          onClick={onLike}
+          className="flex flex-col items-center transition-transform duration-200 ease-in-out"
+        >
+          {liked ? (
+            <HeartIcon className="w-6 h-6 text-indigo-600 fill-indigo-600 hover:text-indigo-600 hover:scale-125 hover:rotate-12 transition-all duration-500" />
+          ) : (
+            <HeartIcon className="w-6 h-6 text-slate-400 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 scale-100 transition-all duration-300" />
+          )}
+        </button>
+
+        <button
+          onClick={onComment}
+          className="group transition-transform active:scale-110 focus:outline-none"
+        >
+          <MessageCircle className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 group-hover:fill-indigo-50/30 transition-all duration-300 ease-out" />
+        </button>
+        <button
+          onClick={onShare}
+          className="group transition-transform active:scale-110"
+        >
+          <Share2 className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+        </button>
+      </div>
+
+      <button onClick={onSave}>
+        {saved ? (
+          <Bookmark className="w-5 h-5 text-indigo-600 dark:text-indigo-400 fill-indigo-600 dark:fill-indigo-400 scale-100 hover:scale-110 transition-all duration-500" />
+        ) : (
+          <Bookmark className="w-5 h-5 text-slate-400 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 scale-100 transition-all duration-300" />
+        )}
+      </button>
+    </div>
+  );
+}
 export function CommentsModal({
   open,
-  onClose,
   postId,
   currentUserId,
 }: CommentsModalProps) {
@@ -641,87 +979,228 @@ export function CommentsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50">
-      <div
-        className="absolute inset-0 bg-black/50 dark:bg-slate-900/80 backdrop-blur-sm transition-all"
-        onClick={onClose}
+  <div className="w-full mt-2 border-t border-slate-50 dark:border-slate-700/50 bg-white dark:bg-slate-800 rounded-b-2xl overflow-hidden">
+  <div className="flex items-center justify-between px-4 py-3  border-slate-100 dark:border-slate-700/50">
+    <div className=" text-slate-400 dark:text-slate-100 text-sm">
+      Comments {comments.length}
+    </div>
+  </div>
+
+  <div className="max-h-[500px] overflow-y-auto px-4 py-4 space-y-5 custom-scrollbar scrollbar-hide scroll-smooth">
+    {loading ? (
+      <div className="space-y-4 dark:opacity-60 transition-opacity">
+        <Skeleton height={20} width={200} />
+        <Skeleton height={15} count={3} />
+        <Skeleton height={200} />
+      </div>
+    ) : comments.length === 0 ? (
+      <div className="text-center py-4 text-slate-500 dark:text-slate-400 text-sm">
+        No comments yet. Be the first to share!
+      </div>
+    ) : (
+      comments.map((c) => renderComment(c))
+    )}
+    <div ref={commentsEndRef} />
+  </div>
+
+  {/* Input Area */}
+  <div className="relative w-full border-t border-slate-100 dark:border-slate-700/50 px-4 py-3 flex gap-3 items-center bg-slate-50/50 dark:bg-slate-900/20">
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => {
+          setShowCommentEmoji((prev) => !prev);
+          setShowReplyEmoji(false);
+        }}
+        className="cursor-pointer transition-all duration-300 hover:bg-slate-200 dark:hover:bg-slate-700 p-2 rounded-full"
+      >
+        <HiOutlineFaceSmile className="w-6 h-6 text-slate-500 dark:text-slate-400" />
+      </button>
+
+      {showCommentEmoji && (
+        <>
+          <div 
+            className="fixed inset-0 z-10" 
+            onClick={() => setShowCommentEmoji(false)} 
+          />
+          <div className="absolute bottom-full left-0 mb-2 z-20">
+            <MyEmojiPicker onSelect={handleEmojiSelectComment} />
+          </div>
+        </>
+      )}
+    </div>
+
+    <input
+      placeholder="Add a comment..."
+      value={newComment}
+      onChange={(e) => setNewComment(e.target.value)}
+      className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-400"
+    />
+
+    <button
+      onClick={() => handleAddComment()}
+      disabled={!newComment.trim() || addCommentMutation.isPending}
+      className={`flex-shrink-0 text-sm font-semibold px-4 py-2 rounded-full transition-colors ${
+        newComment.trim()
+          ? "bg-indigo-600 text-white hover:bg-indigo-700"
+          : "text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 cursor-not-allowed"
+      }`}
+    >
+      {addCommentMutation.isPending && actionType === "comment"
+        ? "Adding..."
+        : "Post"}
+    </button>
+  </div>
+</div>
+  );
+}
+
+export default function PostDetailsPage() {
+  const { postId } = useParams<{ postId: string }>();
+  const currentUserId = getUserId() || "";
+  
+  // Modal States
+  const [openModal, setOpenModal] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [openLikes, setOpenLikes] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(true);
+
+  // 1. Fetch Post Data
+  const { data: PostDetails, isLoading } = useQuery<PostDetails>({
+    queryKey: ["PostDetails", postId],
+    queryFn: async () => {
+      const response = await getPostById(postId!);
+      return response.data;
+    },
+    enabled: !!postId,
+  });
+
+  // 2. Use the new actions hook
+  // This hook handles all the cache updates (Optimistic UI) for us
+  const { like, save, follow, remove } = usePostDetailsActions(postId!);
+
+  if (isLoading) {
+    return <div className="min-h-screen flex justify-center items-center">Loading...</div>;
+  }
+
+  if (!PostDetails) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center items-center">
+        Post not found
+      </div>
+    );
+  }
+
+  const hasMedia = PostDetails.media_URLs && PostDetails.media_URLs.length > 0;
+
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/post/${PostDetails.id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `رحلة ${PostDetails.userName} على رحال`,
+          text: PostDetails.description || "شوف المغامرة دي!",
+          url: shareUrl,
+        });
+      } catch (err) {
+        if (err instanceof Error && err.name !== "AbortError") {
+          toast.error("Sharing failed");
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success("Link copied!");
+      } catch {
+        toast.error("Could not copy link");
+      }
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900  pb-2 border-x border-slate-100 dark:border-slate-700/50 border rounded-2xl overflow-hidden">
+      <PostHeader
+        id={PostDetails.id}
+        userName={PostDetails.userName}
+        profileUrl={PostDetails.profileURL}
+        profileId={PostDetails.userId}
+        isFollowing={PostDetails.isFollowedByCurrentUser}
+        onFollow={() => follow(PostDetails.userId)} 
+        currentUserId={currentUserId}
+        createdAt={PostDetails.createdDate}
+        onDelete={() => setOpenModal(true)}
+        onEdit={() => setEditModalOpen(true)}
       />
 
-      <div className="absolute left-1/2 top-1/2 w-[94%] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white dark:bg-slate-800 shadow-2xl overflow-hidden border border-transparent dark:border-slate-700/50">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-700/50">
-          <div className="w-8" />
-          <div className="font-semibold text-slate-800 dark:text-slate-100">
-            Comments
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-          >
-            <X className="w-5 h-5 text-slate-500 dark:text-slate-400" />
-          </button>
-        </div>
-
-        <div className="max-h-[60vh] overflow-y-auto px-4 py-4 space-y-5 custom-scrollbar">
-          {loading ? (
-            <div className="space-y-4 dark:opacity-60 transition-opacity">
-              <Skeleton height={20} width={200} />
-              <Skeleton height={15} count={3} />
-              <Skeleton height={200} />
-            </div>
-          ) : comments.length === 0 ? (
-            <div className="text-center text-slate-500 dark:text-slate-400">
-              No comments yet
-            </div>
-          ) : (
-            comments.map((c) => renderComment(c))
-          )}
-          <div ref={commentsEndRef} />
-        </div>
-
-        <div className="relative w-full border-t border-slate-100 dark:border-slate-700/50 px-4 py-3 flex gap-3 items-center bg-white dark:bg-slate-800 flex-wrap">
-          <button
-            type="button"
-            onClick={() => {
-              setShowCommentEmoji((prev) => !prev);
-              setShowReplyEmoji(false);
-            }}
-            className="cursor-pointer transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded-full"
-          >
-            <HiOutlineFaceSmile className="w-8 h-8 text-slate-500 dark:text-slate-400" />
-          </button>
-
-          {showCommentEmoji && (
-            <div
-              className="fixed inset-0 z-50 flex items-end justify-start"
-              onClick={() => setShowCommentEmoji(false)}
-            >
-              <div className="ml-6 mb-24" onClick={(e) => e.stopPropagation()}>
-                <MyEmojiPicker onSelect={handleEmojiSelectComment} />
-              </div>
-            </div>
-          )}
-          <input
-            placeholder="Add a comment..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-indigo-500 dark:focus:border-indigo-400"
+      <div className="px-4">
+        {!hasMedia && (
+          <PostContent
+            description={PostDetails.description}
+            className="px-4 py-8 text-lg font-medium leading-relaxed text-slate-900 dark:text-slate-100"
           />
-
-          <button
-            onClick={() => handleAddComment()}
-            disabled={!newComment.trim() || addCommentMutation.isPending}
-            className={`flex-shrink-0 text-sm font-semibold px-4 py-2 rounded-full transition-colors ${
-              newComment.trim()
-                ? "text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700"
-                : "text-slate-400 dark:text-slate-500 cursor-not-allowed"
-            }`}
-          >
-            {addCommentMutation.isPending && actionType === "comment"
-              ? "Adding..."
-              : "Add"}{" "}
-          </button>
-        </div>
+        )}
+        {hasMedia && <PostMedia media={PostDetails.media_URLs} />}
       </div>
+
+      <PostActions
+        liked={PostDetails.isLiked ?? false}
+        saved={PostDetails.isSaved ?? false}
+        onLike={like} 
+        onSave={save} 
+        onComment={() => document.getElementById("main-input")?.focus()}
+        onShare={handleShare}
+      />
+
+      <div
+        onClick={() => setOpenLikes(true)}
+        className="px-4 text-sm font-semibold mt-1 cursor-pointer text-slate-900 dark:text-slate-100"
+      >
+        {PostDetails.likes} likes
+      </div>
+
+      {hasMedia && (
+        <PostContent
+          description={PostDetails.description}
+          className="px-4 mt-1 text-sm text-slate-800 dark:text-slate-200"
+        />
+      )}
+
+      {/* Modals */}
+      {openLikes && (
+        <div
+          onClick={() => setOpenLikes(false)}
+          className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+        >
+          <div
+            className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-5 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button onClick={() => setOpenLikes(false)} className="absolute top-3 right-3">✕</button>
+            <h3 className="text-lg font-semibold mb-4 dark:text-white">Likes</h3>
+            <LikesList type="post" id={PostDetails.id} />
+          </div>
+        </div>
+      )}
+
+      <ConfirmModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        onConfirm={remove} 
+        itemType={"post"}
+      />
+
+      {editModalOpen && (
+        <EditPostModal
+          postId={PostDetails.id}
+          onCancel={() => setEditModalOpen(false)}
+        />
+      )}
+      <CommentsModal
+             open={commentsOpen}
+             onClose={() => setCommentsOpen(false)}
+             postId={PostDetails.id}
+             currentUserId={getUserId() || ""}
+           />
     </div>
   );
 }

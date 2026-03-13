@@ -9,6 +9,9 @@ import {
   Edit,
   Trash2,
   Flag,
+  MessageCircle,
+  Share2,
+  GlobeIcon,
 } from "lucide-react";
 import { Bookmark } from "lucide-react";
 import { HeartIcon } from "@heroicons/react/24/outline";
@@ -17,7 +20,7 @@ import { normalizeMediaUrl } from "./services/posts.api";
 import { getUserId } from "../../../utils/auth";
 import { CommentsModal } from "../components/CommentsModal";
 import { useNavigate } from "react-router-dom";
-import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
+// import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import { ReportModal } from "../../reports/components/ReportModal";
 import { followUser } from "./services/posts.api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -25,7 +28,7 @@ import { useLikePost, useSavePost, useDeletePost } from "./hooks/usePosts";
 import type { InfiniteData } from "@tanstack/react-query";
 import ConfirmModal from "../../ReportDetals/components/confirmModal";
 import { LikesList } from "./LikesList";
-import EditPostModal from "../components/EditPostModal"
+import EditPostModal from "../components/EditPostModal";
 
 export function PostHeader({
   id,
@@ -70,7 +73,9 @@ export function PostHeader({
   }, []);
 
   const isOwner = currentUserId === profileId;
-  profileUrl = profileUrl ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}`;
+  profileUrl =
+    profileUrl ??
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}`;
   const [isReportOpen, setIsReportOpen] = useState(false);
 
   function formatTime(date?: string) {
@@ -89,19 +94,32 @@ export function PostHeader({
   }
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 relative">
+    <div
+      className="flex items-center justify-between px-4 py-3 relative cursor-pointer"
+      onClick={() => navigate(`/post/${id}`)}
+    >
       <div className="flex items-center gap-3">
-        <img src={normalizeMediaUrl(profileUrl)} className="w-10 h-10 rounded-full object-cover" />
+        <img
+        onClick={(e) => {
+    e.stopPropagation(); 
+    navigate(`/profile/${profileId}`);
+  }}
+          src={normalizeMediaUrl(profileUrl)}
+          className="w-10 h-10 rounded-full object-cover"
+        />
         <div className="flex flex-col leading-tight">
           <span
-            onClick={() => navigate(`/profile/${profileId}`)}
+         onClick={(e) => {
+    e.stopPropagation(); 
+    navigate(`/profile/${profileId}`);
+  }}
             className="font-semibold cursor-pointer text-slate-900 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
           >
             {userName}
-          </span>          
+          </span>
           {createdAt && (
-            <span className="text-xs text-slate-500 dark:text-slate-400">
-              {formatTime(createdAt)}
+            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold flex items-center gap-1.5 mt-0.5">
+              {formatTime(createdAt)} <GlobeIcon className="w-3 h-3" />
             </span>
           )}
         </div>
@@ -160,7 +178,8 @@ export function PostHeader({
                 <button
                   className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
                   onClick={() => {
-                    setDropdownOpen(!dropdownOpen); setIsReportOpen(true);
+                    setDropdownOpen(!dropdownOpen);
+                    setIsReportOpen(true);
                   }}
                 >
                   <Flag className="w-4 h-4" />
@@ -240,19 +259,21 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
         />
 
         {/* Counter */}
-        <div className="absolute top-2 right-2 
+        <div
+          className="absolute top-2 right-2 
 bg-black/60 text-white text-xs 
 px-2 py-0.5 rounded-full backdrop-blur-sm
 opacity-0 translate-y-1 
 group-hover:opacity-100 group-hover:translate-y-0
-transition-all duration-300">
+transition-all duration-300"
+        >
           {current + 1} / {media.length}
         </div>
       </div>
 
       {/* Thumbnails */}
       {media.length > 1 && (
-        <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
+        <div className="flex gap-3 mt-4 overflow-x-auto pb-2 scrollbar-hide scroll-smooth">
           {media.map((m, i) => (
             <div
               key={m.id}
@@ -283,50 +304,55 @@ export function PostActions({
   onLike,
   onComment,
   onSave,
+  onShare,
 }: {
   liked: boolean;
   saved: boolean;
   onLike: () => void;
   onComment: () => void;
   onSave: () => void;
+  onShare?: () => void;
 }) {
   return (
-    <div className="flex justify-between px-5 py-2">
-      <div className="flex gap-6">
+    <div className="flex justify-between px-6 py-4 border-t border-slate-50 dark:border-slate-700/50">
+      <div className="flex gap-7">
         <button
           onClick={onLike}
           className="flex flex-col items-center transition-transform duration-200 ease-in-out"
         >
           {liked ? (
-            <HeartIcon
-              className="w-6 h-6 text-rose-500 fill-rose-500 hover:text-rose-400 hover:scale-125 hover:rotate-12 transition-all duration-500" 
-            />
+            <HeartIcon className="w-6 h-6 text-indigo-600 fill-indigo-600 hover:text-indigo-600 hover:scale-125 hover:rotate-12 transition-all duration-500" />
           ) : (
-            <HeartIcon className="w-6 h-6 text-slate-700 dark:text-slate-300 hover:text-rose-500 dark:hover:text-rose-400 scale-100 transition-all duration-300" />
+            <HeartIcon className="w-6 h-6 text-slate-400 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 scale-100 transition-all duration-300" />
           )}
         </button>
 
-        <button onClick={onComment} className="flex flex-col items-center transition-transform duration-200 ease-in-out">
-          <ChatBubbleLeftRightIcon className="w-6 h-6 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-105 hover:rotate-1 transition-all duration-500" />
+        <button
+          onClick={onComment}
+          className="group transition-transform active:scale-110 focus:outline-none"
+        >
+          <MessageCircle className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 group-hover:fill-indigo-50/30 transition-all duration-300 ease-out" />
+        </button>
+        <button
+          onClick={onShare}
+          className="group transition-transform active:scale-110"
+        >
+          <Share2 className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
         </button>
       </div>
 
       <button onClick={onSave}>
         {saved ? (
-          <Bookmark className="w-6 h-6 text-indigo-600 dark:text-indigo-400 fill-indigo-600 dark:fill-indigo-400 scale-100 hover:scale-110 transition-all duration-500" />
+          <Bookmark className="w-5 h-5 text-indigo-600 dark:text-indigo-400 fill-indigo-600 dark:fill-indigo-400 scale-100 hover:scale-110 transition-all duration-500" />
         ) : (
-          <Bookmark className="w-6 h-6 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 scale-100 transition-all duration-300" />
+          <Bookmark className="w-5 h-5 text-slate-400 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 scale-100 transition-all duration-300" />
         )}
       </button>
     </div>
   );
 }
 
-export default function PostCard({
-  post,
-}: {
-  post: Post;
-}) {
+export default function PostCard({ post }: { post: Post }) {
   const hasMedia = post.mediaUrLs && post.mediaUrLs.length > 0;
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -335,12 +361,12 @@ export default function PostCard({
   function handleEditPost() {
     setEditModalOpen(true);
   }
-  
+
   const likeMutation = useLikePost();
   const saveMutation = useSavePost();
   const deleteMutation = useDeletePost();
   const [openLikes, setOpenLikes] = useState(false);
-  
+
   function handleLike() {
     likeMutation.mutate(post.id);
   }
@@ -373,8 +399,9 @@ export default function PostCard({
     onMutate: async (userId: string) => {
       await queryClient.cancelQueries({ queryKey: ["posts"] });
 
-      const previousPosts =
-        queryClient.getQueryData<InfiniteData<PostsResponse>>(["posts"]);
+      const previousPosts = queryClient.getQueryData<
+        InfiniteData<PostsResponse>
+      >(["posts"]);
 
       queryClient.setQueryData<InfiniteData<PostsResponse>>(
         ["posts"],
@@ -393,12 +420,12 @@ export default function PostCard({
                         ...p,
                         isFollowedByCurrentUser: !p.isFollowedByCurrentUser,
                       }
-                    : p
+                    : p,
                 ),
               },
             })),
           };
-        }
+        },
       );
 
       return { previousPosts };
@@ -410,11 +437,37 @@ export default function PostCard({
       }
     },
   });
-  
+
   function handleFollow() {
     followMutation.mutate(post.userId);
   }
-  
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/post/${post.id}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `رحلة ${post.userName} على رحال`,
+          text: post.description || "شوف المغامرة دي!",
+          url: shareUrl,
+        });
+      } catch (err) {
+        if (err instanceof Error && err.name !== "AbortError") {
+          toast.error("Sharing failed");
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success("Link copied! Share it anywhere", {
+          icon: "📋",
+          style: { borderRadius: "15px", background: "#333", color: "#fff" },
+        });
+      } catch {
+        toast.error("Could not copy link");
+      }
+    }
+  };
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm mb-6 max-w-xl mx-auto border border-transparent dark:border-slate-700/60 transition-colors">
       <PostHeader
@@ -423,7 +476,8 @@ export default function PostCard({
         profileUrl={post.profileUrl}
         profileId={post.userId}
         isFollowing={post.isFollowedByCurrentUser}
-        onFollow={handleFollow} currentUserId={getUserId()}
+        onFollow={handleFollow}
+        currentUserId={getUserId()}
         createdAt={post.createdDate}
         onDelete={() => setOpenModal(true)}
         onEdit={handleEditPost}
@@ -444,18 +498,25 @@ export default function PostCard({
         onLike={handleLike}
         onSave={handleSave}
         onComment={() => setCommentsOpen(true)}
+        onShare={handleShare}
       />
 
-      <div onClick={() => setOpenLikes(true)}
-        className="px-4 text-sm font-semibold mt-1 cursor-pointer text-slate-900 dark:text-slate-100 hover:underline">
+      <div
+        onClick={() => setOpenLikes(true)}
+        className="px-4 text-sm font-semibold mt-1 cursor-pointer text-slate-900 dark:text-slate-100 "
+      >
         {post.likes} likes
       </div>
-      
-      {openLikes && (
-        <div onClick={() => setOpenLikes(false)}
-          className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-lg p-5 relative border border-transparent dark:border-slate-700" onClick={(e) => e.stopPropagation()}>
 
+      {openLikes && (
+        <div
+          onClick={() => setOpenLikes(false)}
+          className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+        >
+          <div
+            className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-lg p-5 relative border border-transparent dark:border-slate-700"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => setOpenLikes(false)}
               className="absolute top-3 right-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
@@ -463,44 +524,46 @@ export default function PostCard({
               ✕
             </button>
 
-            <h3 className="text-lg font-semibold mb-4 text-slate-900 dark:text-slate-100">Likes</h3>
+            <h3 className="text-lg font-semibold mb-4 text-slate-900 dark:text-slate-100">
+              Likes
+            </h3>
 
             <LikesList type="post" id={post.id} />
-
           </div>
         </div>
       )}
-      
+
       {hasMedia && (
         <PostContent
           description={post.description}
           className="px-4 mt-1 text-sm text-slate-800 dark:text-slate-200"
         />
       )}
-      
+
       {(post.comments ?? 0) > 0 && (
         <div
           className="px-4 pb-3 text-sm text-slate-500 dark:text-slate-400 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
           onClick={() => setCommentsOpen(true)}
         >
-          View all {post.comments} {post.comments === 1 ? "comment" : "comments"}        
+          View all {post.comments}{" "}
+          {post.comments === 1 ? "comment" : "comments"}
         </div>
       )}
-      
+
       <CommentsModal
         open={commentsOpen}
         onClose={() => setCommentsOpen(false)}
         postId={post.id}
         currentUserId={getUserId() || ""}
       />
-      
+
       <ConfirmModal
         open={openModal}
         onClose={() => setOpenModal(false)}
         onConfirm={handleDelete}
         itemType={"post"}
       />
-      
+
       {editModalOpen && (
         <EditPostModal
           postId={post.id}

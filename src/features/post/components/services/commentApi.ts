@@ -21,7 +21,6 @@ export async function fetchComments(postId: string, page = 1, pageSize = 20) {
     headers: { Authorization: `Bearer ${token}` },
   });
   const text = await res.text();
-  console.log("TOKEN:", token);
   return text ? JSON.parse(text) : { data: { items: [] } };
 }
 
