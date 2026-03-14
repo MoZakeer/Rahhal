@@ -2,8 +2,9 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import type { EditMedia } from "../services/editPost";
 import toast from "react-hot-toast";
-
+import { useQueryClient } from "@tanstack/react-query";
 export function useEditPost(postId: string) {
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -64,8 +65,9 @@ export function useEditPost(postId: string) {
             : `${BASE_URL}${data.profileURL}`
           : DEFAULT_AVATAR,
       });
-    } catch (err) {
-      console.log("Error fetching post", err);
+    } catch ( err) {
+      toast.error("Failed to load post: " + err);
+
 
       setUser({
         name: "Unknown User",
@@ -118,10 +120,11 @@ export function useEditPost(postId: string) {
     toast.success("Post updated successfully");
 
     navigate("/feed");
+                queryClient.invalidateQueries({ queryKey: ["posts"] });
+
 
   } catch (err) {
-    console.log("Error updating post ❌", err);
-    toast.error("Failed to update post");
+    toast.error("Failed to update post ,error: " + err);
   } finally {
     setLoading(false);
   }

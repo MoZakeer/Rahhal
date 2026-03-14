@@ -9,7 +9,7 @@ import MyEmojiPicker from "../../chat/components/EmojiPicker";
 import { HiOutlineFaceSmile } from "react-icons/hi2";
 import { LikesList } from "./LikesList";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
-
+import toast from "react-hot-toast";
 type CommentItem = {
   commentId: string;
   profileId: string;
@@ -94,7 +94,7 @@ export function CommentsModal({
       const data = await commentApi.fetchComments(postId);
       setComments(data.data.items || []);
     } catch (err) {
-      console.error(err);
+      toast.error("Failed to fetch comments: " + err);
     } finally {
       setLoading(false);
     }
@@ -105,7 +105,7 @@ export function CommentsModal({
       const data = await commentApi.fetchReplies(parentId);
       setRepliesMap((prev) => ({ ...prev, [parentId]: data.data.items || [] }));
     } catch (err) {
-      console.error(err);
+      toast.error("Failed to fetch replies: " + err);
       setRepliesMap((prev) => ({ ...prev, [parentId]: [] }));
     }
   };
@@ -227,8 +227,7 @@ export function CommentsModal({
         queryKey: ["likes", "comment", commentId],
       });
     } catch (error) {
-      console.error("Like failed", error);
-      fetchComments();
+      toast.error("Failed to like comment: " + error);
       if (parentId) fetchReplies(parentId);
     }
   };
@@ -572,27 +571,63 @@ export function CommentsModal({
                 </span>
               </div>
 
-              <div className="relative flex gap-2 items-center flex-wrap w-full">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowReplyEmoji((prev) => !prev);
-                    setShowCommentEmoji(false);
-                  }}
-                  className="cursor-pointer transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded-full"
-                >
-                  <HiOutlineFaceSmile className="w-7 h-7 text-slate-700 dark:text-slate-300" />
-                </button>
+              <div className="relative flex flex-col gap-2 w-full">
+                {/* Row 1: Emoji button + Input */}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowReplyEmoji((prev) => !prev);
+                      setShowCommentEmoji(false);
+                    }}
+                    className="flex-shrink-0 cursor-pointer transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded-full"
+                  >
+                    <HiOutlineFaceSmile className="w-6 h-6 sm:w-7 sm:h-7 text-slate-700 dark:text-slate-300" />
+                  </button>
 
+                  <input
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    placeholder="Write a reply..."
+                    className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-indigo-500 dark:focus:border-indigo-400"
+                  />
+                </div>
+
+                {/* Row 2: Action buttons (right-aligned) */}
+  <div className="flex items-center justify-end gap-1.5 pl-8">
+    <button
+      onClick={() => {
+        setReplyingTo(null);
+        setReplyingToName(null);
+        setReplyText("");
+      }}
+      className="flex-shrink-0 text-xs font-semibold px-3 py-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
+    >
+      Cancel
+    </button>
+
+    <button
+      onClick={() => handleAddComment(id)}
+      disabled={!replyText.trim() || addCommentMutation.isPending}
+      className={`flex-shrink-0 text-xs font-semibold px-3 py-1 rounded-full transition-colors ${
+        replyText.trim()
+          ? "text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700"
+          : "text-slate-400 dark:text-slate-500 cursor-not-allowed"
+      }`}
+    >
+      {addCommentMutation.isPending && actionType === "reply"
+        ? "Replying..."
+        : "Reply"}
+    </button>
+  </div>
+
+                {/* Emoji Picker */}
                 {showReplyEmoji && (
                   <div
-                    className="absolute -left-8 bottom-full -mb-17 z-50 flex"
+                    className="absolute left-0 bottom-full mb-2 z-50"
                     onClick={() => setShowReplyEmoji(false)}
                   >
-                    <div
-                      className="ml-6 mb-24"
-                      onClick={(e) => e.stopPropagation()}
-                    >
+                    <div onClick={(e) => e.stopPropagation()}>
                       <MyEmojiPicker
                         onSelect={handleEmojiSelect}
                         width={300}
@@ -601,37 +636,6 @@ export function CommentsModal({
                     </div>
                   </div>
                 )}
-                <input
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  placeholder="Write a reply..."
-                  className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-indigo-500 dark:focus:border-indigo-400"
-                />
-
-                <button
-                  onClick={() => handleAddComment(id)}
-                  disabled={!replyText.trim() || addCommentMutation.isPending}
-                  className={`flex-shrink-0 text-sm font-semibold px-4 py-2 rounded-full transition-colors ${
-                    replyText.trim()
-                      ? "text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700"
-                      : "text-slate-400 dark:text-slate-500 cursor-not-allowed"
-                  }`}
-                >
-                  {addCommentMutation.isPending && actionType === "reply"
-                    ? "Replying..."
-                    : "Reply"}{" "}
-                </button>
-
-                <button
-                  onClick={() => {
-                    setReplyingTo(null);
-                    setReplyingToName(null);
-                    setReplyText("");
-                  }}
-                  className="flex-shrink-0 text-sm font-semibold px-3 py-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
-                >
-                  Cancel
-                </button>
               </div>
             </div>
           )}

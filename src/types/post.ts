@@ -36,6 +36,12 @@ createdDate?: string;
   isSaved: boolean;
   isFollowedByCurrentUser: boolean;
 }
+export interface PostDetailsResponse {
+  data: PostDetails;
+  isSuccess: boolean;
+  message: string;
+  errorCode: number;
+}
 export interface PostMediaItem {
   id: string;
   url: string;

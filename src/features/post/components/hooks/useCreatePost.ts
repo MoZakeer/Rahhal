@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import type { EditMedia } from "../services/createPost";
 import toast from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
 export function useCreatePost() {
+    const queryClient = useQueryClient();
+
   const navigate = useNavigate();
   const DEFAULT_AVATAR = "https://www.gravatar.com/avatar/?d=mp&f=y";
 
@@ -89,6 +92,8 @@ export function useCreatePost() {
       setCaption("");
       setMedia([]);
       navigate("/feed");
+            queryClient.invalidateQueries({ queryKey: ["posts"] });
+
  toast("All set! Your post is out there", {
             duration: 2000,
   style: {

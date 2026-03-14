@@ -1,7 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getPosts, likePost, savePost, deletePost } from "../services/posts.api";
-import type { PostsResponse } from "../../../../types/post";
+import {
+  getPosts,
+  likePost,
+  savePost,
+  deletePost,
+} from "../services/posts.api";
+import type { PostsResponse, PostDetails } from "../../../../types/post";
 import type { InfiniteData } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
+
+interface PostContext {
+  previousPosts?: InfiniteData<PostsResponse>;
+  previousPost?: PostDetails;
+}
+
+// ─── GET POSTS ───────────────────────────────────────────────────────────────
 export function usePosts() {
   return useQuery({
     queryKey: ["posts"],
@@ -9,78 +22,123 @@ export function usePosts() {
   });
 }
 
-
+// ─── LIKE ────────────────────────────────────────────────────────────────────
 export function useLikePost() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<void, Error, string, PostContext>({
     mutationFn: likePost,
 
     onMutate: async (postId: string) => {
       await queryClient.cancelQueries({ queryKey: ["posts"] });
+      await queryClient.cancelQueries({ queryKey: ["PostDetails", postId] });
 
       const previousPosts =
         queryClient.getQueryData<InfiniteData<PostsResponse>>(["posts"]);
+      const previousPost = queryClient.getQueryData<PostDetails>([
+        "PostDetails",
+        postId,
+      ]);
 
-      queryClient.setQueryData<InfiniteData<PostsResponse>>(
-        ["posts"],
-        (old) => {
-          if (!old) return old;
+      // Optimistic update: feed cache
+      queryClient.setQueryData<InfiniteData<PostsResponse>>(["posts"], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            data: {
+              ...page.data,
+              items: page.data.items.map((p) =>
+                p.id === postId
+                  ? {
+                      ...p,
+                      isLiked: !p.isLiked,
+                      likes: p.isLiked
+                        ? Math.max(0, (p.likes ?? 0) - 1)
+                        : (p.likes ?? 0) + 1,
+                    }
+                  : p
+              ),
+            },
+          })),
+        };
+      });
 
-          return {
-            ...old,
-            pages: old.pages.map((page) => ({
-              ...page,
-              data: {
-                ...page.data,
-                items: page.data.items.map((p) =>
-                  p.id === postId
-                    ? {
-                        ...p,
-                        isLiked: !p.isLiked,
-                        likes: p.isLiked
-                          ? (p.likes ?? 0) - 1
-                          : (p.likes ?? 0) + 1,
-                      }
-                    : p
-                ),
-              },
-            })),
-          };
-        }
-      );
+      // ✅ Optimistic update: PostDetails cache
+      if (previousPost) {
+        queryClient.setQueryData<PostDetails>(["PostDetails", postId], {
+          ...previousPost,
+          isLiked: !previousPost.isLiked,
+          likes: previousPost.isLiked
+            ? Math.max(0, (previousPost.likes ?? 0) - 1)
+            : (previousPost.likes ?? 0) + 1,
+        });
+      }
 
-      return { previousPosts };
+      return { previousPosts, previousPost };
     },
 
-    onError: (_err, _postId, context) => {
-      if (context?.previousPosts) {
-        queryClient.setQueryData(["posts"], context.previousPosts);
+    // ✅ Sync PostDetails cache with confirmed value from feed
+    onSuccess: (_data, postId) => {
+      const feedPost = queryClient
+        .getQueryData<InfiniteData<PostsResponse>>(["posts"])
+        ?.pages.flatMap((p) => p.data.items)
+        .find((p) => p.id === postId);
+
+      if (feedPost) {
+        const currentPost = queryClient.getQueryData<PostDetails>([
+          "PostDetails",
+          postId,
+        ]);
+        if (currentPost) {
+          queryClient.setQueryData<PostDetails>(["PostDetails", postId], {
+            ...currentPost,
+            isLiked: feedPost.isLiked,
+            likes: feedPost.likes,
+          });
+        }
       }
     },
 
+    onError: (_err, postId, context) => {
+      if (context?.previousPosts) {
+        queryClient.setQueryData(["posts"], context.previousPosts);
+      }
+      if (context?.previousPost) {
+        queryClient.setQueryData(["PostDetails", postId], context.previousPost);
+      }
+      toast.error("Action failed");
+    },
+
+    
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["likes"] });
     },
-     
   });
 }
+
+// ─── SAVE ────────────────────────────────────────────────────────────────────
 export function useSavePost() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<void, Error, string, PostContext>({
     mutationFn: savePost,
 
     onMutate: async (postId: string) => {
       await queryClient.cancelQueries({ queryKey: ["posts"] });
+      await queryClient.cancelQueries({ queryKey: ["PostDetails", postId] });
 
-      const previousPosts = queryClient.getQueryData(["posts"]);
+      const previousPosts =
+        queryClient.getQueryData<InfiniteData<PostsResponse>>(["posts"]);
+      const previousPost = queryClient.getQueryData<PostDetails>([
+        "PostDetails",
+        postId,
+      ]);
 
-queryClient.setQueryData<InfiniteData<PostsResponse>>(
-        ["posts"],
-        (old) => {        if (!old) return old;
-
+      // Optimistic update: feed cache
+      queryClient.setQueryData<InfiniteData<PostsResponse>>(["posts"], (old) => {
+        if (!old) return old;
         return {
           ...old,
           pages: old.pages.map((page) => ({
@@ -97,28 +155,65 @@ queryClient.setQueryData<InfiniteData<PostsResponse>>(
         };
       });
 
-      return { previousPosts };
+      if (previousPost) {
+        queryClient.setQueryData<PostDetails>(["PostDetails", postId], {
+          ...previousPost,
+          isSaved: !previousPost.isSaved,
+        });
+      }
+
+      return { previousPosts, previousPost };
     },
 
-    onError: (_err, _postId, context) => {
-      if (context?.previousPosts) {
-        queryClient.setQueryData(["posts"], context.previousPosts);
+    onSuccess: (_data, postId) => {
+      const feedPost = queryClient
+        .getQueryData<InfiniteData<PostsResponse>>(["posts"])
+        ?.pages.flatMap((p) => p.data.items)
+        .find((p) => p.id === postId);
+
+      if (feedPost) {
+        const currentPost = queryClient.getQueryData<PostDetails>([
+          "PostDetails",
+          postId,
+        ]);
+        if (currentPost) {
+          queryClient.setQueryData<PostDetails>(["PostDetails", postId], {
+            ...currentPost,
+            isSaved: feedPost.isSaved,
+          });
+        }
       }
     },
 
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    onError: (_err, postId, context) => {
+      if (context?.previousPosts) {
+        queryClient.setQueryData(["posts"], context.previousPosts);
+      }
+      if (context?.previousPost) {
+        queryClient.setQueryData(["PostDetails", postId], context.previousPost);
+      }
+      toast.error("Action failed");
     },
+
+    onSettled: () => {},
   });
 }
+
+// ─── DELETE ──────────────────────────────────────────────────────────────────
 export function useDeletePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: deletePost,
 
-    onSuccess: () => {
+    onSuccess: (_, postId) => {
+      
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.removeQueries({ queryKey: ["PostDetails", postId] });
+    },
+
+    onError: () => {
+      toast.error("Failed to delete post");
     },
   });
 }

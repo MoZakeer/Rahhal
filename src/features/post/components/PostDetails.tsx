@@ -21,8 +21,8 @@ import {
   Trash2,
   Flag,
   GlobeIcon,
-    MessageCircle,
-    Share2,
+  MessageCircle,
+  Share2,
 } from "lucide-react";
 import { Bookmark } from "lucide-react";
 import { HeartIcon } from "@heroicons/react/24/outline";
@@ -32,7 +32,7 @@ import { useRef } from "react";
 import { useEffect } from "react";
 // The New Hook
 import { usePostDetailsActions } from "./hooks/usePostDetails";
-import {  Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import * as commentApi from "../components/services/commentApi";
 
 import Skeleton from "react-loading-skeleton";
@@ -82,7 +82,7 @@ export function PostHeader({
   profileUrl,
   profileId,
   currentUserId,
-  isFollowing,
+  isFollowed,
   createdAt,
   onEdit,
   onDelete,
@@ -93,7 +93,7 @@ export function PostHeader({
   profileUrl: string;
   profileId: string;
   currentUserId: string;
-  isFollowing?: boolean;
+  isFollowed?: boolean;
   createdAt?: string;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -166,12 +166,12 @@ export function PostHeader({
           <button
             onClick={onFollow}
             className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${
-              isFollowing
+              isFollowed
                 ? "bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                 : "bg-slate-900 dark:bg-indigo-600 border border-slate-900 dark:border-indigo-600 text-white hover:bg-slate-800 dark:hover:bg-indigo-700"
             }`}
           >
-            {isFollowing ? "Following" : "Follow"}
+            {isFollowed ? "Following" : "Follow"}
           </button>
         )}
 
@@ -432,7 +432,7 @@ export function CommentsModal({
       const data = await commentApi.fetchComments(postId);
       setComments(data.data.items || []);
     } catch (err) {
-      console.error(err);
+      toast.error("Failed to fetch comments: " + err);
     } finally {
       setLoading(false);
     }
@@ -443,8 +443,7 @@ export function CommentsModal({
       const data = await commentApi.fetchReplies(parentId);
       setRepliesMap((prev) => ({ ...prev, [parentId]: data.data.items || [] }));
     } catch (err) {
-      console.error(err);
-      setRepliesMap((prev) => ({ ...prev, [parentId]: [] }));
+      toast.error("Failed to fetch replies: " + err);
     }
   };
 
@@ -565,7 +564,7 @@ export function CommentsModal({
         queryKey: ["likes", "comment", commentId],
       });
     } catch (error) {
-      console.error("Like failed", error);
+      toast.error("Failed to like comment" + error);
       fetchComments();
       if (parentId) fetchReplies(parentId);
     }
@@ -766,7 +765,7 @@ export function CommentsModal({
             </div>
           </div>
 
-          <div className="mt-1 flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
+          <div className="mt-1 flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
             <span>{formatDate(comment.createdDate)}</span>
             <div className="flex items-center gap-1">
               <button
@@ -910,27 +909,62 @@ export function CommentsModal({
                 </span>
               </div>
 
-              <div className="relative flex gap-2 items-center flex-wrap w-full">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowReplyEmoji((prev) => !prev);
-                    setShowCommentEmoji(false);
-                  }}
-                  className="cursor-pointer transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded-full"
-                >
-                  <HiOutlineFaceSmile className="w-7 h-7 text-slate-700 dark:text-slate-300" />
-                </button>
+              <div className="relative flex flex-col gap-2 w-full">
+                {/* Row 1: Emoji button + Input */}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowReplyEmoji((prev) => !prev);
+                      setShowCommentEmoji(false);
+                    }}
+                    className="flex-shrink-0 cursor-pointer transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded-full"
+                  >
+                    <HiOutlineFaceSmile className="w-6 h-6 sm:w-7 sm:h-7 text-slate-700 dark:text-slate-300" />
+                  </button>
 
+                  <input
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    placeholder="Write a reply..."
+                    className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-indigo-500 dark:focus:border-indigo-400"
+                  />
+                </div>
+                {/* Row 2: Action buttons (right-aligned) */}
+                <div className="flex items-center justify-end gap-1.5 pl-8">
+                  <button
+                    onClick={() => {
+                      setReplyingTo(null);
+                      setReplyingToName(null);
+                      setReplyText("");
+                    }}
+                    className="flex-shrink-0 text-xs font-semibold px-3 py-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    onClick={() => handleAddComment(id)}
+                    disabled={!replyText.trim() || addCommentMutation.isPending}
+                    className={`flex-shrink-0 text-xs font-semibold px-3 py-1 rounded-full transition-colors ${
+                      replyText.trim()
+                        ? "text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700"
+                        : "text-slate-400 dark:text-slate-500 cursor-not-allowed"
+                    }`}
+                  >
+                    {addCommentMutation.isPending && actionType === "reply"
+                      ? "Replying..."
+                      : "Reply"}
+                  </button>
+                </div>
+
+                {/* Emoji Picker */}
                 {showReplyEmoji && (
                   <div
-                    className="absolute -left-8 bottom-full -mb-17 z-50 flex"
+                    className="absolute left-0 bottom-full mb-2 z-50"
                     onClick={() => setShowReplyEmoji(false)}
                   >
-                    <div
-                      className="ml-6 mb-24"
-                      onClick={(e) => e.stopPropagation()}
-                    >
+                    <div onClick={(e) => e.stopPropagation()}>
                       <MyEmojiPicker
                         onSelect={handleEmojiSelect}
                         width={300}
@@ -939,37 +973,6 @@ export function CommentsModal({
                     </div>
                   </div>
                 )}
-                <input
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  placeholder="Write a reply..."
-                  className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-indigo-500 dark:focus:border-indigo-400"
-                />
-
-                <button
-                  onClick={() => handleAddComment(id)}
-                  disabled={!replyText.trim() || addCommentMutation.isPending}
-                  className={`flex-shrink-0 text-sm font-semibold px-4 py-2 rounded-full transition-colors ${
-                    replyText.trim()
-                      ? "text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700"
-                      : "text-slate-400 dark:text-slate-500 cursor-not-allowed"
-                  }`}
-                >
-                  {addCommentMutation.isPending && actionType === "reply"
-                    ? "Replying..."
-                    : "Reply"}{" "}
-                </button>
-
-                <button
-                  onClick={() => {
-                    setReplyingTo(null);
-                    setReplyingToName(null);
-                    setReplyText("");
-                  }}
-                  className="flex-shrink-0 text-sm font-semibold px-3 py-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
-                >
-                  Cancel
-                </button>
               </div>
             </div>
           )}
@@ -979,86 +982,86 @@ export function CommentsModal({
   };
 
   return (
-  <div className="w-full mt-2 border-t border-slate-50 dark:border-slate-700/50 bg-white dark:bg-slate-800 rounded-b-2xl overflow-hidden">
-  <div className="flex items-center justify-between px-4 py-3  border-slate-100 dark:border-slate-700/50">
-    <div className=" text-slate-400 dark:text-slate-100 text-sm">
-      Comments {comments.length}
-    </div>
-  </div>
-
-  <div className="max-h-[500px] overflow-y-auto px-4 py-4 space-y-5 custom-scrollbar scrollbar-hide scroll-smooth">
-    {loading ? (
-      <div className="space-y-4 dark:opacity-60 transition-opacity">
-        <Skeleton height={20} width={200} />
-        <Skeleton height={15} count={3} />
-        <Skeleton height={200} />
+    <div className="w-full mt-2 border-t border-slate-50 dark:border-slate-700/50 bg-white dark:bg-slate-800 rounded-b-2xl overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-3  border-slate-100 dark:border-slate-700/50">
+        <div className=" text-slate-400 dark:text-slate-100 text-sm">
+          Comments {comments.length}
+        </div>
       </div>
-    ) : comments.length === 0 ? (
-      <div className="text-center py-4 text-slate-500 dark:text-slate-400 text-sm">
-        No comments yet. Be the first to share!
-      </div>
-    ) : (
-      comments.map((c) => renderComment(c))
-    )}
-    <div ref={commentsEndRef} />
-  </div>
 
-  {/* Input Area */}
-  <div className="relative w-full border-t border-slate-100 dark:border-slate-700/50 px-4 py-3 flex gap-3 items-center bg-slate-50/50 dark:bg-slate-900/20">
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => {
-          setShowCommentEmoji((prev) => !prev);
-          setShowReplyEmoji(false);
-        }}
-        className="cursor-pointer transition-all duration-300 hover:bg-slate-200 dark:hover:bg-slate-700 p-2 rounded-full"
-      >
-        <HiOutlineFaceSmile className="w-6 h-6 text-slate-500 dark:text-slate-400" />
-      </button>
-
-      {showCommentEmoji && (
-        <>
-          <div 
-            className="fixed inset-0 z-10" 
-            onClick={() => setShowCommentEmoji(false)} 
-          />
-          <div className="absolute bottom-full left-0 mb-2 z-20">
-            <MyEmojiPicker onSelect={handleEmojiSelectComment} />
+      <div className="max-h-[500px] overflow-y-auto px-4 py-4 space-y-5 custom-scrollbar scrollbar-hide scroll-smooth">
+        {loading ? (
+          <div className="space-y-4 dark:opacity-60 transition-opacity">
+            <Skeleton height={20} width={200} />
+            <Skeleton height={15} count={3} />
+            <Skeleton height={200} />
           </div>
-        </>
-      )}
+        ) : comments.length === 0 ? (
+          <div className="text-center py-4 text-slate-500 dark:text-slate-400 text-sm">
+            No comments yet. Be the first to share!
+          </div>
+        ) : (
+          comments.map((c) => renderComment(c))
+        )}
+        <div ref={commentsEndRef} />
+      </div>
+
+      {/* Input Area */}
+      <div className="relative w-full border-t border-slate-100 dark:border-slate-700/50 px-4 py-3 flex gap-3 items-center bg-slate-50/50 dark:bg-slate-900/20">
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => {
+              setShowCommentEmoji((prev) => !prev);
+              setShowReplyEmoji(false);
+            }}
+            className="cursor-pointer transition-all duration-300 hover:bg-slate-200 dark:hover:bg-slate-700 p-2 rounded-full"
+          >
+            <HiOutlineFaceSmile className="w-6 h-6 text-slate-500 dark:text-slate-400" />
+          </button>
+
+          {showCommentEmoji && (
+            <>
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setShowCommentEmoji(false)}
+              />
+              <div className="absolute bottom-full left-0 mb-2 z-20">
+                <MyEmojiPicker onSelect={handleEmojiSelectComment} />
+              </div>
+            </>
+          )}
+        </div>
+
+        <input
+          placeholder="Add a comment..."
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-400"
+        />
+
+        <button
+          onClick={() => handleAddComment()}
+          disabled={!newComment.trim() || addCommentMutation.isPending}
+          className={`flex-shrink-0 text-sm font-semibold px-4 py-2 rounded-full transition-colors ${
+            newComment.trim()
+              ? "bg-indigo-600 text-white hover:bg-indigo-700"
+              : "text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 cursor-not-allowed"
+          }`}
+        >
+          {addCommentMutation.isPending && actionType === "comment"
+            ? "Adding..."
+            : "Post"}
+        </button>
+      </div>
     </div>
-
-    <input
-      placeholder="Add a comment..."
-      value={newComment}
-      onChange={(e) => setNewComment(e.target.value)}
-      className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-400"
-    />
-
-    <button
-      onClick={() => handleAddComment()}
-      disabled={!newComment.trim() || addCommentMutation.isPending}
-      className={`flex-shrink-0 text-sm font-semibold px-4 py-2 rounded-full transition-colors ${
-        newComment.trim()
-          ? "bg-indigo-600 text-white hover:bg-indigo-700"
-          : "text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 cursor-not-allowed"
-      }`}
-    >
-      {addCommentMutation.isPending && actionType === "comment"
-        ? "Adding..."
-        : "Post"}
-    </button>
-  </div>
-</div>
   );
 }
 
 export default function PostDetailsPage() {
   const { postId } = useParams<{ postId: string }>();
   const currentUserId = getUserId() || "";
-  
+
   // Modal States
   const [openModal, setOpenModal] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -1080,7 +1083,11 @@ export default function PostDetailsPage() {
   const { like, save, follow, remove } = usePostDetailsActions(postId!);
 
   if (isLoading) {
-    return <div className="min-h-screen flex justify-center items-center">Loading...</div>;
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        Loading...
+      </div>
+    );
   }
 
   if (!PostDetails) {
@@ -1124,8 +1131,8 @@ export default function PostDetailsPage() {
         userName={PostDetails.userName}
         profileUrl={PostDetails.profileURL}
         profileId={PostDetails.userId}
-        isFollowing={PostDetails.isFollowedByCurrentUser}
-        onFollow={() => follow(PostDetails.userId)} 
+        isFollowed={PostDetails.isFollowedByCurrentUser ?? false}
+        onFollow={() => follow(PostDetails.userId)}
         currentUserId={currentUserId}
         createdAt={PostDetails.createdDate}
         onDelete={() => setOpenModal(true)}
@@ -1145,8 +1152,8 @@ export default function PostDetailsPage() {
       <PostActions
         liked={PostDetails.isLiked ?? false}
         saved={PostDetails.isSaved ?? false}
-        onLike={like} 
-        onSave={save} 
+        onLike={like}
+        onSave={save}
         onComment={() => document.getElementById("main-input")?.focus()}
         onShare={handleShare}
       />
@@ -1175,8 +1182,15 @@ export default function PostDetailsPage() {
             className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-5 relative"
             onClick={(e) => e.stopPropagation()}
           >
-            <button onClick={() => setOpenLikes(false)} className="absolute top-3 right-3">✕</button>
-            <h3 className="text-lg font-semibold mb-4 dark:text-white">Likes</h3>
+            <button
+              onClick={() => setOpenLikes(false)}
+              className="absolute top-3 right-3"
+            >
+              ✕
+            </button>
+            <h3 className="text-lg font-semibold mb-4 dark:text-white">
+              Likes
+            </h3>
             <LikesList type="post" id={PostDetails.id} />
           </div>
         </div>
@@ -1185,7 +1199,7 @@ export default function PostDetailsPage() {
       <ConfirmModal
         open={openModal}
         onClose={() => setOpenModal(false)}
-        onConfirm={remove} 
+        onConfirm={remove}
         itemType={"post"}
       />
 
@@ -1196,11 +1210,11 @@ export default function PostDetailsPage() {
         />
       )}
       <CommentsModal
-             open={commentsOpen}
-             onClose={() => setCommentsOpen(false)}
-             postId={PostDetails.id}
-             currentUserId={getUserId() || ""}
-           />
+        open={commentsOpen}
+        onClose={() => setCommentsOpen(false)}
+        postId={PostDetails.id}
+        currentUserId={getUserId() || ""}
+      />
     </div>
   );
 }

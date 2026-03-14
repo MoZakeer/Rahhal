@@ -125,7 +125,8 @@ export function PostHeader({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2" onClick={(e) => {
+    e.stopPropagation(); }}>
         {!isOwner && (
           <button
             onClick={onFollow}
@@ -468,6 +469,7 @@ export default function PostCard({ post }: { post: Post }) {
       }
     }
   };
+  
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm mb-6 max-w-xl mx-auto border border-transparent dark:border-slate-700/60 transition-colors">
       <PostHeader
