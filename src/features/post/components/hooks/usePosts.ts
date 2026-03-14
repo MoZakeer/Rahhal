@@ -8,13 +8,11 @@ import {
 import type { PostsResponse, PostDetails } from "../../../../types/post";
 import type { InfiniteData } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-
 interface PostContext {
   previousPosts?: InfiniteData<PostsResponse>;
   previousPost?: PostDetails;
 }
 
-// ─── GET POSTS ───────────────────────────────────────────────────────────────
 export function usePosts() {
   return useQuery({
     queryKey: ["posts"],
@@ -111,7 +109,9 @@ export function useLikePost() {
       toast.error("Action failed");
     },
 
-    
+    // ✅ No invalidation — manual sync handles everything
+    // invalidateQueries(["posts"]) would trigger GetAll refetch which
+    // corrupts isFollowedByCurrentUser with wrong value from backend
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["likes"] });
     },
@@ -155,6 +155,7 @@ export function useSavePost() {
         };
       });
 
+      // ✅ Optimistic update: PostDetails cache
       if (previousPost) {
         queryClient.setQueryData<PostDetails>(["PostDetails", postId], {
           ...previousPost,
@@ -165,6 +166,7 @@ export function useSavePost() {
       return { previousPosts, previousPost };
     },
 
+    // ✅ Sync PostDetails cache with confirmed value from feed
     onSuccess: (_data, postId) => {
       const feedPost = queryClient
         .getQueryData<InfiniteData<PostsResponse>>(["posts"])
@@ -195,6 +197,7 @@ export function useSavePost() {
       toast.error("Action failed");
     },
 
+    // ✅ No invalidation
     onSettled: () => {},
   });
 }
@@ -207,7 +210,8 @@ export function useDeletePost() {
     mutationFn: deletePost,
 
     onSuccess: (_, postId) => {
-      
+      // ✅ Safe to invalidate on delete — post is gone so
+      // isFollowedByCurrentUser corruption no longer matters
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.removeQueries({ queryKey: ["PostDetails", postId] });
     },

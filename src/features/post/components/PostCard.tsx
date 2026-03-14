@@ -29,7 +29,7 @@ import type { InfiniteData } from "@tanstack/react-query";
 import ConfirmModal from "../../ReportDetals/components/confirmModal";
 import { LikesList } from "./LikesList";
 import EditPostModal from "../components/EditPostModal";
-
+import type { PostDetails } from "../../../types/post";
 export function PostHeader({
   id,
   userName,
@@ -395,49 +395,91 @@ export default function PostCard({ post }: { post: Post }) {
 
   const queryClient = useQueryClient();
 
-  const followMutation = useMutation({
-    mutationFn: followUser,
-    onMutate: async (userId: string) => {
-      await queryClient.cancelQueries({ queryKey: ["posts"] });
+const followMutation = useMutation({
+  mutationFn: followUser,
 
-      const previousPosts = queryClient.getQueryData<
-        InfiniteData<PostsResponse>
-      >(["posts"]);
+  onMutate: async (userId: string) => {
+    await queryClient.cancelQueries({ queryKey: ["posts"] });
+    await queryClient.cancelQueries({ queryKey: ["PostDetails"] });
 
-      queryClient.setQueryData<InfiniteData<PostsResponse>>(
-        ["posts"],
-        (old) => {
-          if (!old) return old;
+    const previousPosts =
+      queryClient.getQueryData<InfiniteData<PostsResponse>>(["posts"]);
 
-          return {
-            ...old,
-            pages: old.pages.map((page) => ({
-              ...page,
-              data: {
-                ...page.data,
-                items: page.data.items.map((p) =>
-                  p.userId === userId
-                    ? {
-                        ...p,
-                        isFollowedByCurrentUser: !p.isFollowedByCurrentUser,
-                      }
-                    : p,
-                ),
-              },
-            })),
-          };
-        },
-      );
+    // Optimistic update: feed cache
+    queryClient.setQueryData<InfiniteData<PostsResponse>>(["posts"], (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        pages: old.pages.map((page) => ({
+          ...page,
+          data: {
+            ...page.data,
+            items: page.data.items.map((p) =>
+              p.userId === userId
+                ? {
+                    ...p,
+                    isFollowedByCurrentUser: !p.isFollowedByCurrentUser,
+                  }
+                : p
+            ),
+          },
+        })),
+      };
+    });
 
-      return { previousPosts };
-    },
+    // ✅ Optimistic update: PostDetails cache
+    // Find the post in feed to get its postId
+    const feedPost = queryClient
+      .getQueryData<InfiniteData<PostsResponse>>(["posts"])
+      ?.pages.flatMap((p) => p.data.items)
+      .find((p) => p.userId === userId);
 
-    onError: (_err, _userId, context) => {
-      if (context?.previousPosts) {
-        queryClient.setQueryData(["posts"], context.previousPosts);
+    if (feedPost) {
+      const currentPost = queryClient.getQueryData<PostDetails>([
+        "PostDetails",
+        feedPost.id,
+      ]);
+      if (currentPost) {
+        queryClient.setQueryData<PostDetails>(["PostDetails", feedPost.id], {
+          ...currentPost,
+          isFollowedByCurrentUser: !currentPost.isFollowedByCurrentUser,
+        });
       }
-    },
-  });
+    }
+
+    return { previousPosts };
+  },
+
+  // ✅ Sync PostDetails cache with confirmed value from feed
+  onSuccess: (_data, userId) => {
+    const feedPost = queryClient
+      .getQueryData<InfiniteData<PostsResponse>>(["posts"])
+      ?.pages.flatMap((p) => p.data.items)
+      .find((p) => p.userId === userId);
+
+    if (feedPost) {
+      const currentPost = queryClient.getQueryData<PostDetails>([
+        "PostDetails",
+        feedPost.id,
+      ]);
+      if (currentPost) {
+        queryClient.setQueryData<PostDetails>(["PostDetails", feedPost.id], {
+          ...currentPost,
+          isFollowedByCurrentUser: feedPost.isFollowedByCurrentUser,
+        });
+      }
+    }
+  },
+
+  onError: (_err, _userId, context) => {
+    if (context?.previousPosts) {
+      queryClient.setQueryData(["posts"], context.previousPosts);
+    }
+  },
+
+  // ✅ No invalidation — GetAll returns wrong isFollowedByCurrentUser
+  onSettled: () => {},
+});
 
   function handleFollow() {
     followMutation.mutate(post.userId);

@@ -107,7 +107,9 @@ export const usePostDetailsActions = (postId: string) => {
       toast.error("Action failed");
     },
 
-    
+    // ✅ No invalidation — manual sync handles everything
+    // invalidateQueries(["posts"]) would trigger GetAll refetch which
+    // corrupts isFollowedByCurrentUser with wrong value from backend
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["likes"] });
     },
@@ -158,6 +160,7 @@ export const usePostDetailsActions = (postId: string) => {
       return { previousPost, previousPosts };
     },
 
+    // ✅ Sync feed cache with confirmed value from PostDetails
     onSuccess: () => {
       const currentPost = queryClient.getQueryData<PostDetails>([
         "PostDetails",
@@ -196,6 +199,7 @@ export const usePostDetailsActions = (postId: string) => {
       toast.error("Action failed");
     },
 
+    // ✅ No invalidation
     onSettled: () => {},
   });
 
@@ -247,6 +251,7 @@ export const usePostDetailsActions = (postId: string) => {
       return { previousPost, previousPosts };
     },
 
+    // ✅ Sync feed cache with confirmed value from PostDetails
     onSuccess: (_data, userId) => {
       const currentPost = queryClient.getQueryData<PostDetails>([
         "PostDetails",
@@ -287,6 +292,7 @@ export const usePostDetailsActions = (postId: string) => {
       toast.error("Action failed");
     },
 
+    // ✅ No invalidation — GetAll returns wrong isFollowedByCurrentUser
     onSettled: () => {},
   });
 
