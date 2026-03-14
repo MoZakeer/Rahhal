@@ -1,6 +1,6 @@
 import { TrendingUp } from "lucide-react";
 import SearchComponent from "@/features/search/components/SearchComponent";
-import LiveRadar from "./LiveRadar";
+// import LiveRadar from "./LiveRadar";
 
 export function LeftSidebar() {
   return (
