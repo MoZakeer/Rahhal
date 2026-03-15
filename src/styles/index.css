@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
 @import "tailwindcss/preflight";
 @import "tailwindcss/theme";
 @import "tailwindcss/utilities";
@@ -6,8 +8,32 @@
    Design Tokens (Theme)
 ========================================= */
 @custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
-  /* ===== primary ===== */
+  /* ===== Rahhal Design System (priority) ===== */
+  --color-background: hsl(210 20% 98%);
+  --color-foreground: hsl(220 20% 10%);
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(220 20% 10%);
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(220 20% 10%);
+  --color-primary: hsl(199 89% 38%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-secondary: hsl(30 80% 55%);
+  --color-secondary-foreground: hsl(0 0% 100%);
+  --color-muted: hsl(210 15% 93%);
+  --color-muted-foreground: hsl(220 10% 45%);
+  --color-accent: hsl(199 60% 92%);
+  --color-accent-foreground: hsl(199 89% 28%);
+  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-destructive-foreground: hsl(210 40% 98%);
+  --color-success: hsl(152 60% 42%);
+  --color-success-foreground: hsl(0 0% 100%);
+  --color-border: hsl(210 15% 88%);
+  --color-input: hsl(210 15% 88%);
+  --color-ring: hsl(199 89% 38%);
+
+  /* ===== Primary Scale ===== */
   --color-primary-50: #eff6ff;
   --color-primary-100: #dbeafe;
   --color-primary-200: #bfdbfe;
@@ -17,7 +43,7 @@
   --color-primary-800: #1e40af;
   --color-primary-900: #1e3a8a;
 
-  /* ===== Gray ===== */
+  /* ===== Gray Scale ===== */
   --color-gray-0: #ffffff;
   --color-gray-50: #f9fafb;
   --color-gray-100: #f3f4f6;
@@ -31,12 +57,53 @@
   --color-gray-900: #111827;
 
   /* ===== Radius ===== */
+  --radius: 0.75rem;
   --radius-full: 9999px;
+
+  /* ===== Fonts ===== */
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'DM Sans', sans-serif;
+
+  /* ===== Shadows ===== */
+  --shadow-card: 0 4px 24px -4px hsl(199 89% 38% / 0.08);
+  --shadow-elevated: 0 12px 40px -8px hsl(199 89% 38% / 0.15);
+}
+
+/* =========================================
+   CSS Custom Properties (non-@theme)
+========================================= */
+:root {
+  --gradient-ocean: linear-gradient(135deg, hsl(199, 89%, 38%), hsl(199, 70%, 52%));
+  --gradient-sunset: linear-gradient(135deg, hsl(30, 80%, 55%), hsl(15, 85%, 55%));
+  --gradient-hero: linear-gradient(180deg, hsl(199 89% 38% / 0.7), hsl(199 89% 20% / 0.9));
+
+  /* === Brand Variables === */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --brand-primary: #0284c7;
+  --brand-hover: #0369a1;
+  --border-color: #e2e8f0;
+  --message-bg-sender: #e0f2fe;
+  --message-bg-receiver: #f1f5f9;
 }
 
 /* =========================================
    Dark Mode Overrides
 ========================================= */
+.dark {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --brand-primary: #38bdf8;
+  --brand-hover: #7dd3fc;
+  --border-color: #334155;
+  --message-bg-sender: #0c4a6e;
+  --message-bg-receiver: #334155;
+}
+
 :root.dark-mode {
   --color-gray-0: #0f172a;
   --color-gray-50: #020617;
@@ -56,39 +123,21 @@
 ========================================= */
 body {
   min-height: 100vh;
-  background-color: var(--color-gray-0);
-  color: var(--color-gray-900);
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: var(--color-background, var(--color-gray-0));
+  color: var(--color-foreground, var(--color-gray-900));
+  font-family: var(--font-body), system-ui, Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
-
-/* Light Mode (Default) */
-:root {
-  --bg-primary: #f8fafc;       /* لون الخلفية الأساسي للموقع */
-  --bg-secondary: #ffffff;     /* لون الكروت، البوستات، والـ Profile */
-  --text-primary: #0f172a;     /* لون العناوين والنصوص الأساسية */
-  --text-secondary: #475569;   /* لون النصوص الفرعية والتفاصيل */
-  --brand-primary: #0284c7;    /* لون البراند (أزرق بيعبر عن السفر والثقة) */
-  --brand-hover: #0369a1;      /* لون البراند عند الـ Hover */
-  --border-color: #e2e8f0;     /* لون الفواصل والحدود */
-  --message-bg-sender: #e0f2fe;/* خلفية رسايل المرسل */
-  --message-bg-receiver: #f1f5f9;/* خلفية رسايل المستقبل */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
 }
 
-/* Dark Mode */
-.dark {
-  --bg-primary: #0f172a;       /* لون الخلفية الأساسي (كحلي غامق جداً) */
-  --bg-secondary: #1e293b;     /* لون الكروت والبوستات */
-  --text-primary: #f8fafc;     /* لون العناوين (أبيض مائل للرمادي لراحة العين) */
-  --text-secondary: #94a3b8;   /* لون النصوص الفرعية */
-  --brand-primary: #38bdf8;    /* أزرق فاتح عشان ينطق في الدارك مود */
-  --brand-hover: #7dd3fc;      /* لون البراند عند الـ Hover */
-  --border-color: #334155;     /* لون الفواصل والحدود */
-  --message-bg-sender: #0c4a6e;/* خلفية رسايل المرسل */
-  --message-bg-receiver: #334155;/* خلفية رسايل المستقبل */
+html, body, #root {
+  height: 100%;
+  margin: 0;
 }
 
 /* =========================================
@@ -112,8 +161,7 @@ body {
 
 .input:focus {
   border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 2px
-    color-mix(in srgb, var(--color-primary-500) 40%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary-500) 40%, transparent);
 }
 
 /* =========================================
@@ -143,18 +191,13 @@ button.gradient-btn:hover {
 /* =========================================
    Scrollbar Hiding
 ========================================= */
-/* Chrome, Edge, Safari */
-.no-scrollbar::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-
-/* Firefox */
-.no-scrollbar {
+.no-scrollbar,
+.scrollbar-hide {
   scrollbar-width: none;
-}
-
-/* IE */
-.no-scrollbar {
   -ms-overflow-style: none;
 }
 
@@ -162,9 +205,9 @@ button.gradient-btn:hover {
    Animations
 ========================================= */
 @keyframes blob {
-  0%, 100% { transform: translate(0px,0px) scale(1); }
-  33% { transform: translate(30px,-50px) scale(1.1); }
-  66% { transform: translate(-20px,20px) scale(0.9); }
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
 }
 .animate-blob { animation: blob 8s infinite; }
 .animation-delay-2000 { animation-delay: 2s; }
@@ -184,7 +227,7 @@ button.gradient-btn:hover {
 .delay-200 { animation-delay: 0.2s; }
 
 /* =========================================
-   Gradient Text Utility
+   Gradient Text Utilities
 ========================================= */
 .text-gradient {
   background: linear-gradient(to right, #7c3aed, #ec4899, #f43f5e);
@@ -196,16 +239,9 @@ button.gradient-btn:hover {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-html, body, #root {
-  height: 100%;
-  margin: 0;
-}
-/* Hide scrollbar but keep scrolling */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.text-gradient-ocean {
+  background: var(--gradient-ocean);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

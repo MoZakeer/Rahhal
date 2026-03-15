@@ -76,7 +76,7 @@ export default function Navbar() {
 
   return (
     <header className={`fixed top-0 z-40 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${isNavVisible ? "translate-y-0" : "-translate-y-full"}`}>
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
+      <div className="mx-auto flex h-16 items-center justify-between px-4 md:px-6">
 
         {/* Logo */}
         <Link
