@@ -71,7 +71,7 @@ const TripDetail = () => {
         </div>
       </div>
 
-      <div className="  mt-6">
+      <div className="container mx-auto  mt-6">
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Main content */}
           <div className="lg:col-span-2 space-y-6">
