@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Compass, Plus, Sparkles, LayoutList, GitCompareArrows, Briefcase, Menu, X, Plane } from "lucide-react";
+import { Compass, Plus, Sparkles, LayoutList, GitCompareArrows, Menu, X, Plane } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
