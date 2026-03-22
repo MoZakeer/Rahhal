@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import PostCard from "../../post/components/PostCard";
+// import PostCard from "../../post/components/PostCard";
 import PostCardSkeleton from "../skeletons/PostCardSkeleton";
 import type { Post, PostMediaItem } from "../../../types/post";
+import ProfilePostCard from "./ProfilePostCard";
 
 interface SavedPostAPI {
   savedPostId: string;
@@ -76,7 +77,7 @@ const SavedPosts: React.FC<Props> = ({ isMyProfile, baseUrl }) => {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
         {[...Array(6)].map((_, i) => (
           <PostCardSkeleton key={i} />
         ))}
@@ -105,10 +106,10 @@ const SavedPosts: React.FC<Props> = ({ isMyProfile, baseUrl }) => {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
       {posts.map((post) => (
         <div key={post.id} className="max-w-full">
-          <PostCard post={post} />
+          <ProfilePostCard post={post} />
         </div>
       ))}
     </div>
