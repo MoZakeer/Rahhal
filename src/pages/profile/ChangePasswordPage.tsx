@@ -15,6 +15,9 @@ export default function ChangePasswordPage() {
   const { ChangePassword } = useProfileStore();
   const { register, handleSubmit } = useForm<ChangePasswordRequest>();
   const navigate = useNavigate();
+  const id=localStorage.getItem("auth");
+  const parsedId = id ? JSON.parse(id) : null;
+  const profileId = parsedId?.profileId;
 
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -33,7 +36,7 @@ export default function ChangePasswordPage() {
     });
 
     alert("Password changed successfully!");
-    navigate("/profile"); // يرجع لصفحة البروفيل بعد التغيير
+    navigate(`/profile/${profileId}`); 
   };
 
   return (
@@ -97,7 +100,7 @@ export default function ChangePasswordPage() {
           <div className="flex justify-between mt-6">
             <button
               type="button"
-              onClick={() => navigate("/profile")}
+              onClick={() => navigate(`/profile/${profileId}`)}
               className="px-6 py-3 border rounded-xl text-gray-700 hover:bg-gray-200"
             >
               Cancel
