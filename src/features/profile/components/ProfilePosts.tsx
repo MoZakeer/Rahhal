@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import PostCard from "../../post/components/PostCard";
+// import PostCard from "../../post/components/PostCard";
 import type { Post } from "../../../types/post";
 import PostCardSkeleton from "../skeletons/PostCardSkeleton"; 
+import ProfilePostCard from "./ProfilePostCard";
 
 interface Props {
   profileId: string;
@@ -53,7 +54,7 @@ const ProfilePosts = ({ profileId }: Props) => {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
         {[...Array(6)].map((_, i) => (
           <PostCardSkeleton key={i} />
         ))}
@@ -83,11 +84,11 @@ const ProfilePosts = ({ profileId }: Props) => {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
       {posts.map((post) => (
         <div key={post.id} className="max-w-full">
-          <PostCard post={post} />
-        </div>
+        <ProfilePostCard post={post} />       
+         </div>
       ))}
     </div>
   );

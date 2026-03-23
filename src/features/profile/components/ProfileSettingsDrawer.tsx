@@ -19,7 +19,9 @@ export default function ProfileSettingsDrawer({
   localStorage.clear();
   navigate("/landing-page");
 };
-
+const auth = localStorage.getItem("auth");
+const parsedAuth = auth ? JSON.parse(auth) : null;
+const profileId = parsedAuth?.profileId;
   return (
     <AnimatePresence>
       {isOpen && (
@@ -51,7 +53,7 @@ export default function ProfileSettingsDrawer({
             <button
               onClick={() => {
                 onEditProfile();
-                onClose();
+                
               }}
               className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 transition"
             >
@@ -61,8 +63,8 @@ export default function ProfileSettingsDrawer({
 
             <button
               onClick={() => {
-                navigate("/profile/change_password"); 
-                onClose(); 
+                navigate(`/profile/${profileId}/change_password`);
+                
               }}
               className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 transition"
             >

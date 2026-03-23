@@ -30,7 +30,7 @@ import HomeFeed from "./feed/HomeFeed";
 import PostDetailsPage from "./feed/PostDetails";
 
 // Trips Pages
-import MyTrips from "./trips/MyTrips";
+// import MyTrips from "./trips/MyTrips";
 import TripDetail from "./TripDetail.tsx";
 import CreateTrip from "./CreateTrip.tsx";
 import AiPlanner from "./AiPlanner.tsx";
@@ -79,7 +79,7 @@ const Pages = () => {
             <Route element={<AuthLayout />}>
               <Route path="/forget-password" element={<ForgetPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/change-password" element={<ChangePassword />} />
+              <Route path="/:profileId/change-password" element={<ChangePassword />} />
               <Route path="/verify-email" element={<VerifyEmail />} />
               <Route path="/landing-page" element={<LandingPage />} />
               <Route path="/report_details/:id" element={<ReportsDetails />} />
@@ -108,9 +108,9 @@ const Pages = () => {
             <Route element={<MainLayout />}>
               {/* Profile */}
               <Route path="/profile/:profileId" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />} />
-              <Route path="/profile/edit" element={isAuthenticated ? <EditProfilePage /> : <Navigate to="/login" />} />
-              <Route path="/profile/change_password" element={isAuthenticated ? <ChangePasswordPage /> : <Navigate to="/login" />} />
-              
+              <Route path="/profile/:profileId/edit" element={isAuthenticated ? <EditProfilePage /> : <Navigate to="/login" />} />
+              <Route path="/profile/:profileId/change_password" element={isAuthenticated ? <ChangePasswordPage /> : <Navigate to="/login" />} />
+
               {/* Social / Feed / Explore */}
               <Route path="/feed" element={isAuthenticated ? <HomeFeed /> : <Navigate to="/login" />} />
               <Route path="/explore" element={isAuthenticated ? <Explore /> : <Navigate to="/login" />} />
