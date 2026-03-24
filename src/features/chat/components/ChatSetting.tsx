@@ -39,7 +39,7 @@ function ChatSettings() {
         className={`
     fixed right-0 top-0 h-full
     w-full sm:max-w-md
-    bg-white
+    bg-gray-0
     shadow-2xl
     transform transition-transform duration-300 ease-out
     flex flex-col

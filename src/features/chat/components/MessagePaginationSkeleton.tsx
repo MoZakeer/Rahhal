@@ -1,7 +1,17 @@
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { useTheme } from "@/context/ThemeContext";
 
 function MessagePaginationSkeleton() {
+  const { theme } = useTheme();
+
+  // 🎨 من design system
+  const baseColor =
+    theme === "dark" ? "var(--color-gray-200)" : "var(--color-gray-100)";
+
+  const highlightColor =
+    theme === "dark" ? "var(--color-gray-300)" : "var(--color-gray-200)";
+
   const skeletonMessages = [
     { type: "receive", lines: 2, width: "70%" },
     { type: "send", lines: 1, width: "50%" },
@@ -12,40 +22,25 @@ function MessagePaginationSkeleton() {
   ];
 
   return (
-    <div className="flex flex-col gap-5 py-2 w-full px-10">
-      {skeletonMessages.map((msg, index) => {
-        const isSend = msg.type === "send";
+    <SkeletonTheme baseColor={baseColor} highlightColor={highlightColor}>
+      <div className="flex flex-col gap-5 py-2 w-full px-10">
+        {skeletonMessages.map((msg, index) => {
+          const isSend = msg.type === "send";
 
-        return (
-          <div
-            key={index}
-            className={`flex w-full ${isSend ? "justify-end" : "justify-start"}`}
-          >
-            {isSend ? (
-              <div className="bg-primary-600 p-3 rounded-2xl rounded-tr-none max-w-[75%] sm:max-w-[60%] w-64 shadow-sm">
-                <SkeletonTheme
-                  baseColor="rgba(255,255,255,0.2)"
-                  highlightColor="rgba(255,255,255,0.4)"
-                >
-                  {msg.lines && msg.lines > 1 && (
-                    <Skeleton
-                      count={msg.lines - 1}
-                      height={14}
-                      className="mb-1"
-                    />
-                  )}
-                  <Skeleton width={msg.width} height={14} />
-                </SkeletonTheme>
-              </div>
-            ) : (
-              <div className="bg-white border border-gray-200 p-3 rounded-2xl rounded-tl-none max-w-[75%] sm:max-w-[60%] w-72 shadow-sm">
-                {msg.isImage ? (
-                  <>
-                    <Skeleton height={150} className="mb-2 rounded-lg" />
-                    <Skeleton width="40%" height={14} />
-                  </>
-                ) : (
-                  <>
+          return (
+            <div
+              key={index}
+              className={`flex w-full ${
+                isSend ? "justify-end" : "justify-start"
+              }`}
+            >
+              {isSend ? (
+                <div className="bg-primary-600 p-3 rounded-2xl rounded-tr-none max-w-[75%] sm:max-w-[60%] w-64 shadow-sm">
+                  {/* send bubble skeleton */}
+                  <SkeletonTheme
+                    baseColor="rgba(255,255,255,0.2)"
+                    highlightColor="rgba(255,255,255,0.4)"
+                  >
                     {msg.lines && msg.lines > 1 && (
                       <Skeleton
                         count={msg.lines - 1}
@@ -54,14 +49,34 @@ function MessagePaginationSkeleton() {
                       />
                     )}
                     <Skeleton width={msg.width} height={14} />
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
+                  </SkeletonTheme>
+                </div>
+              ) : (
+                <div className="bg-gray-0 border border-gray-200 p-3 rounded-2xl rounded-tl-none max-w-[75%] sm:max-w-[60%] w-72 shadow-sm">
+                  {msg.isImage ? (
+                    <>
+                      <Skeleton height={150} className="mb-2 rounded-lg" />
+                      <Skeleton width="40%" height={14} />
+                    </>
+                  ) : (
+                    <>
+                      {msg.lines && msg.lines > 1 && (
+                        <Skeleton
+                          count={msg.lines - 1}
+                          height={14}
+                          className="mb-1"
+                        />
+                      )}
+                      <Skeleton width={msg.width} height={14} />
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </SkeletonTheme>
   );
 }
 

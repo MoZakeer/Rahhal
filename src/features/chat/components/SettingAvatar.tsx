@@ -18,7 +18,7 @@ function SettingAvatar({
       >
         <img
           src={avatar}
-          className="w-36 h-36 rounded-full object-cover border-4 border-white shadow-md ring-4 ring-gray-100"
+          className="w-36 h-36 rounded-full object-cover border-4 border-gray-0 shadow-md ring-4 ring-gray-100"
         />
 
         <label

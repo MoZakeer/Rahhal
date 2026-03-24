@@ -15,7 +15,7 @@ function ChatHeader({ title, avatar }: { title: string; avatar: string }) {
       <Link to="settings" className="flex gap-4">
         <Avatar src={avatar} />
         <div className="self-start">
-          <h4 className="text-lg font-semibold ">{title}</h4>
+          <h4 className="text-lg font-semibold text-gray-900 ">{title}</h4>
           {/* <p
             className={`text-gray-500 font-normal 
             ${isOnline ? "text-green-700 font-medium" : ""} `}
