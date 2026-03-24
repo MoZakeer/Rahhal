@@ -10,31 +10,22 @@ export const useSignalRConnection = () => {
   const { user } = useUser();
 
   useEffect(() => {
-    // لو مفيش يوزر أو توكن مش هنبدأ الاتصال
     if (!user?.token) return;
 
-    // إعداد الاتصال
     const newConnection = new signalR.HubConnectionBuilder()
       .withUrl(`${BASE_URL}/Realtime/ChatHub`, {
-        accessTokenFactory: () => user.token, // إرسال التوكن للسيرفر
+        accessTokenFactory: () => user.token,
       })
-      .withAutomaticReconnect() // إعادة الاتصال تلقائياً لو النت فصل
+      .withAutomaticReconnect()
       .build();
 
-    // بدء الاتصال
-    newConnection
-      .start()
-      .then(() => {
-        console.log("✅ تم الاتصال بـ SignalR بنجاح");
-        setConnection(newConnection);
-      })
-      .catch((err) => console.error("❌ فشل الاتصال بـ SignalR:", err));
+    newConnection.start().then(() => {
+      setConnection(newConnection);
+    });
 
-    // قفل الاتصال لما اليوزر يقفل الموقع
     return () => {
       newConnection.stop();
     };
   }, [user?.token]);
-
-  return connection; // بنرجع الـ connection عشان نستخدمه في باقي الأماكن
+  return connection;
 };
