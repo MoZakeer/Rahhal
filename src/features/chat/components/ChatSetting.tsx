@@ -21,8 +21,9 @@ function ChatSettings() {
   }
   const settings = data?.data;
   const mainInfo = {
-    title: settings?.title || "",
+    name: settings?.title || "",
     description: settings?.description || "",
+    isGroup: settings?.isGroup || false,
     avatar: conversationImage({
       isGroup: settings?.isGroup || false,
       conversationPictureURL: settings?.conversationPictureURL,
@@ -38,7 +39,7 @@ function ChatSettings() {
         className={`
     fixed right-0 top-0 h-full
     w-full sm:max-w-md
-    bg-white
+    bg-gray-0
     shadow-2xl
     transform transition-transform duration-300 ease-out
     flex flex-col
@@ -61,7 +62,7 @@ function ChatSettings() {
           <ChatSettingsSkeleton />
         ) : (
           <div className="flex-1 overflow-y-auto px-6 py-8 space-y-12">
-            <SettingInfo info={mainInfo} />
+            <SettingInfo chatInfo={mainInfo} />
             {settings?.isGroup && (
               <>
                 <GroupMembers

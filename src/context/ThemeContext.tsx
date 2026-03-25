@@ -1,4 +1,5 @@
-import { createContext, useState, useEffect } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useState, useEffect, useContext } from "react";
 import type { ReactNode } from "react";
 
 type Theme = "light" | "dark";
@@ -9,7 +10,7 @@ interface ThemeContextType {
 }
 
 export const ThemeContext = createContext<ThemeContextType | undefined>(
-  undefined
+  undefined,
 );
 
 interface ThemeProviderProps {
@@ -47,3 +48,12 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     </ThemeContext.Provider>
   );
 };
+export function useTheme() {
+  const context = useContext(ThemeContext);
+
+  if (!context) {
+    throw new Error("useTheme must be used within ThemeProvider");
+  }
+
+  return context;
+}

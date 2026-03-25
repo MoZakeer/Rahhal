@@ -24,7 +24,7 @@ function ChatWindow() {
   const { user } = useUser();
   useChatWindowUpdates(connection, conversationId, user?.userId);
 
-  if (isPending) return <ChatSkeleton />;
+  if (isPending ) return <ChatSkeleton />;
 
   const chatInfo = data?.pages?.[0]?.data;
 

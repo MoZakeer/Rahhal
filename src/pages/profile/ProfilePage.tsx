@@ -9,7 +9,10 @@ import SavedPosts from "../../features/profile/components/SavedPosts";
 
 import type { ProfileTab } from "../../features/profile/types/profile.types";
 
+import { usePageTitle } from "@/hooks/usePageTitle";
+
 const ProfilePage: React.FC = () => {
+  usePageTitle("Profile");
   const { profileId } = useParams<{ profileId: string }>();
 
   const auth = localStorage.getItem("auth");

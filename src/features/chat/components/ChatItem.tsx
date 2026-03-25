@@ -36,7 +36,7 @@ function ChatItem({ chat }: Props) {
         })}
       />
       <div className="flex flex-col">
-        <h4 className="text-xl font-medium">
+        <h4 className="text-xl font-medium text-gray-800">
           {isGroup ? groupTitle : otherUserName}
         </h4>
         <p className="whitespace-nowrap overflow-hidden text-ellipsis text-gray-500 w-64 sm:w-56">
