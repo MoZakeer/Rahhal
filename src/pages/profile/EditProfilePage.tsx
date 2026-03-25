@@ -41,7 +41,8 @@ export default function EditProfilePage() {
     const [showDreamDropdown, setShowDreamDropdown] = useState(false);
 
     const [loading, setLoading] = useState(false);
-
+    const [isPictureDeleted, setIsPictureDeleted] = useState(false);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     // const [travelPersonality, setTravelPersonality] = useState("");
     const profileSchema = z.object({
         Fname: z.string().min(1, "First name is required"),
@@ -59,98 +60,102 @@ export default function EditProfilePage() {
     const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormData>({
         resolver: zodResolver(profileSchema),
     });
-useEffect(() => {
-    const token = localStorage.getItem("token");
+    useEffect(() => {
+        const token = localStorage.getItem("token");
 
-    const fetchUserdata = async () => {
-        try {
-            setLoading(true);
+        const fetchUserdata = async () => {
+            try {
+                setLoading(true);
 
-            const res = await axios.get(
-                `https://rahhal-api.runasp.net/Profile/GetUserProfile?ProfileId=${profileId}`,
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+                const res = await axios.get(
+                    `https://rahhal-api.runasp.net/Profile/GetUserProfile?ProfileId=${profileId}`,
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
 
-            const data = res.data.data;
-            const names = data.fullName?.split(" ") || [];
+                const data = res.data.data;
+                const names = data.fullName?.split(" ") || [];
 
-            // Reset basic form fields
-            reset({
-                Fname: names[0] || "",
-                Lname: names.slice(1).join(" ") || "",
-                UserName: data.userName || "",
-                Bio: data.bio || "",
-                Location: data.location || "",
-                birthDate: data.birthDate ? data.birthDate.split("T")[0] : "",
-                Gender: data.gender?.toString() || "",
-                TravelPersonality: data.travelPersonality?.toString() || ""
-            });
+                // Reset basic form fields
+                reset({
+                    Fname: names[0] || "",
+                    Lname: names.slice(1).join(" ") || "",
+                    UserName: data.userName || "",
+                    Bio: data.bio || "",
+                    Location: data.location || "",
+                    birthDate: data.birthDate ? data.birthDate.split("T")[0] : "",
+                    Gender: data.gender?.toString() || "",
+                    TravelPersonality: data.travelPersonality?.toString() || ""
+                });
 
-            // Set travel personality
-            const personalityEntry = Object.entries(travelPersonalityMap).find(
-                ([, value]) => value.toString() === (data.travelPersonality?.toString() || "")
-            );
-            setSelectedPersonality(personalityEntry ? personalityEntry[0] : "");
+                // Set travel personality
+                const personalityEntry = Object.entries(travelPersonalityMap).find(
+                    ([, value]) => value.toString() === (data.travelPersonality?.toString() || "")
+                );
+                setSelectedPersonality(personalityEntry ? personalityEntry[0] : "");
 
-            // Set countries
-            setVisitedCountries(data.visitedCountries || []);
-            setDreamCountries(data.dreamDestinations || []);
+                // Set countries
+                setVisitedCountries(data.visitedCountries || []);
+                setDreamCountries(data.dreamDestinations || []);
 
-            
-            const preferenceNames = (data.travelPreferences || []).map((p: { name: string }) => p.name);
-            setSelectedPreferences(preferenceNames);
 
-            // Profile image
-            setPreviewImage(
-                data.profilePicture
-                    ? `https://rahhal-api.runasp.net${data.profilePicture}`
-                    : "/avatar.png"
-            );
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setLoading(false);
-        }
-    };
+                const preferenceNames = (data.travelPreferences || []).map((p: { name: string }) => p.name);
+                setSelectedPreferences(preferenceNames);
 
-    const fetchCountries = async () => {
-        try {
-            const res = await fetch("https://rahhal-api.runasp.net/Country/GetAll?SortByLastAdded=true", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            const json = await res.json();
-            if (Array.isArray(json.data)) setAllCountries(json.data);
-        } catch (err) {
-            console.error("Error fetching countries:", err);
-        }
-    };
+                // Profile image
+                setPreviewImage(
+                    data.profilePicture
+                        ? `https://rahhal-api.runasp.net${data.profilePicture}`
+                        : null
+                );
+            } catch (error) {
+                console.log(error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const fetchTravelPreferences = async () => {
-        try {
-            const res = await fetch("https://rahhal-api.runasp.net/TravelPreference/GetAll", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            const json = await res.json();
-            if (Array.isArray(json.data)) setTravelPreferences(json.data);
-        } catch (err) {
-            console.error("Error fetching travel preferences:", err);
-        }
-    };
+        const fetchCountries = async () => {
+            try {
+                const res = await fetch("https://rahhal-api.runasp.net/Country/GetAll?SortByLastAdded=true", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const json = await res.json();
+                if (Array.isArray(json.data)) setAllCountries(json.data);
+            } catch (err) {
+                console.error("Error fetching countries:", err);
+            }
+        };
 
-    fetchUserdata();
-    fetchCountries();
-    fetchTravelPreferences();
-}, []);
-  
+        const fetchTravelPreferences = async () => {
+            try {
+                const res = await fetch("https://rahhal-api.runasp.net/TravelPreference/GetAll", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const json = await res.json();
+                if (Array.isArray(json.data)) setTravelPreferences(json.data);
+            } catch (err) {
+                console.error("Error fetching travel preferences:", err);
+            }
+        };
+
+        fetchUserdata();
+        fetchCountries();
+        fetchTravelPreferences();
+    }, []);
+
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+
+        setSelectedFile(file);
+        setIsPictureDeleted(false);
+
         const reader = new FileReader();
         reader.onloadend = () => setPreviewImage(reader.result as string);
         reader.readAsDataURL(file);
@@ -167,20 +172,25 @@ useEffect(() => {
             toast.error("Please select a travel personality!");
             return;
         }
+
         const birthDateISO = new Date(data.birthDate).toISOString();
         const formDataToSend = new FormData();
+
         formDataToSend.append("Fname", data.Fname);
         formDataToSend.append("Lname", data.Lname);
         formDataToSend.append("UserName", data.UserName);
         formDataToSend.append("Bio", data.Bio);
-
         formDataToSend.append("birthDate", birthDateISO);
-
         formDataToSend.append("Location", data.Location);
         formDataToSend.append("Gender", data.Gender);
+
         formDataToSend.append(
             "TravelPersonality",
-            (travelPersonalityMap[selectedPersonality as keyof typeof travelPersonalityMap] ?? 0).toString()
+            (
+                travelPersonalityMap[
+                selectedPersonality as keyof typeof travelPersonalityMap
+                ] ?? 0
+            ).toString()
         );
 
         selectedPreferences.forEach((pref, idx) => {
@@ -188,18 +198,43 @@ useEffect(() => {
             if (tp) formDataToSend.append(`TravelPreferenceIds[${idx}]`, tp.id);
         });
 
-        visitedCountries.forEach((c, idx) => formDataToSend.append(`VisitedCountryIds[${idx}]`, c.id));
-        dreamCountries.forEach((c, idx) => formDataToSend.append(`DreamCountryIds[${idx}]`, c.id));
+        visitedCountries.forEach((c, idx) =>
+            formDataToSend.append(`VisitedCountryIds[${idx}]`, c.id)
+        );
 
-        if (previewImage?.startsWith("data:")) {
-            const blob = await fetch(previewImage).then((r) => r.blob());
-            formDataToSend.append("ProfilePicture", blob, "avatar.png");
+        dreamCountries.forEach((c, idx) =>
+            formDataToSend.append(`DreamCountryIds[${idx}]`, c.id)
+        );
+
+        // =============================
+        // Profile Picture Logic
+        // =============================
+
+        if (selectedFile) {
+            formDataToSend.append("ProfilePicture", selectedFile);
+            formDataToSend.append("IsPictureDeleted", "false");
+        } else if (isPictureDeleted) {
+            formDataToSend.append("ProfilePicture", "");
+            formDataToSend.append("IsPictureDeleted", "true");
+        } else {
+            formDataToSend.append("ProfilePicture", "");
+            formDataToSend.append("IsPictureDeleted", "false");
         }
-        console.log("Form data prepared, sending update request...", formDataToSend);
-        await updateProfile(formDataToSend);
-        await fetchProfile(profileId);
-        toast.success("Profile updated!");
-        navigate(`/profile/${profileId}`);
+
+        // Debug
+        for (const pair of formDataToSend.entries()) {
+            console.log(pair[0], pair[1]);
+        }
+
+        try {
+            await updateProfile(formDataToSend);
+            await fetchProfile(profileId);
+            toast.success("Profile updated!");
+            navigate(`/profile/${profileId}`);
+        } catch (error) {
+            toast.error("Failed to update profile");
+            console.log(error);
+        }
     };
 
     if (!profile) {
@@ -289,14 +324,39 @@ useEffect(() => {
                             Back
                         </button>
                         <div className="relative group">
-                            <div className="w-32 h-32 rounded-full ring-4 ring-white shadow-xl overflow-hidden">
-                                <img src={previewImage || '/avatar.png'} alt="Profile" className="w-full h-full object-cover" />
+                            <div className="w-32 h-32 rounded-full ring-4 ring-white shadow-xl overflow-hidden bg-gray-200 flex items-center justify-center">
+
+                                {previewImage ? (
+                                    <img
+                                        src={previewImage}
+                                        alt="Profile"
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <span className="text-4xl font-bold text-gray-600">
+                                        {profile?.fullName?.charAt(0)?.toUpperCase() || "U"}
+                                    </span>
+                                )}
+
                             </div>
                             <label htmlFor="avatar-upload" className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                 <span className="text-white text-sm font-medium">Change</span>
                                 <input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                             </label>
                         </div>
+                        {previewImage && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setPreviewImage(null);
+                                    setSelectedFile(null);
+                                    setIsPictureDeleted(true);
+                                }}
+                                className="mt-2 text-sm bg-red-600 text-white rounded-2xl py-3 px-2"
+                            >
+                                Remove Photo
+                            </button>
+                        )}
                         <h1 className="text-2xl font-bold text-gray-800 mt-2">Edit Profile</h1>
                         <p className="text-sm text-gray-500">Update your travel personality and preferences</p>
                     </div>

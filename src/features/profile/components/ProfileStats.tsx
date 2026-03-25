@@ -4,21 +4,26 @@ import { useProfileStore } from "../store/profile.store";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { X } from "lucide-react";
+import {
+  IoGlobeOutline,
+  IoPeopleOutline,
+  IoPersonAddOutline,
+} from "react-icons/io5";
 
 const container = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.08 } },
+  show: { transition: { staggerChildren: 0.06 } },
 };
 
 const item = {
-  hidden: { opacity: 0, y: 15 },
+  hidden: { opacity: 0, y: 8 },
   show: { opacity: 1, y: 0 },
 };
 
 const modalAnimation = {
-  hidden: { opacity: 0, scale: 0.9, y: 30 },
+  hidden: { opacity: 0, scale: 0.96, y: 15 },
   show: { opacity: 1, scale: 1, y: 0 },
-  exit: { opacity: 0, scale: 0.9, y: 30 },
+  exit: { opacity: 0, scale: 0.96, y: 15 },
 };
 
 interface Props {
@@ -49,7 +54,6 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
     return baseUrl + image;
   };
 
-  // close with ESC
   useEffect(() => {
     const close = (e: KeyboardEvent) => {
       if (e.key === "Escape") setShowModal(false);
@@ -62,20 +66,24 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
   if (!profile) return null;
 
   const statsToShow = [
-    { label: "Countries", value: profile.countriesCount },
-
+    {
+      label: "Countries",
+      value: profile.countriesCount,
+      icon: IoGlobeOutline,
+    },
     {
       label: "Followers",
       value: profile.followersCount,
       endpoint: "Followers/GetAllUserFollowers",
       key: "followers",
+      icon: IoPeopleOutline,
     },
-
     {
       label: "Following",
       value: profile.followingCount,
       endpoint: "Followers/GetAllUserFollowings",
       key: "followings",
+      icon: IoPersonAddOutline,
     },
   ];
 
@@ -117,38 +125,50 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
 
   return (
     <div className="relative">
+      {/* Stats */}
       <motion.div
         variants={container}
         initial="hidden"
         animate="show"
-        className="mt-6 flex justify-between bg-gray-50 rounded-xl p-4 shadow-sm"
+        className="mt-6 flex items-center justify-around text-center"
       >
-        {statsToShow.map((stat) => (
-          <motion.div
-            key={stat.label}
-            variants={item}
-            whileHover={{ scale: 1.05 }}
-            className="flex-1 text-center cursor-pointer"
-            onClick={() =>
-              stat.endpoint &&
-              fetchUsers(stat.endpoint, stat.key, stat.label)
-            }
-          >
-            <p className="text-xl font-semibold text-gray-900">
-              {stat.value}
-            </p>
-            <p className="text-xs text-gray-500">
-              {stat.label}
-            </p>
-          </motion.div>
-        ))}
+        {statsToShow.map((stat, index) => {
+          const Icon = stat.icon;
+
+          return (
+            <motion.div
+              key={stat.label}
+              variants={item}
+              whileTap={{ scale: 0.95 }}
+              className="flex-1 cursor-pointer"
+              onClick={() =>
+                stat.endpoint &&
+                fetchUsers(stat.endpoint, stat.key!, stat.label)
+              }
+            >
+              <p className="text-lg font-semibold text-gray-900">
+                {stat.value}
+              </p>
+
+              <div className="flex items-center justify-center gap-1 text-xs text-gray-500 mt-1">
+                <Icon className="text-sm" />
+                <span>{stat.label}</span>
+              </div>
+
+              {/* Divider */}
+              {index !== statsToShow.length - 1 && (
+                <div className="absolute top-2 right-0 h-8 w-px bg-gray-200" />
+              )}
+            </motion.div>
+          );
+        })}
       </motion.div>
 
       {/* Modal */}
       <AnimatePresence>
         {showModal && (
           <motion.div
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -159,13 +179,13 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
               initial="hidden"
               animate="show"
               exit="exit"
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.2 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white w-[95%] sm:w-105 max-h-[80vh] rounded-2xl shadow-xl overflow-hidden"
+              className="bg-white w-[95%] sm:w-[380px] max-h-[80vh] rounded-xl shadow-md overflow-hidden"
             >
               {/* Header */}
-              <div className="flex justify-between items-center p-4 border-b">
-                <h3 className="font-semibold text-gray-800 text-lg">
+              <div className="flex justify-between items-center px-4 py-3 border-b">
+                <h3 className="font-medium text-gray-800 text-sm">
                   {modalTitle}
                 </h3>
 
@@ -173,18 +193,18 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
                   onClick={() => setShowModal(false)}
                   className="p-1 hover:bg-gray-100 rounded-full"
                 >
-                  <X size={20} />
+                  <X size={18} />
                 </button>
               </div>
 
               {/* Body */}
               <div className="max-h-[65vh] overflow-y-auto">
                 {loading ? (
-                  <div className="p-6 text-center text-gray-500">
+                  <div className="p-6 text-center text-gray-400 text-sm">
                     Loading...
                   </div>
                 ) : modalUsers.length === 0 ? (
-                  <div className="p-6 text-center text-gray-400">
+                  <div className="p-6 text-center text-gray-400 text-sm">
                     No users found
                   </div>
                 ) : (
@@ -202,7 +222,7 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
                       return (
                         <li
                           key={user.profileId}
-                          className="flex items-center gap-3 p-4 hover:bg-gray-50 transition cursor-pointer"
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer transition"
                           onClick={() => {
                             setShowModal(false);
                             navigate(
@@ -214,20 +234,20 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
                             <img
                               src={image}
                               alt={user.profileName}
-                              className="w-11 h-11 rounded-full object-cover"
+                              className="w-9 h-9 rounded-full object-cover"
                             />
                           ) : (
-                            <div className="w-11 h-11 rounded-full bg-gray-400 flex items-center justify-center text-white font-semibold">
+                            <div className="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-white text-sm font-medium">
                               {firstLetter}
                             </div>
                           )}
 
-                          <div>
-                            <p className="font-medium text-gray-800">
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-gray-800 truncate">
                               {user.profileName}
                             </p>
 
-                            <p className="text-sm text-gray-500">
+                            <p className="text-xs text-gray-500 truncate">
                               {user.bio || "No bio available"}
                             </p>
                           </div>

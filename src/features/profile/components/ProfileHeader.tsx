@@ -101,7 +101,7 @@ const ProfileHeader: React.FC<Props> = ({
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex flex-wrap items-center justify-center sm:justify-between p-4 sm:p-6 bg-white rounded-xl shadow-md border border-gray-100"
+        className="flex flex-wrap items-center justify-center sm:justify-between p-4 sm:p-6 bg-white rounded-xl "
       >
         {/* Profile Info */}
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 w-full sm:w-auto">
