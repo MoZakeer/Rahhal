@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Briefcase, SlidersHorizontal, MapPin, Calendar, Users, Tag, ChevronDown } from "lucide-react";
+import { Briefcase, SlidersHorizontal, MapPin, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { mockTrips, aiTripPreferences, type Trip } from "@/data/mockData";
+import { mockTrips, aiTripPreferences } from "@/data/mockData";
 
 export interface MatchCriteria {
   type: "trip" | "custom";
