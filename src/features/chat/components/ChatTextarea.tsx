@@ -53,6 +53,7 @@ function ChatTextarea({ value, onChange, onEnter, placeholder }: Props) {
         overflow-y-auto
         transition-all duration-200
         no-scrollbar
+        text-gray-700
         ${isExpanded ? "rounded-2xl" : "rounded-full"}
       `}
     />

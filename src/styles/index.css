@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:wght@400;500;600;700&display=swap");
 
 @import "tailwindcss/preflight";
 @import "tailwindcss/theme";
@@ -61,8 +61,8 @@
   --radius-full: 9999px;
 
   /* ===== Fonts ===== */
-  --font-display: 'Playfair Display', serif;
-  --font-body: 'DM Sans', sans-serif;
+  --font-display: "Playfair Display", serif;
+  --font-body: "DM Sans", sans-serif;
 
   /* ===== Shadows ===== */
   --shadow-card: 0 4px 24px -4px hsl(199 89% 38% / 0.08);
@@ -73,9 +73,21 @@
    CSS Custom Properties (non-@theme)
 ========================================= */
 :root {
-  --gradient-ocean: linear-gradient(135deg, hsl(199, 89%, 38%), hsl(199, 70%, 52%));
-  --gradient-sunset: linear-gradient(135deg, hsl(30, 80%, 55%), hsl(15, 85%, 55%));
-  --gradient-hero: linear-gradient(180deg, hsl(199 89% 38% / 0.7), hsl(199 89% 20% / 0.9));
+  --gradient-ocean: linear-gradient(
+    135deg,
+    hsl(199, 89%, 38%),
+    hsl(199, 70%, 52%)
+  );
+  --gradient-sunset: linear-gradient(
+    135deg,
+    hsl(30, 80%, 55%),
+    hsl(15, 85%, 55%)
+  );
+  --gradient-hero: linear-gradient(
+    180deg,
+    hsl(199 89% 38% / 0.7),
+    hsl(199 89% 20% / 0.9)
+  );
 
   /* === Brand Variables === */
   --bg-primary: #f8fafc;
@@ -102,9 +114,20 @@
   --border-color: #334155;
   --message-bg-sender: #0c4a6e;
   --message-bg-receiver: #334155;
+  --color-gray-0: #0f172a;
+  --color-gray-50: #020617;
+  --color-gray-100: #020617;
+  --color-gray-200: #1e293b;
+  --color-gray-300: #334155;
+  --color-gray-400: #475569;
+  --color-gray-500: #64748b;
+  --color-gray-600: #cbd5e1;
+  --color-gray-700: #e5e7eb;
+  --color-gray-800: #f1f5f9;
+  --color-gray-900: #f8fafc;
 }
 
-:root.dark-mode {
+:root.dark {
   --color-gray-0: #0f172a;
   --color-gray-50: #020617;
   --color-gray-100: #020617;
@@ -125,17 +148,25 @@ body {
   min-height: 100vh;
   background-color: var(--color-background, var(--color-gray-0));
   color: var(--color-foreground, var(--color-gray-900));
-  font-family: var(--font-body), system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family:
+    var(--font-body), system-ui, Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-display);
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
 }
@@ -152,7 +183,9 @@ html, body, #root {
   outline: none;
   background-color: var(--color-gray-0);
   color: var(--color-gray-900);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .input::placeholder {
@@ -161,13 +194,15 @@ html, body, #root {
 
 .input:focus {
   border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary-500) 40%, transparent);
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--color-primary-500) 40%, transparent);
 }
 
 /* =========================================
    Button & Links
 ========================================= */
-button, a {
+button,
+a {
   outline: none;
   cursor: pointer;
 }
@@ -205,26 +240,56 @@ button.gradient-btn:hover {
    Animations
 ========================================= */
 @keyframes blob {
-  0%, 100% { transform: translate(0px, 0px) scale(1); }
-  33% { transform: translate(30px, -50px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.9); }
+  0%,
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
 }
-.animate-blob { animation: blob 8s infinite; }
-.animation-delay-2000 { animation-delay: 2s; }
-.animation-delay-4000 { animation-delay: 4s; }
+.animate-blob {
+  animation: blob 8s infinite;
+}
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
 }
-.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
 
 @keyframes fade-in {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.animate-fade-in { animation: fade-in 1s ease forwards; }
-.delay-200 { animation-delay: 0.2s; }
+.animate-fade-in {
+  animation: fade-in 1s ease forwards;
+}
+.delay-200 {
+  animation-delay: 0.2s;
+}
 
 /* =========================================
    Gradient Text Utilities
@@ -235,7 +300,12 @@ button.gradient-btn:hover {
   -webkit-text-fill-color: transparent;
 }
 .text-gradient-blue-gray {
-  background: linear-gradient(to right, var(--color-primary-500), var(--color-primary-700), var(--color-gray-500));
+  background: linear-gradient(
+    to right,
+    var(--color-primary-500),
+    var(--color-primary-700),
+    var(--color-gray-500)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
