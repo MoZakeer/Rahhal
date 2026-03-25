@@ -7,15 +7,7 @@ type Props = {
 export default function FeedHeader({ onCreatePost }: Props) {
   return (
     <div className="flex flex-col gap-6 w-full">
-      {/* Header Text */}
-      <div>
-        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-          Feed
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
-          Explore world through travelers' eyes
-        </p>
-      </div>
+     
 
       {/* Create Post Trigger */}
       <div 

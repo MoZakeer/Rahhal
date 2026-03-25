@@ -34,7 +34,7 @@ import { useEffect } from "react";
 import { usePostDetailsActions } from "./hooks/usePostDetails";
 import { Heart } from "lucide-react";
 import * as commentApi from "../components/services/commentApi";
-
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import Skeleton from "react-loading-skeleton";
 import MyEmojiPicker from "../../chat/components/EmojiPicker";
 import { HiOutlineFaceSmile } from "react-icons/hi2";
@@ -183,7 +183,7 @@ export function PostHeader({
             <MoreHorizontal className="w-5 h-5" />
           </button>
           {isReportOpen && (
-            <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
+            <div className="fixed inset-0  flex items-center justify-center z-50">
               <ReportModal
                 entityType="post"
                 entityId={id}
@@ -231,6 +231,7 @@ export function PostHeader({
 }
 export function PostMedia({ media }: { media: PostMediaItem[] }) {
   const [current, setCurrent] = useState(0);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const startX = useRef<number | null>(null);
   const isDragging = useRef(false);
@@ -278,7 +279,8 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
     <div className="w-full">
       {/* Main Image (Swipe Area) */}
       <div
-        className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden group select-none bg-slate-100 dark:bg-slate-900"
+        className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden group select-none bg-slate-100 dark:bg-slate-900 cursor-pointer"
+        onClick={() => setIsPreviewOpen(true)}
         onMouseDown={(e) => handleStart(e.clientX)}
         onMouseMove={(e) => handleMove(e.clientX)}
         onMouseUp={handleEnd}
@@ -312,7 +314,7 @@ transition-all duration-300"
           {media.map((m, i) => (
             <div
               key={m.id}
-              onClick={() => setCurrent(i)}
+              onClick={() => setIsPreviewOpen(true)}
               onMouseEnter={() => setCurrent(i)}
               className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${
                 i === current
@@ -327,6 +329,44 @@ transition-all duration-300"
               />
             </div>
           ))}
+        </div>
+      )}
+      {/* Preview Modal */}
+      {isPreviewOpen && (
+        <div
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
+          onClick={() => setIsPreviewOpen(false)}
+        >
+          <div
+            className=" inset-0 bg-black/80 z-50 flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-4 right-4 text-white p-2 rounded-full hover:bg-black/50 z-10"
+              onClick={() => setIsPreviewOpen(false)}
+            >
+              <X size={24} />
+            </button>
+
+            <button
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+              onClick={prev}
+            >
+              <ChevronLeft size={32} />
+            </button>
+
+            <img
+              src={normalizeMediaUrl(media[current].url)}
+              className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
+            />
+
+            <button
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+              onClick={next}
+            >
+              <ChevronRight size={32} />
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -426,6 +466,84 @@ export function CommentsModal({
     setNewComment((text) => text + emoji);
   }
 
+   const buttonRef = useRef<HTMLButtonElement | null>(null);
+const [pickerPos, setPickerPos] = useState({ top: 0, left: 0 });
+
+const toggleEmojiPicker = () => {
+  if (!showCommentEmoji && buttonRef.current) {
+    const rect = buttonRef.current.getBoundingClientRect();
+
+    setPickerPos({
+      top: rect.top - 320, // adjust based on picker height
+      left: rect.left,
+    });
+  }
+
+  setShowCommentEmoji((prev) => !prev);
+  setShowReplyEmoji(false);
+};
+ const buttonRefe = useRef<HTMLButtonElement | null>(null);
+const [pickerPose, setPickerPose] = useState({ top: 0, left: 0 });
+
+const toggleEmojiPickerreply = () => {
+  if (!showReplyEmoji && buttonRefe.current) {
+    const rect = buttonRefe.current.getBoundingClientRect();
+
+    setPickerPos({
+      top: rect.top - 320, // adjust based on picker height
+      left: rect.left,
+    });
+  }
+
+  setShowReplyEmoji((prev) => !prev);
+  setShowCommentEmoji(false);
+};
+useEffect(() => {
+  const updatePosition = () => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+
+      setPickerPos({
+        top: rect.top - 300,
+        left: rect.left,
+      });
+    }
+  };
+
+  if (showCommentEmoji) {
+    updatePosition();
+    window.addEventListener("scroll", updatePosition);
+    window.addEventListener("resize", updatePosition);
+  }
+
+  return () => {
+    window.removeEventListener("scroll", updatePosition);
+    window.removeEventListener("resize", updatePosition);
+  };
+}, [showCommentEmoji]);
+useEffect(() => {
+    const updatePosition = () => {
+      if (buttonRefe.current) {
+        const rect = buttonRefe.current.getBoundingClientRect();
+
+        setPickerPose({
+          top: rect.top - 300, // adjust if needed
+          left: rect.left,
+        });
+      }
+    };
+
+    if (showReplyEmoji) {
+      updatePosition();
+      window.addEventListener("scroll", updatePosition);
+      window.addEventListener("resize", updatePosition);
+    }
+
+    return () => {
+      window.removeEventListener("scroll", updatePosition);
+      window.removeEventListener("resize", updatePosition);
+    };
+  }, [showReplyEmoji]);
   const fetchComments = async () => {
     setLoading(true);
     try {
@@ -716,7 +834,7 @@ export function CommentsModal({
                 <MoreHorizontal className="w-4 h-4" />
               </button>
               {isReportOpen && (
-                <div className="fixed inset-0 bg-black/40 dark:bg-black/60 flex items-center justify-center z-50">
+                <div className="fixed inset-0  flex items-center justify-center z-50">
                   <ReportModal
                     entityType="comment"
                     entityId={id}
@@ -878,7 +996,7 @@ export function CommentsModal({
           )}
 
           {!isReply && repliesOpenMap[id] && (
-            <div className="mt-2 flex gap-3 w-full">
+            <div className="mt-2 relative flex gap-3 w-full">
               <div className="w-9 flex justify-center">
                 <div className="relative w-px bg-slate-200 dark:bg-slate-700 rounded-full">
                   <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700" />
@@ -913,11 +1031,9 @@ export function CommentsModal({
                 {/* Row 1: Emoji button + Input */}
                 <div className="flex items-center gap-2">
                   <button
+                    ref={buttonRefe}
                     type="button"
-                    onClick={() => {
-                      setShowReplyEmoji((prev) => !prev);
-                      setShowCommentEmoji(false);
-                    }}
+                    onClick={toggleEmojiPickerreply}
                     className="flex-shrink-0 cursor-pointer transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded-full"
                   >
                     <HiOutlineFaceSmile className="w-6 h-6 sm:w-7 sm:h-7 text-slate-700 dark:text-slate-300" />
@@ -926,11 +1042,20 @@ export function CommentsModal({
                   <input
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (
+                        e.key === "Enter" &&
+                        replyText.trim() &&
+                        !addCommentMutation.isPending
+                      ) {
+                        e.preventDefault();
+                        handleAddComment(id);
+                      }
+                    }}
                     placeholder="Write a reply..."
                     className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-indigo-500 dark:focus:border-indigo-400"
                   />
                 </div>
-                {/* Row 2: Action buttons (right-aligned) */}
                 <div className="flex items-center justify-end gap-1.5 pl-8">
                   <button
                     onClick={() => {
@@ -957,24 +1082,31 @@ export function CommentsModal({
                       : "Reply"}
                   </button>
                 </div>
+               
+  {showReplyEmoji && (
+  <>
+    {/* overlay background (optional) */}
+    <div
+      className="fixed inset-0 z-40"
+      onClick={() => setShowReplyEmoji(false)}
+    />
 
-                {/* Emoji Picker */}
-                {showReplyEmoji && (
-                  <div
-                    className="absolute left-0 bottom-full mb-2 z-50"
-                    onClick={() => setShowReplyEmoji(false)}
-                  >
-                    <div onClick={(e) => e.stopPropagation()}>
-                      <MyEmojiPicker
-                        onSelect={handleEmojiSelect}
-                        width={300}
-                        height={320}
-                      />
-                    </div>
-                  </div>
-                )}
+    {/* picker */}
+    <div
+      className="fixed z-50"
+      style={{
+        top: pickerPose.top,
+        left: pickerPose.left,
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <MyEmojiPicker onSelect={handleEmojiSelect} width={300} height={300} />
+    </div>
+  </>
+)}
               </div>
             </div>
+
           )}
         </div>
       </div>
@@ -982,14 +1114,14 @@ export function CommentsModal({
   };
 
   return (
-    <div className="w-full mt-2 border-t border-slate-50 dark:border-slate-700/50 bg-white dark:bg-slate-800 rounded-b-2xl overflow-hidden">
+    <div className="relative w-full mt-2 border-t border-slate-50 dark:border-slate-700/50 bg-white dark:bg-slate-800  overflow-visible">
       <div className="flex items-center justify-between px-4 py-3  border-slate-100 dark:border-slate-700/50">
         <div className=" text-slate-400 dark:text-slate-100 text-sm">
           Comments {comments.length}
         </div>
       </div>
 
-      <div className="max-h-[500px] overflow-y-auto px-4 py-4 space-y-5 custom-scrollbar scrollbar-hide scroll-smooth">
+      <div className=" relative max-h-[500px] overflow-y-auto px-4 py-4 space-y-5 custom-scrollbar scrollbar-hide scroll-smooth">
         {loading ? (
           <div className="space-y-4 dark:opacity-60 transition-opacity">
             <Skeleton height={20} width={200} />
@@ -997,7 +1129,7 @@ export function CommentsModal({
             <Skeleton height={200} />
           </div>
         ) : comments.length === 0 ? (
-          <div className="text-center py-4 text-slate-500 dark:text-slate-400 text-sm">
+          <div className=" text-center py-4 text-slate-500 dark:text-slate-400 text-sm">
             No comments yet. Be the first to share!
           </div>
         ) : (
@@ -1010,33 +1142,55 @@ export function CommentsModal({
       <div className="relative w-full border-t border-slate-100 dark:border-slate-700/50 px-4 py-3 flex gap-3 items-center bg-slate-50/50 dark:bg-slate-900/20">
         <div className="relative">
           <button
-            type="button"
-            onClick={() => {
-              setShowCommentEmoji((prev) => !prev);
-              setShowReplyEmoji(false);
-            }}
-            className="cursor-pointer transition-all duration-300 hover:bg-slate-200 dark:hover:bg-slate-700 p-2 rounded-full"
-          >
-            <HiOutlineFaceSmile className="w-6 h-6 text-slate-500 dark:text-slate-400" />
-          </button>
+          ref={buttonRef}
+          type="button"
+          onClick={toggleEmojiPicker}
+          className="cursor-pointer transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded-full"
+        >
+          <HiOutlineFaceSmile className="w-8 h-8 text-slate-500 dark:text-slate-400" />
+        </button>
 
-          {showCommentEmoji && (
-            <>
-              <div
-                className="fixed inset-0 z-10"
-                onClick={() => setShowCommentEmoji(false)}
+        {showCommentEmoji && (
+          <>
+            {/* overlay background (optional) */}
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => setShowCommentEmoji(false)}
+            />
+
+            {/* picker */}
+            <div
+              className="fixed z-50"
+              style={{
+                top: pickerPos.top,
+                left: pickerPos.left,
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MyEmojiPicker
+                onSelect={handleEmojiSelectComment}
+                width={300}
+                height={300}
               />
-              <div className="absolute bottom-full left-0 mb-2 z-20">
-                <MyEmojiPicker onSelect={handleEmojiSelectComment} />
-              </div>
-            </>
-          )}
+            </div>
+          </>
+        )}
         </div>
 
         <input
           placeholder="Add a comment..."
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
+          onKeyDown={(e) => {
+            if (
+              e.key === "Enter" &&
+              newComment.trim() &&
+              !addCommentMutation.isPending
+            ) {
+              e.preventDefault();
+              handleAddComment();
+            }
+          }}
           className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-400"
         />
 
@@ -1051,7 +1205,7 @@ export function CommentsModal({
         >
           {addCommentMutation.isPending && actionType === "comment"
             ? "Adding..."
-            : "Post"}
+            : "Add"}
         </button>
       </div>
     </div>
@@ -1125,7 +1279,7 @@ export default function PostDetailsPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900  pb-2 border-x border-slate-100 dark:border-slate-700/50 border rounded-2xl overflow-hidden">
+    <div className="  max-w-2xl mx-auto bg-white dark:bg-slate-900   border-x border-slate-100 dark:border-slate-700/50 border rounded-2xl overflow-hidden">
       <PostHeader
         id={PostDetails.id}
         userName={PostDetails.userName}
