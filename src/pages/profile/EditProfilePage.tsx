@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
+import LoadingOverlay from "../../components/ui/LoadingOverlay";
 
 const travelPersonalityMap = {
     Explorer: TravelPersonality.Explorer,
@@ -39,7 +40,7 @@ export default function EditProfilePage() {
 
     const [showVisitedDropdown, setShowVisitedDropdown] = useState(false);
     const [showDreamDropdown, setShowDreamDropdown] = useState(false);
-
+    const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(false);
     const [isPictureDeleted, setIsPictureDeleted] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -206,10 +207,6 @@ export default function EditProfilePage() {
             formDataToSend.append(`DreamCountryIds[${idx}]`, c.id)
         );
 
-        // =============================
-        // Profile Picture Logic
-        // =============================
-
         if (selectedFile) {
             formDataToSend.append("ProfilePicture", selectedFile);
             formDataToSend.append("IsPictureDeleted", "false");
@@ -221,22 +218,22 @@ export default function EditProfilePage() {
             formDataToSend.append("IsPictureDeleted", "false");
         }
 
-        // Debug
-        for (const pair of formDataToSend.entries()) {
-            console.log(pair[0], pair[1]);
-        }
-
         try {
+            setSaving(true);
+
             await updateProfile(formDataToSend);
             await fetchProfile(profileId);
+
             toast.success("Profile updated!");
             navigate(`/profile/${profileId}`);
+
         } catch (error) {
-            toast.error("Failed to update profile");
             console.log(error);
+            toast.error("Failed to update profile");
+        } finally {
+            setSaving(false);
         }
     };
-
     if (!profile) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -311,216 +308,227 @@ export default function EditProfilePage() {
         );
     }
     return (
-        <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-3xl shadow-xl border border-gray-100/80 overflow-hidden">
-                    {/* Header */}
-                    <div className="relative px-6 pt-10 pb-8 bg-linear-to-b from-cyan-50/70 to-white flex flex-col items-center gap-4">
-                        <button
-                            onClick={() => navigate(`/profile/${profileId}`)}
-                            className="absolute left-6 top-6 flex items-center gap-2 px-4 py-2    rounded-lg cursor-pointer text-gray-600   transition-all duration-200"
-                        >
-                            <ArrowLeft className="w-5 h-5" />
-                            Back
-                        </button>
-                        <div className="relative group">
-                            <div className="w-32 h-32 rounded-full ring-4 ring-white shadow-xl overflow-hidden bg-gray-200 flex items-center justify-center">
+        <>
+            <LoadingOverlay
+                show={saving}
+                text="Saving your profile..."
+            />
+            <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-4xl mx-auto">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-3xl shadow-xl border border-gray-100/80 overflow-hidden">
+                        {/* Header */}
+                        <div className="relative px-6 pt-10 pb-8 bg-linear-to-b from-cyan-50/70 to-white flex flex-col items-center gap-4">
+                            <button
+                                onClick={() => navigate(`/profile/${profileId}`)}
+                                className="absolute left-6 top-6 flex items-center gap-2 px-4 py-2    rounded-lg cursor-pointer text-gray-600   transition-all duration-200"
+                            >
+                                <ArrowLeft className="w-5 h-5" />
+                                Back
+                            </button>
+                            <div className="relative group">
+                                <div className="w-32 h-32 rounded-full ring-4 ring-white shadow-xl overflow-hidden bg-gray-200 flex items-center justify-center">
 
-                                {previewImage ? (
-                                    <img
-                                        src={previewImage}
-                                        alt="Profile"
-                                        className="w-full h-full object-cover"
+                                    {previewImage ? (
+                                        <img
+                                            src={previewImage}
+                                            alt="Profile"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <span className="text-4xl font-bold text-gray-600">
+                                            {profile?.fullName?.charAt(0)?.toUpperCase() || "U"}
+                                        </span>
+                                    )}
+
+                                </div>
+                                <label htmlFor="avatar-upload" className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                    <span className="text-white text-sm font-medium">Change</span>
+                                    <input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                                </label>
+                            </div>
+                            {previewImage && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setPreviewImage(null);
+                                        setSelectedFile(null);
+                                        setIsPictureDeleted(true);
+                                    }}
+                                    className="mt-2 text-sm bg-red-600 text-white rounded-2xl py-3 px-2"
+                                >
+                                    Remove Photo
+                                </button>
+                            )}
+                            <h1 className="text-2xl font-bold text-gray-800 mt-2">Edit Profile</h1>
+                            <p className="text-sm text-gray-500">Update your travel personality and preferences</p>
+                        </div>
+
+                        <form onSubmit={handleSubmit(onSubmit)} className="p-6 sm:p-10 space-y-10">
+                            {/* Basic Info */}
+                            <section className="space-y-6 bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+                                <h2 className="text-xl font-semibold text-cyan-700 border-b pb-2 mb-4">Basic Info</h2>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                    <input
+                                        {...register("Fname")}
+                                        placeholder="First Name"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
                                     />
-                                ) : (
-                                    <span className="text-4xl font-bold text-gray-600">
-                                        {profile?.fullName?.charAt(0)?.toUpperCase() || "U"}
-                                    </span>
+                                    {errors.Fname && <p className="text-red-500 text-sm mt-1">{errors.Fname.message}</p>}
+
+                                    <input
+                                        {...register("Lname")}
+                                        placeholder="Last Name"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
+                                    />
+                                    {errors.Lname && <p className="text-red-500 text-sm mt-1">{errors.Lname.message}</p>}
+
+                                </div>
+
+                                <input
+                                    {...register("UserName")}
+                                    placeholder="Username"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
+                                />
+                                {errors.UserName && <p className="text-red-500 text-sm mt-1">{errors.UserName.message}</p>}
+
+                                <textarea
+                                    {...register("Bio")}
+                                    placeholder="Short Bio about your travel style"
+                                    rows={3}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400 resize-none"
+                                />
+                                {errors.Bio && <p className="text-red-500 text-sm mt-1">{errors.Bio.message}</p>}
+                                <input
+                                    {...register("Location")}
+                                    placeholder="Current City / Country"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
+                                />
+                                {errors.Location && <p className="text-red-500 text-sm mt-1">{errors.Location.message}</p>}
+
+                                <input
+                                    {...register("birthDate")}
+                                    type="date"
+                                    placeholder="Birth Date"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
+                                />
+                                {errors.birthDate && <p className="text-red-500 text-sm mt-1">{errors.birthDate.message}</p>}
+                                <select
+                                    {...register("Gender")}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
+                                >
+                                    <option value="">Select Gender</option>
+                                    <option value="1">Male</option>
+                                    <option value="2">Female</option>
+                                    <option value="3">Other / Prefer not to say</option>
+                                </select>
+                            </section>
+                            {/* {errors.Gender && <p className="text-red-500 text-sm mt-1">{errors.Gender.message}</p>} */}
+                            {/* Travel Personality */}
+                            <section className="space-y-4">
+                                <h2 className="text-lg font-semibold text-cyan-700">Travel Personality</h2>
+                                <div className="flex flex-wrap gap-3">
+                                    {Object.keys(travelPersonalityMap).map((p) => (
+                                        <motion.button key={p} type="button" onClick={() => setSelectedPersonality(p)} className={`flex-1 p-3 border rounded-xl text-sm transition ${selectedPersonality === p ? "bg-cyan-600 text-white border-cyan-600" : "border-gray-200 hover:bg-cyan-50 hover:border-cyan-300"}`}>
+                                            {p}
+                                        </motion.button>
+                                    ))}
+                                </div>
+                            </section>
+
+                            {/* Travel Preferences */}
+                            <section className="space-y-4">
+                                <h2 className="text-lg font-semibold text-cyan-700">Travel Preferences</h2>
+                                <div className="flex flex-wrap gap-2">
+                                    {travelPreferences.map((pref) => (
+                                        <motion.button key={pref.id} type="button" onClick={() => togglePreference(pref.name)} className={`px-4 py-2 text-sm rounded-full border transition ${selectedPreferences.includes(pref.name) ? "bg-cyan-600 text-white border-cyan-600" : "border-cyan-100 bg-cyan-50 hover:bg-cyan-100"}`}>
+                                            {pref.name}
+                                        </motion.button>
+                                    ))}
+                                </div>
+                            </section>
+
+                            {/* Geography */}
+                            <section className="space-y-4 relative">
+                                <h2 className="text-lg font-semibold text-cyan-700">Visited Countries</h2>
+                                <div className="flex flex-wrap gap-2 border p-2 rounded-lg bg-white">
+                                    {visitedCountries.map((c) => (
+                                        <span key={c.id} className="px-3 py-1 rounded-full bg-green-100 text-green-800 flex items-center gap-1">
+                                            {c.name}
+                                            <button onClick={() => setVisitedCountries(prev => prev.filter(v => v.id !== c.id))}>✖</button>
+                                        </span>
+                                    ))}
+                                    <input
+                                        type="text"
+                                        placeholder="Add country..."
+                                        className="flex-1 outline-none"
+                                        onFocus={() => setShowVisitedDropdown(true)}
+                                        onBlur={() => setTimeout(() => setShowVisitedDropdown(false), 200)}
+                                    />
+                                </div>
+                                {showVisitedDropdown && (
+                                    <div className="border rounded-lg max-h-60 overflow-y-auto mt-1 bg-white shadow-md z-50 absolute w-full">
+                                        {allCountries
+                                            .filter(c => !visitedCountries.find(vc => vc.id === c.id))
+                                            .map(c => (
+                                                <div
+                                                    key={c.id}
+                                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                    onMouseDown={() => setVisitedCountries([...visitedCountries, c])}
+                                                >
+                                                    {c.name}
+                                                </div>
+                                            ))}
+                                    </div>
                                 )}
 
-                            </div>
-                            <label htmlFor="avatar-upload" className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                                <span className="text-white text-sm font-medium">Change</span>
-                                <input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-                            </label>
-                        </div>
-                        {previewImage && (
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setPreviewImage(null);
-                                    setSelectedFile(null);
-                                    setIsPictureDeleted(true);
-                                }}
-                                className="mt-2 text-sm bg-red-600 text-white rounded-2xl py-3 px-2"
-                            >
-                                Remove Photo
-                            </button>
-                        )}
-                        <h1 className="text-2xl font-bold text-gray-800 mt-2">Edit Profile</h1>
-                        <p className="text-sm text-gray-500">Update your travel personality and preferences</p>
-                    </div>
-
-                    <form onSubmit={handleSubmit(onSubmit)} className="p-6 sm:p-10 space-y-10">
-                        {/* Basic Info */}
-                        <section className="space-y-6 bg-white p-6 rounded-2xl shadow-md border border-gray-100">
-                            <h2 className="text-xl font-semibold text-cyan-700 border-b pb-2 mb-4">Basic Info</h2>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                                <input
-                                    {...register("Fname")}
-                                    placeholder="First Name"
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
-                                />
-                                {errors.Fname && <p className="text-red-500 text-sm mt-1">{errors.Fname.message}</p>}
-
-                                <input
-                                    {...register("Lname")}
-                                    placeholder="Last Name"
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
-                                />
-                                {errors.Lname && <p className="text-red-500 text-sm mt-1">{errors.Lname.message}</p>}
-
-                            </div>
-
-                            <input
-                                {...register("UserName")}
-                                placeholder="Username"
-                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
-                            />
-                            {errors.UserName && <p className="text-red-500 text-sm mt-1">{errors.UserName.message}</p>}
-
-                            <textarea
-                                {...register("Bio")}
-                                placeholder="Short Bio about your travel style"
-                                rows={3}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400 resize-none"
-                            />
-                            {errors.Bio && <p className="text-red-500 text-sm mt-1">{errors.Bio.message}</p>}
-                            <input
-                                {...register("Location")}
-                                placeholder="Current City / Country"
-                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
-                            />
-                            {errors.Location && <p className="text-red-500 text-sm mt-1">{errors.Location.message}</p>}
-
-                            <input
-                                {...register("birthDate")}
-                                type="date"
-                                placeholder="Birth Date"
-                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
-                            />
-                            {errors.birthDate && <p className="text-red-500 text-sm mt-1">{errors.birthDate.message}</p>}
-                            <select
-                                {...register("Gender")}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition placeholder-gray-400"
-                            >
-                                <option value="">Select Gender</option>
-                                <option value="1">Male</option>
-                                <option value="2">Female</option>
-                                <option value="3">Other / Prefer not to say</option>
-                            </select>
-                        </section>
-                        {/* {errors.Gender && <p className="text-red-500 text-sm mt-1">{errors.Gender.message}</p>} */}
-                        {/* Travel Personality */}
-                        <section className="space-y-4">
-                            <h2 className="text-lg font-semibold text-cyan-700">Travel Personality</h2>
-                            <div className="flex flex-wrap gap-3">
-                                {Object.keys(travelPersonalityMap).map((p) => (
-                                    <motion.button key={p} type="button" onClick={() => setSelectedPersonality(p)} className={`flex-1 p-3 border rounded-xl text-sm transition ${selectedPersonality === p ? "bg-cyan-600 text-white border-cyan-600" : "border-gray-200 hover:bg-cyan-50 hover:border-cyan-300"}`}>
-                                        {p}
-                                    </motion.button>
-                                ))}
-                            </div>
-                        </section>
-
-                        {/* Travel Preferences */}
-                        <section className="space-y-4">
-                            <h2 className="text-lg font-semibold text-cyan-700">Travel Preferences</h2>
-                            <div className="flex flex-wrap gap-2">
-                                {travelPreferences.map((pref) => (
-                                    <motion.button key={pref.id} type="button" onClick={() => togglePreference(pref.name)} className={`px-4 py-2 text-sm rounded-full border transition ${selectedPreferences.includes(pref.name) ? "bg-cyan-600 text-white border-cyan-600" : "border-cyan-100 bg-cyan-50 hover:bg-cyan-100"}`}>
-                                        {pref.name}
-                                    </motion.button>
-                                ))}
-                            </div>
-                        </section>
-
-                        {/* Geography */}
-                        <section className="space-y-4 relative">
-                            <h2 className="text-lg font-semibold text-cyan-700">Visited Countries</h2>
-                            <div className="flex flex-wrap gap-2 border p-2 rounded-lg bg-white">
-                                {visitedCountries.map((c) => (
-                                    <span key={c.id} className="px-3 py-1 rounded-full bg-green-100 text-green-800 flex items-center gap-1">
-                                        {c.name}
-                                        <button onClick={() => setVisitedCountries(prev => prev.filter(v => v.id !== c.id))}>✖</button>
-                                    </span>
-                                ))}
-                                <input
-                                    type="text"
-                                    placeholder="Add country..."
-                                    className="flex-1 outline-none"
-                                    onFocus={() => setShowVisitedDropdown(true)}
-                                    onBlur={() => setTimeout(() => setShowVisitedDropdown(false), 200)}
-                                />
-                            </div>
-                            {showVisitedDropdown && (
-                                <div className="border rounded-lg max-h-60 overflow-y-auto mt-1 bg-white shadow-md z-50 absolute w-full">
-                                    {allCountries
-                                        .filter(c => !visitedCountries.find(vc => vc.id === c.id))
-                                        .map(c => (
-                                            <div
-                                                key={c.id}
-                                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                                onMouseDown={() => setVisitedCountries([...visitedCountries, c])}
-                                            >
-                                                {c.name}
-                                            </div>
-                                        ))}
+                                <h2 className="text-lg font-semibold text-cyan-700 mt-6">Dream Destinations</h2>
+                                <div className="flex flex-wrap gap-2 border p-2 rounded-lg bg-white">
+                                    {dreamCountries.map((c) => (
+                                        <span key={c.id} className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 flex items-center gap-1">
+                                            {c.name}
+                                            <button onClick={() => setDreamCountries(prev => prev.filter(v => v.id !== c.id))}>✖</button>
+                                        </span>
+                                    ))}
+                                    <input
+                                        type="text"
+                                        placeholder="Add country..."
+                                        className="flex-1 outline-none"
+                                        onFocus={() => setShowDreamDropdown(true)}
+                                        onBlur={() => setTimeout(() => setShowDreamDropdown(false), 200)}
+                                    />
                                 </div>
-                            )}
+                                {showDreamDropdown && (
+                                    <div className="border rounded-lg max-h-60 overflow-y-auto mt-1 bg-white shadow-md z-50 absolute w-full">
+                                        {allCountries
+                                            .filter(c => !dreamCountries.find(vc => vc.id === c.id))
+                                            .map(c => (
+                                                <div
+                                                    key={c.id}
+                                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                    onMouseDown={() => setDreamCountries([...dreamCountries, c])}
+                                                >
+                                                    {c.name}
+                                                </div>
+                                            ))}
+                                    </div>
+                                )}
+                            </section>
 
-                            <h2 className="text-lg font-semibold text-cyan-700 mt-6">Dream Destinations</h2>
-                            <div className="flex flex-wrap gap-2 border p-2 rounded-lg bg-white">
-                                {dreamCountries.map((c) => (
-                                    <span key={c.id} className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 flex items-center gap-1">
-                                        {c.name}
-                                        <button onClick={() => setDreamCountries(prev => prev.filter(v => v.id !== c.id))}>✖</button>
-                                    </span>
-                                ))}
-                                <input
-                                    type="text"
-                                    placeholder="Add country..."
-                                    className="flex-1 outline-none"
-                                    onFocus={() => setShowDreamDropdown(true)}
-                                    onBlur={() => setTimeout(() => setShowDreamDropdown(false), 200)}
-                                />
+                            <div className="flex justify-end">
+                                <motion.button
+                                    type="submit"
+                                    disabled={saving}
+                                    whileHover={{ scale: 1.03 }}
+                                    className="px-8 py-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 transition shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {saving ? "Saving..." : "Save Changes"}
+                                </motion.button>
                             </div>
-                            {showDreamDropdown && (
-                                <div className="border rounded-lg max-h-60 overflow-y-auto mt-1 bg-white shadow-md z-50 absolute w-full">
-                                    {allCountries
-                                        .filter(c => !dreamCountries.find(vc => vc.id === c.id))
-                                        .map(c => (
-                                            <div
-                                                key={c.id}
-                                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                                onMouseDown={() => setDreamCountries([...dreamCountries, c])}
-                                            >
-                                                {c.name}
-                                            </div>
-                                        ))}
-                                </div>
-                            )}
-                        </section>
-
-                        <div className="flex justify-end">
-                            <motion.button type="submit" whileHover={{ scale: 1.03 }} className="px-8 py-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 transition shadow-lg cursor--pointer">
-                                Save Changes
-                            </motion.button>
-                        </div>
-                    </form>
-                </motion.div>
+                        </form>
+                    </motion.div>
+                </div>
             </div>
-        </div>
+        </>
     );
 }
