@@ -1,128 +1,275 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Briefcase, Plus, Search } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Briefcase,
+  Globe,
+  Sparkles,
+  FilterX,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import TripCard from "@/components/TripCard";
-import { mockTrips } from "@/data/mockData";
+import { toast } from "sonner";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
-const tabs = ["All", "Upcoming", "Past", "Favorites"];
+// --- Types & Interfaces ---
+export interface ApiTrip {
+  id: string;
+  name: string;
+  description: string;
+  startDate: string;
+  numberOfUser: number;
+  imageUrl: string | null;
+  createdBy: string;
+  status: number;
+  tripStatus: string;
+  travelPreference?: { id: string; name: string }[];
+  destination?: string;
+  isFavorite?: boolean;
+}
+
+const filterTypes = [
+  { label: "Created", value: 2 },
+  { label: "Joined", value: 1 },
+  { label: "Favorites", value: 3 },
+];
+
+const statusTypes = [
+  { label: "Planned", value: 1 },
+  { label: "Completed", value: 2 },
+  { label: "Past", value: 4 },
+  { label: "Upcoming", value: 5 },
+];
 
 const MyTrips = () => {
-  const [trips, setTrips] = useState(mockTrips);
+  usePageTitle("My Adventures - Rahhal");
+  const [trips, setTrips] = useState<ApiTrip[]>([]);
+  const [activeFilter, setActiveFilter] = useState<number>(2);
+  const [activeStatus, setActiveStatus] = useState<number | "">("");
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const [pageNumber] = useState(1);
+  const constPageSize = 20;
 
-  const toggleFavorite = (id: string) => {
+  useEffect(() => {
+    const fetchTrips = async () => {
+      setLoading(true);
+      try {
+        let token = localStorage.getItem("token") || "";
+        token = token.replace(/^"(.*)"$/, "$1");
+
+        let url = `https://rahhal-api.runasp.net/TripManagement/GetMyTrips?FilterType=${activeFilter}&Status=${activeStatus}&PageNumber=${pageNumber}&PageSize=${constPageSize}&SortByLastAdded=true`;
+        if (search.trim())
+          url += `&SearchTerm=${encodeURIComponent(search.trim())}`;
+
+        const res = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+
+        const data = await res.json();
+        if (data.isSuccess && data.data?.items) {
+          setTrips(data.data.items);
+        } else {
+          setTrips([]);
+        }
+      } catch {
+        toast.error("Network error while loading adventures.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const delayDebounceFn = setTimeout(fetchTrips, 400);
+    return () => clearTimeout(delayDebounceFn);
+  }, [search, activeFilter, activeStatus, pageNumber]);
+
+  const toggleFavorite = async (id: string) => {
+    let token = localStorage.getItem("token") || "";
+    token = token.replace(/^"(.*)"$/, "$1");
+    if (!token) return toast.error("Please log in.");
+
     setTrips((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, isFavorite: !t.isFavorite } : t))
+      prev.map((t) => (t.id === id ? { ...t, isFavorite: !t.isFavorite } : t)),
     );
+
+    try {
+      const res = await fetch(
+        `https://rahhal-api.runasp.net/TripManagement/SaveTrip`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ tripId: id }),
+        },
+      );
+      const data = await res.json();
+      if (!data.isSuccess) throw new Error();
+    } catch {
+      setTrips((prev) =>
+        prev.map((t) =>
+          t.id === id ? { ...t, isFavorite: !t.isFavorite } : t,
+        ),
+      );
+      toast.error("Could not update favorites.");
+    }
   };
 
-  const now = new Date();
-
-  const filtered = trips.filter((t) => {
-    const matchSearch =
-      t.name.toLowerCase().includes(search.toLowerCase()) ||
-      t.destination.toLowerCase().includes(search.toLowerCase());
-
-    if (!matchSearch) return false;
-
-    switch (activeTab) {
-      case "Upcoming":
-        return new Date(t.startDate) >= now;
-      case "Past":
-        return new Date(t.endDate) < now;
-      case "Favorites":
-        return t.isFavorite;
-      default:
-        return true;
-    }
-  });
-
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <section className="bg-accent py-12">
-        <div className="container mx-auto">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-                <Briefcase className="h-6 w-6 text-primary-foreground" />
+    <div className="min-h-screen bg-[#F8F9FB] pb-10">
+      {/* --- MINIMIZED HERO SECTION --- */}
+      <div className="relative overflow-hidden bg-[#0f172a] py-12 text-white">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute -left-[5%] -top-[10%] h-[120%] w-[40%] rounded-full bg-primary/15 blur-[100px]" />
+          <div className="absolute -right-[5%] bottom-0 h-[80%] w-[30%] rounded-full bg-blue-600/10 blur-[80px]" />
+        </div>
+
+        <div className="container relative z-10 mx-auto px-4">
+          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+            <div className="space-y-3 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1 backdrop-blur-md border border-white/10">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                <span className="text-[9px] font-black uppercase tracking-widest text-blue-200">
+                  My Passport
+                </span>
               </div>
-              <div>
-                <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">
-                  My Trips
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  {trips.length} trips in your collection
-                </p>
+              <h1 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">
+                My{" "}
+                <span className="bg-gradient-to-r from-blue-400 to-primary bg-clip-text text-transparent">
+                  Adventures
+                </span>
+              </h1>
+              {/* Horizontal Stats */}
+              <div className="flex items-center justify-center md:justify-start gap-4 text-slate-400 text-sm">
+                <div className="flex items-center gap-1.5">
+                  <Briefcase className="h-4 w-4 text-slate-500" />
+                  <span className="font-bold text-slate-200">
+                    {trips.length}
+                  </span>{" "}
+                  Trips
+                </div>
+                <div className="w-1 h-1 rounded-full bg-slate-700" />
+                <div className="flex items-center gap-1.5">
+                  <Globe className="h-4 w-4 text-slate-500" />
+                  <span className="font-bold text-slate-200 font-mono">
+                    Global
+                  </span>
+                </div>
               </div>
             </div>
+
             <Link to="/create-trip">
-              <Button className="gap-2">
-                <Plus className="h-4 w-4" /> New Trip
+              <Button
+                size="lg"
+                className="h-14 rounded-2xl px-8 text-base font-bold shadow-xl transition-all hover:scale-[1.02] active:scale-95"
+              >
+                <Plus className="mr-2 h-5 w-5" /> New Trip
               </Button>
             </Link>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Tabs & Search */}
-      <div className="container mx-auto pt-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap gap-2">
-            {tabs.map((tab) => (
-              <Badge
-                key={tab}
-                variant={activeTab === tab ? "default" : "outline"}
-                className="cursor-pointer px-3 py-1 transition-colors"
-                onClick={() => setActiveTab(tab)}
+      {/* --- COMPACT FLOATING FILTER BAR --- */}
+      <div className="container mx-auto px-4">
+        <div className="relative -mt-8 rounded-3xl border border-white/20 bg-white/95 p-3 shadow-xl backdrop-blur-xl md:p-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+            {/* Category Toggle */}
+            <div className="flex p-1 bg-slate-100 rounded-xl w-fit border border-slate-200/50">
+              {filterTypes.map((t) => (
+                <button
+                  key={t.value}
+                  onClick={() => setActiveFilter(t.value)}
+                  className={`px-6 py-2 text-xs font-bold transition-all rounded-lg ${
+                    activeFilter === t.value
+                      ? "bg-white text-primary shadow-sm ring-1 ring-black/5"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Search Bar */}
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Search destinations..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-11 w-full border-none bg-slate-50 pl-11 rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-primary/10"
+              />
+            </div>
+          </div>
+
+          {/* Status Pills */}
+          <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3 px-2">
+            <span className="text-[10px] font-black uppercase tracking-tighter text-slate-400 mr-2">
+              Status
+            </span>
+            {statusTypes.map((s) => (
+              <button
+                key={s.value}
+                onClick={() =>
+                  setActiveStatus(activeStatus === s.value ? "" : s.value)
+                }
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all border ${
+                  activeStatus === s.value
+                    ? "bg-primary border-primary text-white shadow-sm"
+                    : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"
+                }`}
               >
-                {tab}
-              </Badge>
+                {s.label}
+              </button>
             ))}
           </div>
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search my trips..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
-            />
-          </div>
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="container mx-auto py-8">
-        <p className="mb-4 text-sm text-muted-foreground">{filtered.length} trips</p>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((trip, i) => (
-            <div key={trip.id} className="animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
-              <TripCard trip={trip} onToggleFavorite={toggleFavorite} />
+      {/* --- CONTENT GRID --- */}
+      <main className="container mx-auto px-4 py-10">
+        {loading ? (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="h-72 rounded-3xl bg-slate-200 animate-pulse"
+              />
+            ))}
+          </div>
+        ) : trips.length > 0 ? (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {trips.map((trip) => (
+              <div
+                key={trip.id}
+                className="animate-in fade-in slide-in-from-bottom-4 duration-500"
+              >
+                <TripCard trip={trip} onToggleFavorite={toggleFavorite} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="mb-6 rounded-full bg-white p-8 border shadow-sm">
+              <FilterX className="h-10 w-10 text-slate-200" />
             </div>
-          ))}
-        </div>
-        {filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-            <Briefcase className="mb-4 h-12 w-12" />
-            <p className="text-lg font-medium">No trips found</p>
-            <p className="mt-1 text-sm">
-              {activeTab === "Favorites"
-                ? "You haven't favorited any trips yet"
-                : "Try a different search or filter"}
+            <h3 className="text-xl font-bold text-slate-800">
+              No results found
+            </h3>
+            <p className="mt-2 text-sm text-slate-500">
+              Try adjusting your filters.
             </p>
-            <Link to="/create-trip" className="mt-4">
-              <Button className="gap-2">
-                <Plus className="h-4 w-4" /> Create Your First Trip
-              </Button>
-            </Link>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 };
