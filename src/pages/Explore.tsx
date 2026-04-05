@@ -6,8 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import TripCard from "@/components/TripCard";
 import heroImage from "@/assets/hero-travel.jpg";
 import { toast } from "sonner";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const Explore = () => {
+  usePageTitle("Explore the World");
   const [trips, setTrips] = useState<any[]>([]);
   const [preferences, setPreferences] = useState<any[]>([]);
   

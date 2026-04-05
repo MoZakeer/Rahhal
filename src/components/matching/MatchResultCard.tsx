@@ -4,10 +4,27 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import type { Trip } from "@/data/mockData";
+
+// الواجهة مطابقة للـ API الحقيقي
+export interface ApiMatchTrip {
+  id: string;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate?: string;
+  numberOfUser: number;
+  imageUrl: string | null;
+  createdBy: string;
+  status: number;
+  tripStatus: string;
+  matchPercentage: number; // الحقل الجديد من الـ API
+  travelPreference?: { id: string; name: string }[];
+  destination?: string;
+  budget?: number;
+}
 
 interface MatchResultCardProps {
-  trip: Trip & { matchPercentage: number };
+  trip: ApiMatchTrip;
   index: number;
   joined: boolean;
   onJoin: (id: string, name: string) => void;
@@ -26,6 +43,15 @@ const getBorderColor = (pct: number) => {
 };
 
 const MatchResultCard = ({ trip, index, joined, onJoin }: MatchResultCardProps) => {
+  const avatarLetter = trip.createdBy ? trip.createdBy.charAt(0).toUpperCase() : "U";
+  const imageSeed = encodeURIComponent(trip.destination || trip.name || trip.id);
+  
+  const hasValidImage = Boolean(trip.imageUrl && trip.imageUrl !== "string" && trip.imageUrl.startsWith("http"));
+  const displayImage = hasValidImage ? trip.imageUrl : `https://picsum.photos/seed/${imageSeed}/800/600`;
+
+  // تقريب نسبة المطابقة لعدد صحيح
+  const formattedMatch = Math.round(trip.matchPercentage || 0);
+  console.log(trip)
   return (
     <Card
       className="animate-fade-in border border-border/90 overflow-hidden transition-shadow hover:shadow-elevated"
@@ -34,8 +60,8 @@ const MatchResultCard = ({ trip, index, joined, onJoin }: MatchResultCardProps) 
       <CardContent className="p-0">
         <div className="flex flex-col md:flex-row">
           {/* Image */}
-          <div className="relative h-48 w-full shrink-0 md:h-auto md:w-56">
-            <img src={trip.image} alt={trip.name} className="h-full w-full object-cover" />
+          <div className="relative h-48 w-full shrink-0 md:h-auto md:w-56 bg-slate-200">
+            <img src={displayImage as string} alt={trip.name} className="h-full w-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/30 hidden md:block" />
           </div>
 
@@ -47,19 +73,19 @@ const MatchResultCard = ({ trip, index, joined, onJoin }: MatchResultCardProps) 
                   <h3 className="font-display text-lg font-semibold text-card-foreground">
                     {trip.name}
                   </h3>
-                  <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5" />
-                    {trip.destination}
-                  </div>
+                  {trip.destination && (
+                    <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {trip.destination}
+                    </div>
+                  )}
                 </div>
 
                 {/* Match circle */}
                 <div className="flex flex-col items-center gap-1 shrink-0">
-                  <div
-                    className={`flex h-14 w-14 items-center justify-center rounded-full border-2 ${getBorderColor(trip.matchPercentage)}`}
-                  >
-                    <span className={`text-lg font-bold ${getMatchColor(trip.matchPercentage)}`}>
-                      {trip.matchPercentage}%
+                  <div className={`flex h-14 w-14 items-center justify-center rounded-full border-2 ${getBorderColor(formattedMatch)}`}>
+                    <span className={`text-lg font-bold ${getMatchColor(formattedMatch)}`}>
+                      {formattedMatch}%
                     </span>
                   </div>
                   <span className="text-[10px] font-medium text-muted-foreground">Match</span>
@@ -71,25 +97,23 @@ const MatchResultCard = ({ trip, index, joined, onJoin }: MatchResultCardProps) 
               <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3.5 w-3.5" />
-                  {new Date(trip.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                  {" – "}
-                  {new Date(trip.endDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  {trip.startDate ? new Date(trip.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "TBD"}
                 </span>
                 <span className="flex items-center gap-1">
                   <Users className="h-3.5 w-3.5" />
-                  {trip.travelers} travelers
+                  {trip.numberOfUser} travelers
                 </span>
-                {trip.budget && <span className="font-medium text-foreground">{trip.budget}</span>}
+                {trip.budget && <span className="font-medium text-foreground">${trip.budget}</span>}
               </div>
 
               <div className="mt-3">
-                <Progress value={trip.matchPercentage} className="h-1.5" />
+                <Progress value={formattedMatch} className="h-1.5" />
               </div>
 
               <div className="mt-3 flex flex-wrap gap-1.5">
-                {trip.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary" className="text-xs font-normal">
-                    {tag}
+                {trip.travelPreference?.map((pref) => (
+                  <Badge key={pref.id} variant="secondary" className="text-xs font-normal">
+                    {pref.name}
                   </Badge>
                 ))}
               </div>
@@ -98,9 +122,9 @@ const MatchResultCard = ({ trip, index, joined, onJoin }: MatchResultCardProps) 
             <div className="mt-4 flex items-center justify-between border-t border-border/90 pt-4">
               <div className="flex items-center gap-2">
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
-                  {trip.createdByAvatar}
+                  {avatarLetter}
                 </div>
-                <span className="text-sm text-muted-foreground">{trip.createdBy}</span>
+                <span className="text-sm text-muted-foreground">{trip.createdBy || "Unknown"}</span>
               </div>
 
               <div className="flex items-center gap-2">

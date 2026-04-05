@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const genderOptions = [
    { id: 0, name: "Any / Mixed" },
@@ -23,6 +24,7 @@ const ageGroupOptions = [
 ];
 
 const CreateTrip = () => {
+   usePageTitle("Plan your next adventure");
    const [token] = useLocalStorage<string>("token", "");
    const navigate = useNavigate();
    const [isLoadingPage, setIsLoadingPage] = useState(true);
