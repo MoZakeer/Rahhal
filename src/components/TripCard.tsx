@@ -15,9 +15,9 @@ export interface ApiTrip {
   status: number;
   tripStatus: string;
   travelPreference?: { id: string; name: string }[];
-  
+
   // حقول إضافية لخصائص الكارت (لو الـ Backend هيبعتها مستقبلاً)
-  destination?: string; 
+  destination?: string;
   isAiGenerated?: boolean;
   isPublic?: boolean;
   isFavorite?: boolean;
@@ -35,9 +35,9 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
 
   // التأكد إن الصورة المبعوتة حقيقية ومش مجرد كلمة "string" أو null
   const hasValidImage = Boolean(
-    trip.imageUrl && 
-    trip.imageUrl !== "" && 
-    trip.imageUrl !== "string" && 
+    trip.imageUrl &&
+    trip.imageUrl !== "" &&
+    trip.imageUrl !== "string" &&
     trip.imageUrl.startsWith("http")
   );
 
@@ -46,8 +46,8 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
   const imageSeed = encodeURIComponent(trip.destination || trip.name || trip.id);
 
   // الحل المضمون: صورة حقيقية لو موجودة، أو صورة مبنية على اسم الوجهة
-  const displayImage = hasValidImage 
-    ? trip.imageUrl 
+  const displayImage = hasValidImage
+    ? (trip.imageUrl ?? `https://picsum.photos/seed/${imageSeed}/800/600`)
     : `https://picsum.photos/seed/${imageSeed}/800/600`;
 
   return (
@@ -98,14 +98,14 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
 
         <div className="p-4">
           <h3 className="font-display text-lg font-semibold text-card-foreground line-clamp-1">{trip.name}</h3>
-          
+
           {trip.destination && (
             <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
               <MapPin className="h-3.5 w-3.5" />
               {trip.destination}
             </div>
           )}
-          
+
           <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{trip.description}</p>
 
           <div className="mt-3 flex flex-wrap gap-1.5">
