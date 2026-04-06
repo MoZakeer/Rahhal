@@ -41,7 +41,7 @@ const ProfilePage: React.FC = () => {
      
           <aside className="lg:col-span-4 xl:col-span-3">
             <div className="lg:sticky lg:top-8 space-y-6">
-              <div className="bg-white dark:bg-zinc-900 rounded-4xl  dark:border-zinc-800 p-8">
+              <div className="bg-white dark:bg-zinc-900 rounded-4xl  dark:border-zinc-800 p-5">
                
                 <ProfileHeader profileId={profileId} isMyProfile={isMyProfile} />
                 <div className=" border-t border-gray-50 dark:border-zinc-800">

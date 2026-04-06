@@ -137,7 +137,7 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
               <p className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-cyan-500 transition-colors">
                 {stat.value}
               </p>
-              <div className="flex items-center justify-center gap-1 text-[10px] font-medium text-gray-400 uppercase tracking-wider mt-1">
+              <div className="flex items-center justify-center gap-1 text-[9px] font-medium text-gray-400 uppercase tracking-wider mt-1">
                 <Icon className="text-sm" />
                 <span>{stat.label}</span>
               </div>

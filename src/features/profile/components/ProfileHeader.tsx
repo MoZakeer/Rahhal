@@ -104,7 +104,7 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
         </p>
 
         {/* Meta Stats (Location/Users) */}
-        <div className="flex flex-col gap-3 w-full mb-6">
+        <div className="flex flex-col gap-3 w-full mb-6 justify-center lg:justify-start items-center lg:items-start">
           <div className="flex items-center gap-3 px-1">
             <div className="p-2 bg-gray-50 dark:bg-zinc-800 rounded-lg">
               <HiOutlineLocationMarker className="text-violet-500" size={18} />
