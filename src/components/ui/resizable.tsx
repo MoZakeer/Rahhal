@@ -1,13 +1,13 @@
 import { GripVertical } from "lucide-react";
-import * as Resizable from "react-resizable-panels";
+import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const ResizablePanelGroup = ({
   className,
   ...props
-}: React.ComponentProps<typeof Resizable.PanelGroup>) => (
-  <Resizable.PanelGroup
+}: React.ComponentProps<typeof PanelGroup>) => (
+  <PanelGroup
     className={cn(
       "flex h-full w-full data-[panel-group-direction=vertical]:flex-col",
       className
@@ -16,16 +16,16 @@ const ResizablePanelGroup = ({
   />
 );
 
-const ResizablePanel = Resizable.Panel;
+const ResizablePanel = Panel;
 
 const ResizableHandle = ({
   withHandle,
   className,
   ...props
-}: React.ComponentProps<typeof Resizable.PanelResizeHandle> & {
+}: React.ComponentProps<typeof PanelResizeHandle> & {
   withHandle?: boolean;
 }) => (
-  <Resizable.PanelResizeHandle
+  <PanelResizeHandle
     className={cn(
       "relative flex w-px items-center justify-center bg-border",
       className
@@ -37,7 +37,7 @@ const ResizableHandle = ({
         <GripVertical className="h-2.5 w-2.5" />
       </div>
     )}
-  </Resizable.PanelResizeHandle>
+  </PanelResizeHandle>
 );
 
 export { ResizablePanelGroup, ResizablePanel, ResizableHandle };
