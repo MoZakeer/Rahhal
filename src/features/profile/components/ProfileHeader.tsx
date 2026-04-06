@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { IoMdSettings, IoMdMail } from "react-icons/io";
+import { HiOutlineLocationMarker, HiOutlineUsers } from "react-icons/hi";
+import { useNavigate } from "react-router-dom";
 import ProfileSettingsDrawer from "./ProfileSettingsDrawer";
 import { useProfileStore } from "../store/profile.store";
-import { IoMdSettings } from "react-icons/io";
-import { useNavigate } from "react-router-dom";
 import ProfileHeaderSkeleton from "../skeletons/ProfileHeaderSkeleton";
 import FollowButton from "../../../shared/components/followButton";
 import axios from "axios";
@@ -13,14 +14,9 @@ interface Props {
   isMyProfile?: boolean;
 }
 
-const ProfileHeader: React.FC<Props> = ({
-  profileId,
-  isMyProfile,
-}) => {
+const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
   const { profile, fetchProfile, loading } = useProfileStore();
-
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,157 +24,128 @@ const ProfileHeader: React.FC<Props> = ({
   }, [profileId, fetchProfile]);
 
   const baseUrl = "https://rahhal-api.runasp.net";
-
   const getProfileImage = (image?: string | null) => {
     if (!image) return null;
-    if (image.startsWith("http")) return image;
-    return baseUrl + image;
+    return image.startsWith("http") ? image : baseUrl + image;
   };
 
-  // Start DM
   const handleSendMessage = async () => {
     try {
       if (!profileId) return;
-
       const response = await axios.post(
-        "https://rahhal-api.runasp.net/Chat/StartDM",
-        {
-          targetProfileId: profileId,
-        },
+        `${baseUrl}/Chat/StartDM`,
+        { targetProfileId: profileId },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem(
-              "token"
-            )}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
             "Content-Type": "application/json",
           },
         }
       );
-
-      const conversationId =
-        response?.data?.data?.conversationId;
-
-      if (conversationId) {
-        navigate(`/chat/${conversationId}`);
-      }
+      const conversationId = response?.data?.data?.conversationId;
+      if (conversationId) navigate(`/chat/${conversationId}`);
     } catch (error) {
-      console.log("Start DM Error:", error);
+      console.log("DM Error:", error);
     }
   };
 
-  if (loading || !profile)
-    return <ProfileHeaderSkeleton />;
-
-  const handleNavigation = (option: string) => {
-    setIsDrawerOpen(false);
-
-    if (option === "edit") {
-      navigate(`/profile/${profileId}/edit`);
-    }
-
-    if (option === "logout") {
-      localStorage.clear();
-      navigate("/landing-page");
-    }
-  };
-
-  const handleCloseDrawer = () => {
-    console.log("Closing drawer, profileId:", profileId);
-    setIsDrawerOpen(false);
-
-    if (profileId) {
-      navigate(`/profile/${profileId}`);
-    }
-  };
+  if (loading || !profile) return <ProfileHeaderSkeleton />;
 
   const image = getProfileImage(profile.profilePicture);
-  const firstLetter =
-    profile.fullName?.charAt(0).toUpperCase() || "U";
+  const firstLetter = profile.fullName?.charAt(0).toUpperCase() || "U";
 
   return (
-    <>
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="flex flex-wrap items-center justify-center sm:justify-between p-4 sm:p-6 bg-white rounded-xl "
-      >
-        {/* Profile Info */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 w-full sm:w-auto">
-          <motion.div className="rounded-full overflow-hidden shrink-0">
+    <div className="w-full">
+      <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+        
+        {/* Avatar Section */}
+        <div className="relative mb-6">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="w-32 h-32 md:w-36 md:h-36 rounded-[2rem] overflow-hidden shadow-xl ring-4 ring-white dark:ring-zinc-800"
+          >
             {image ? (
-              <img
-                src={image}
-                alt="Profile Picture"
-                className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-cyan-500 bg-gray-200"
+              <img 
+                src={image} 
+                alt="Profile" 
+                className="w-full h-full object-cover" 
               />
             ) : (
-              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gray-300 flex items-center justify-center text-white text-3xl font-semibold border-2 border-cyan-500">
+              <div className="w-full h-full bg-gradient-to-br from-violet-500 to-blue-600 flex items-center justify-center text-white text-4xl font-bold">
                 {firstLetter}
               </div>
             )}
           </motion.div>
+          
+          {isMyProfile && (
+            <button 
+              onClick={() => setIsDrawerOpen(true)}
+              className="absolute -bottom-1 -right-1 p-2.5 bg-white dark:bg-zinc-800 rounded-xl shadow-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-gray-300 hover:text-violet-600 transition-colors"
+            >
+              <IoMdSettings size={18} />
+            </button>
+          )}
+        </div>
 
-          <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
-              {profile.fullName}
-            </h2>
+        {/* Name & Username */}
+        <div className="space-y-1 mb-4">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+            {profile.fullName}
+          </h1>
+          <p className="text-violet-600 dark:text-violet-400 font-medium text-sm">
+            @{profile.userName}
+          </p>
+        </div>
 
-            <p className="text-gray-500 text-sm">
-              @{profile.userName}
-            </p>
+        {/* Bio */}
+        <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-6 px-4 lg:px-0">
+          {profile.bio || "Passionate traveler exploring the world one city at a time."}
+        </p>
 
-            <p className="text-gray-500 text-sm mt-1 line-clamp-3">
-              {profile.bio}
-            </p>
+        {/* Meta Stats (Location/Users) */}
+        <div className="flex flex-col gap-3 w-full mb-6">
+          <div className="flex items-center gap-3 px-1">
+            <div className="p-2 bg-gray-50 dark:bg-zinc-800 rounded-lg">
+              <HiOutlineLocationMarker className="text-violet-500" size={18} />
+            </div>
+            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">10 Countries Visited</span>
+          </div>
+          <div className="flex items-center gap-3 px-1">
+            <div className="p-2 bg-gray-50 dark:bg-zinc-800 rounded-lg">
+              <HiOutlineUsers className="text-violet-500" size={18} />
+            </div>
+            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">3 Followers</span>
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-3 mt-3 sm:mt-0">
-          {isMyProfile ? (
+        {/* Action Buttons: Full width in sidebar */}
+        {!isMyProfile && (
+          <div className="flex flex-col gap-3 w-full mt-2">
+            <FollowButton profileId={profileId!} isMyProfile={false} />
             <motion.button
-              onClick={() => setIsDrawerOpen(true)}
-              whileHover={{ scale: 1.05 }}
-              className="p-2 bg-gray-100 rounded-lg flex items-center justify-center shadow-sm"
+              onClick={handleSendMessage}
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center justify-center gap-2 w-full py-3 bg-zinc-900 dark:bg-white dark:text-zinc-900 text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition-all"
             >
-              <IoMdSettings
-                size={20}
-                className="text-gray-600 hover:text-gray-800 transition"
-              />
+              <IoMdMail size={20} />
+              <span>Message</span>
             </motion.button>
-          ) : (
-            profileId && (
-              <div className="flex gap-2">
-                <FollowButton
-                  profileId={profileId}
-                  isMyProfile={isMyProfile}
-                />
+          </div>
+        )}
+      </div>
 
-                <motion.button
-                  onClick={handleSendMessage}
-                  whileHover={{ scale: 1.05 }}
-                  className="px-4 py-2 bg-cyan-600 text-white rounded-lg shadow-sm hover:bg-cyan-700 transition"
-                >
-                  Message
-                </motion.button>
-              </div>
-            )
-          )}
-        </div>
-      </motion.div>
-
-      {/* Drawer */}
-      {isMyProfile && (
-        <ProfileSettingsDrawer
-          isOpen={isDrawerOpen}
-          onClose={handleCloseDrawer}
-          onEditProfile={() =>
-            handleNavigation("edit")
-          }
-        />
-      )}
-    </>
+      {/* Drawer Component */}
+      <AnimatePresence>
+        {isMyProfile && isDrawerOpen && (
+          <ProfileSettingsDrawer
+            isOpen={isDrawerOpen}
+            onClose={() => setIsDrawerOpen(false)}
+            onEditProfile={() => navigate(`/profile/${profileId}/edit`)}
+          />
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 
