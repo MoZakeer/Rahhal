@@ -68,7 +68,7 @@ export const ReportModal = ({
       {/* Overlay */}
       <div
         onClick={onClose}
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0  backdrop-blur-sm"
       />
 
       {/* Modal Card */}
@@ -138,7 +138,7 @@ export const ReportModal = ({
             className={`flex-1 py-2 rounded-xl text-white font-medium transition
               ${
                 isDisabled
-                  ? "bg-red-300 cursor-not-allowed"
+                  ? "bg-red-500 cursor-not-allowed"
                   : "bg-red-500 hover:bg-red-600 active:scale-95"
               }`}
           >

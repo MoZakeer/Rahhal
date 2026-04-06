@@ -8,37 +8,57 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function PostsList() {
   const observer = useRef<IntersectionObserver | null>(null);
 
-  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ["posts"],
     queryFn: ({ pageParam }) => getPostsInfinite(pageParam as number, 10, true),
     initialPageParam: 1,
-    getNextPageParam: (lastPage) => lastPage.data.pageIndex < lastPage.data.pages ? lastPage.data.pageIndex + 1 : undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.data.pageIndex < lastPage.data.pages
+        ? lastPage.data.pageIndex + 1
+        : undefined,
   });
 
-  const lastPostRef = useCallback((node: HTMLDivElement | null) => {
-    if (isFetchingNextPage) return;
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasNextPage) fetchNextPage();
-    }, { rootMargin: "400px" });
-    if (node) observer.current.observe(node);
-  }, [isFetchingNextPage, hasNextPage, fetchNextPage]);
+  const lastPostRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (isFetchingNextPage) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasNextPage) fetchNextPage();
+        },
+        { rootMargin: "400px" },
+      );
+      if (node) observer.current.observe(node);
+    },
+    [isFetchingNextPage, hasNextPage, fetchNextPage],
+  );
 
   // قللنا سطوع الـ Skeleton في الدارك مود عشان ميوجعش العين
-  if (isLoading) return (
-    <div className="space-y-8 dark:opacity-60 transition-opacity">
-      {[1, 2, 3].map(i => <Skeleton key={i} height={400} borderRadius={32} />)}
-    </div>
-  );
-  
-  // ظبطنا لون رسالة الخطأ
-  if (isError) return (
-    <div className="p-10 text-center text-rose-500 dark:text-rose-400 font-bold">
-      Failed to load adventures.
-    </div>
-  );
+  if (isLoading)
+    return (
+      <div className="space-y-8 dark:opacity-60 transition-opacity">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} height={300} borderRadius={32} />
+        ))}
+      </div>
+    );
 
-  const posts = data?.pages.flatMap(page => page.data?.items ?? []) ?? [];
+  // ظبطنا لون رسالة الخطأ
+  if (isError)
+    return (
+      <div className="p-10 text-center text-rose-500 dark:text-rose-400 font-bold">
+        Failed to load adventures.
+      </div>
+    );
+
+  const posts = data?.pages.flatMap((page) => page.data?.items ?? []) ?? [];
 
   return (
     <div className="space-y-8">
@@ -56,11 +76,10 @@ export default function PostsList() {
           </motion.div>
         ))}
       </AnimatePresence>
-      
-      {/* الـ Spinner بتاع التحميل الإضافي (Infinite Scroll) */}
+
       {isFetchingNextPage && (
-        <div className="flex justify-center p-8">
-          <div className="w-8 h-8 border-4 border-indigo-600 dark:border-indigo-500 border-t-transparent dark:border-t-transparent rounded-full animate-spin" />
+        <div className="space-y-8 dark:opacity-60 transition-opacity">
+          <Skeleton height={300} borderRadius={10} />
         </div>
       )}
     </div>

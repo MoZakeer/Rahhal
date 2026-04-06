@@ -3,6 +3,7 @@ import type { PostMediaItem } from "../../../types/post";
 import { PostContent } from "./PostContent";
 import type { PostsResponse } from "../../../types/post";
 import toast from "react-hot-toast";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 import {
   MoreHorizontal,
@@ -197,6 +198,7 @@ export function PostHeader({
 
 export function PostMedia({ media }: { media: PostMediaItem[] }) {
   const [current, setCurrent] = useState(0);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const startX = useRef<number | null>(null);
   const isDragging = useRef(false);
@@ -244,7 +246,8 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
     <div className="w-full">
       {/* Main Image (Swipe Area) */}
       <div
-        className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden group select-none bg-slate-100 dark:bg-slate-900"
+        className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden group select-none bg-slate-100 dark:bg-slate-900 cursor-pointer"
+        onClick={() => setIsPreviewOpen(true)}
         onMouseDown={(e) => handleStart(e.clientX)}
         onMouseMove={(e) => handleMove(e.clientX)}
         onMouseUp={handleEnd}
@@ -278,7 +281,7 @@ transition-all duration-300"
           {media.map((m, i) => (
             <div
               key={m.id}
-              onClick={() => setCurrent(i)}
+        onClick={() => setIsPreviewOpen(true)}
               onMouseEnter={() => setCurrent(i)}
               className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${
                 i === current
@@ -295,6 +298,44 @@ transition-all duration-300"
           ))}
         </div>
       )}
+     {/* Preview Modal */}
+{isPreviewOpen && (
+  <div
+    className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
+    onClick={() => setIsPreviewOpen(false)} 
+  >
+    <div
+      className=" inset-0 bg-black/80 z-50 flex items-center justify-center"
+      onClick={(e) => e.stopPropagation()} 
+    >
+      <button
+        className="absolute top-4 right-4 text-white p-2 rounded-full hover:bg-black/50 z-10"
+        onClick={() => setIsPreviewOpen(false)}
+      >
+        <X size={24} />
+      </button>
+
+      <button
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+        onClick={prev}
+      >
+        <ChevronLeft size={32} />
+      </button>
+
+      <img
+        src={normalizeMediaUrl(media[current].url)}
+        className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
+      />
+
+      <button
+        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+        onClick={next}
+      >
+        <ChevronRight size={32} />
+      </button>
+    </div>
+  </div>
+)}
     </div>
   );
 }
@@ -585,13 +626,14 @@ const followMutation = useMutation({
       )}
 
       {(post.comments ?? 0) > 0 && (
-        <div
-          className="px-4 pb-3 text-sm text-slate-500 dark:text-slate-400 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-          onClick={() => setCommentsOpen(true)}
-        >
-          View all {post.comments}{" "}
-          {post.comments === 1 ? "comment" : "comments"}
-        </div>
+       <div
+  className="px-4 pb-3 text-sm text-slate-500 dark:text-slate-400 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+  onClick={() => setCommentsOpen(prev => !prev)} // toggle
+>
+  {commentsOpen
+    ? "Hide comments"
+    : `View all ${post.comments} ${post.comments === 1 ? "comment" : "comments"}`}
+</div>
       )}
 
       <CommentsModal
