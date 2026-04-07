@@ -24,10 +24,9 @@ function LoginForm() {
  function onSubmit(payload:TLoginInputsType){
    login(payload,{
      onSuccess:(response)=>{
-       const {data,message}=response||{};
+       const {data}=response||{};
        localStorage.setItem("auth",JSON.stringify(data));
        localStorage.setItem("token",data.token);
-       toast.success(message ?? "Welcome");
        navigate("/feed");
      },
      onError:(error:Error)=>toast.error(error.message),

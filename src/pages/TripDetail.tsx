@@ -7,7 +7,7 @@ import { mockTrips } from "@/data/mockData";
 import { useState } from "react";
 import { toast } from "sonner";
 
-const TripDetail = () => {
+const TripDetail = ( ) => {
   const { id } = useParams();
   const trip = mockTrips.find((t) => t.id === id);
   const [isFav, setIsFav] = useState(trip?.isFavorite ?? false);
