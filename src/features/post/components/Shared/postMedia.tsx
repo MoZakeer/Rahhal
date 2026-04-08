@@ -18,7 +18,7 @@ export default function PostMedia({ media, setMedia, fileRef }: Props) {
     if (!files) return;
 
     const newMedia: EditMedia[] = Array.from(files).map((file) => ({
-      mediaId: "",
+      mediaId: crypto.randomUUID(), // 🔥 مهم
       file,
       preview: URL.createObjectURL(file),
     }));
@@ -43,33 +43,10 @@ export default function PostMedia({ media, setMedia, fileRef }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <button
+        type="button"
         onClick={() => fileRef.current?.click()}
-        className="
-        flex items-center gap-2
-        bg-gray-100 hover:bg-gray-200
-        text-gray-700
-        px-4 py-2
-        rounded-full
-        text-sm
-        w-fit
-        transition
-        "
+        className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm w-fit transition"
       >
-
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4 md:h-5 md:w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
         Add Photo
       </button>
 
@@ -84,26 +61,28 @@ export default function PostMedia({ media, setMedia, fileRef }: Props) {
 
       {media.length > 0 && (
         <div className="flex gap-3 overflow-x-auto pb-2">
-          {media.map((m, i) => (
+          {media.map((m) => (
             <div
-              key={i}
+              key={m.mediaId}
               className="relative w-36 h-28 flex-shrink-0 rounded-xl overflow-hidden"
             >
-              <img
-                src={m.preview || (typeof m.file === "string" ? m.file : "")}
-                className="w-full h-full object-cover"
-              />
+              {typeof m.file !== "string" && m.file.type.startsWith("video") ? (
+                <video
+                  src={m.preview}
+                  className="w-full h-full object-cover"
+                  controls
+                />
+              ) : (
+                <img
+                  src={m.preview || (typeof m.file === "string" ? m.file : "")}
+                  className="w-full h-full object-cover"
+                />
+              )}
 
               <button
+                type="button"
                 onClick={() => removeMedia(m.mediaId)}
-                className="
-                absolute top-2 right-2
-                bg-black/60 text-white
-                w-6 h-6
-                rounded-full
-                text-xs
-                flex items-center justify-center
-                "
+                className="absolute top-2 right-2 bg-black/60 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center"
               >
                 ✕
               </button>

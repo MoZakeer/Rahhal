@@ -1,3 +1,4 @@
+import { useRef } from "react";
 
 type Props = {
   caption: string;
@@ -12,7 +13,7 @@ export default function PostCaption({
   maxChars,
   placeholder,
 }: Props) {
-
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const remaining = maxChars - caption.length;
   const warning = remaining <= 50;
@@ -21,6 +22,7 @@ export default function PostCaption({
     <div className="flex flex-col gap-2 relative w-full">
       <div className="relative">
         <textarea
+          ref={textareaRef}
           value={caption}
           onChange={(e) => onChange(e.target.value)}
           maxLength={maxChars}
@@ -42,17 +44,15 @@ export default function PostCaption({
             focus:ring-[var(--color-primary-500)]
           "
         />
-
-
       </div>
 
       <div
-        className={`text-right text-xs ${warning ? "text-red-500" : "text-gray-400"}`}
+        className={`text-right text-xs ${
+          warning ? "text-red-500" : "text-gray-400"
+        }`}
       >
         {caption.length}/{maxChars}
       </div>
-
-
     </div>
   );
 }
