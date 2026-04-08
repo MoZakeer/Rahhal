@@ -101,7 +101,7 @@ ${colorConfig
 const ChartTooltip = RechartsPrimitive.Tooltip;
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
-  RechartsPrimitive.TooltipProps<number, string> &
+  RechartsPrimitive.TooltipProps<any, any> &
     React.ComponentProps<"div"> & {
       hideLabel?: boolean;
       hideIndicator?: boolean;
@@ -182,7 +182,7 @@ const ChartTooltipContent = React.forwardRef<
       >
         {!nestLabel ? tooltipLabel : null}
         <div className="grid gap-1.5">
-          {payload.map((item, index) => {
+          {payload.map((item: any, index: number) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
             const indicatorColor = color || item.payload.fill || item.color;
@@ -258,7 +258,8 @@ const ChartLegend = RechartsPrimitive.Legend;
 const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> &
-    Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
+    Pick<RechartsPrimitive.LegendProps, "verticalAlign"> & {
+      payload?: any[];
       hideIcon?: boolean;
       nameKey?: string;
     }
@@ -273,6 +274,7 @@ const ChartLegendContent = React.forwardRef<
       return null;
     }
 
+<<<<<<< HEAD
     return (
       <div
         ref={ref}
@@ -285,6 +287,16 @@ const ChartLegendContent = React.forwardRef<
         {payload.map((item) => {
           const key = `${nameKey || item.dataKey || "value"}`;
           const itemConfig = getPayloadConfigFromPayload(config, item, key);
+=======
+  return (
+    <div
+      ref={ref}
+      className={cn("flex items-center justify-center gap-4", verticalAlign === "top" ? "pb-3" : "pt-3", className)}
+    >
+      {payload.map((item: any) => {
+        const key = `${nameKey || item.dataKey || "value"}`;
+        const itemConfig = getPayloadConfigFromPayload(config, item, key);
+>>>>>>> e8e6ffe98b51c70d16e1f4b1ccdcccdd20b4a654
 
           return (
             <div
@@ -352,6 +364,7 @@ function getPayloadConfigFromPayload(
     : config[key as keyof typeof config];
 }
 
+<<<<<<< HEAD
 export {
   ChartContainer,
   ChartTooltip,
@@ -360,3 +373,6 @@ export {
   ChartLegendContent,
   ChartStyle,
 };
+=======
+export { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartStyle };
+>>>>>>> e8e6ffe98b51c70d16e1f4b1ccdcccdd20b4a654

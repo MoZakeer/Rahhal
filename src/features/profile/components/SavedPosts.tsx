@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-// import PostCard from "../../post/components/PostCard";
+import { motion } from "framer-motion"; // ضفنا الأنيميشن لتوحيد التجربة
 import PostCardSkeleton from "../skeletons/PostCardSkeleton";
 import type { Post, PostMediaItem } from "../../../types/post";
 import ProfilePostCard from "./ProfilePostCard";
@@ -56,7 +56,7 @@ const SavedPosts: React.FC<Props> = ({ isMyProfile, baseUrl }) => {
           comments: post.comments,
           isLiked: post.isLiked,
           isSaved: post.isSaved,
-          isFollowedByCurrentUser: false, // ممكن تعدلي لو عندك API يجيب info ده
+          isFollowedByCurrentUser: false,
           userId: post.userId,
           profileUrl: post.profileUrl,
         }));
@@ -75,9 +75,10 @@ const SavedPosts: React.FC<Props> = ({ isMyProfile, baseUrl }) => {
 
   if (!isMyProfile) return null;
 
+  // 1. Loading State: Matching ProfilePosts Grid
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
         {[...Array(6)].map((_, i) => (
           <PostCardSkeleton key={i} />
         ))}
@@ -85,33 +86,42 @@ const SavedPosts: React.FC<Props> = ({ isMyProfile, baseUrl }) => {
     );
   }
 
+  // 2. Empty State: Matching ProfilePosts Style
   if (!loading && posts.length === 0) {
     return (
-      <div className="flex justify-center py-16">
-        <div className="w-full max-w-md bg-linear-to-br from-gray-50 to-gray-100 
-                        border border-dashed border-gray-300 rounded-2xl p-10 text-center shadow-sm">
-          <div className="flex justify-center mb-4">
-            <div className="w-14 h-14 flex items-center justify-center 
-                            bg-white rounded-full shadow-sm text-2xl">
-              🔖
-            </div>
-          </div>
-          <h2 className="text-lg font-semibold text-gray-700">No Saved Posts</h2>
-          <p className="text-gray-500 mt-2 text-sm">
-            Posts you save will appear here.
+      <div className="w-full flex justify-center py-20">
+        <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[2.5rem] p-16 text-center shadow-sm w-full max-w-2xl">
+          <span className="text-5xl block mb-4">🔖</span>
+          <h2 className="text-xl font-bold text-gray-800 dark:text-zinc-100">No Saved Posts</h2>
+          <p className="text-gray-500 dark:text-zinc-400 mt-2">
+            When you save a journey, it will appear here for you to explore again.
           </p>
         </div>
       </div>
     );
   }
 
+  // 3. Final Grid: Exact match to ProfilePosts (Layout + Motion)
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
-      {posts.map((post) => (
-        <div key={post.id} className="max-w-full">
-          <ProfilePostCard post={post} />
-        </div>
-      ))}
+    <div className="w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+        {posts.map((post, index) => (
+          <motion.div
+            key={post.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3, delay: index * 0.05 }}
+            whileHover={{ 
+              y: -5, 
+              zIndex: 10,
+              transition: { duration: 0.2 }
+            }} 
+            className="w-full group relative"
+          >
+            <ProfilePostCard post={post} />
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 };
