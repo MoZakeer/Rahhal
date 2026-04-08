@@ -27,9 +27,12 @@ export interface ApiTrip {
   tripStatus: string;
   travelPreference?: { id: string; name: string }[];
   destination?: string;
-  isFavorite?: boolean;
+  isSaved?: boolean;
 }
-
+interface RawApiTrip extends Omit<ApiTrip, 'id' | 'name'> {
+  tripId: string;
+  title: string;
+}
 const filterTypes = [
   { label: "Created", value: 2 },
   { label: "Joined", value: 1 },
@@ -74,10 +77,17 @@ const MyTrips = () => {
 
         const data = await res.json();
         if (data.isSuccess && data.data?.items) {
-          setTrips(data.data.items);
-        } else {
-          setTrips([]);
-        }
+  const normalizedData: ApiTrip[] = data.data.items.map((item: RawApiTrip) => ({
+    ...item,
+    id: item.tripId,   // Create 'id' so TripCard doesn't complain
+    name: item.title,  // Create 'name' so TripCard doesn't complain
+  }));
+
+  setTrips(normalizedData);
+} else {
+  setTrips([]);
+}
+       
       } catch {
         toast.error("Network error while loading adventures.");
       } finally {
@@ -89,13 +99,13 @@ const MyTrips = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [search, activeFilter, activeStatus, pageNumber]);
 
-  const toggleFavorite = async (id: string) => {
+  const toggleFavorite = async (tripid: string) => {
     let token = localStorage.getItem("token") || "";
     token = token.replace(/^"(.*)"$/, "$1");
     if (!token) return toast.error("Please log in.");
 
     setTrips((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, isFavorite: !t.isFavorite } : t)),
+      prev.map((t) => (t.id === tripid ? { ...t, isSaved: !t.isSaved } : t)),
     );
 
     try {
@@ -107,18 +117,20 @@ const MyTrips = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ tripId: id }),
+          body: JSON.stringify({ tripId: tripid }),
         },
       );
-      const data = await res.json();
+const data = await res.json();
+
+
       if (!data.isSuccess) throw new Error();
     } catch {
       setTrips((prev) =>
         prev.map((t) =>
-          t.id === id ? { ...t, isFavorite: !t.isFavorite } : t,
+          t.id === tripid ? { ...t, isSaved: !t.isSaved } : t,
         ),
       );
-      toast.error("Could not update favorites.");
+      toast.error("Could not update saved trips.");
     }
   };
 

@@ -41,7 +41,7 @@ type PlannerForm = {
   activity_level: ActivityLevel;
   user_budget: number;
   user_start_date: string;
-    user_end_date: string;
+  user_end_date: string;
 };
 
 const interestsList = [
@@ -74,7 +74,34 @@ interface SafeImageProps {
   className?: string;
   category?: string;
 }
+interface AIRecommendation {
+  Name: string;
+  Description: string;
+  Image: string;
+  Government: string;
+  Category: string;
+  Location: string;
+  Latitude: string | number;
+  Longitude: number;
+  OpenTime: string;
+  CloseTime: string;
+  TicketPrice: number;
+  Duration: number;
+}
 
+interface AIPlace {
+  place: string;
+  arrival_time: string;
+  departure_time: string;
+  Duration: number;
+  Ticket_Price: number;
+  Category: string;
+  Government: string;
+  Description: string;
+  Image: string;
+  Location: string;
+  List_of_recommendations: AIRecommendation[];
+}
 const SafeImage = ({ src, alt, className, category }: SafeImageProps) => {
   const [imgSrc, setImgSrc] = useState(src);
   const [hasError, setHasError] = useState(false);
@@ -118,7 +145,6 @@ interface Place {
   List_of_recommendations?: Recommendation[];
 }
 type ActivityLevel = "Relaxed" | "Moderate" | "Active";
-const EGYPT_ID = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
 
 const AiPlanner = () => {
   usePageTitle("AI Trip Planner");
@@ -143,8 +169,11 @@ const AiPlanner = () => {
   );
   const [cities, setCities] = useState<City[]>([]);
   const [preferences, setPreferences] = useState<Preference[]>([]);
+  const [countries, setCountries] = useState<City[]>([]);
   const [citySearch, setCitySearch] = useState("");
   const [cityOpen, setCityOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
+  const [countryOpen, setCountryOpen] = useState(false);
   const [form, setForm] = useState<PlannerForm>(() => {
     const savedForm = localStorage.getItem("rahhal_trip_form");
     return savedForm
@@ -157,7 +186,7 @@ const AiPlanner = () => {
           numberOfTravelers: 1,
           budget: 0,
           destinationId: "",
-          countryId: EGYPT_ID,
+          countryId: "",
           gender: 0,
           ageGroup: 1,
           travelPreferencesId: [],
@@ -173,29 +202,45 @@ const AiPlanner = () => {
   const isInterestValid =
     form.user_interests.includes("General Activities") ||
     form.user_interests.length >= 3;
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest(".city-search-container")) {
-        setCityOpen(false);
-      }
-    };
+ useEffect(() => {
+  const handleClickOutside = (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    // Only close if we clicked completely outside both search areas
+    if (!target.closest(".city-search-container") && !target.closest(".country-search-container")) {
+      setCityOpen(false);
+      setCountryOpen(false);
+    }
+  };
 
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
-  }, []);
+  document.addEventListener("click", handleClickOutside);
+  return () => document.removeEventListener("click", handleClickOutside);
+}, []);
+const handleCityInputClick = (e: React.MouseEvent) => {
+  e.stopPropagation(); // Prevents the event from bubbling up
+  setCityOpen((prev) => !prev); // Toggles City
+  setCountryOpen(false);       // Always closes Country
+};
 
+const handleCountryInputClick = (e: React.MouseEvent) => {
+  e.stopPropagation(); // Prevents the event from bubbling up
+  setCountryOpen((prev) => !prev); // Toggles Country
+  setCityOpen(false);              // Always closes City
+};
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [cityRes, prefRes] = await Promise.all([
+        const [cityRes, prefRes, countryres] = await Promise.all([
           fetch("https://rahhal-api.runasp.net/City/GetAll"),
           fetch("https://rahhal-api.runasp.net/TravelPreference/GetAll"),
+          fetch("https://rahhal-api.runasp.net/Country/GetAll"),
         ]);
         const cityData = await cityRes.json();
         const prefData = await prefRes.json();
+        const countryData = await countryres.json();
+
         setCities(cityData.data || []);
         setPreferences(prefData.data || []);
+        setCountries(countryData.data || []);
       } catch {
         toast.error("Failed to load travel data");
       }
@@ -211,31 +256,24 @@ const AiPlanner = () => {
         : [...prev.user_interests, item],
     }));
   };
-
+  const calculateEndDate = (start: string, days: number) => {
+    const date = new Date(start);
+    date.setDate(date.getDate() + (days - 1)); // -1 because day 1 is the start date
+    return date.toISOString().split("T")[0];
+  };
   const handleGenerate = async () => {
     // 1. Basic Field Checks
     if (!form.destinationId) return toast.error("Please select a destination");
     if (!form.user_start_date) return toast.error("Please select a start date");
     if (form.numberOfTravelers < 1)
       return toast.error("At least 1 traveler required");
-    if (form.user_budget < 0) return toast.error("Budget cannot be negative");
+    if (form.user_budget <= 0) return toast.error("Budget cannot be negative");
 
     // 2. Date Logic & Capping
-    const startDate = new Date(form.user_start_date);
-    const endDate = new Date(form.user_end_date);
-
-    if (startDate > endDate) {
-      return toast.error("Start date cannot be after end date");
-    }
-
-    // Calculate the number of days between dates
-    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include the start day
 
     // 3. Sync the 'user_days' state and enforce the 5-day limit
-    const finalDays = Math.min(diffDays, 5);
 
-    if (diffDays > 5) {
+    if (form.user_days > 5) {
       toast.warning(
         "Our AI planner is currently limited to 5 days. We'll generate the first 5 days of your trip!",
       );
@@ -259,7 +297,7 @@ const AiPlanner = () => {
           body: JSON.stringify({
             user_interests: form.user_interests,
             user_governorate: form.user_governorate,
-            user_days: finalDays,
+            user_days: Math.min(form.user_days, 5), // Enforce 5-day limit
             activity_level: form.activity_level,
             user_budget: form.user_budget,
             user_start_date: form.user_start_date,
@@ -268,7 +306,6 @@ const AiPlanner = () => {
           }),
         },
       );
-
       if (!genRes.ok) throw new Error("Generation failed");
 
       // --- STEP B: RETRIEVE (AI GET) ---
@@ -286,20 +323,51 @@ const AiPlanner = () => {
         // --- STEP C: SAVE TO DATABASE (RAHHAL API POST) ---
         const saveBody = {
           data: {
-            itinerary: retrieveData.itinerary, // Sending the nested array structure
+            itinerary: retrieveData.itinerary.map((day: AIPlace[]) =>
+              day.map((item: AIPlace) => ({
+                place: item.place,
+                arrival_time: item.arrival_time,
+                departure_time: item.departure_time,
+                duration: item.Duration || 0,
+                ticket_Price: item.Ticket_Price || 0, // Mapping Pascal to snake_case
+                category: item.Category || "General",
+                government: item.Government || form.user_governorate,
+                description: item.Description || "",
+                image: item.Image || "",
+                location: item.Location || "",
+                list_of_recommendations: (
+                  item.List_of_recommendations || []
+                ).map((rec) => ({
+                  name: rec.Name, // Mapping Name to name
+                  description: rec.Description,
+                  image: rec.Image,
+                  government: rec.Government,
+                  category: rec.Category,
+                  location: rec.Location,
+                  latitude:
+                    typeof rec.Latitude === "string"
+                      ? parseFloat(rec.Latitude)
+                      : rec.Latitude || 0,
+                  longitude: rec.Longitude || 0,
+                  openTime: rec.OpenTime,
+                  closeTime: rec.CloseTime,
+                  ticketPrice: rec.TicketPrice || 0,
+                  duration: rec.Duration || 0,
+                })),
+              })),
+            ),
           },
           name: form.name || `Trip to ${form.user_governorate}`,
-          startDate: form.startDate,
-          endDate: form.endDate,
+          startDate: form.user_start_date,
+          endDate: calculateEndDate(form.user_start_date, form.user_days),
           numberOfTravelers: form.numberOfTravelers,
           gender: form.gender,
           ageGroup: form.ageGroup,
           budget: form.user_budget,
           destinationId: form.destinationId,
-          countryId: EGYPT_ID,
+          countryId: form.countryId,
           travelPreferencesId: form.travelPreferencesId,
         };
-
         const saveRes = await fetch(
           "https://rahhal-api.runasp.net/Plan/SavePlan",
           {
@@ -319,6 +387,7 @@ const AiPlanner = () => {
             "lastResult",
             JSON.stringify(retrieveData.itinerary),
           );
+
           localStorage.setItem("tripStep", "result");
           toast.success("Trip planned and saved to your profile!");
         } else {
@@ -392,14 +461,13 @@ const AiPlanner = () => {
                     </Label>
 
                     <Input
+                    onClick={handleCityInputClick}
                       placeholder="Search city..."
                       className="rounded-xl border-slate-200 h-12"
                       value={citySearch}
                       onChange={(e) => {
                         setCitySearch(e.target.value);
-                        setCityOpen(true);
                       }}
-                      onFocus={() => setCityOpen(true)}
                     />
 
                     {cityOpen && (
@@ -442,8 +510,7 @@ const AiPlanner = () => {
                     )}
                   </div>
                 </div>
-
-                <div className="space-y-2">
+  <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-600">
                     Description
                   </Label>
@@ -455,8 +522,67 @@ const AiPlanner = () => {
                     }
                   />
                 </div>
+                <div
+                  className="space-y-2  country-search-container"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Label className="flex items-center gap-2 text-sm font-semibold text-slate-600">
+                    <MapPin className="w-4 h-4 text-primary" /> Country
+                  </Label>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Input
+                  onClick={handleCountryInputClick}
+                    placeholder="Search country..."
+                    className="rounded-xl border-slate-200 h-12"
+                    value={countrySearch}
+                    onChange={(e) => {
+                      setCountrySearch(e.target.value);
+                    }}
+                  />
+
+                  {countryOpen && (
+                    <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl max-h-60 overflow-auto p-2 animate-in fade-in zoom-in-95 duration-200">
+                      {countries
+                        .filter((c) =>
+                          c.name
+                            .toLowerCase()
+                            .includes(countrySearch.toLowerCase()),
+                        )
+                        .map((c) => (
+                          <div
+                            key={c.id}
+                            className="px-4 py-3 hover:bg-primary/5 rounded-xl cursor-pointer text-sm font-medium transition-colors flex items-center justify-between group"
+                            onClick={() => {
+                              setForm({
+                                ...form,
+                                countryId: c.id,
+                              });
+                              setCountrySearch(c.name);
+                              setCountryOpen(false); // Manually close after selection
+                            }}
+                          >
+                            <span>{c.name}</span>
+                            <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 text-primary transition-all" />
+                          </div>
+                        ))}
+
+                      {countries.filter((c) =>
+                        c.name
+                          .toLowerCase()
+                          .includes(countrySearch.toLowerCase()),
+                      ).length === 0 && (
+                        <div className="p-4 text-center text-slate-400 text-sm">
+                          No countries found
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+              
+
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  
                   <div className="space-y-2">
                     <Label className="text-xs uppercase tracking-wider font-bold text-slate-400">
                       Start Date
@@ -473,18 +599,7 @@ const AiPlanner = () => {
                       }
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs uppercase tracking-wider font-bold text-slate-400">
-                      End Date
-                    </Label>
-                    <Input
-                      type="date"
-                      className="rounded-xl"
-                      onChange={(e) =>
-                        setForm({ ...form, endDate: e.target.value })
-                      }
-                    />
-                  </div>
+
                   <div className="space-y-2">
                     <Label className="text-xs uppercase tracking-wider font-bold text-slate-400 flex items-center gap-1">
                       <Calendar className="w-3 h-3" /> Days
