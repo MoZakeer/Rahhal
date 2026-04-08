@@ -39,7 +39,7 @@ const ProfilePage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
      
-          <aside className="lg:col-span-4 xl:col-span-3">
+          <aside className="lg:col-span-4 xl:col-span-3 z-10">
             <div className="lg:sticky lg:top-8 space-y-6">
               <div className="bg-white dark:bg-zinc-900 rounded-4xl  dark:border-zinc-800 p-5">
                

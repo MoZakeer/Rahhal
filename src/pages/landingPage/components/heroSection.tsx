@@ -1,8 +1,8 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import useAuthNavigation from "../hooks/useAuthNavigation";
 
 const Hero: React.FC = () => {
-  const navigate = useNavigate();
+const handleNavigation = useAuthNavigation();
 
   return (
     <section
@@ -32,7 +32,7 @@ const Hero: React.FC = () => {
 
         <div className="mt-6 flex gap-4">
           <button
-            onClick={() => navigate("/login")}
+            onClick={() => handleNavigation("/create-trip")}
             className="px-6 py-3 rounded-full bg-[var(--color-primary-600)] hover:bg-[var(--color-primary-700)] hover:scale-105
             active:scale-95 transition-all duration-300"
           >
@@ -40,7 +40,7 @@ const Hero: React.FC = () => {
           </button>
 
           <button
-            onClick={() => navigate("/login")}
+            onClick={() => handleNavigation("/explore")}
             className="px-6 py-3 rounded-full border border-white hover:bg-white hover:text-black hover:scale-105
             active:scale-95 transition-all duration-300"
           >

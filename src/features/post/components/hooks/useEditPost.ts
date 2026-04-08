@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { EditMedia } from "../services/editPost";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
+
 export function useEditPost(postId: string) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ export function useEditPost(postId: string) {
 
       setMedia(
         mediaData.map((m: { id: string; url: string }) => ({
-          mediaId: m.id,
+          mediaId: m.id || crypto.randomUUID(), // 🔥 مهم
           file: m.url.startsWith("http")
             ? m.url
             : `${BASE_URL}${m.url}`,
@@ -65,9 +66,8 @@ export function useEditPost(postId: string) {
             : `${BASE_URL}${data.profileURL}`
           : DEFAULT_AVATAR,
       });
-    } catch ( err) {
-      toast.error("Failed to load post: " + err);
-
+    } catch (err) {
+      toast.error("Failed to load post");
 
       setUser({
         name: "Unknown User",
@@ -79,56 +79,57 @@ export function useEditPost(postId: string) {
 
   useEffect(() => {
     fetchPost();
-  }, [postId]);
+  }, []);
 
- const handleUpdatePost = async () => {
-  if (!caption.trim()) return;
+  const handleUpdatePost = async () => {
+    if (!caption.trim() && media.length === 0) return;
 
-  const storedUser = getUserFromStorage();
-  if (!storedUser) return;
+    const storedUser = getUserFromStorage();
+    if (!storedUser) return;
 
-  const { token } = storedUser;
+    const { token } = storedUser;
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const formData = new FormData();
+      const formData = new FormData();
 
-    formData.append("ID", postId);
-    formData.append("Description", caption);
+      formData.append("ID", postId);
+      formData.append("Description", caption);
 
-    media.forEach((m, index) => {
+      media.forEach((m, index) => {
+        // 🟢 صورة قديمة
+        if (typeof m.file === "string") {
+          formData.append(`Media[${index}].MediaId`, m.mediaId);
+        }
 
-      formData.append(`Media[${index}].MediaId`, m.mediaId || "");
+        // 🔵 صورة جديدة
+        if (m.file instanceof File) {
+          formData.append(`Media[${index}].File`, m.file);
+        }
+      });
 
-      if (m.file instanceof File) {
-        formData.append(`Media[${index}].File`, m.file);
-      }
+      const res = await fetch(`${BASE_URL}/Post/Update`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
-    });
+      if (!res.ok) throw new Error("Failed to update post");
 
-    const res = await fetch(`${BASE_URL}/Post/Update`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
+      toast.success("Post updated successfully");
 
-    if (!res.ok) throw new Error("Failed to update post");
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      navigate("/feed");
+    } catch (err) {
+      toast.error("Failed to update post");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    toast.success("Post updated successfully");
-
-    navigate("/feed");
-                queryClient.invalidateQueries({ queryKey: ["posts"] });
-
-
-  } catch (err) {
-    toast.error("Failed to update post ,error: " + err);
-  } finally {
-    setLoading(false);
-  }
-};
   return {
     caption,
     setCaption,
