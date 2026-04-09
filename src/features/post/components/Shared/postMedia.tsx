@@ -9,7 +9,7 @@ export type EditMedia = {
 type Props = {
   media: EditMedia[];
   setMedia: React.Dispatch<React.SetStateAction<EditMedia[]>>;
-  fileRef: React.RefObject<HTMLInputElement | null>;
+  fileRef: React.RefObject<HTMLInputElement>;
 };
 
 export default function PostMedia({ media, setMedia, fileRef }: Props) {
