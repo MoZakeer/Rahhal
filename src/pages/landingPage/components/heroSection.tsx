@@ -8,7 +8,7 @@ const handleNavigation = useAuthNavigation();
     <section
       className="relative h-[85vh] flex items-center px-10 text-white"
       style={{
-        backgroundImage: "url('public/heroSection.png')",
+        backgroundImage: "url('/heroSection.png')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
