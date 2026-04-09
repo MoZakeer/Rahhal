@@ -72,7 +72,7 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
                 className="w-full h-full object-cover" 
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-violet-500 to-blue-600 flex items-center justify-center text-white text-4xl font-bold">
+              <div className="w-full h-full bg-linear-to-br from-violet-500 to-blue-600 flex items-center justify-center text-white text-4xl font-bold">
                 {firstLetter}
               </div>
             )}

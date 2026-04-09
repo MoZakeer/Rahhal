@@ -24,23 +24,23 @@ const navItems = [
   { icon: Plane, label: "My Trips", path: "/my-trips" },
   { icon: MessageCircle, label: "Messages", path: "/chat" },
 ];
-interface Profile{
-    // data: ProfileData | null | undefined;
-    Id: string;
-    Fname: string;
-    Lname: string;
-    userName: string;
-    fullName: string;
-    Bio: string;
-    Location: string;
-    profilePicture: string; // Base64 string or URL
-    BirthDate: string; // ISO string
-    Gender: number;
-    TravelPersonality: number;
-    TravelPreferenceIds: number[];
-    VisitedCountryIds: number[];
-    DreamCountryIds: number[];
-  
+interface Profile {
+  // data: ProfileData | null | undefined;
+  Id: string;
+  Fname: string;
+  Lname: string;
+  userName: string;
+  fullName: string;
+  Bio: string;
+  Location: string;
+  profilePicture: string; // Base64 string or URL
+  BirthDate: string; // ISO string
+  Gender: number;
+  TravelPersonality: number;
+  TravelPreferenceIds: number[];
+  VisitedCountryIds: number[];
+  DreamCountryIds: number[];
+
 }
 export default function Navbar() {
   const location = useLocation();
@@ -57,15 +57,15 @@ export default function Navbar() {
   const { unreadCount } = useNotifications(hasToken);
 
   /* ================= FETCH PROFILE DATA ================= */
-useEffect(() => {
+  useEffect(() => {
     const fetchProfile = async () => {
-      
+
       if (!profileId || !token) return;
 
       try {
-       
+
         const url = `${API_BASE_URL}/Profile/GetUserProfile?ProfileId=${profileId}`;
-        
+
         const res = await fetch(url, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -76,8 +76,8 @@ useEffect(() => {
         if (!res.ok) throw new Error(`Error: ${res.status}`);
 
         const result = await res.json();
-        
-       
+
+
         if (result && result.data) {
           setProfile(result.data);
         }
@@ -88,11 +88,11 @@ useEffect(() => {
 
     fetchProfile();
     const handleUpdate = () => {
-    fetchProfile(); 
-  };
+      fetchProfile();
+    };
 
-  window.addEventListener("profileUpdated", handleUpdate);
-  return () => window.removeEventListener("profileUpdated", handleUpdate);
+    window.addEventListener("profileUpdated", handleUpdate);
+    return () => window.removeEventListener("profileUpdated", handleUpdate);
   }, [profileId, token]);
 
   const [isNavVisible, setIsNavVisible] = useState(true);
@@ -126,9 +126,8 @@ useEffect(() => {
 
   return (
     <header
-      className={`fixed top-0 z-40 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${
-        isNavVisible ? "translate-y-0" : "-translate-y-full"
-      }`}
+      className={`fixed top-0 z-40 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${isNavVisible ? "translate-y-0" : "-translate-y-full"
+        }`}
     >
       <div className="mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo Section */}
@@ -156,11 +155,10 @@ useEffect(() => {
             <Link
               key={path}
               to={path}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-                isActivePath(path)
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${isActivePath(path)
                   ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/30"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-              }`}
+                }`}
             >
               <Icon className="h-5 w-5" />
               <span>{label}</span>
@@ -213,13 +211,23 @@ useEffect(() => {
               {/* User Account Popover */}
               <Popover className="relative hidden lg:block">
                 <Popover.Button className="flex items-center gap-2 p-1 pr-3 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-all outline-none border border-transparent hover:border-slate-100 dark:hover:border-slate-700 group">
-                  <img
-                    src={profile?.profilePicture ? `${API_BASE_URL}${profile.profilePicture}` : "/api/placeholder/40/40"}
-                    className="h-9 w-9 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700"
-                    alt="user"
-                  />
+                  {profile?.profilePicture ? (
+
+                    <img
+                      src={`${API_BASE_URL}${profile.profilePicture}?t=${new Date().getTime()}`}
+                      className="h-9 w-9 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700"
+                      alt="user"
+                    />
+                  ) : (
+
+                    <div className="h-9 w-9 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700 bg-linear-to-br from-purple-600 to-blue-500">
+                      <span className="text-xs font-black text-white uppercase">
+                        {profile?.fullName?.charAt(0) || profile?.userName?.charAt(0) || "U"}
+                      </span>
+                    </div>
+                  )}
                   <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
-                    {profile?.userName || "Account"}
+                    {profile?.userName || "User"}
                   </p>
                   <ChevronDown className="h-4 w-4 text-slate-400 dark:text-slate-500 group-ui-open:rotate-180 transition-transform" />
                 </Popover.Button>
@@ -291,9 +299,9 @@ useEffect(() => {
                   onClick={() => setMobileOpen(false)}
                   className="flex items-center gap-4 p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-500/10 mb-2 border border-indigo-100 dark:border-indigo-500/20"
                 >
-                  <img 
-                    src={profile?.profilePicture ? `${API_BASE_URL}${profile.profilePicture}` : "/api/placeholder/40/40"} 
-                    className="h-12 w-12 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm" 
+                  <img
+                    src={profile?.profilePicture ? `${API_BASE_URL}${profile.profilePicture}` : "/api/placeholder/40/40"}
+                    className="h-12 w-12 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm"
                     alt="avatar"
                   />
                   <div>
@@ -310,11 +318,10 @@ useEffect(() => {
                     key={path}
                     to={path}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${
-                      isActivePath(path)
+                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${isActivePath(path)
                         ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400"
                         : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                    }`}
+                      }`}
                   >
                     <Icon className="h-6 w-6" /> {label}
                   </Link>
