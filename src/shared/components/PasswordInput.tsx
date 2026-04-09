@@ -5,7 +5,7 @@ import {
   HiOutlineEyeSlash,
   HiOutlineLockClosed,
 } from "react-icons/hi2";
-import  Input  from "./Input";
+import Input from "./Input";
 
 interface PasswordInputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
@@ -14,13 +14,13 @@ interface PasswordInputProps
 }
 
 const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
-  ({  error, className, ...props }, ref) => {
+  ({ error, className, ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
       <div className="relative">
         <Input
-          ref={ref}
+          ref={ref} 
           {...props}
           type={showPassword ? "text" : "password"}
           className={`pr-10 ${className}`}
