@@ -222,6 +222,7 @@ export default function EditProfilePage() {
             setSaving(true);
 
             await updateProfile(formDataToSend);
+            window.dispatchEvent(new Event("profileUpdated"));
             await fetchProfile(profileId);
 
             toast.success("Profile updated!");

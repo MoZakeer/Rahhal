@@ -87,6 +87,12 @@ useEffect(() => {
     };
 
     fetchProfile();
+    const handleUpdate = () => {
+    fetchProfile(); 
+  };
+
+  window.addEventListener("profileUpdated", handleUpdate);
+  return () => window.removeEventListener("profileUpdated", handleUpdate);
   }, [profileId, token]);
 
   const [isNavVisible, setIsNavVisible] = useState(true);
