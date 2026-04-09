@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
-// الواجهة مطابقة للـ API الحقيقي
 export interface ApiMatchTrip {
   id: string;
   name: string;
@@ -17,7 +16,7 @@ export interface ApiMatchTrip {
   createdBy: string;
   status: number;
   tripStatus: string;
-  matchPercentage: number; // الحقل الجديد من الـ API
+  matchPercentage: number;
   travelPreference?: { id: string; name: string }[];
   destination?: string;
   budget?: number;
@@ -49,9 +48,7 @@ const MatchResultCard = ({ trip, index, joined, onJoin }: MatchResultCardProps) 
   const hasValidImage = Boolean(trip.imageUrl && trip.imageUrl !== "string" && trip.imageUrl.startsWith("http"));
   const displayImage = hasValidImage ? trip.imageUrl : `https://picsum.photos/seed/${imageSeed}/800/600`;
 
-  // تقريب نسبة المطابقة لعدد صحيح
   const formattedMatch = Math.round(trip.matchPercentage || 0);
-  console.log(trip)
   return (
     <Card
       className="animate-fade-in border border-border/90 overflow-hidden transition-shadow hover:shadow-elevated"

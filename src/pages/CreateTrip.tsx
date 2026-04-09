@@ -32,7 +32,7 @@ const CreateTrip = () => {
 
    // Data from APIs
    const [countries, setCountries] = useState<any[]>([]);
-   const [cities, setCities] = useState<any[]>([]); // State جديد للمدن
+   const [cities, setCities] = useState<any[]>([]);
    const [preferences, setPreferences] = useState<any[]>([]);
 
    // Form State
@@ -57,7 +57,6 @@ const CreateTrip = () => {
    useEffect(() => {
       const fetchInitialData = async () => {
          try {
-            // قمنا بإضافة رابط City/GetAll بناءً على التخمين
             const [countriesRes, preferencesRes, citiesRes] = await Promise.all([
                fetch("https://rahhal-api.runasp.net/Country/GetAll?SortByLastAdded=true"),
                fetch("https://rahhal-api.runasp.net/TravelPreference/GetAll?SortByLastAdded=true", {
@@ -69,18 +68,14 @@ const CreateTrip = () => {
             const countriesData = await countriesRes.json();
             const preferencesData = await preferencesRes.json();
 
-            // التحقق من أن السيرفر رد بشكل صحيح (وليست صفحة 404)
             if (citiesRes.ok) {
                const citiesData = await citiesRes.json();
                if (citiesData.isSuccess) setCities(citiesData.data);
-            } else {
-               // console.warn("مسار City/GetAll غير موجود أو به خطأ");
             }
 
             if (countriesData.isSuccess) setCountries(countriesData.data);
             if (preferencesData.isSuccess) setPreferences(preferencesData.data);
          } catch (error) {
-            // console.error("Error fetching data:", error);
             toast.error("Failed to load initial data. Please refresh.");
          } finally {
             setIsLoadingPage(false);
@@ -112,11 +107,12 @@ const CreateTrip = () => {
 
       const numericBudget = Number(form.budget.toString().replace(/[^0-9.-]+/g, "")) || 0;
 
+      // 1. التعديل الجوهري: إرسال التاريخ كما هو (YYYY-MM-DD) بدون وقت
       const payload = {
          name: form.name,
          description: form.description || "",
-         startDate: new Date(form.startDate).toISOString(),
-         endDate: new Date(form.endDate).toISOString(),
+         startDate: form.startDate, // تم إزالة .toISOString()
+         endDate: form.endDate,     // تم إزالة .toISOString()
          numberOfTravelers: Number(form.travelers),
          budget: numericBudget,
          destinationId: form.destinationId,
@@ -127,12 +123,13 @@ const CreateTrip = () => {
       };
 
       try {
-      //   let token = localStorage.getItem("token") || "";
+         const cleanToken = token.replace(/^"(.*)"$/, '$1');
+
          const response = await fetch("https://rahhal-api.runasp.net/TripManagement/Create", {
             method: "POST",
             headers: {
                "Content-Type": "application/json",
-               "Authorization": `Bearer ${token}`
+               "Authorization": `Bearer ${cleanToken}`
             },
             body: JSON.stringify(payload),
          });
@@ -145,10 +142,8 @@ const CreateTrip = () => {
             navigate("/explore");
          } else {
             toast.error(result.message || "Failed to create trip.");
-            // console.error("API Error:", result);
          }
       } catch (error) {
-        //  console.error("Network Error:", error);
          toast.error("An unexpected error occurred. Please try again.");
       } finally {
          setIsSubmitting(false);
