@@ -81,6 +81,7 @@ const Explore = () => {
 
         const data = await res.json();
         if (data.isSuccess && data.data?.items) {
+          console.log("Fetched trips:", data.data.items);
           if (pageNumber === 1) {
             setTrips(data.data.items);
           } else {
