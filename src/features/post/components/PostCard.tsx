@@ -101,19 +101,19 @@ export function PostHeader({
     >
       <div className="flex items-center gap-3">
         <img
-        onClick={(e) => {
-    e.stopPropagation(); 
-    navigate(`/profile/${profileId}`);
-  }}
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/profile/${profileId}`);
+          }}
           src={normalizeMediaUrl(profileUrl)}
           className="w-10 h-10 rounded-full object-cover"
         />
         <div className="flex flex-col leading-tight">
           <span
-         onClick={(e) => {
-    e.stopPropagation(); 
-    navigate(`/profile/${profileId}`);
-  }}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/profile/${profileId}`);
+            }}
             className="font-semibold cursor-pointer text-slate-900 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
           >
             {userName}
@@ -126,8 +126,12 @@ export function PostHeader({
         </div>
       </div>
 
-      <div className="flex items-center gap-2" onClick={(e) => {
-    e.stopPropagation(); }}>
+      <div
+        className="flex items-center gap-2"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
         {!isOwner && (
           <button
             onClick={onFollow}
@@ -219,23 +223,6 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
     isDragging.current = true;
   };
 
-  // Drag Move
-  const handleMove = (x: number) => {
-    if (!isDragging.current || startX.current === null) return;
-
-    const diff = x - startX.current;
-
-    // Threshold prevents accidental swipes
-    if (diff > 80) {
-      prev();
-      isDragging.current = false;
-    }
-
-    if (diff < -80) {
-      next();
-      isDragging.current = false;
-    }
-  };
 
   const handleEnd = () => {
     isDragging.current = false;
@@ -247,20 +234,30 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
       {/* Main Image (Swipe Area) */}
       <div
         className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden group select-none bg-slate-100 dark:bg-slate-900 cursor-pointer"
-        onClick={() => setIsPreviewOpen(true)}
         onMouseDown={(e) => handleStart(e.clientX)}
-        onMouseMove={(e) => handleMove(e.clientX)}
         onMouseUp={handleEnd}
         onMouseLeave={handleEnd}
         onTouchStart={(e) => handleStart(e.touches[0].clientX)}
-        onTouchMove={(e) => handleMove(e.touches[0].clientX)}
         onTouchEnd={handleEnd}
       >
+        <button
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+          onClick={prev}
+        >
+          <ChevronLeft size={32} />
+        </button>
         <img
+          onClick={() => setIsPreviewOpen(true)}
           src={normalizeMediaUrl(media[current].url)}
           className="w-full h-full object-cover transition-transform duration-300"
           draggable={false}
         />
+        <button
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+          onClick={next}
+        >
+          <ChevronRight size={32} />
+        </button>
 
         {/* Counter */}
         <div
@@ -281,7 +278,7 @@ transition-all duration-300"
           {media.map((m, i) => (
             <div
               key={m.id}
-        onClick={() => setIsPreviewOpen(true)}
+              onClick={() => setIsPreviewOpen(true)}
               onMouseEnter={() => setCurrent(i)}
               className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${
                 i === current
@@ -298,44 +295,44 @@ transition-all duration-300"
           ))}
         </div>
       )}
-     {/* Preview Modal */}
-{isPreviewOpen && (
-  <div
-    className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
-    onClick={() => setIsPreviewOpen(false)} 
-  >
-    <div
-      className=" inset-0 bg-black/80 z-50 flex items-center justify-center"
-      onClick={(e) => e.stopPropagation()} 
-    >
-      <button
-        className="absolute top-4 right-4 text-white p-2 rounded-full hover:bg-black/50 z-10"
-        onClick={() => setIsPreviewOpen(false)}
-      >
-        <X size={24} />
-      </button>
+      {/* Preview Modal */}
+      {isPreviewOpen && (
+        <div
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
+          onClick={() => setIsPreviewOpen(false)}
+        >
+          <div
+            className=" inset-0 bg-black/80 z-50 flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-4 right-4 text-white p-2 rounded-full hover:bg-black/50 z-10"
+              onClick={() => setIsPreviewOpen(false)}
+            >
+              <X size={24} />
+            </button>
 
-      <button
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
-        onClick={prev}
-      >
-        <ChevronLeft size={32} />
-      </button>
+            <button
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+              onClick={prev}
+            >
+              <ChevronLeft size={32} />
+            </button>
 
-      <img
-        src={normalizeMediaUrl(media[current].url)}
-        className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
-      />
+            <img
+              src={normalizeMediaUrl(media[current].url)}
+              className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
+            />
 
-      <button
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
-        onClick={next}
-      >
-        <ChevronRight size={32} />
-      </button>
-    </div>
-  </div>
-)}
+            <button
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+              onClick={next}
+            >
+              <ChevronRight size={32} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -436,91 +433,95 @@ export default function PostCard({ post }: { post: Post }) {
 
   const queryClient = useQueryClient();
 
-const followMutation = useMutation({
-  mutationFn: followUser,
+  const followMutation = useMutation({
+    mutationFn: followUser,
 
-  onMutate: async (userId: string) => {
-    await queryClient.cancelQueries({ queryKey: ["posts"] });
-    await queryClient.cancelQueries({ queryKey: ["PostDetails"] });
+    onMutate: async (userId: string) => {
+      await queryClient.cancelQueries({ queryKey: ["posts"] });
+      await queryClient.cancelQueries({ queryKey: ["PostDetails"] });
 
-    const previousPosts =
-      queryClient.getQueryData<InfiniteData<PostsResponse>>(["posts"]);
+      const previousPosts = queryClient.getQueryData<
+        InfiniteData<PostsResponse>
+      >(["posts"]);
 
-    // Optimistic update: feed cache
-    queryClient.setQueryData<InfiniteData<PostsResponse>>(["posts"], (old) => {
-      if (!old) return old;
-      return {
-        ...old,
-        pages: old.pages.map((page) => ({
-          ...page,
-          data: {
-            ...page.data,
-            items: page.data.items.map((p) =>
-              p.userId === userId
-                ? {
-                    ...p,
-                    isFollowedByCurrentUser: !p.isFollowedByCurrentUser,
-                  }
-                : p
-            ),
-          },
-        })),
-      };
-    });
+      // Optimistic update: feed cache
+      queryClient.setQueryData<InfiniteData<PostsResponse>>(
+        ["posts"],
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              data: {
+                ...page.data,
+                items: page.data.items.map((p) =>
+                  p.userId === userId
+                    ? {
+                        ...p,
+                        isFollowedByCurrentUser: !p.isFollowedByCurrentUser,
+                      }
+                    : p,
+                ),
+              },
+            })),
+          };
+        },
+      );
 
-    // ✅ Optimistic update: PostDetails cache
-    // Find the post in feed to get its postId
-    const feedPost = queryClient
-      .getQueryData<InfiniteData<PostsResponse>>(["posts"])
-      ?.pages.flatMap((p) => p.data.items)
-      .find((p) => p.userId === userId);
+      // ✅ Optimistic update: PostDetails cache
+      // Find the post in feed to get its postId
+      const feedPost = queryClient
+        .getQueryData<InfiniteData<PostsResponse>>(["posts"])
+        ?.pages.flatMap((p) => p.data.items)
+        .find((p) => p.userId === userId);
 
-    if (feedPost) {
-      const currentPost = queryClient.getQueryData<PostDetails>([
-        "PostDetails",
-        feedPost.id,
-      ]);
-      if (currentPost) {
-        queryClient.setQueryData<PostDetails>(["PostDetails", feedPost.id], {
-          ...currentPost,
-          isFollowedByCurrentUser: !currentPost.isFollowedByCurrentUser,
-        });
+      if (feedPost) {
+        const currentPost = queryClient.getQueryData<PostDetails>([
+          "PostDetails",
+          feedPost.id,
+        ]);
+        if (currentPost) {
+          queryClient.setQueryData<PostDetails>(["PostDetails", feedPost.id], {
+            ...currentPost,
+            isFollowedByCurrentUser: !currentPost.isFollowedByCurrentUser,
+          });
+        }
       }
-    }
 
-    return { previousPosts };
-  },
+      return { previousPosts };
+    },
 
-  // ✅ Sync PostDetails cache with confirmed value from feed
-  onSuccess: (_data, userId) => {
-    const feedPost = queryClient
-      .getQueryData<InfiniteData<PostsResponse>>(["posts"])
-      ?.pages.flatMap((p) => p.data.items)
-      .find((p) => p.userId === userId);
+    // ✅ Sync PostDetails cache with confirmed value from feed
+    onSuccess: (_data, userId) => {
+      const feedPost = queryClient
+        .getQueryData<InfiniteData<PostsResponse>>(["posts"])
+        ?.pages.flatMap((p) => p.data.items)
+        .find((p) => p.userId === userId);
 
-    if (feedPost) {
-      const currentPost = queryClient.getQueryData<PostDetails>([
-        "PostDetails",
-        feedPost.id,
-      ]);
-      if (currentPost) {
-        queryClient.setQueryData<PostDetails>(["PostDetails", feedPost.id], {
-          ...currentPost,
-          isFollowedByCurrentUser: feedPost.isFollowedByCurrentUser,
-        });
+      if (feedPost) {
+        const currentPost = queryClient.getQueryData<PostDetails>([
+          "PostDetails",
+          feedPost.id,
+        ]);
+        if (currentPost) {
+          queryClient.setQueryData<PostDetails>(["PostDetails", feedPost.id], {
+            ...currentPost,
+            isFollowedByCurrentUser: feedPost.isFollowedByCurrentUser,
+          });
+        }
       }
-    }
-  },
+    },
 
-  onError: (_err, _userId, context) => {
-    if (context?.previousPosts) {
-      queryClient.setQueryData(["posts"], context.previousPosts);
-    }
-  },
+    onError: (_err, _userId, context) => {
+      if (context?.previousPosts) {
+        queryClient.setQueryData(["posts"], context.previousPosts);
+      }
+    },
 
-  // ✅ No invalidation — GetAll returns wrong isFollowedByCurrentUser
-  onSettled: () => {},
-});
+    // ✅ No invalidation — GetAll returns wrong isFollowedByCurrentUser
+    onSettled: () => {},
+  });
 
   function handleFollow() {
     followMutation.mutate(post.userId);
@@ -552,7 +553,7 @@ const followMutation = useMutation({
       }
     }
   };
-  
+
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm mb-6 max-w-xl mx-auto border border-transparent dark:border-slate-700/60 transition-colors">
       <PostHeader
@@ -571,7 +572,7 @@ const followMutation = useMutation({
       {!hasMedia && (
         <PostContent
           description={post.description}
-          className="px-4 py-8 text-lg font-medium leading-relaxed text-slate-900 dark:text-slate-100"
+          className="px-4 py-8 text-lg font-medium wrap-break-word leading-relaxed text-slate-900 dark:text-slate-100"
         />
       )}
 
@@ -621,19 +622,19 @@ const followMutation = useMutation({
       {hasMedia && (
         <PostContent
           description={post.description}
-          className="px-4 mt-1 text-sm text-slate-800 dark:text-slate-200"
+          className="px-4 mt-1 text-sm leading-relaxed wrap-break-word text-slate-800 dark:text-slate-200"
         />
       )}
 
       {(post.comments ?? 0) > 0 && (
-       <div
-  className="px-4 pb-3 text-sm text-slate-500 dark:text-slate-400 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-  onClick={() => setCommentsOpen(prev => !prev)} // toggle
->
-  {commentsOpen
-    ? "Hide comments"
-    : `View all ${post.comments} ${post.comments === 1 ? "comment" : "comments"}`}
-</div>
+        <div
+          className="px-4 pb-3 text-sm text-slate-500 dark:text-slate-400 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+          onClick={() => setCommentsOpen((prev) => !prev)} // toggle
+        >
+          {commentsOpen
+            ? "Hide comments"
+            : `View all ${post.comments} ${post.comments === 1 ? "comment" : "comments"}`}
+        </div>
       )}
 
       <CommentsModal

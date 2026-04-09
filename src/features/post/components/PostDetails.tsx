@@ -1297,7 +1297,7 @@ export default function PostDetailsPage() {
         {!hasMedia && (
           <PostContent
             description={PostDetails.description}
-            className="px-4 py-8 text-lg font-medium leading-relaxed text-slate-900 dark:text-slate-100"
+            className="px-4 py-8 text-lg font-medium wrap-break-word leading-relaxed text-slate-900 dark:text-slate-100"
           />
         )}
         {hasMedia && <PostMedia media={PostDetails.media_URLs} />}
@@ -1322,7 +1322,7 @@ export default function PostDetailsPage() {
       {hasMedia && (
         <PostContent
           description={PostDetails.description}
-          className="px-4 mt-1 text-sm text-slate-800 dark:text-slate-200"
+          className="px-4 mt-1 text-sm wrap-break-word text-slate-800 dark:text-slate-200"
         />
       )}
 
