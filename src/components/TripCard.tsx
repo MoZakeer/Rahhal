@@ -20,7 +20,7 @@ export interface ApiTrip {
   destination?: string;
   isAiGenerated?: boolean;
   isPublic?: boolean;
-  isFavorite?: boolean;
+  isSaved?: boolean;
   matchPercentage?: number;
 }
 
@@ -86,7 +86,7 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
               onToggleFavorite?.(trip.id);
             }}
           >
-            <Heart className={`h-4 w-4 ${trip.isFavorite ? "fill-destructive text-destructive" : "text-muted-foreground"}`} />
+            <Heart className={`h-4 w-4 ${trip.isSaved ? "fill-destructive text-destructive" : "text-muted-foreground"}`} />
           </Button>
 
           {trip.matchPercentage && (

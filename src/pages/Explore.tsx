@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search, SlidersHorizontal, Compass, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,17 +10,22 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 
 const Explore = () => {
   usePageTitle("Explore the World");
+  
   const [trips, setTrips] = useState<any[]>([]);
   const [preferences, setPreferences] = useState<any[]>([]);
   
-  const [isLoadingTrips, setIsLoadingTrips] = useState(true);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [activeFilterId, setActiveFilterId] = useState<string>("ALL");
   
   const [pageNumber, setPageNumber] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingInitial, setIsLoadingInitial] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
   const constPageSize = 20; 
 
-  // 1. جلب الاهتمامات
+  const observerTarget = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const fetchPreferences = async () => {
       try {
@@ -38,18 +43,28 @@ const Explore = () => {
     fetchPreferences();
   }, []);
 
-  // 2. جلب الرحلات
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      if (search !== debouncedSearch) {
+        setPageNumber(1); 
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
+
   useEffect(() => {
     const fetchTrips = async () => {
-      setIsLoadingTrips(true);
+      if (pageNumber === 1) setIsLoadingInitial(true);
+      else setIsFetchingMore(true);
+
       try {
         let token = localStorage.getItem("token") || "";
         token = token.replace(/^"(.*)"$/, '$1');
-
         let url = `https://rahhal-api.runasp.net/TripManagement/GetAll?PageNumber=${pageNumber}&PageSize=${constPageSize}&SortByLastAdded=true`;
         
-        if (search.trim() !== "") {
-          url += `&SearchTerm=${encodeURIComponent(search.trim())}`;
+        if (debouncedSearch.trim() !== "") {
+          url += `&SearchTerm=${encodeURIComponent(debouncedSearch.trim())}`;
         }
         
         if (activeFilterId !== "ALL") {
@@ -66,75 +81,98 @@ const Explore = () => {
 
         const data = await res.json();
         if (data.isSuccess && data.data?.items) {
-          setTrips(data.data.items);
+          console.log("Fetched trips:", data.data.items);
+          if (pageNumber === 1) {
+            setTrips(data.data.items);
+          } else {
+            setTrips((prev) => {
+              const existingIds = new Set(prev.map(t => t.id));
+              const newTrips = data.data.items.filter((t: any) => !existingIds.has(t.id));
+              return [...prev, ...newTrips];
+            });
+          }
+          setHasMore(pageNumber < (data.data.pages || 1));
         } else {
-          toast.error("Failed to load trips.");
+          if (pageNumber === 1) setTrips([]);
+          setHasMore(false);
         }
       } catch (error) {
         console.error("Error fetching trips:", error);
         toast.error("Network error while loading trips.");
       } finally {
-        setIsLoadingTrips(false);
+        setIsLoadingInitial(false);
+        setIsFetchingMore(false);
       }
     };
 
-    const delayDebounceFn = setTimeout(() => {
-      fetchTrips();
-    }, 500);
+    fetchTrips();
+  }, [debouncedSearch, activeFilterId, pageNumber]); 
 
-    return () => clearTimeout(delayDebounceFn);
-  }, [search, activeFilterId, pageNumber]); 
+  // Infinite Scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingInitial && !isFetchingMore) {
+          setPageNumber((prev) => prev + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
 
-  // 3. تحديث دالة الـ Favorite لتتصل بالـ API (Optimistic Update)
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasMore, isLoadingInitial, isFetchingMore]);
+
+  // Todo: Toggle endpoint in AIP
   const toggleFavorite = async (id: string) => {
-    // تجهيز التوكن (لأن الـ Favorite بيحتاج المستخدم يكون مسجل دخول)
     let token = localStorage.getItem("token") || "";
     token = token.replace(/^"(.*)"$/, '$1');
 
     if (!token) {
-      toast.error("Please log in to save trips to your favorites.");
+      toast.error("Please log in to update your favorites.");
       return;
     }
 
-    // A. التحديث المتفائل: تغيير حالة القلب في الواجهة فوراً
+    const targetTrip = trips.find(t => t.id === id);
+    const isCurrentlySaved = targetTrip?.isFavorite || targetTrip?.isSaved;
+
     setTrips((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, isFavorite: !t.isFavorite } : t))
+      prev.map((t) => (t.id === id ? { ...t, isFavorite: !isCurrentlySaved, isSaved: !isCurrentlySaved } : t))
     );
 
     try {
-      // B. إرسال الطلب للسيرفر
-      // شيلنا الـ ?tripId=${id} من الرابط، وحطيناها في الـ body
       const res = await fetch(`https://rahhal-api.runasp.net/TripManagement/SaveTrip`, {
         method: "POST", 
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        // ضفنا السطر ده عشان نبعت الـ ID جوه الـ Body
         body: JSON.stringify({ tripId: id }) 
       });
 
       const data = await res.json();
       
-      // C. لو السيرفر رفض الطلب (isSuccess: false)
       if (!data.isSuccess) {
-        // نرجع حالة القلب زي ما كانت (Rollback)
         setTrips((prev) =>
-          prev.map((t) => (t.id === id ? { ...t, isFavorite: !t.isFavorite } : t))
+          prev.map((t) => (t.id === id ? { ...t, isFavorite: isCurrentlySaved, isSaved: isCurrentlySaved } : t))
         );
-        toast.error(data.message || "Failed to save trip.");
+        toast.error(data.message || "Failed to update trip.");
       } else {
-        toast.success("Trip saved successfully!");
+        if (isCurrentlySaved) {
+          toast.success("Removed from favorites");
+        } else {
+          toast.success("Trip saved successfully!");
+        }
       }
-
     } catch (error) {
-      // D. لو النت فصل أو حصل خطأ في الشبكة
-      console.error("Error saving trip:", error);
-      // نرجع حالة القلب زي ما كانت
+      console.error("Error updating trip:", error);
       setTrips((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, isFavorite: !t.isFavorite } : t))
+        prev.map((t) => (t.id === id ? { ...t, isFavorite: isCurrentlySaved, isSaved: isCurrentlySaved } : t))
       );
-      toast.error("Network error. Could not save trip.");
+      toast.error("Network error. Could not update trip.");
     }
   };
 
@@ -182,7 +220,7 @@ const Explore = () => {
             className="cursor-pointer transition-colors"
             onClick={() => {
               setActiveFilterId("ALL");
-              setPageNumber(1);
+              setPageNumber(1); 
             }}
           >
             All
@@ -208,11 +246,11 @@ const Explore = () => {
       <div className="container mx-auto py-8">
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            {isLoadingTrips ? "Searching..." : `${trips.length} trips found (Page ${pageNumber})`}
+            {isLoadingInitial ? "Searching..." : `${trips.length} trips loaded`}
           </p>
         </div>
 
-        {isLoadingTrips ? (
+        {isLoadingInitial ? (
           <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
             <Loader2 className="mb-4 h-12 w-12 animate-spin text-primary" />
             <p className="text-lg font-medium">Loading trips...</p>
@@ -221,7 +259,7 @@ const Explore = () => {
           <>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {trips.map((trip, i) => (
-                <div key={trip.id} className="animate-fade-in" style={{ animationDelay: `${(i % 10) * 100}ms` }}>
+                <div key={trip.id} className="animate-fade-in" style={{ animationDelay: `${(i % 10) * 50}ms` }}>
                   <TripCard trip={trip} onToggleFavorite={toggleFavorite} />
                 </div>
               ))}
@@ -234,6 +272,14 @@ const Explore = () => {
                 <p className="text-sm">Try adjusting your search or filters</p>
               </div>
             )}
+
+            {isFetchingMore && (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            )}
+
+            <div ref={observerTarget} className="h-10 w-full" />
           </>
         )}
       </div>
