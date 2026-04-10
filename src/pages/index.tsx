@@ -11,7 +11,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotificationsPage from "../shared/components/NotificationsPage.tsx";
 
-<Route path="/notifications" element={<NotificationsPage />} />;
 // Landing page
 import LandingPage from "./landingPage/landingPage.tsx";
 
@@ -71,7 +70,7 @@ const queryClient = new QueryClient();
 const Pages = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(isTokenValid());
 
- // This function flips the state and triggers a re-render
+  // This function flips the state and triggers a re-render
   const handleAuthChange = () => {
     setIsAuthenticated(isTokenValid());
   };
@@ -96,13 +95,18 @@ const Pages = () => {
               <Route path="/verify-email" element={<VerifyEmail />} />
               <Route path="/landing-page" element={<LandingPage />} />
               <Route path="/sign-up" element={<SignUp />} />
-<Route path="/login" element={<Login onLoginSuccess={handleAuthChange} />} />            </Route>
+              <Route
+                path="/login"
+                element={<Login onLoginSuccess={handleAuthChange} />}
+              />{" "}
+            </Route>
 
             {/* Main App Routes (Protected via Layout) */}
             <Route
               element={
                 isAuthenticated ? (
-<MainLayout onLogout={updateAuth} />                ) : (
+                  <MainLayout onLogout={updateAuth} />
+                ) : (
                   <Navigate to="/login" replace />
                 )
               }
@@ -134,7 +138,6 @@ const Pages = () => {
                   )
                 }
               />
-
               {/* Social / Feed / Explore */}
               <Route
                 path="/feed"
@@ -158,7 +161,6 @@ const Pages = () => {
                   )
                 }
               />
-
               {/* Trips & Planning */}
               <Route
                 path="/my-trips"
@@ -190,7 +192,6 @@ const Pages = () => {
                   isAuthenticated ? <TripMatching /> : <Navigate to="/login" />
                 }
               />
-
               {/* Groups & Search */}
               <Route
                 path="/groups/:groupId"
@@ -209,36 +210,32 @@ const Pages = () => {
                 }
               />
               <Route path="/notifications" element={<NotificationsPage />} />
-
-             
-
               <Route
                 path="/settings"
                 element={
                   isAuthenticated ? <SettingPage /> : <Navigate to="/login" />
                 }
               />
-                {/* Admin */}
-            <Route element={<SuperAdminRoute />}>
-              <Route path="/admin/reports/:type" element={<ReportsPage />} />
-              <Route path="/report_details/:id" element={<ReportsDetails />} />
-            </Route>
-            </Route>
-          
- {/* Chat Routes */}
-              <Route
-                path="/chat"
-                element={
-                  isAuthenticated ? <ChatPage /> : <Navigate to="/login" />
-                }
-              >
-                <Route index element={<EmptyState />} />
-                <Route path=":conversationId" element={<ChatWindow />} />
+              {/* Admin */}
+              <Route element={<SuperAdminRoute />}>
+                <Route path="/admin/reports/:type" element={<ReportsPage />} />
                 <Route
-                  path=":conversationId/settings"
-                  element={<ChatSetting />}
+                  path="/report_details/:id"
+                  element={<ReportsDetails />}
                 />
               </Route>
+              <Route path="/notifications" element={<NotificationsPage />} />;
+            </Route>
+
+            {/* Chat Routes */}
+            <Route path="/chat" element={<ChatPage />}>
+              <Route index element={<EmptyState />} />
+              <Route path=":conversationId" element={<ChatWindow />} />
+              <Route
+                path=":conversationId/settings"
+                element={<ChatSetting />}
+              />
+            </Route>
             {/* Default Home / Redirect */}
 
             <Route
