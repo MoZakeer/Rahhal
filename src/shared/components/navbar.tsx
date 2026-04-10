@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Popover, Dialog, DialogBackdrop, DialogPanel, Transition } from "@headlessui/react";
 import {
   Home,
@@ -42,9 +42,11 @@ interface Profile {
   DreamCountryIds: number[];
 
 }
-export default function Navbar() {
+interface NavbarProps {
+  onLogoutClick: () => void;
+}
+export default function Navbar({ onLogoutClick }: NavbarProps) {
   const location = useLocation();
-  const navigate = useNavigate();
 
   const auth = localStorage.getItem("auth");
   const parsedAuth = auth ? JSON.parse(auth) : null;
@@ -53,7 +55,7 @@ export default function Navbar() {
 
   const [profile, setProfile] = useState<Profile>();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [hasToken, setHasToken] = useState(() => !!localStorage.getItem("token"));
+  const [hasToken] = useState(() => !!localStorage.getItem("token"));
   const { unreadCount } = useNotifications(hasToken);
 
   /* ================= FETCH PROFILE DATA ================= */
@@ -113,15 +115,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("auth");
-    localStorage.removeItem("user");
-    setHasToken(false);
-    setMobileOpen(false);
-    navigate("/landing-page");
-  };
-
+  
   const isActivePath = (path: string) => location.pathname === path;
 
   return (
@@ -234,7 +228,7 @@ export default function Navbar() {
                     </div>
                     <div className="mt-1 pt-1 border-t border-slate-50 dark:border-slate-700">
                       <button
-                        onClick={handleLogout}
+                        onClick={onLogoutClick}
                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
                       >
                         <LogOut className="h-4 w-4" /> Logout
@@ -314,7 +308,7 @@ export default function Navbar() {
 
             <div className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
               {hasToken ? (
-                <button onClick={handleLogout} className="flex w-full items-center gap-4 rounded-xl bg-red-50 dark:bg-red-500/10 p-4 text-red-600 dark:text-red-400 font-bold shadow-sm">
+                <button onClick={onLogoutClick} className="flex w-full items-center gap-4 rounded-xl bg-red-50 dark:bg-red-500/10 p-4 text-red-600 dark:text-red-400 font-bold shadow-sm">
                   <LogOut className="h-6 w-6" /> Logout
                 </button>
               ) : (

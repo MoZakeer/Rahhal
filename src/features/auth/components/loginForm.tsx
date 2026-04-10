@@ -9,8 +9,10 @@ import { loginSchema, type TLoginInputsType } from "../validation/loginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLogin } from "../hooks/useLogin";
 import toast from "react-hot-toast";
-
-function LoginForm() {
+interface LoginFormProps {
+  onLoginSuccess: () => void;
+}
+function LoginForm({ onLoginSuccess }: LoginFormProps) {
 
  const { isPending, login } = useLogin();
  const navigate = useNavigate();
@@ -27,6 +29,8 @@ function LoginForm() {
        const {data}=response||{};
        localStorage.setItem("auth",JSON.stringify(data));
        localStorage.setItem("token",data.token);
+       localStorage.setItem("user",JSON.stringify(data));
+       onLoginSuccess();
        navigate("/feed");
      },
      onError:(error:Error)=>toast.error(error.message),

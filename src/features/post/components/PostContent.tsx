@@ -4,21 +4,22 @@ export function PostContent({
   description,
   className = "",
 }: {
-  description: string;
+  description?: string | null; 
   className?: string;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const MAX_LENGTH = 150; 
+  const MAX_LENGTH = 150;
 
-  const isLong = description.length > MAX_LENGTH;
+  const text = description ?? ""; // ✅ fallback
+  const isLong = text.length > MAX_LENGTH;
+
   const displayedText = isExpanded
-    ? description
-    : description.slice(0, MAX_LENGTH) + (isLong ? "..." : "");
+    ? text
+    : text.slice(0, MAX_LENGTH) + (isLong ? "..." : "");
 
   return (
-    <p           onClick={() => setIsExpanded(!isExpanded)}
-
+    <p
       className={`px-4 text-slate-900/90 dark:text-slate-200/90 pb-2 ${className}`}
     >
       {displayedText}
@@ -26,9 +27,9 @@ export function PostContent({
       {isLong && (
         <span
           onClick={() => setIsExpanded(!isExpanded)}
-          className="ml-2 cursor-pointer text-slate-500 dark:text-slate-500 text-sm "
+          className="ml-2 cursor-pointer text-slate-500 dark:text-slate-500 text-sm"
         >
-          {isExpanded ? " " : "see more"}
+          {isExpanded ? "see less" : "see more"}
         </span>
       )}
     </p>
