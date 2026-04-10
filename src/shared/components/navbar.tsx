@@ -43,7 +43,7 @@ interface Profile {
 
 }
 interface NavbarProps {
-  onLogoutClick: () => void;
+  onLogoutClick ? : () => void;
 }
 export default function Navbar({ onLogoutClick }: NavbarProps) {
   const location = useLocation();
