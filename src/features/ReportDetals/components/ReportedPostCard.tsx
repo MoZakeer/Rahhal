@@ -50,7 +50,7 @@ export default function ReportedPostCard({ id }: Props) {
       )}
       <PostContent
         description={post.description}
-        className="px-4 py-4 text-sm"
+          className="px-4 mt-1 text-sm leading-relaxed wrap-break-word text-slate-800 dark:text-slate-200"
       />
 
       <div className="px-4 pb-4 text-sm text-gray-500">

@@ -109,7 +109,7 @@ const Pages = () => {
                 isAuthenticated ? (
                   <MainLayout onLogout={updateAuth} />
                 ) : (
-                  <Navigate to="/landing-page" replace />
+                  <Navigate to="/login" replace />
                 )
               }
             >
@@ -216,34 +216,36 @@ const Pages = () => {
               />
               <Route path="/notifications" element={<NotificationsPage />} />
 
-              {/* Chat Routes */}
-              <Route
-                path="/chat"
-                element={
-                  isAuthenticated ? <ChatPage /> : <Navigate to="/login" />
-                }
-              >
-                <Route index element={<EmptyState />} />
-                <Route path=":conversationId" element={<ChatWindow />} />
-                <Route
-                  path=":conversationId/settings"
-                  element={<ChatSetting />}
-                />
-              </Route>
-
               <Route
                 path="/settings"
                 element={
                   isAuthenticated ? <SettingPage /> : <Navigate to="/login" />
                 }
               />
-            </Route>
-            {/* Admin */}
-            <Route element={<SuperAdminRoute />}>
-              <Route path="/admin/reports/:type" element={<ReportsPage />} />
-              <Route path="/report_details/:id" element={<ReportsDetails />} />
+              {/* Admin */}
+              <Route element={<SuperAdminRoute />}>
+                <Route path="/admin/reports/:type" element={<ReportsPage />} />
+                <Route
+                  path="/report_details/:id"
+                  element={<ReportsDetails />}
+                />
+              </Route>
             </Route>
 
+            {/* Chat Routes */}
+            <Route
+              path="/chat"
+              element={
+                isAuthenticated ? <ChatPage /> : <Navigate to="/login" />
+              }
+            >
+              <Route index element={<EmptyState />} />
+              <Route path=":conversationId" element={<ChatWindow />} />
+              <Route
+                path=":conversationId/settings"
+                element={<ChatSetting />}
+              />
+            </Route>
             {/* Default Home / Redirect */}
 
             <Route
