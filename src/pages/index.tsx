@@ -43,6 +43,7 @@ import TripMatching from "./TripMatching.tsx";
 import GroupDetails from "./groups/GroupDetails";
 
 // Chat Pages
+
 import ChatPage from "./chat/ChatPage";
 import ChatWindow from "../features/chat/components/ChatWindow.tsx";
 import ChatSetting from "../features/chat/components/ChatSetting.tsx";
@@ -71,7 +72,7 @@ const queryClient = new QueryClient();
 const Pages = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(isTokenValid());
 
- // This function flips the state and triggers a re-render
+  // This function flips the state and triggers a re-render
   const handleAuthChange = () => {
     setIsAuthenticated(isTokenValid());
   };
@@ -96,13 +97,18 @@ const Pages = () => {
               <Route path="/verify-email" element={<VerifyEmail />} />
               <Route path="/landing-page" element={<LandingPage />} />
               <Route path="/sign-up" element={<SignUp />} />
-<Route path="/login" element={<Login onLoginSuccess={handleAuthChange} />} />            </Route>
+              <Route
+                path="/login"
+                element={<Login onLoginSuccess={handleAuthChange} />}
+              />{" "}
+            </Route>
 
             {/* Main App Routes (Protected via Layout) */}
             <Route
               element={
                 isAuthenticated ? (
-<MainLayout onLogout={updateAuth} />                ) : (
+                  <MainLayout onLogout={updateAuth} />
+                ) : (
                   <Navigate to="/landing-page" replace />
                 )
               }
