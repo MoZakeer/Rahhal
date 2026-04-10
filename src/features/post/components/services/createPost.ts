@@ -6,5 +6,7 @@ export type User = {
 
 export type EditMedia = {
   mediaId: string;
-  file: File | string; 
+  file: File | string;
+  preview?: string;
+  isNew?: boolean;
 };

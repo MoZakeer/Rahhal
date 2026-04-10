@@ -1,53 +1,74 @@
 import { useState, useEffect } from 'react';
 
-// import { io, Socket } from 'socket.io-client'; // Uncomment when integrating with backend
-
 export interface NotificationData {
   id: string;
   title: string;
-  timeAgo: string;
+  message: string;
   isRead: boolean;
+  createdAt: string;
 }
 
+const API_BASE_URL = "https://rahhal-api.runasp.net";
+
 export const useNotifications = (hasToken: boolean) => {
-  const [notifications] = useState<NotificationData[]>([]);
+  const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     if (!hasToken) return;
 
-    /* ================== Testing Mode ================= */
-    /*
-    console.log("Testing Mode: Simulating Backend Notifications...");
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
-    const testInterval = setInterval(() => {
-      const newNotification: NotificationData = {
-        id: Math.random().toString(36).substring(7), 
-        title: "New amazing trip added just now!",
-        timeAgo: "Just now",
-        isRead: false,
-      };
+    const fetchNotifications = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/Notifiaction/GetAll`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
 
-      setNotifications((prev) => [newNotification, ...prev]);
-      setUnreadCount((prev) => prev + 1);
-      
-    }, 5000); 
+        if (!res.ok) throw new Error(`Error: ${res.status}`);
 
-    return () => {
-      clearInterval(testInterval);
+        const result = await res.json();
+
+        if (result && result.data && Array.isArray(result.data.items)) {
+          setNotifications(result.data.items);
+          const unread = result.data.items.filter((n: NotificationData) => !n.isRead).length;
+          setUnreadCount(unread);
+        }
+      } catch (error) {
+        console.error("Notifications fetch error:", error);
+      }
     };
-    */
-    
-    /*
-    const socket = io("http://localhost:5000", { auth: { token: "..." } });
-    socket.on("new_notification", (data) => { ... });
-    return () => socket.disconnect();
-    */
 
+    fetchNotifications();
   }, [hasToken]);
 
-  const markAsRead = () => {
-    setUnreadCount(0);
+  const markAsRead = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/Notification/Read`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) throw new Error(`Error: ${res.status}`);
+      const result = await res.json();
+
+      if (result?.isSuccess) {
+        setUnreadCount(0);
+        setNotifications((prev) => prev.map(n => ({ ...n, isRead: true })));
+      }
+    } catch (error) {
+      console.error("Mark notifications as read error:", error);
+    }
   };
 
   return { notifications, unreadCount, markAsRead };

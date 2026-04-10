@@ -8,7 +8,9 @@ import {
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import NotificationsPage from "../shared/components/NotificationsPage.tsx";
 
+<Route path="/notifications" element={<NotificationsPage />} />
 // Landing page
 import LandingPage from "./landingPage/landingPage.tsx";
 
@@ -85,6 +87,7 @@ const Pages = () => {
               <Route path="/report_details/:id" element={<ReportsDetails />} />
               <Route path="/reports" element={<ReportsPage />} />
             </Route>
+            <Route path="/notifications" element={<NotificationsPage />} />
 
             <Route path="/sign-up" element={<SignUp />} />
             <Route path="/login" element={<Login />} />

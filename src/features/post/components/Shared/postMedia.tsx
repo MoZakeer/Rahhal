@@ -1,32 +1,28 @@
 import React from "react";
-
-export type EditMedia = {
-  mediaId: string;
-  file: File | string;
-  preview?: string;
-};
+import type { EditMedia } from "../services/editPost";
 
 type Props = {
   media: EditMedia[];
   setMedia: React.Dispatch<React.SetStateAction<EditMedia[]>>;
-  fileRef: React.RefObject<HTMLInputElement>;
+  fileRef: React.RefObject<HTMLInputElement | null>;
 };
 
 export default function PostMedia({ media, setMedia, fileRef }: Props) {
   const uploadFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
+  const files = e.target.files;
+  if (!files) return;
 
-    const newMedia: EditMedia[] = Array.from(files).map((file) => ({
-      mediaId: crypto.randomUUID(), // 🔥 مهم
-      file,
-      preview: URL.createObjectURL(file),
-    }));
+  const newMedia: EditMedia[] = Array.from(files).map((file) => ({
+    mediaId: crypto.randomUUID(),
+    file,
+    preview: URL.createObjectURL(file),
+    isNew: true,
+  }));
 
-    setMedia((prev) => [...prev, ...newMedia]);
+  setMedia((prev) => [...prev, ...newMedia]);
 
-    e.target.value = "";
-  };
+  e.target.value = "";
+};
 
   const removeMedia = (mediaId: string) => {
     setMedia((prev) => {
