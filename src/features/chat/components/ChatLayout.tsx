@@ -1,4 +1,4 @@
-import { Outlet, useMatch } from "react-router";
+import { Outlet, useMatch } from "react-router-dom";
 import ChatList from "./ChatList";
 import { useSignalRConnection } from "../hooks/useSignalRConnection";
 import { useSidebarUpdates } from "../hooks/useSidebarUpdates";
