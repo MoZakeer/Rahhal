@@ -40,13 +40,13 @@ function ChatItem({ chat }: Props) {
           {isGroup ? groupTitle : otherUserName}
         </h4>
         <p className="whitespace-nowrap overflow-hidden text-ellipsis text-gray-500 w-64 sm:w-56">
-          {lastMessageType !==2  ? (
+          {lastMessageType !== 2 ? (
             lastMessageContent
           ) : (
-            <span className="flex items-center gap-1 font-medium">
+            <div className="flex items-center gap-1 font-medium">
               <HiOutlinePhoto className="text-gray-900" />
               <span className="text-gray-700">Photo</span>
-            </span>
+            </div>
           )}
         </p>
       </div>
