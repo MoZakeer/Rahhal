@@ -40,7 +40,7 @@ export const PostReportCard = ({ report }: Props) => {
           </div>
 
           {/* Description */}
-          <p className="text-gray-700 line-clamp-2 bg-gray-100 rounded-lg p-3">
+          <p className="text-gray-700 wrap-break-word line-clamp-2 bg-gray-100 rounded-lg p-2">
             {report.description}
           </p>
 

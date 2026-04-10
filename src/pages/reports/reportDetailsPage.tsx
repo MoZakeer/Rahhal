@@ -55,7 +55,7 @@ export default function ReportDetailsPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pt-10">
       <div className="max-w-4xl mx-auto py-10 px-4 space-y-6">
         <ReportHeader type={type} />
 
