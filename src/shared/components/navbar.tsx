@@ -156,8 +156,8 @@ export default function Navbar() {
               key={path}
               to={path}
               className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${isActivePath(path)
-                  ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/30"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/30"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 }`}
             >
               <Icon className="h-5 w-5" />
@@ -170,41 +170,20 @@ export default function Navbar() {
         <div className="flex items-center gap-2 ml-auto lg:gap-3">
           {hasToken ? (
             <>
-              {/* Notifications Popover */}
-              <Popover className="relative">
-                <Popover.Button className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer outline-none">
-                  <Bell className="h-5 w-5 text-slate-600 dark:text-slate-300" />
-                  {unreadCount > 0 && (
-                    <span className="absolute top-1 right-1 flex min-w-[18px] h-[18px] items-center justify-center rounded-full bg-orange-500 px-1 text-[10px] font-bold text-white ring-2 ring-white dark:ring-slate-900">
-                      {unreadCount > 9 ? "9+" : unreadCount}
-                    </span>
-                  )}
-                </Popover.Button>
+              <Link
+                to="/notifications"
 
-                <Transition
-                  enter="transition duration-200 ease-out"
-                  enterFrom="scale-95 opacity-0"
-                  enterTo="scale-100 opacity-100"
-                  leave="transition duration-150 ease-in"
-                  leaveFrom="scale-100 opacity-100"
-                  leaveTo="scale-95 opacity-0"
-                >
-                  <Popover.Panel className="absolute right-0 mt-3 w-80 max-w-sm rounded-2xl bg-white dark:bg-slate-800 p-4 shadow-2xl ring-1 ring-black/5 dark:ring-white/5 origin-top-right z-50">
-                    <div className="mb-3 flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
-                      <span className="font-bold text-slate-800 dark:text-slate-100">Notifications</span>
-                    </div>
-                    <div className="flex items-start gap-3 rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 shrink-0">
-                        <Plane className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">Your profile is updated!</p>
-                        <p className="text-xs text-slate-400 dark:text-slate-500">Just now</p>
-                      </div>
-                    </div>
-                  </Popover.Panel>
-                </Transition>
-              </Popover>
+                className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100"
+              >
+                <Bell className="h-5 w-5" />
+
+                {unreadCount > 0 && (
+                  <span className="absolute top-0 right-0 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-orange-500 text-[10px] text-white">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </Link>
+
 
               <div className="hidden lg:block h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
 
@@ -319,8 +298,8 @@ export default function Navbar() {
                     to={path}
                     onClick={() => setMobileOpen(false)}
                     className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${isActivePath(path)
-                        ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400"
-                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400"
+                      : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                       }`}
                   >
                     <Icon className="h-6 w-6" /> {label}
