@@ -59,8 +59,8 @@ function Message({
     <li className={`flex w-full ${isSend ? "justify-start" : "justify-end"}`}>
       <div
         className={`
-          relative flex flex-col gap-1
-          px-3 pt-2 pb-4
+          relative flex flex-col 
+          px-3 pt-2 pb-3.5
           shadow-md max-w-[75%] min-w-20 group
           ${
             isSend
@@ -69,7 +69,6 @@ function Message({
           }
         `}
       >
-        {/* ===== Header (Name + Chevron) ===== */}
         {!isSend && name && isGroup && (
           <div className="flex items-center w-full">
             <span className="text-xs font-medium text-primary-100">{name}</span>
@@ -95,7 +94,6 @@ function Message({
           </div>
         )}
 
-        {/* ===== Chevron لو مفيش name ===== */}
         {!isSend && !(name && isGroup) && (
           <HiOutlineChevronDown
             className="
@@ -154,11 +152,9 @@ function Message({
           </div>
         )}
 
-        {/* ===== Attachments ===== */}
         <MessageAttachments attachments={attachments} isSend={isSend} />
 
-        {/* ===== Message Text ===== */}
-        <span className="text-sm leading-relaxed wrap-break-word">
+        <span className="text-xs leading-relaxed wrap-break-word">
           {children}
         </span>
 
