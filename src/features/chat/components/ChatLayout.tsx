@@ -1,13 +1,14 @@
-import { Outlet, useMatch } from "react-router";
+import { Outlet, useMatch } from "react-router-dom";
 import ChatList from "./ChatList";
 import { useSignalRConnection } from "../hooks/useSignalRConnection";
 import { useSidebarUpdates } from "../hooks/useSidebarUpdates";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 function ChatLayout() {
   const inChat = useMatch("/chat/:conversationId/*");
 
   const connection = useSignalRConnection();
-
+  usePageTitle("Chatting");
   useSidebarUpdates(connection);
   return (
     <div

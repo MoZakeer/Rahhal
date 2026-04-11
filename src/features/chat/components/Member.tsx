@@ -5,16 +5,20 @@ import { conversationImage } from "../../../utils/helper";
 import { useRemoveParticipant } from "../hooks/useRemoveParticipant";
 import { useParams } from "react-router";
 import { useUser } from "../../../context/UserContext";
+
 type Props = {
   type?: "request" | "member";
   participant: Participant;
   isAdmin: boolean;
 };
+
 function Member({ type = "member", participant, isAdmin }: Props) {
   const { conversationId } = useParams<{ conversationId: string }>();
+
   const {
     user: { userId },
   } = useUser();
+
   const { isPending, removeParticipant } = useRemoveParticipant({
     profileId: participant?.profileId,
     conversationId: conversationId || "",
@@ -32,18 +36,27 @@ function Member({ type = "member", participant, isAdmin }: Props) {
         />
 
         <div className="flex flex-col min-w-0">
+          {/* NAME + ADMIN BADGE */}
           <div className="flex items-center gap-2">
             <h4 className="text-sm font-medium text-gray-900 truncate">
               {participant?.userName}
             </h4>
+
+            {participant.isAdmin && (
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 font-medium whitespace-nowrap">
+                Admin
+              </span>
+            )}
           </div>
 
+          {/* DESCRIPTION */}
           <p className="text-xs text-gray-500 truncate">
             {participant.description}
           </p>
         </div>
       </div>
 
+      {/* RIGHT SIDE */}
       <div className="flex items-center gap-2 ml-3">
         {isAdmin && userId !== participant?.profileId && (
           <>

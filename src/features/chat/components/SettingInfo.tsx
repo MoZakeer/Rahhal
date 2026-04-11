@@ -28,8 +28,12 @@ export default function ChatSettingsInfo({
   });
 
   const isChanged = useMemo(() => {
-    return name !== initialData.name || description !== initialData.description;
-  }, [name, description, initialData]);
+    return (
+      name !== initialData.name ||
+      description !== initialData.description ||
+      file !== null
+    );
+  }, [name, description, initialData, file]);
 
   function handleImageChange(e: React.ChangeEvent) {
     const selectedFile = (e.target as HTMLInputElement).files?.[0];
@@ -48,6 +52,7 @@ export default function ChatSettingsInfo({
       description,
       avatar: file,
     });
+    setFile(null);
   }
 
   function handleCancel() {

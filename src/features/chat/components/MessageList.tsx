@@ -80,6 +80,7 @@ function MessageList({
               attachments={message.attachments}
               isGroup={isGroup}
               isSeen={message.isSeen}
+              message={message}
             >
               {message?.content}
             </Message>
