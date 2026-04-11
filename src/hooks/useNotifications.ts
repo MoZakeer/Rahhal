@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState, useCallback } from "react";
 
 export interface NotificationData {
   id: string;
@@ -14,62 +14,124 @@ export const useNotifications = (hasToken: boolean) => {
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  useEffect(() => {
-    if (!hasToken) return;
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pages, setPages] = useState(1);
+  const [loading, setLoading] = useState(false);
 
-    const token = localStorage.getItem("token");
-    if (!token) return;
+  const token = localStorage.getItem("token");
 
-    const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(
+    async (page = 1, append = false) => {
+      if (!hasToken || !token) return;
+
       try {
-        const res = await fetch(`${API_BASE_URL}/Notifiaction/GetAll`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        });
+        setLoading(true);
 
-        if (!res.ok) throw new Error(`Error: ${res.status}`);
+        const res = await fetch(
+          `${API_BASE_URL}/Notifiaction/GetAll?PageNumber=${page}&SortByLastAdded=true`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!res.ok) return;
 
         const result = await res.json();
 
-        if (result && result.data && Array.isArray(result.data.items)) {
-          setNotifications(result.data.items);
-          const unread = result.data.items.filter((n: NotificationData) => !n.isRead).length;
-          setUnreadCount(unread);
-        }
-      } catch (error) {
-        console.error("Notifications fetch error:", error);
+        const items: NotificationData[] = result?.data?.items ?? [];
+        const totalPages = result?.data?.pages ?? 1;
+
+        setPages(totalPages);
+
+        const merged = append
+          ? [...notifications, ...items]
+          : items;
+
+        const unique = Array.from(
+          new Map(merged.map((n) => [n.id, n])).values()
+        );
+
+        setNotifications(unique);
+
+        // 🔥 FIX: unread count real-time
+        const unread = unique.filter((n) => !n.isRead).length;
+        setUnreadCount(unread);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-    };
+    },
+    [hasToken, token, notifications]
+  );
 
-    fetchNotifications();
-  }, [hasToken]);
+  useEffect(() => {
+    fetchNotifications(1, false);
+  }, [fetchNotifications]);
 
-  const markAsRead = async () => {
-    const token = localStorage.getItem("token");
+  // 🔥 live refresh for bell only
+  useEffect(() => {
+    if (!hasToken) return;
+
+    const interval = setInterval(() => {
+      fetchNotifications(1, false);
+    }, 15000); // كل 15 ثانية
+
+    return () => clearInterval(interval);
+  }, [hasToken, fetchNotifications]);
+
+  const loadMore = () => {
+    if (pageIndex >= pages) return;
+
+    const next = pageIndex + 1;
+    setPageIndex(next);
+
+    fetchNotifications(next, true);
+  };
+
+  const markAsRead = async (id?: string) => {
     if (!token) return;
 
     try {
-      const res = await fetch(`${API_BASE_URL}/Notification/Read`, {
+      await fetch(`${API_BASE_URL}/Notification/Read`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+        body: JSON.stringify(
+          id ? { notificationId: id } : {}
+        ),
       });
 
-      if (!res.ok) throw new Error(`Error: ${res.status}`);
-      const result = await res.json();
+      setNotifications((prev) =>
+        prev.map((n) =>
+          id
+            ? n.id === id
+              ? { ...n, isRead: true }
+              : n
+            : { ...n, isRead: true }
+        )
+      );
 
-      if (result?.isSuccess) {
-        setUnreadCount(0);
-        setNotifications((prev) => prev.map(n => ({ ...n, isRead: true })));
-      }
-    } catch (error) {
-      console.error("Mark notifications as read error:", error);
+      // 🔥 update instantly
+      setUnreadCount((prev) =>
+        id ? Math.max(prev - 1, 0) : 0
+      );
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  return { notifications, unreadCount, markAsRead };
+  return {
+    notifications,
+    unreadCount,
+    markAsRead,
+    loadMore,
+    hasMore: pageIndex < pages,
+    loading,
+    refetch: () => fetchNotifications(1, false),
+  };
 };

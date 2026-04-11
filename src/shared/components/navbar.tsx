@@ -183,17 +183,17 @@ export default function Navbar() {
           {hasToken ? (
             <>
               <Link
-                to="/notifications"
-                className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100"
-              >
-                <Bell className="h-5 w-5" />
+  to="/notifications"
+  className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100"
+>
+  <Bell className="h-5 w-5" />
 
-                {unreadCount > 0 && (
-                  <span className="absolute top-0 right-0 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-orange-500 text-[10px] text-white">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                )}
-              </Link>
+  {unreadCount > 0 && (
+    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-[10px] text-white px-1">
+      {unreadCount > 9 ? "9+" : unreadCount}
+    </span>
+  )}
+</Link>
 
               <div className="hidden lg:block h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
 
