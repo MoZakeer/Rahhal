@@ -1,4 +1,5 @@
 import type { ReportEntityType } from "../types";
+import { ChevronDown } from "lucide-react";
 import { createPortal } from "react-dom";
 import {
   createCommentReport,
@@ -29,7 +30,7 @@ export const ReportModal = ({
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const isDisabled = !type || !description.trim() || loading;
+  const isDisabled = !type || loading;
 
   const handleSubmit = async () => {
     if (isDisabled) return;
@@ -50,7 +51,7 @@ export const ReportModal = ({
             entityId,
             messageId!,
             type,
-            description
+            description,
           );
           break;
       }
@@ -63,17 +64,13 @@ export const ReportModal = ({
     }
   };
 
-  return createPortal (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Overlay */}
-      <div
-        onClick={onClose}
-        className="absolute inset-0  backdrop-blur-sm"
-      />
+      <div onClick={onClose} className="absolute inset-0  backdrop-blur-sm" />
 
       {/* Modal Card */}
       <div className="relative w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
-        
         {/* Header */}
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold text-gray-800">
@@ -90,22 +87,25 @@ export const ReportModal = ({
 
         {/* Reason */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-600">
-            Reason
-          </label>
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            className="w-full border border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none p-3 rounded-xl transition"
-          >
-            <option value="">Select reason</option>
-            <option value="Illegal Activities">Illegal activities</option>
-            <option value="Hate Or Bullying">Hate or bullying</option>
-            <option value="Sexual Content">Sexual content</option>
-            <option value="Impersonation">Impersonation</option>
-            <option value="Privacy Violation">Privacy violation</option>
-            <option value="Other">Other</option>
-          </select>
+          <label className="text-sm font-medium text-gray-600">Reason</label>
+
+          <div className="relative">
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              className="w-full appearance-none border border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none p-3 pr-10 rounded-xl transition"
+            >
+              <option value="">Select reason</option>
+              <option value="Illegal Activities">Illegal activities</option>
+              <option value="Hate Or Bullying">Hate or bullying</option>
+              <option value="Sexual Content">Sexual content</option>
+              <option value="Impersonation">Impersonation</option>
+              <option value="Privacy Violation">Privacy violation</option>
+              <option value="Other">Other</option>
+            </select>
+
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          </div>
         </div>
 
         {/* Description */}
@@ -138,8 +138,8 @@ export const ReportModal = ({
             className={`flex-1 py-2 rounded-xl text-white font-medium transition
               ${
                 isDisabled
-                  ? "bg-red-500 cursor-not-allowed"
-                  : "bg-red-500 hover:bg-red-600 active:scale-95"
+                  ? "bg-red-500 opacity-70 cursor-default  "
+                  : "bg-red-500 hover:bg-red-600 cursor-pointer active:scale-95"
               }`}
           >
             {loading ? "Submitting..." : "Submit"}
@@ -147,7 +147,6 @@ export const ReportModal = ({
         </div>
       </div>
     </div>,
-      document.body
-
+    document.body,
   );
 };
