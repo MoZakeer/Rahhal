@@ -9,8 +9,9 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 const TripMatching = () => {
   usePageTitle("Smart Trip Matching");
   const [search, setSearch] = useState("");
-  const [joinedTrips, setJoinedTrips] = useState<Set<string>>(new Set());
   
+  // 🔥 شلنا الـ joinedTrips خالص من هنا لأننا هنعتمد على userJoinStatus
+
   const [isMatching, setIsMatching] = useState(false);
   const [hasMatched, setHasMatched] = useState(false);
   const [results, setResults] = useState<ApiMatchTrip[]>([]);
@@ -61,7 +62,6 @@ const TripMatching = () => {
     }
   };
 
-  // دالة الاتصال بالـ API لعمل Join (Optimistic Update)
   const handleJoin = async (id: string, name: string) => {
     let token = localStorage.getItem("token") || "";
     token = token.replace(/^"(.*)"$/, '$1');
@@ -71,52 +71,45 @@ const TripMatching = () => {
       return;
     }
 
-    const isCurrentlyJoined = joinedTrips.has(id);
+    const targetTrip = results.find(t => t.id === id);
+    const previousStatus = targetTrip?.userJoinStatus || 3;
 
-    // 1. التحديث المتفائل للواجهة (Optimistic UI)
-    setJoinedTrips((prev) => {
-      const next = new Set(prev);
-      if (isCurrentlyJoined) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+    setResults((prev) => 
+      prev.map((trip) => 
+        trip.id === id ? { ...trip, userJoinStatus: 2 } : trip
+      )
+    );
 
     try {
-      // 2. إرسال الطلب للـ Backend
-      // ⚠️ تنبيه: ضع هنا الرابط الحقيقي الخاص بالـ Join من الـ Backend
       const res = await fetch(`https://rahhal-api.runasp.net/TripManagement/RequestJoin`, {
         method: "POST", 
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ tripId: id }) // أو حسب ما يطلبه الـ Backend
+        body: JSON.stringify({ tripId: id }) 
       });
 
       const data = await res.json();
 
       if (!data.isSuccess) {
-        // لو الـ Backend رفض، نرجع الزرار زي ما كان
-        setJoinedTrips((prev) => {
-          const next = new Set(prev);
-          if (isCurrentlyJoined) next.add(id);
-          else next.delete(id);
-          return next;
-        });
-        toast.error(data.message || "Failed to join trip.");
+        setResults((prev) => 
+          prev.map((trip) => 
+            trip.id === id ? { ...trip, userJoinStatus: previousStatus } : trip
+          )
+        );
+        toast.error(data.message || "Failed to request join.");
       } else {
-        toast.success(isCurrentlyJoined ? `You left "${name}"` : `You joined "${name}"`);
+        toast.success(`Request sent to join "${name}"`);
       }
     } catch (error) {
       console.error("Join error:", error);
-      // لو النت فصل، نرجع الزرار زي ما كان
-      setJoinedTrips((prev) => {
-        const next = new Set(prev);
-        if (isCurrentlyJoined) next.add(id);
-        else next.delete(id);
-        return next;
-      });
-      toast.error("Network error. Could not join trip.");
+      setResults((prev) => 
+        prev.map((trip) => 
+          trip.id === id ? { ...trip, userJoinStatus: previousStatus } : trip
+        )
+      );
+      toast.error("Network error. Could not request to join.");
     }
   };
 
@@ -178,7 +171,6 @@ const TripMatching = () => {
                 key={trip.id}
                 trip={trip}
                 index={i}
-                joined={joinedTrips.has(trip.id)}
                 onJoin={handleJoin}
               />
             ))}

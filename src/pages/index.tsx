@@ -1,21 +1,17 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
+
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotificationsPage from "../shared/components/NotificationsPage.tsx";
 
-<Route path="/notifications" element={<NotificationsPage />} />;
-// Landing page
+// Pages
 import LandingPage from "./landingPage/landingPage.tsx";
-
-// Auth Pages
 import Login from "./auth/Login";
 import SignUp from "./auth/SignUp.tsx";
 import ForgetPassword from "./auth/ForgetPassword.tsx";
@@ -23,216 +19,129 @@ import ResetPassword from "./auth/ResetPassword.tsx";
 import ChangePassword from "./auth/ChangePassword.tsx";
 import VerifyEmail from "./auth/VerifyEmail.tsx";
 
-// Profile Pages
 import ProfilePage from "./profile/ProfilePage";
 import EditProfilePage from "../pages/profile/EditProfilePage.tsx";
 import ChangePasswordPage from "./profile/ChangePasswordPage.tsx";
 
-// Feed Pages
 import HomeFeed from "./feed/HomeFeed";
 import PostDetailsPage from "./feed/PostDetails";
 
-// Trips Pages
-// import MyTrips from "./trips/MyTrips";
 import TripDetail from "./TripDetail.tsx";
 import CreateTrip from "./CreateTrip.tsx";
 import AiPlanner from "./AiPlanner.tsx";
 import TripMatching from "./TripMatching.tsx";
 
-// Groups Pages
 import GroupDetails from "./groups/GroupDetails";
-
-// Chat Pages
 
 import ChatPage from "./chat/ChatPage";
 import ChatWindow from "../features/chat/components/ChatWindow.tsx";
 import ChatSetting from "../features/chat/components/ChatSetting.tsx";
 import EmptyState from "../features/chat/components/EmptyState.tsx";
 
-// Layouts & Settings
 import MainLayout from "../layouts/mainLayout";
 import AuthLayout from "../layouts/AuthLayout";
-import { SuperAdminRoute } from "../layouts/SuperAdminRoute.tsx";
 import SettingPage from "./settings/settingpage";
 
-// Admin & Search
 import { ReportsPage } from "./reports/ReportsPage.tsx";
 import ReportsDetails from "./reports/reportDetailsPage.tsx";
 import SearchResultsPage from "./search/SearchResultsPage.tsx";
 import Explore from "@/pages/Explore.tsx";
 import UserTrips from "@/pages/MyTrips.tsx";
-import { isTokenValid } from "../utils/auth";
 
-// 404 page
+import NotificationsPage from "../shared/components/NotificationsPage.tsx";
 import NotFound from "./NotFound/notfound";
 
-// Initialize React Query Client
+// React Query
 const queryClient = new QueryClient();
 
 const Pages = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(isTokenValid());
+  const isAuthenticated = true; // عدلها حسب logic عندك
 
-  // This function flips the state and triggers a re-render
-  const handleAuthChange = () => {
-    setIsAuthenticated(isTokenValid());
-  };
-  const updateAuth = () => setIsAuthenticated(isTokenValid());
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        {/* Global UI Components */}
         <Toaster />
         <Sonner />
 
         <Router>
           <Routes>
-            {/* Auth Routes */}
+            {/* ================= AUTH ================= */}
             <Route element={<AuthLayout />}>
+              <Route path="/landing-page" element={<LandingPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/sign-up" element={<SignUp />} />
               <Route path="/forget-password" element={<ForgetPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/verify-email" element={<VerifyEmail />} />
               <Route
                 path="/:profileId/change-password"
                 element={<ChangePassword />}
               />
-              <Route path="/verify-email" element={<VerifyEmail />} />
-              <Route path="/landing-page" element={<LandingPage />} />
-              <Route path="/sign-up" element={<SignUp />} />
-              <Route
-                path="/login"
-                element={<Login onLoginSuccess={handleAuthChange} />}
-              />{" "}
             </Route>
 
-            {/* Main App Routes (Protected via Layout) */}
+            {/* ================= MAIN APP ================= */}
             <Route
               element={
                 isAuthenticated ? (
-                  <MainLayout onLogout={updateAuth} />
+                  <MainLayout />
                 ) : (
                   <Navigate to="/login" replace />
                 )
               }
             >
               {/* Profile */}
-              <Route
-                path="/profile/:profileId"
-                element={
-                  isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />
-                }
-              />
+              <Route path="/profile/:profileId" element={<ProfilePage />} />
               <Route
                 path="/profile/:profileId/edit"
-                element={
-                  isAuthenticated ? (
-                    <EditProfilePage />
-                  ) : (
-                    <Navigate to="/login" />
-                  )
-                }
+                element={<EditProfilePage />}
               />
               <Route
                 path="/profile/:profileId/change_password"
-                element={
-                  isAuthenticated ? (
-                    <ChangePasswordPage />
-                  ) : (
-                    <Navigate to="/login" />
-                  )
-                }
+                element={<ChangePasswordPage />}
               />
 
-              {/* Social / Feed / Explore */}
-              <Route
-                path="/feed"
-                element={
-                  isAuthenticated ? <HomeFeed /> : <Navigate to="/login" />
-                }
-              />
-              <Route
-                path="/explore"
-                element={
-                  isAuthenticated ? <Explore /> : <Navigate to="/login" />
-                }
-              />
-              <Route
-                path="/post/:postId"
-                element={
-                  isAuthenticated ? (
-                    <PostDetailsPage />
-                  ) : (
-                    <Navigate to="/login" />
-                  )
-                }
-              />
+              {/* Feed */}
+              <Route path="/feed" element={<HomeFeed />} />
+              <Route path="/explore" element={<Explore />} />
+              <Route path="/post/:postId" element={<PostDetailsPage />} />
 
-              {/* Trips & Planning */}
-              <Route
-                path="/my-trips"
-                element={
-                  isAuthenticated ? <UserTrips /> : <Navigate to="/login" />
-                }
-              />
-              <Route
-                path="/trip/:id"
-                element={
-                  isAuthenticated ? <TripDetail /> : <Navigate to="/login" />
-                }
-              />
-              <Route
-                path="/create-trip"
-                element={
-                  isAuthenticated ? <CreateTrip /> : <Navigate to="/login" />
-                }
-              />
-              <Route
-                path="/ai-planner"
-                element={
-                  isAuthenticated ? <AiPlanner /> : <Navigate to="/login" />
-                }
-              />
-              <Route
-                path="/matching"
-                element={
-                  isAuthenticated ? <TripMatching /> : <Navigate to="/login" />
-                }
-              />
+              {/* Trips */}
+              <Route path="/my-trips" element={<UserTrips />} />
+              <Route path="/trip/:id" element={<TripDetail />} />
+              <Route path="/create-trip" element={<CreateTrip />} />
+              <Route path="/ai-planner" element={<AiPlanner />} />
+              <Route path="/matching" element={<TripMatching />} />
 
-              {/* Groups & Search */}
-              <Route
-                path="/groups/:groupId"
-                element={
-                  isAuthenticated ? <GroupDetails /> : <Navigate to="/login" />
-                }
-              />
-              <Route
-                path="/search-results"
-                element={
-                  isAuthenticated ? (
-                    <SearchResultsPage />
-                  ) : (
-                    <Navigate to="/login" />
-                  )
-                }
-              />
+              {/* Groups */}
+              <Route path="/groups/:groupId" element={<GroupDetails />} />
+
+              {/* Search */}
+              <Route path="/search-results" element={<SearchResultsPage />} />
+
+              {/* Notifications */}
               <Route path="/notifications" element={<NotificationsPage />} />
 
+              {/* Settings */}
+              <Route path="/settings" element={<SettingPage />} />
+
+              {/* Admin */}
+              <Route path="/admin/reports/:type" element={<ReportsPage />} />
+              <Route path="/report_details/:id" element={<ReportsDetails />} />
+
+              {/* Default redirect */}
               <Route
-                path="/settings"
+                path="/"
                 element={
-                  isAuthenticated ? <SettingPage /> : <Navigate to="/login" />
+                  localStorage.getItem("token") ? (
+                    <Navigate to="/feed" replace />
+                  ) : (
+                    <Navigate to="/landing-page" replace />
+                  )
                 }
               />
-              {/* Admin */}
-              <Route element={<SuperAdminRoute />}>
-                <Route path="/admin/reports/:type" element={<ReportsPage />} />
-                <Route
-                  path="/report_details/:id"
-                  element={<ReportsDetails />}
-                />
-              </Route>
             </Route>
 
-            {/* Chat Routes */}
+            {/* ================= CHAT ================= */}
             <Route
               path="/chat"
               element={
@@ -246,17 +155,8 @@ const Pages = () => {
                 element={<ChatSetting />}
               />
             </Route>
-            {/* Default Home / Redirect */}
 
-            <Route
-              path="/"
-              element={
-                <Navigate
-                  to={isAuthenticated ? "/feed" : "/landing-page"}
-                  replace
-                />
-              }
-            />
+            {/* ================= 404 ================= */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>

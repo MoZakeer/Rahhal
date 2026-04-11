@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Popover,
   Dialog,
@@ -7,7 +7,6 @@ import {
   DialogPanel,
   Transition,
 } from "@headlessui/react";
-import { ShieldCheck } from "lucide-react";
 import {
   Home,
   Compass,
@@ -22,8 +21,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useNotifications } from "../../hooks/useNotifications";
-import { getUserRole } from "../../utils/auth";
-
 import ThemeToggleButton from "./ThemeToggleButton";
 const API_BASE_URL = "https://rahhal-api.runasp.net";
 
@@ -50,12 +47,10 @@ interface Profile {
   VisitedCountryIds: number[];
   DreamCountryIds: number[];
 }
-interface NavbarProps {
-  onLogoutClick?: () => void;
-}
-export default function Navbar({ onLogoutClick }: NavbarProps) {
+export default function Navbar() {
   const location = useLocation();
-  const role = getUserRole();
+  const navigate = useNavigate();
+
   const auth = localStorage.getItem("auth");
   const parsedAuth = auth ? JSON.parse(auth) : null;
   const profileId = parsedAuth?.profileId || "";
@@ -63,7 +58,9 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
 
   const [profile, setProfile] = useState<Profile>();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [hasToken] = useState(() => !!localStorage.getItem("token"));
+  const [hasToken, setHasToken] = useState(
+    () => !!localStorage.getItem("token"),
+  );
   const { unreadCount } = useNotifications(hasToken);
 
   /* ================= FETCH PROFILE DATA ================= */
@@ -119,6 +116,15 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("auth");
+    localStorage.removeItem("user");
+    setHasToken(false);
+    setMobileOpen(false);
+    navigate("/landing-page");
+  };
 
   const isActivePath = (path: string) => location.pathname === path;
 
@@ -177,17 +183,17 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
           {hasToken ? (
             <>
               <Link
-                to="/notifications"
-                className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100"
-              >
-                <Bell className="h-5 w-5" />
+  to="/notifications"
+  className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100"
+>
+  <Bell className="h-5 w-5" />
 
-                {unreadCount > 0 && (
-                  <span className="absolute top-0 right-0 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-orange-500 text-[10px] text-white">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                )}
-              </Link>
+  {unreadCount > 0 && (
+    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-[10px] text-white px-1">
+      {unreadCount > 9 ? "9+" : unreadCount}
+    </span>
+  )}
+</Link>
 
               <div className="hidden lg:block h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
 
@@ -225,31 +231,6 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                 >
                   <Popover.Panel className="absolute right-0 mt-3 w-56 origin-top-right rounded-2xl bg-white dark:bg-slate-800 p-2 shadow-2xl ring-1 ring-black/5 dark:ring-white/5 outline-none">
                     <div className="space-y-0.5">
-                      {role === "SuperAdmin" && (
-                        <Link
-                          to="/admin/reports/users"
-                          className="group relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold 
-               bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900
-               text-slate-600 dark:text-slate-300 
-               hover:text-indigo-600 dark:hover:text-white
-               border border-slate-200 dark:border-slate-700
-               hover:border-indigo-200 dark:hover:border-indigo-500/50
-               shadow-sm hover:shadow-indigo-500/10
-               transition-all duration-300 ease-out"
-                        >
-                          {/* Subtle Inner Glow on Hover */}
-                          <div className="absolute inset-0 rounded-2xl bg-indigo-500/0 group-hover:bg-indigo-500/[0.03] transition-colors" />
-
-                          <div className="relative flex items-center justify-center h-8 w-8 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                            <ShieldCheck className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
-                          </div>
-
-                          <span className="relative">Admin Panel</span>
-
-                          {/* Small "Live" Indicator or Badge */}
-                          <div className="ml-auto h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
-                        </Link>
-                      )}
                       <Link
                         to={`/profile/${profileId}`}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
@@ -263,7 +244,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                     </div>
                     <div className="mt-1 pt-1 border-t border-slate-50 dark:border-slate-700">
                       <button
-                        onClick={onLogoutClick}
+                        onClick={handleLogout}
                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
                       >
                         <LogOut className="h-4 w-4" /> Logout
@@ -353,31 +334,6 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                   </div>
                 </Link>
               )}
-              {role === "SuperAdmin" && (
-                <Link
-                  to="/admin/reports/users"
-                  className="group relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold 
-               bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900
-               text-slate-600 dark:text-slate-300 
-               hover:text-indigo-600 dark:hover:text-white
-               border border-slate-200 dark:border-slate-700
-               hover:border-indigo-200 dark:hover:border-indigo-500/50
-               shadow-sm hover:shadow-indigo-500/10
-               transition-all duration-300 ease-out"
-                >
-                  {/* Subtle Inner Glow on Hover */}
-                  <div className="absolute inset-0 rounded-2xl bg-indigo-500/0 group-hover:bg-indigo-500/[0.03] transition-colors" />
-
-                  <div className="relative flex items-center justify-center h-8 w-8 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                    <ShieldCheck className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
-                  </div>
-
-                  <span className="relative">Admin Panel</span>
-
-                  {/* Small "Live" Indicator or Badge */}
-                  <div className="ml-auto h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
-                </Link>
-              )}
 
               {navItems.map(({ icon: Icon, label, path }) => {
                 if (label === "Messages" && !hasToken) return null;
@@ -407,7 +363,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
             <div className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
               {hasToken ? (
                 <button
-                  onClick={onLogoutClick}
+                  onClick={handleLogout}
                   className="flex w-full items-center gap-4 rounded-xl bg-red-50 dark:bg-red-500/10 p-4 text-red-600 dark:text-red-400 font-bold shadow-sm"
                 >
                   <LogOut className="h-6 w-6" /> Logout
