@@ -21,7 +21,7 @@ interface MatchSourceSelectorProps {
 
 const MatchSourceSelector = ({ onMatch, isMatching }: MatchSourceSelectorProps) => {
   const [mode, setMode] = useState<"trip" | "custom">("custom");
-  
+
   // داتا من الـ APIs
   const [destinations, setDestinations] = useState<any[]>([]);
   const [preferences, setPreferences] = useState<any[]>([]);
@@ -86,26 +86,26 @@ const MatchSourceSelector = ({ onMatch, isMatching }: MatchSourceSelectorProps) 
       } else {
         setDestinationId("");
       }
-      
+
       setTravelers(trip.numberOfUser ? trip.numberOfUser.toString() : "");
       setBudget(trip.budget ? trip.budget.toString() : "");
-      
+
       if (trip.travelPreference && trip.travelPreference.length > 0) {
         const matchedIds = trip.travelPreference.map((tripPref: any) => {
-          const match = preferences.find(p => 
-            p.id.toLowerCase() === tripPref.id?.toLowerCase() || 
+          const match = preferences.find(p =>
+            p.id.toLowerCase() === tripPref.id?.toLowerCase() ||
             p.name.toLowerCase().trim() === tripPref.name?.toLowerCase().trim()
           );
           return match ? match.id.toLowerCase() : null;
         }).filter(Boolean);
-        
+
         setSelectedPreferenceIds(matchedIds as string[]);
       } else {
         setSelectedPreferenceIds([]);
       }
 
       toast.success(`Form auto-filled with details from "${trip.title || 'selected trip'}"`);
-      setMode("custom"); 
+      setMode("custom");
     }
   };
 
@@ -132,12 +132,25 @@ const MatchSourceSelector = ({ onMatch, isMatching }: MatchSourceSelectorProps) 
         </h2>
 
         {/* Mode Tabs */}
-        <div className="flex gap-2 mb-6">
-          <Button variant={mode === "custom" ? "default" : "outline"} size="sm" className="gap-2" onClick={() => setMode("custom")}>
-            <SlidersHorizontal className="h-4 w-4" /> Custom Criteria
+        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:justify-start">
+          <Button
+            variant={mode === "custom" ? "default" : "outline"}
+            size="sm"
+            className="w-full gap-2 sm:w-auto"
+            onClick={() => setMode("custom")}
+          >
+            <SlidersHorizontal className="h-4 w-4 shrink-0" />
+            <span>Custom Criteria</span>
           </Button>
-          <Button variant={mode === "trip" ? "default" : "outline"} size="sm" className="gap-2" onClick={() => setMode("trip")}>
-            <Briefcase className="h-4 w-4" /> Auto-fill from My Trips
+
+          <Button
+            variant={mode === "trip" ? "default" : "outline"}
+            size="sm"
+            className="w-full gap-2 sm:w-auto"
+            onClick={() => setMode("trip")}
+          >
+            <Briefcase className="h-4 w-4 shrink-0" />
+            <span>Auto-fill from My Trips</span>
           </Button>
         </div>
 
@@ -186,8 +199,8 @@ const MatchSourceSelector = ({ onMatch, isMatching }: MatchSourceSelectorProps) 
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Max Budget ($)</label>
               <div className="relative">
-                 <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                 <Input type="number" placeholder="e.g. 1500" value={budget} onChange={(e) => setBudget(e.target.value)} className="pl-10" min={0} />
+                <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input type="number" placeholder="e.g. 1500" value={budget} onChange={(e) => setBudget(e.target.value)} className="pl-10" min={0} />
               </div>
             </div>
 
@@ -214,7 +227,7 @@ const MatchSourceSelector = ({ onMatch, isMatching }: MatchSourceSelectorProps) 
         <Button
           className="mt-6 w-full gap-2"
           onClick={handleMatch}
-          disabled={isMatching || mode === "trip"} 
+          disabled={isMatching || mode === "trip"}
         >
           {isMatching ? (
             <><Loader2 className="h-4 w-4 animate-spin" /> Finding Matches...</>

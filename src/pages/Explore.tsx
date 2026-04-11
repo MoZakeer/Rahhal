@@ -243,7 +243,7 @@ const Explore = () => {
       </div>
 
       {/* Grid */}
-      <div className="container mx-auto py-8">
+      <div className="px-2 sm:px-0 container mx-auto py-8">
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
             {isLoadingInitial ? "Searching..." : `${trips.length} trips loaded`}

@@ -171,7 +171,6 @@ const TripMatching = () => {
                 key={trip.id}
                 trip={trip}
                 index={i}
-                // 🔥 شلنا الـ joined خالص من هنا
                 onJoin={handleJoin}
               />
             ))}
