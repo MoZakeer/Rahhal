@@ -60,7 +60,7 @@ function Message({
       <div
         className={`
           relative flex flex-col 
-          px-3 pt-2 pb-3.5
+          px-3 pt-2 p-1
           shadow-md max-w-[75%] min-w-20 group
           ${
             isSend
@@ -156,24 +156,24 @@ function Message({
 
         <span className="text-xs leading-relaxed wrap-break-word">
           {children}
+
+          {/* ===== Time + Seen INLINE ===== */}
+          <span
+            className={`
+      inline-flex jsel items-center gap-1 ml-2 whitespace-nowrap align-bottom
+      ${isSend ? "text-primary-200" : "text-gray-400"}
+    `}
+          >
+            <span className="text-[10px]">{time}</span>
+
+            {isSend && (
+              <IoCheckmarkDoneOutline
+                size={14}
+                className={`${isSeen ? "text-primary-700" : "text-gray-400"}`}
+              />
+            )}
+          </span>
         </span>
-
-        {/* ===== Time + Seen ===== */}
-        <div
-          className={`
-            absolute right-2 bottom-1 flex items-center gap-1
-            ${isSend ? "text-primary-200" : "text-gray-400"}
-          `}
-        >
-          <span className="text-[10px]">{time}</span>
-
-          {isSend && (
-            <IoCheckmarkDoneOutline
-              size={14}
-              className={`${isSeen ? "text-primary-700" : "text-gray-400"}`}
-            />
-          )}
-        </div>
       </div>
 
       {isReportOpen && (
