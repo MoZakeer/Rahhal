@@ -42,7 +42,6 @@ const getBorderColor = (pct: number) => {
 };
 
 const MatchResultCard = ({ trip, index, onJoin }: MatchResultCardProps) => {
-  // console.log(trip.userJoinStatus);
   const avatarLetter = trip.createdBy ? trip.createdBy.charAt(0).toUpperCase() : "U";
   const imageSeed = encodeURIComponent(trip.destination || trip.name || trip.id);
   
