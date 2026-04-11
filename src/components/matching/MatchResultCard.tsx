@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MapPin, Calendar, Users, UserPlus, ArrowRight } from "lucide-react";
+import { MapPin, Calendar, Users, UserPlus, ArrowRight, Clock, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,12 +20,12 @@ export interface ApiMatchTrip {
   travelPreference?: { id: string; name: string }[];
   destination?: string;
   budget?: number;
+  userJoinStatus: number;
 }
 
 interface MatchResultCardProps {
   trip: ApiMatchTrip;
   index: number;
-  joined: boolean;
   onJoin: (id: string, name: string) => void;
 }
 
@@ -41,7 +41,8 @@ const getBorderColor = (pct: number) => {
   return "border-muted";
 };
 
-const MatchResultCard = ({ trip, index, joined, onJoin }: MatchResultCardProps) => {
+const MatchResultCard = ({ trip, index, onJoin }: MatchResultCardProps) => {
+  // console.log(trip.userJoinStatus);
   const avatarLetter = trip.createdBy ? trip.createdBy.charAt(0).toUpperCase() : "U";
   const imageSeed = encodeURIComponent(trip.destination || trip.name || trip.id);
   
@@ -49,6 +50,7 @@ const MatchResultCard = ({ trip, index, joined, onJoin }: MatchResultCardProps) 
   const displayImage = hasValidImage ? trip.imageUrl : `https://picsum.photos/seed/${imageSeed}/800/600`;
 
   const formattedMatch = Math.round(trip.matchPercentage || 0);
+  
   return (
     <Card
       className="animate-fade-in border border-border/90 overflow-hidden transition-shadow hover:shadow-elevated"
@@ -130,15 +132,38 @@ const MatchResultCard = ({ trip, index, joined, onJoin }: MatchResultCardProps) 
                     Details <ArrowRight className="h-3.5 w-3.5" />
                   </Button>
                 </Link>
-                <Button
-                  size="sm"
-                  variant={joined ? "outline" : "default"}
-                  className="gap-1.5"
-                  onClick={() => onJoin(trip.id, trip.name)}
-                >
-                  <UserPlus className="h-3.5 w-3.5" />
-                  {joined ? "Joined" : "Join Trip"}
-                </Button>
+
+                {(() => {
+                  switch (trip.userJoinStatus) {
+                    case 1: // Joined
+                      return (
+                        <Button size="sm" variant="outline" className="gap-1.5 border-green-500 text-green-500 opacity-100 cursor-default" disabled>
+                          <Check className="h-3.5 w-3.5" />
+                          Joined
+                        </Button>
+                      );
+                    case 2: // Pending
+                      return (
+                        <Button size="sm" variant="secondary" className="gap-1.5 opacity-100 cursor-default" disabled>
+                          <Clock className="h-3.5 w-3.5" />
+                          Pending
+                        </Button>
+                      );
+                    case 3: // Not Joined
+                    default:
+                      return (
+                        <Button
+                          size="sm"
+                          variant="default"
+                          className="gap-1.5"
+                          onClick={() => onJoin(trip.id, trip.name)}
+                        >
+                          <UserPlus className="h-3.5 w-3.5" />
+                          Join Trip
+                        </Button>
+                      );
+                  }
+                })()}
               </div>
             </div>
           </div>
