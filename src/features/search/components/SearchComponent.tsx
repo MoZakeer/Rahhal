@@ -2,8 +2,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function SearchComponent() {
+  usePageTitle("Search");
   const [keyword, setKeyword] = useState("");
   const navigate = useNavigate();
 
@@ -43,9 +45,10 @@ export default function SearchComponent() {
             absolute right-2 top-1/2 -translate-y-1/2
             p-2.5 rounded-full
             flex items-center justify-center cursor-pointer
-            ${isEmpty
-              ? "bg-gray-100 text-gray-300 cursor-not-allowed"
-              : "bg-black text-white hover:bg-gray-900 active:bg-gray-800"
+            ${
+              isEmpty
+                ? "bg-gray-100 text-gray-300 cursor-not-allowed"
+                : "bg-black text-white hover:bg-gray-900 active:bg-gray-800"
             }
             transition-colors duration-200
           `}

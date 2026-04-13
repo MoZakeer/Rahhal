@@ -20,7 +20,7 @@ const MainLayout = ({ onLogout }: MainLayoutProps) => {
     onLogout();
   };
   // 1. قائمة المسارات التي سيتم إخفاء الفوتر منها
-  const hiddenFooterPaths = ["/", "/feed", "/create-post"];
+  const hiddenFooterPaths = ["/landing-page"];
 
   // 2. قائمة المسارات اللي هيظهر فيها AppHeader بدل الـ Navbar
   const appHeaderPaths = [
@@ -31,7 +31,7 @@ const MainLayout = ({ onLogout }: MainLayoutProps) => {
     "/my-trips",
   ];
 
-  const shouldHideFooter = hiddenFooterPaths.includes(location.pathname);
+  const shouldnotHideFooter = hiddenFooterPaths.includes(location.pathname);
 
   // 3. التحقق إذا كان المسار الحالي يحتاج AppHeader
   // استخدمنا startsWith عشان مسار تفاصيل الرحلة اللي فيه ID متغير زي /trip/123
@@ -47,7 +47,7 @@ const MainLayout = ({ onLogout }: MainLayoutProps) => {
         <Outlet />
       </main>
 
-      {!shouldHideFooter && <Footer />}
+      {shouldnotHideFooter && <Footer />}
     </>
   );
 };

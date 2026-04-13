@@ -6,7 +6,7 @@ import {
   Briefcase,
   Globe,
   Sparkles,
-  FilterX,
+  Compass,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ export interface ApiTrip {
   destination?: string;
   isSaved?: boolean;
 }
-interface RawApiTrip extends Omit<ApiTrip, 'id' | 'name'> {
+interface RawApiTrip extends Omit<ApiTrip, "id" | "name"> {
   tripId: string;
   title: string;
 }
@@ -47,7 +47,7 @@ const statusTypes = [
 ];
 
 const MyTrips = () => {
-  usePageTitle("My Adventures - Rahhal");
+  usePageTitle("My Adventures");
   const [trips, setTrips] = useState<ApiTrip[]>([]);
   const [activeFilter, setActiveFilter] = useState<number>(2);
   const [activeStatus, setActiveStatus] = useState<number | "">("");
@@ -77,17 +77,18 @@ const MyTrips = () => {
 
         const data = await res.json();
         if (data.isSuccess && data.data?.items) {
-  const normalizedData: ApiTrip[] = data.data.items.map((item: RawApiTrip) => ({
-    ...item,
-    id: item.tripId,   // Create 'id' so TripCard doesn't complain
-    name: item.title,  // Create 'name' so TripCard doesn't complain
-  }));
+          const normalizedData: ApiTrip[] = data.data.items.map(
+            (item: RawApiTrip) => ({
+              ...item,
+              id: item.tripId, // Create 'id' so TripCard doesn't complain
+              name: item.title, // Create 'name' so TripCard doesn't complain
+            }),
+          );
 
-  setTrips(normalizedData);
-} else {
-  setTrips([]);
-}
-       
+          setTrips(normalizedData);
+        } else {
+          setTrips([]);
+        }
       } catch {
         toast.error("Network error while loading adventures.");
       } finally {
@@ -120,15 +121,12 @@ const MyTrips = () => {
           body: JSON.stringify({ tripId: tripid }),
         },
       );
-const data = await res.json();
-
+      const data = await res.json();
 
       if (!data.isSuccess) throw new Error();
     } catch {
       setTrips((prev) =>
-        prev.map((t) =>
-          t.id === tripid ? { ...t, isSaved: !t.isSaved } : t,
-        ),
+        prev.map((t) => (t.id === tripid ? { ...t, isSaved: !t.isSaved } : t)),
       );
       toast.error("Could not update saved trips.");
     }
@@ -269,16 +267,10 @@ const data = await res.json();
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="mb-6 rounded-full bg-white p-8 border shadow-sm">
-              <FilterX className="h-10 w-10 text-slate-200" />
-            </div>
-            <h3 className="text-xl font-bold text-slate-800">
-              No results found
-            </h3>
-            <p className="mt-2 text-sm text-slate-500">
-              Try adjusting your filters.
-            </p>
+          <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+            <Compass className="mb-4 h-12 w-12" />
+            <p className="text-lg font-medium">No trips found</p>
+            <p className="text-sm">Try adjusting your search or filters</p>
           </div>
         )}
       </main>

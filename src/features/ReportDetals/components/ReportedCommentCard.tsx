@@ -2,12 +2,14 @@ import React from "react";
 import { useCommentDetails } from "../hooks/useCommentDetails";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 interface Props {
   id: string;
 }
 
 const ReportedComment: React.FC<Props> = ({ id }) => {
+  usePageTitle("Reported Comment Details");
   const { data, isLoading, isError } = useCommentDetails(id);
   const BASE_URL = "https://rahhal-api.runasp.net";
 

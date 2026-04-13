@@ -2,7 +2,7 @@ import React from "react";
 import useAuthNavigation from "../hooks/useAuthNavigation";
 
 const Hero: React.FC = () => {
-const handleNavigation = useAuthNavigation();
+  const handleNavigation = useAuthNavigation();
 
   return (
     <section
@@ -14,20 +14,25 @@ const handleNavigation = useAuthNavigation();
       }}
     >
       <div className="absolute inset-0 bg-black/50" />
+      <div className="relative max-w-2xl ">
+        <div className="relative max-w-2xl mt-20">
+       <div className="h-[1px] w-8 bg-[var(--color-primary-500)]" />
+    <span className="text-xs uppercase tracking-[0.3em] text-[var(--color-primary-400)] font-bold">
+      AI-Powered Travel Planning
+    </span>
+  </div>
 
-      <div className="relative max-w-2xl">
-        <span className="px-4 py-1 rounded-full bg-[var(--color-primary-500)] text-sm">
-          AI-Powered Travel Planning
-        </span>
-
-        <h1 className="mt-6 text-5xl font-bold leading-tight">
+  <h1 className="text-8xl md:text-[12rem] font-black tracking-tighter text-white leading-[0.8]">
+    Rahhal<span className="text-[var(--color-primary-500)]">.</span>
+  </h1>
+        <h2 className="mt-6 text-5xl font-bold leading-tight">
           Discover Your Next{" "}
           <span className="text-[var(--color-primary-500)]">Adventure</span>
-        </h1>
+        </h2>
 
         <p className="mt-4 text-gray-200">
-          Connect with travelers, plan amazing trips with AI assistance,
-          and find your perfect travel companions.
+          Connect with travelers, plan amazing trips with AI assistance, and
+          find your perfect travel companions.
         </p>
 
         <div className="mt-6 flex gap-4">
@@ -53,6 +58,3 @@ const handleNavigation = useAuthNavigation();
 };
 
 export default Hero;
-
-
-
