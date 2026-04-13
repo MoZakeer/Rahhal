@@ -38,7 +38,7 @@ export default function ConfirmModal({
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="px-4 py-2 rounded-full bg-red-600 text-white"
+            className="px-4 py-2 rounded-full bg-red-500 text-white"
           >
             {loading ? `Removing ${itemType}...` : `Yes, Remove ${itemType}`}
           </button>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useUserDetails } from "../hooks/useUserDetails";
 import { useUserProfile } from "../hooks/useUserProfile";
+import { normalizeMediaUrl } from "../../../features/post/components/services/posts.api";
 
 interface Props {
   id: string;
@@ -21,6 +22,7 @@ export default function UserReportsCard({ id }: Props) {
   const { data: reportsData } = useUserDetails(id);
   const { data: profileData } = useUserProfile(id);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const DEFAULT_AVATAR = "https://www.gravatar.com/avatar/?d=mp&f=y";
 
   const user = profileData?.data;
   const reports: ReportItem[] = reportsData?.data?.items ?? [];
@@ -33,19 +35,15 @@ export default function UserReportsCard({ id }: Props) {
         <div className="flex items-start gap-4">
           <div className="flex flex-col items-center">
             <img
-              src={user?.profilePicture ?? "/avatar.png"}
+              src={normalizeMediaUrl(user?.profilePicture) ?? DEFAULT_AVATAR}
               className="w-14 h-14 rounded-full object-cover"
             />
           </div>
 
           <div className="flex-1 space-y-5">
             <div>
-              <h2 className="font-semibold text-lg">
-                {user?.fullName}
-              </h2>
-              <p className="text-gray-500 text-sm">
-                @{user?.userName}
-              </p>
+              <h2 className="font-semibold text-lg">{user?.fullName}</h2>
+              <p className="text-gray-500 text-sm">@{user?.userName}</p>
             </div>
 
             {reports.map((report) => (
@@ -65,7 +63,7 @@ export default function UserReportsCard({ id }: Props) {
                         src={`https://rahhal-api.runasp.net${file.url}`}
                         onClick={() =>
                           setSelectedImage(
-                            `https://rahhal-api.runasp.net${file.url}`
+                            `https://rahhal-api.runasp.net${file.url}`,
                           )
                         }
                         className="w-24 h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition"

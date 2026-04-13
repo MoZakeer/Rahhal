@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { GitCompareArrows, Search } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { GitCompareArrows, Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import MatchSourceSelector, { type MatchCriteria } from "@/components/matching/MatchSourceSelector";
@@ -10,31 +10,41 @@ const TripMatching = () => {
   usePageTitle("Smart Trip Matching");
   const [search, setSearch] = useState("");
   
-  // 🔥 شلنا الـ joinedTrips خالص من هنا لأننا هنعتمد على userJoinStatus
-
   const [isMatching, setIsMatching] = useState(false);
   const [hasMatched, setHasMatched] = useState(false);
   const [results, setResults] = useState<ApiMatchTrip[]>([]);
+  
+  const [pageNumber, setPageNumber] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [currentCriteria, setCurrentCriteria] = useState<MatchCriteria | null>(null); // لحفظ معايير البحث
+  const constPageSize = 20; 
 
-  // دالة الاتصال بالـ API للبحث
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  const buildUrl = (criteria: MatchCriteria, page: number) => {
+    let url = `https://rahhal-api.runasp.net/TripManagement/GetAllMatching?pageNumber=${page}&pageSize=${constPageSize}`;
+    if (criteria.budget) url += `&Budget=${criteria.budget}`;
+    if (criteria.travelers) url += `&NumberOfTravelers=${criteria.travelers}`;
+    if (criteria.destinationId && criteria.destinationId !== "ANY") url += `&DestinationId=${criteria.destinationId}`;
+    if (criteria.preferenceIds && criteria.preferenceIds.length > 0) {
+      criteria.preferenceIds.forEach(id => {
+        url += `&PreferenceIds=${id}`;
+      });
+    }
+    return url;
+  };
+
   const handleMatch = async (criteria: MatchCriteria) => {
     setIsMatching(true);
+    setCurrentCriteria(criteria); 
+    setPageNumber(1); 
     
     try {
       let token = localStorage.getItem("token") || "";
       token = token.replace(/^"(.*)"$/, '$1');
 
-      let url = `https://rahhal-api.runasp.net/TripManagement/GetAllMatching?pageNumber=1&pageSize=20`;
-      
-      if (criteria.budget) url += `&Budget=${criteria.budget}`;
-      if (criteria.travelers) url += `&NumberOfTravelers=${criteria.travelers}`;
-      if (criteria.destinationId && criteria.destinationId !== "ANY") url += `&DestinationId=${criteria.destinationId}`;
-      
-      if (criteria.preferenceIds && criteria.preferenceIds.length > 0) {
-        criteria.preferenceIds.forEach(id => {
-          url += `&PreferenceIds=${id}`;
-        });
-      }
+      const url = buildUrl(criteria, 1);
 
       const res = await fetch(url, {
         method: "GET",
@@ -50,8 +60,11 @@ const TripMatching = () => {
         const sortedItems = data.data.items.sort((a: ApiMatchTrip, b: ApiMatchTrip) => b.matchPercentage - a.matchPercentage);
         setResults(sortedItems);
         setHasMatched(true);
-        toast.success(`Found ${sortedItems.length} matching trips!`);
+        setHasMore(1 < (data.data.pages || 1));
+        toast.success(`Found matching trips!`);
       } else {
+        setResults([]);
+        setHasMore(false);
         toast.error("Failed to find matches.");
       }
     } catch (error) {
@@ -61,6 +74,68 @@ const TripMatching = () => {
       setIsMatching(false);
     }
   };
+
+  useEffect(() => {
+    const fetchMoreMatches = async () => {
+      if (pageNumber === 1 || !currentCriteria) return; 
+      
+      setIsFetchingMore(true);
+
+      try {
+        let token = localStorage.getItem("token") || "";
+        token = token.replace(/^"(.*)"$/, '$1');
+
+        const url = buildUrl(currentCriteria, pageNumber);
+
+        const res = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { "Authorization": `Bearer ${token}` } : {})
+          }
+        });
+
+        const data = await res.json();
+
+        if (data.isSuccess && data.data?.items) {
+          const newItems = data.data.items.sort((a: ApiMatchTrip, b: ApiMatchTrip) => b.matchPercentage - a.matchPercentage);
+          
+          setResults((prev) => {
+            const existingIds = new Set(prev.map(t => t.id));
+            const filteredNew = newItems.filter((t: any) => !existingIds.has(t.id));
+            return [...prev, ...filteredNew];
+          });
+          
+          setHasMore(pageNumber < (data.data.pages || 1));
+        } else {
+          setHasMore(false);
+        }
+      } catch (error) {
+        console.error("Pagination error:", error);
+      } finally {
+        setIsFetchingMore(false);
+      }
+    };
+
+    fetchMoreMatches();
+  }, [pageNumber, currentCriteria]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isMatching && !isFetchingMore) {
+          setPageNumber((prev) => prev + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasMore, isMatching, isFetchingMore]);
 
   const handleJoin = async (id: string, name: string) => {
     let token = localStorage.getItem("token") || "";
@@ -151,7 +226,7 @@ const TripMatching = () => {
             <h2 className="font-display text-xl font-semibold text-foreground">
               Matching Results
               <span className="ml-2 text-sm font-normal text-muted-foreground">
-                ({filtered.length} trips found)
+                ({filtered.length} trips loaded)
               </span>
             </h2>
             <div className="relative w-full sm:w-64">
@@ -176,13 +251,21 @@ const TripMatching = () => {
             ))}
           </div>
 
-          {filtered.length === 0 && (
+          {filtered.length === 0 && !isFetchingMore && (
             <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
               <GitCompareArrows className="mb-4 h-12 w-12 opacity-50" />
               <p className="text-lg font-medium">No matching trips found</p>
               <p className="text-sm">Try different criteria or reducing your filters.</p>
             </div>
           )}
+
+          {isFetchingMore && (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          )}
+
+          <div ref={observerTarget} className="h-10 w-full" />
         </div>
       )}
     </div>
