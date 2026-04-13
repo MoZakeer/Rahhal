@@ -7,7 +7,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 function ChatLayout() {
   const inChat = useMatch("/chat/:conversationId/*");
 
-  const connection = useSignalRConnection();
+  const connection = useSignalRConnection("/Realtime/ChatHub");
   usePageTitle("Chatting");
   useSidebarUpdates(connection);
   return (

@@ -3,7 +3,7 @@ import * as signalR from "@microsoft/signalr";
 import { BASE_URL } from "../../../utils/constant";
 import { useUser } from "../../../context/UserContext";
 
-export const useSignalRConnection = () => {
+export const useSignalRConnection = (url:string) => {
   const [connection, setConnection] = useState<signalR.HubConnection | null>(
     null,
   );
@@ -13,7 +13,7 @@ export const useSignalRConnection = () => {
     if (!user?.token) return;
 
     const newConnection = new signalR.HubConnectionBuilder()
-      .withUrl(`${BASE_URL}/Realtime/ChatHub`, {
+      .withUrl(`${BASE_URL}${url}`, {
         accessTokenFactory: () => user.token,
       })
       .withAutomaticReconnect()
