@@ -15,7 +15,7 @@ export function useLeavGroup({
     mutationFn: () => leaveGroupApi({ conversationId, profileId }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["chat"],
+        queryKey: ["all-chats"],
       });
       navigate("/chat");
     },
