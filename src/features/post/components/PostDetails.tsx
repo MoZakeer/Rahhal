@@ -40,6 +40,7 @@ import MyEmojiPicker from "../../chat/components/EmojiPicker";
 import { HiOutlineFaceSmile } from "react-icons/hi2";
 
 import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 type CommentItem = {
   commentId: string;
@@ -466,62 +467,62 @@ export function CommentsModal({
     setNewComment((text) => text + emoji);
   }
 
-   const buttonRef = useRef<HTMLButtonElement | null>(null);
-const [pickerPos, setPickerPos] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const [pickerPos, setPickerPos] = useState({ top: 0, left: 0 });
 
-const toggleEmojiPicker = () => {
-  if (!showCommentEmoji && buttonRef.current) {
-    const rect = buttonRef.current.getBoundingClientRect();
-
-    setPickerPos({
-      top: rect.top - 320, // adjust based on picker height
-      left: rect.left,
-    });
-  }
-
-  setShowCommentEmoji((prev) => !prev);
-  setShowReplyEmoji(false);
-};
- const buttonRefe = useRef<HTMLButtonElement | null>(null);
-const [pickerPose, setPickerPose] = useState({ top: 0, left: 0 });
-
-const toggleEmojiPickerreply = () => {
-  if (!showReplyEmoji && buttonRefe.current) {
-    const rect = buttonRefe.current.getBoundingClientRect();
-
-    setPickerPos({
-      top: rect.top - 320, // adjust based on picker height
-      left: rect.left,
-    });
-  }
-
-  setShowReplyEmoji((prev) => !prev);
-  setShowCommentEmoji(false);
-};
-useEffect(() => {
-  const updatePosition = () => {
-    if (buttonRef.current) {
+  const toggleEmojiPicker = () => {
+    if (!showCommentEmoji && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
 
       setPickerPos({
-        top: rect.top - 300,
+        top: rect.top - 320, // adjust based on picker height
         left: rect.left,
       });
     }
-  };
 
-  if (showCommentEmoji) {
-    updatePosition();
-    window.addEventListener("scroll", updatePosition);
-    window.addEventListener("resize", updatePosition);
-  }
-
-  return () => {
-    window.removeEventListener("scroll", updatePosition);
-    window.removeEventListener("resize", updatePosition);
+    setShowCommentEmoji((prev) => !prev);
+    setShowReplyEmoji(false);
   };
-}, [showCommentEmoji]);
-useEffect(() => {
+  const buttonRefe = useRef<HTMLButtonElement | null>(null);
+  const [pickerPose, setPickerPose] = useState({ top: 0, left: 0 });
+
+  const toggleEmojiPickerreply = () => {
+    if (!showReplyEmoji && buttonRefe.current) {
+      const rect = buttonRefe.current.getBoundingClientRect();
+
+      setPickerPos({
+        top: rect.top - 320, // adjust based on picker height
+        left: rect.left,
+      });
+    }
+
+    setShowReplyEmoji((prev) => !prev);
+    setShowCommentEmoji(false);
+  };
+  useEffect(() => {
+    const updatePosition = () => {
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+
+        setPickerPos({
+          top: rect.top - 300,
+          left: rect.left,
+        });
+      }
+    };
+
+    if (showCommentEmoji) {
+      updatePosition();
+      window.addEventListener("scroll", updatePosition);
+      window.addEventListener("resize", updatePosition);
+    }
+
+    return () => {
+      window.removeEventListener("scroll", updatePosition);
+      window.removeEventListener("resize", updatePosition);
+    };
+  }, [showCommentEmoji]);
+  useEffect(() => {
     const updatePosition = () => {
       if (buttonRefe.current) {
         const rect = buttonRefe.current.getBoundingClientRect();
@@ -1082,31 +1083,34 @@ useEffect(() => {
                       : "Reply"}
                   </button>
                 </div>
-               
-  {showReplyEmoji && (
-  <>
-    {/* overlay background (optional) */}
-    <div
-      className="fixed inset-0 z-40"
-      onClick={() => setShowReplyEmoji(false)}
-    />
 
-    {/* picker */}
-    <div
-      className="fixed z-50"
-      style={{
-        top: pickerPose.top,
-        left: pickerPose.left,
-      }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <MyEmojiPicker onSelect={handleEmojiSelect} width={300} height={300} />
-    </div>
-  </>
-)}
+                {showReplyEmoji && (
+                  <>
+                    {/* overlay background (optional) */}
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setShowReplyEmoji(false)}
+                    />
+
+                    {/* picker */}
+                    <div
+                      className="fixed z-50"
+                      style={{
+                        top: pickerPose.top,
+                        left: pickerPose.left,
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <MyEmojiPicker
+                        onSelect={handleEmojiSelect}
+                        width={300}
+                        height={300}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             </div>
-
           )}
         </div>
       </div>
@@ -1142,39 +1146,39 @@ useEffect(() => {
       <div className="relative w-full border-t border-slate-100 dark:border-slate-700/50 px-4 py-3 flex gap-3 items-center bg-slate-50/50 dark:bg-slate-900/20">
         <div className="relative">
           <button
-          ref={buttonRef}
-          type="button"
-          onClick={toggleEmojiPicker}
-          className="cursor-pointer transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded-full"
-        >
-          <HiOutlineFaceSmile className="w-8 h-8 text-slate-500 dark:text-slate-400" />
-        </button>
+            ref={buttonRef}
+            type="button"
+            onClick={toggleEmojiPicker}
+            className="cursor-pointer transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded-full"
+          >
+            <HiOutlineFaceSmile className="w-8 h-8 text-slate-500 dark:text-slate-400" />
+          </button>
 
-        {showCommentEmoji && (
-          <>
-            {/* overlay background (optional) */}
-            <div
-              className="fixed inset-0 z-40"
-              onClick={() => setShowCommentEmoji(false)}
-            />
-
-            {/* picker */}
-            <div
-              className="fixed z-50"
-              style={{
-                top: pickerPos.top,
-                left: pickerPos.left,
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <MyEmojiPicker
-                onSelect={handleEmojiSelectComment}
-                width={300}
-                height={300}
+          {showCommentEmoji && (
+            <>
+              {/* overlay background (optional) */}
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setShowCommentEmoji(false)}
               />
-            </div>
-          </>
-        )}
+
+              {/* picker */}
+              <div
+                className="fixed z-50"
+                style={{
+                  top: pickerPos.top,
+                  left: pickerPos.left,
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MyEmojiPicker
+                  onSelect={handleEmojiSelectComment}
+                  width={300}
+                  height={300}
+                />
+              </div>
+            </>
+          )}
         </div>
 
         <input
@@ -1213,6 +1217,7 @@ useEffect(() => {
 }
 
 export default function PostDetailsPage() {
+  usePageTitle("Post Details");
   const { postId } = useParams<{ postId: string }>();
   const currentUserId = getUserId() || "";
 

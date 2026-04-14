@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useUserDetails } from "../hooks/useUserDetails";
 import { useUserProfile } from "../hooks/useUserProfile";
 import { normalizeMediaUrl } from "../../../features/post/components/services/posts.api";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 interface Props {
   id: string;
@@ -19,6 +20,7 @@ interface ReportItem {
 }
 
 export default function UserReportsCard({ id }: Props) {
+  usePageTitle("Reported User Details");
   const { data: reportsData } = useUserDetails(id);
   const { data: profileData } = useUserProfile(id);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);

@@ -2,12 +2,14 @@ import { usePostDetails } from "../hooks/usePostDetails";
 import { PostMedia } from "../../../features/post/components/PostCard";
 import { PostContent } from "../../../features/post/components/PostContent";
 import { normalizeMediaUrl } from "../../../features/post/components/services/posts.api";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 interface Props {
   id: string;
 }
 const DEFAULT_AVATAR = "https://www.gravatar.com/avatar/?d=mp&f=y";
 export default function ReportedPostCard({ id }: Props) {
+  usePageTitle("Reported Post Details");
   const { data, isLoading, isError } = usePostDetails(id);
 
   if (isLoading) return <div>Loading...</div>;

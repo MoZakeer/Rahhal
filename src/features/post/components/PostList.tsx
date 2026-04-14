@@ -4,8 +4,10 @@ import Skeleton from "react-loading-skeleton";
 import { getPostsInfinite } from "../../post/components/services/posts.api";
 import PostCard from "../components/PostCard";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function PostsList() {
+  usePageTitle("Travel Stories");
   const observer = useRef<IntersectionObserver | null>(null);
 
   const {
