@@ -131,8 +131,6 @@ export const useNotifications = (hasToken: boolean) => {
     if (!connection) return;
 
     const handler = (notification: any) => {
-      console.log("TOAST FIRED", new Date().toISOString());
-
       const newItem: NotificationData = {
         id: notification.id,
         title: notification.title,
@@ -192,7 +190,6 @@ export const useNotifications = (hasToken: boolean) => {
     };
 
     connection.on("ReceiveNotification", handler);
-    console.log("SIGNALR INSTANCE CREATED");
 
     return () => {
       connection.off("ReceiveNotification", handler);
