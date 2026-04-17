@@ -51,7 +51,7 @@ import Explore from "@/pages/Explore.tsx";
 import UserTrips from "@/pages/MyTrips.tsx";
 import { isTokenValid } from "../utils/auth";
 
-import NotificationsPage from "../shared/components/NotificationsPage.tsx";
+import NotificationsPage from "../features/Notifications/NotificationsPage.tsx";
 import NotFound from "./NotFound/notfound";
 
 // React Query

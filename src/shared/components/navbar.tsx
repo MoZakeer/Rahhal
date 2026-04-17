@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ShieldCheck } from "lucide-react";
 import {
   Popover,
@@ -21,7 +21,7 @@ import {
   Languages,
   ChevronDown,
 } from "lucide-react";
-import { useNotifications } from "../../hooks/useNotifications";
+import { useNotifications } from "../../features/Notifications/hooks/useNotifications";
 import ThemeToggleButton from "./ThemeToggleButton";
 const API_BASE_URL = "https://rahhal-api.runasp.net";
 import { getUserRole } from "../../utils/auth";
@@ -64,8 +64,15 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
   const [profile, setProfile] = useState<Profile>();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hasToken] = useState(() => !!localStorage.getItem("token"));
-  const { unreadCount } = useNotifications(hasToken);
+  // const { unreadCount } = useNotifications(hasToken);
 
+  const navigate = useNavigate();
+  // const { markAllAsRead, unreadCount } = useNotifications(true);
+  const {markAllAsRead, unreadCount } = useNotifications(!!token);
+  const handleClick = async () => {
+    await markAllAsRead();
+    navigate("/notifications");
+  };
   /* ================= FETCH PROFILE DATA ================= */
   useEffect(() => {
     const fetchProfile = async () => {
@@ -133,9 +140,8 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
 
   return (
     <header
-      className={`fixed top-0 z-40 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${
-        isNavVisible ? "translate-y-0" : "-translate-y-full"
-      }`}
+      className={`fixed top-0 z-40 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${isNavVisible ? "translate-y-0" : "-translate-y-full"
+        }`}
     >
       <div className="mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo Section */}
@@ -169,11 +175,10 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
             <Link
               key={path}
               to={path}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-                isActivePath(path)
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${isActivePath(path)
                   ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/30"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-              }`}
+                }`}
             >
               <Icon className="h-5 w-5" />
               <span>{label}</span>
@@ -185,8 +190,8 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
         <div className="flex items-center gap-2 ml-auto lg:gap-3">
           {hasToken ? (
             <>
-              <Link
-                to="/notifications"
+              <button
+                onClick={handleClick}
                 className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100"
               >
                 <Bell className="h-5 w-5" />
@@ -196,7 +201,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
-              </Link>
+              </button>
 
               <div className="hidden lg:block h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
 
@@ -395,11 +400,10 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                     key={path}
                     to={path}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${
-                      isActivePath(path)
+                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${isActivePath(path)
                         ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400"
                         : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                    }`}
+                      }`}
                   >
                     <Icon className="h-6 w-6" /> {label}
                   </Link>
