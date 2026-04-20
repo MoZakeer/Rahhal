@@ -50,18 +50,18 @@ function SignUpForm(){
 
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
 
-     <div className="flex flex-col sm:flex-row gap-4">
-      <Input label="First name" {...register("firstName")} error={errors.firstName?.message}/>
-      <Input label="Last name" {...register("lastName")} error={errors.lastName?.message}/>
+     <div className="flex flex-col md:flex-row gap-4">
+      <Input  placeholder="First name" {...register("firstName")} error={errors.firstName?.message}/>
+      <Input placeholder="Last name" {...register("lastName")} error={errors.lastName?.message}/>
      </div>
 
-     <Input label="Username" {...register("username")} error={errors.username?.message}/>
-     <Input label="Email" {...register("email")} error={errors.email?.message}/>
-     <Input label="Phone" {...register("phone")} error={errors.phone?.message}/>
+     <Input  placeholder="Username" {...register("username")} error={errors.username?.message}/>
+     <Input  placeholder="Email" {...register("email")} error={errors.email?.message}/>
+     <Input  placeholder="Phone number" {...register("phone")} error={errors.phone?.message}/>
 
      <div className="flex flex-col sm:flex-row gap-4">
-      <PasswordInput label="Password" {...register("password")} error={errors.password?.message}/>
-      <PasswordInput label="Confirm Password" {...register("confirmPassword")} error={errors.confirmPassword?.message}/>
+      <PasswordInput  placeholder="Password" {...register("password")} error={errors.password?.message}/>
+      <PasswordInput placeholder="Confirm password" {...register("confirmPassword")} error={errors.confirmPassword?.message}/>
      </div>
 
      <Button disabled={isWaiting} loading={isWaiting}>
