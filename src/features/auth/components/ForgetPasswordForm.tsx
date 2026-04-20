@@ -23,6 +23,7 @@ function ForgotPassword() {
     mode: "onBlur",
     resolver: zodResolver(forgetPasswordSchema),
   });
+
   function onSubmit(payload: TForgetPasswordType) {
     forgetPassword(payload, {
       onSuccess: () => {
@@ -36,41 +37,52 @@ function ForgotPassword() {
       onSettled: () => reset(),
     });
   }
+
   const isWaiting = isSubmitting || isPending;
+
   return (
-    <div className="box px-4 py-8 sm:px-8 sm:py-10 gap-7">
-      <div className="flex flex-col gap-3">
-        <h1 className="text-center text-2xl font-semibold text-gray-800">
-          Forgot your password?
-        </h1>
-        <p className="text-center text-sm text-gray-600">
-          Enter your email and we’ll send you a verification code.
-        </p>
-      </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-        <Input
-          label="Email"
-          id="email"
-          type="email"
-          placeholder="example@email.com"
-          {...register("email")}
-          error={errors.email?.message}
-        />
+    <div className="min-h-screen grid place-items-center bg-gray-50 px-4">
+      <div className="w-full max-w-md">
+        <div className="box px-4 py-8 sm:px-8 sm:py-10 gap-7">
+          
+          <div className="flex flex-col gap-3">
+            <h1 className="text-center text-2xl font-semibold text-gray-800">
+              Forgot your password?
+            </h1>
+            <p className="text-center text-sm text-gray-600">
+              Enter your email and we’ll send you a verification code.
+            </p>
+          </div>
 
-        <Button disabled={isWaiting} loading={isWaiting}>
-          Send code
-        </Button>
-
-        <p className="text-center text-sm text-gray-600">
-          Remember your password?{" "}
-          <Link
-            to="/login"
-            className="font-medium text-primary-700 hover:underline"
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-5"
           >
-            Back to login
-          </Link>
-        </p>
-      </form>
+            <Input
+              label="Email"
+              id="email"
+              type="email"
+              placeholder="example@email.com"
+              {...register("email")}
+              error={errors.email?.message}
+            />
+
+            <Button disabled={isWaiting} loading={isWaiting}>
+              Send code
+            </Button>
+
+            <p className="text-center text-sm text-gray-600">
+              Remember your password?{" "}
+              <Link
+                to="/login"
+                className="font-medium text-primary-700 hover:underline"
+              >
+                Back to login
+              </Link>
+            </p>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

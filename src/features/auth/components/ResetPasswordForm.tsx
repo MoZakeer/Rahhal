@@ -42,49 +42,58 @@ function ResetPasswordForm() {
   }
   const isWaiting: boolean = isSubmitting || isPending;
   return (
-    <div className="box px-4 py-8 sm:px-8 sm:py-10 gap-6">
-      <div className="flex flex-col gap-3">
-        <h1 className="text-center text-2xl font-semibold text-gray-800">
-          Create a new password
-        </h1>
+  <div className="min-h-screen grid place-items-center bg-gray-50 px-4">
+    <div className="w-full max-w-md">
+      <div className="box px-4 py-8 sm:px-8 sm:py-10 gap-6">
+        
+        <div className="flex flex-col gap-3">
+          <h1 className="text-center text-2xl font-semibold text-gray-800">
+            Create a new password
+          </h1>
 
-        <p className="text-center text-sm text-gray-600">
-          Your new password must be different from previously used passwords.
-        </p>
+          <p className="text-center text-sm text-gray-600">
+            Your new password must be different from previously used passwords.
+          </p>
+        </div>
+
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-4"
+        >
+          <PasswordInput
+            label="New password"
+            id="new-password"
+            placeholder="Enter new password"
+            {...register("newPassword")}
+            error={errors.newPassword?.message}
+          />
+
+          <PasswordInput
+            label="Confirm password"
+            id="confirm-password"
+            placeholder="Confirm new password"
+            {...register("confirmPassword")}
+            error={errors.confirmPassword?.message}
+          />
+
+          <Button disabled={isWaiting} loading={isWaiting}>
+            Reset password
+          </Button>
+
+          <p className="text-center text-sm text-gray-600">
+            Remembered your password?{" "}
+            <Link
+              to="/login"
+              className="font-medium text-primary-700 hover:underline"
+            >
+              Back to login
+            </Link>
+          </p>
+        </form>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <PasswordInput
-          label="New password"
-          id="new-password"
-          placeholder="Enter new password"
-          {...register("newPassword")}
-          error={errors.newPassword?.message}
-        />
-
-        <PasswordInput
-          label="Confirm password"
-          id="confirm-password"
-          placeholder="Confirm new password"
-          {...register("confirmPassword")}
-          error={errors.confirmPassword?.message}
-        />
-
-        <Button disabled={isWaiting} loading={isWaiting}>
-          Reset password
-        </Button>
-
-        <p className="text-center text-sm text-gray-600">
-          Remembered your password?{" "}
-          <Link
-            to="/login"
-            className="font-medium text-primary-700 hover:underline"
-          >
-            Back to login
-          </Link>
-        </p>
-      </form>
     </div>
-  );
+  </div>
+);
 }
 
 export default ResetPasswordForm;
