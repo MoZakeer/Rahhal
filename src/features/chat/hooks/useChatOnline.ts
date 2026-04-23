@@ -1,26 +1,26 @@
-import type { HubConnection } from "@microsoft/signalr";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useRealtime } from "@/context/RealtimeContext";
 import { useEffect } from "react";
 
 export function useChatOnline(
-  connection: HubConnection | null,
   id: string | null,
   setIsOnline: (value: boolean) => void,
 ) {
+  const { presenceConnection } = useRealtime();
+
   useEffect(() => {
-    if (!connection || !id) return;
+    if (!presenceConnection || !id) return;
 
-    connection
-      .invoke("SubscribeToStatuses", [id])
-      .catch((err) => console.error("Error subscribing to statuses: ", err));
+    presenceConnection.invoke("SubscribeToStatuses", [id]);
 
-    const handleStatusChange = (data: any) => {
-      setIsOnline(data?.["isOnline"]);
+    const handler = (data: any) => {
+      setIsOnline(data?.isOnline);
     };
 
-    connection.on("UserStatusChanged", handleStatusChange);
+    presenceConnection.on("UserStatusChanged", handler);
 
     return () => {
-      connection.off("UserStatusChanged", handleStatusChange);
+      presenceConnection.off("UserStatusChanged", handler);
     };
-  }, [connection, id, setIsOnline]);
+  }, [presenceConnection, id, setIsOnline]);
 }

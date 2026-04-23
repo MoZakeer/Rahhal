@@ -8,7 +8,6 @@ import ChatSkeleton from "./ChatSkeleton";
 import type { HubConnection } from "@microsoft/signalr";
 import { useUser } from "../../../context/UserContext";
 import { conversationImage } from "../../../utils/helper";
-import { useSignalRConnection } from "../hooks/useSignalRConnection";
 import { useChatOnline } from "../hooks/useChatOnline";
 import { useState } from "react";
 
@@ -28,9 +27,7 @@ function ChatWindow() {
   const connection = context?.connection ?? null;
   const { user } = useUser();
 
-  const presenceConnection = useSignalRConnection("/Realtime/presenceHub");
-  useChatOnline(presenceConnection, senderProfileId, setIsOnline);
-
+  useChatOnline(senderProfileId, setIsOnline);
   useChatWindowUpdates(connection, conversationId, user?.userId);
 
   if (isPending) return <ChatSkeleton />;
