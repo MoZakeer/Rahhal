@@ -68,7 +68,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
 
   const navigate = useNavigate();
   // const { markAllAsRead, unreadCount } = useNotifications(true);
-  const {markAllAsRead, unreadCount } = useNotifications(!!token);
+  const { markAllAsRead, unreadCount } = useNotifications(!!token);
   const handleClick = async () => {
     await markAllAsRead();
     navigate("/notifications");
@@ -140,8 +140,9 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
 
   return (
     <header
-      className={`fixed top-0 z-40 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${isNavVisible ? "translate-y-0" : "-translate-y-full"
-        }`}
+      className={`fixed top-0 z-40 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${
+        isNavVisible ? "translate-y-0" : "-translate-y-full"
+      }`}
     >
       <div className="mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo Section */}
@@ -154,8 +155,8 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
           }}
         >
           <div className="relative flex h-10 w-10 items-center justify-center transition-transform group-hover:scale-110">
-            <div className="absolute inset-0 rounded-xl bg-orange-400 rotate-6 opacity-80" />
-            <div className="absolute inset-0 rounded-xl bg-indigo-600 dark:bg-indigo-500 -rotate-3" />
+            <div className="absolute inset-0 rounded-xl bg-orange-400 dark:bg-blue-200 rotate-6 opacity-80" />
+            <div className="absolute inset-0 rounded-xl bg-indigo-600 dark:bg-blue-500 -rotate-3" />
             <Plane
               className="relative h-5 w-5 text-white -rotate-45"
               strokeWidth={2.5}
@@ -163,7 +164,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
           </div>
           <span className="text-2xl font-black tracking-tight text-slate-800 dark:text-slate-100 ml-1 hidden sm:block">
             Rahhal
-            <span className="text-orange-500 dark:text-orange-400 text-3xl">
+            <span className="text-orange-500 dark:text-blue-400 text-3xl">
               .
             </span>
           </span>
@@ -175,10 +176,11 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
             <Link
               key={path}
               to={path}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${isActivePath(path)
-                  ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/30"
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                isActivePath(path)
+                  ? "text-indigo-600 dark:text-blue-400  bg-indigo-50/50 dark:bg-indigo-900/30"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                }`}
+              }`}
             >
               <Icon className="h-5 w-5" />
               <span>{label}</span>
@@ -194,7 +196,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                 onClick={handleClick}
                 className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100"
               >
-                <Bell className="h-5 w-5" />
+                <Bell className="h-5 w-5 dark:text-blue-400" />
 
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-[10px] text-white px-1">
@@ -215,7 +217,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                       alt="user"
                     />
                   ) : (
-                    <div className="h-9 w-9 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700 bg-linear-to-br from-purple-600 to-blue-500">
+                    <div className="h-9 w-9 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700 bg-linear-to-br from-purple-600 to-blue-500 dark:from-blue-900">
                       <span className="text-xs font-black text-white uppercase">
                         {profile?.fullName?.charAt(0) ||
                           profile?.userName?.charAt(0) ||
@@ -223,7 +225,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                       </span>
                     </div>
                   )}
-                  <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                  <p className="text-sm font-bold text-indigo-600 dark:text-blue-400">
                     {profile?.userName || "User"}
                   </p>
                   <ChevronDown className="h-4 w-4 text-slate-400 dark:text-slate-500 group-ui-open:rotate-180 transition-transform" />
@@ -400,10 +402,11 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                     key={path}
                     to={path}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${isActivePath(path)
+                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${
+                      isActivePath(path)
                         ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400"
                         : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                      }`}
+                    }`}
                   >
                     <Icon className="h-6 w-6" /> {label}
                   </Link>

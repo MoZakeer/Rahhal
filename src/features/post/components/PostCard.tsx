@@ -137,8 +137,8 @@ export function PostHeader({
             onClick={onFollow}
             className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${
               isFollowing
-                ? "bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                : "bg-slate-900 dark:bg-indigo-600 border border-slate-900 dark:border-indigo-600 text-white hover:bg-slate-800 dark:hover:bg-indigo-700"
+                ? "bg-slate-50 dark:bg-blue-950 border border-slate-200 dark:border-blue-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                : "bg-slate-900 dark:bg-blue-700 border border-slate-900 dark:border-blue-900 text-white hover:bg-slate-800 dark:hover:bg-blue-900"
             }`}
           >
             {isFollowing ? "Following" : "Follow"}
@@ -222,7 +222,6 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
     startX.current = x;
     isDragging.current = true;
   };
-
 
   const handleEnd = () => {
     isDragging.current = false;
