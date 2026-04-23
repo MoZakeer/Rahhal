@@ -103,7 +103,7 @@ export const deleteTrip = (tripId: string) =>
 
 export const changeTripVision = (tripId: string) =>
   apiRequest<{ message: string }>("/TripManagement/ChangeTripVision", {
-    method: "POST",
+    method: "PATCH",
     body: { tripId },
   });
 
@@ -136,7 +136,7 @@ export interface UpdateTripPayload {
 }
 
 export const updateTrip = (payload: UpdateTripPayload) =>
-  apiRequest<null>("/TripManagement/Update", { method: "PUT", body: payload });
+  apiRequest<null>("/TripManagement/Update", { method: "PATCH", body: payload });
 
 export const getPendingRequests = (
   tripId: string,

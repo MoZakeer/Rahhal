@@ -75,6 +75,7 @@ const EditTripDialog = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = editSchema.safeParse(form);
+    console.log(result)
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       result.error.issues.forEach((i) => {

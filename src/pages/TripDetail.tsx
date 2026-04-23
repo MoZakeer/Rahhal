@@ -84,6 +84,7 @@ const TripDetail = () => {
     setError(null);
     try {
       const data = await getTripById(id);
+      // console.log(data);
       setApiTrip(data);
       setIsPublic(data.isPublic ?? true);
       setIsFav(data.isFavorite ?? false);
@@ -141,13 +142,13 @@ const TripDetail = () => {
     1,
     Math.ceil(
       (new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) /
-        (1000 * 60 * 60 * 24)
+      (1000 * 60 * 60 * 24)
     )
   );
 
   const handleShare = () => {
     const url = window.location.href;
-    navigator.clipboard?.writeText(url).catch(() => {});
+    navigator.clipboard?.writeText(url).catch(() => { });
     toast.success("Trip link copied to clipboard");
   };
 
@@ -170,9 +171,14 @@ const TripDetail = () => {
     if (changingVision) return;
     setChangingVision(true);
     try {
-      await changeTripVision(trip.id);
+      const response = await changeTripVision(trip.id);
+
+      console.log("Vision Change Response:", response);
+
       setIsPublic((v) => !v);
-      toast.success(`Trip is now ${!isPublic ? "public" : "private"}`);
+
+      toast.success(response?.message || `Trip is now ${!isPublic ? "public" : "private"}`);
+
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "Failed to change visibility";
       toast.error(msg);
@@ -319,62 +325,62 @@ const TripDetail = () => {
               trip.hotels?.length ||
               trip.restaurants?.length ||
               trip.events?.length) && (
-              <>
-                <Separator />
-                <div>
-                  <h2 className="font-display text-xl font-semibold">Discover the Destination</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Filter by category to explore
-                  </p>
+                <>
+                  <Separator />
+                  <div>
+                    <h2 className="font-display text-xl font-semibold">Discover the Destination</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Filter by category to explore
+                    </p>
 
-                  <Tabs defaultValue="all" className="mt-4">
-                    <TabsList className="flex h-auto flex-wrap justify-start gap-1">
-                      <TabsTrigger value="all">All</TabsTrigger>
+                    <Tabs defaultValue="all" className="mt-4">
+                      <TabsList className="flex h-auto flex-wrap justify-start gap-1">
+                        <TabsTrigger value="all">All</TabsTrigger>
+                        {trip.attractions?.length ? (
+                          <TabsTrigger value="attractions">Attractions</TabsTrigger>
+                        ) : null}
+                        {trip.hotels?.length ? <TabsTrigger value="hotels">Hotels</TabsTrigger> : null}
+                        {trip.restaurants?.length ? (
+                          <TabsTrigger value="restaurants">Restaurants</TabsTrigger>
+                        ) : null}
+                        {trip.events?.length ? <TabsTrigger value="events">Events</TabsTrigger> : null}
+                      </TabsList>
+
+                      <TabsContent value="all" className="mt-6 space-y-6">
+                        {trip.attractions?.length ? (
+                          <AttractionsSection attractions={trip.attractions} />
+                        ) : null}
+                        {trip.hotels?.length ? <HotelsSection hotels={trip.hotels} /> : null}
+                        {trip.restaurants?.length ? (
+                          <RestaurantsSection restaurants={trip.restaurants} />
+                        ) : null}
+                        {trip.events?.length ? <EventsSection events={trip.events} /> : null}
+                      </TabsContent>
+
                       {trip.attractions?.length ? (
-                        <TabsTrigger value="attractions">Attractions</TabsTrigger>
+                        <TabsContent value="attractions" className="mt-6">
+                          <AttractionsSection attractions={trip.attractions} />
+                        </TabsContent>
                       ) : null}
-                      {trip.hotels?.length ? <TabsTrigger value="hotels">Hotels</TabsTrigger> : null}
+                      {trip.hotels?.length ? (
+                        <TabsContent value="hotels" className="mt-6">
+                          <HotelsSection hotels={trip.hotels} />
+                        </TabsContent>
+                      ) : null}
                       {trip.restaurants?.length ? (
-                        <TabsTrigger value="restaurants">Restaurants</TabsTrigger>
+                        <TabsContent value="restaurants" className="mt-6">
+                          <RestaurantsSection restaurants={trip.restaurants} />
+                        </TabsContent>
                       ) : null}
-                      {trip.events?.length ? <TabsTrigger value="events">Events</TabsTrigger> : null}
-                    </TabsList>
-
-                    <TabsContent value="all" className="mt-6 space-y-6">
-                      {trip.attractions?.length ? (
-                        <AttractionsSection attractions={trip.attractions} />
+                      {trip.events?.length ? (
+                        <TabsContent value="events" className="mt-6">
+                          <EventsSection events={trip.events} />
+                        </TabsContent>
                       ) : null}
-                      {trip.hotels?.length ? <HotelsSection hotels={trip.hotels} /> : null}
-                      {trip.restaurants?.length ? (
-                        <RestaurantsSection restaurants={trip.restaurants} />
-                      ) : null}
-                      {trip.events?.length ? <EventsSection events={trip.events} /> : null}
-                    </TabsContent>
-
-                    {trip.attractions?.length ? (
-                      <TabsContent value="attractions" className="mt-6">
-                        <AttractionsSection attractions={trip.attractions} />
-                      </TabsContent>
-                    ) : null}
-                    {trip.hotels?.length ? (
-                      <TabsContent value="hotels" className="mt-6">
-                        <HotelsSection hotels={trip.hotels} />
-                      </TabsContent>
-                    ) : null}
-                    {trip.restaurants?.length ? (
-                      <TabsContent value="restaurants" className="mt-6">
-                        <RestaurantsSection restaurants={trip.restaurants} />
-                      </TabsContent>
-                    ) : null}
-                    {trip.events?.length ? (
-                      <TabsContent value="events" className="mt-6">
-                        <EventsSection events={trip.events} />
-                      </TabsContent>
-                    ) : null}
-                  </Tabs>
-                </div>
-              </>
-            )}
+                    </Tabs>
+                  </div>
+                </>
+              )}
           </div>
 
           {/* Sidebar */}
