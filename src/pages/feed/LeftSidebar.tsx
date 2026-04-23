@@ -7,7 +7,7 @@ export function LeftSidebar() {
     <div className="flex flex-col gap-5">
  {/* Header Text */}
       <div>
-        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 ">
+        <h1 className="text-3xl font-extrabold text-blue-900 dark:text-slate-100 ">
   Stories Beyond Borders
         </h1>
         <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">

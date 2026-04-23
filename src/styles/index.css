@@ -1,9 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:wght@400;500;600;700&display=swap");
-
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;700&family=Inter:wght@400;500&display=swap");@import "tailwindcss/preflight";
 @import "tailwindcss/preflight";
 @import "tailwindcss/theme";
 @import "tailwindcss/utilities";
-
 /* =========================================
    Design Tokens (Theme)
 ========================================= */
@@ -61,10 +59,9 @@
   --radius-full: 9999px;
 
   /* ===== Fonts ===== */
-  --font-display: "Playfair Display", serif;
-  --font-body: "DM Sans", sans-serif;
-
-  /* ===== Shadows ===== */
+--font-display: "Fraunces", serif;
+  --font-body: "Inter", sans-serif;
+    /* ===== Shadows ===== */
   --shadow-card: 0 4px 24px -4px hsl(199 89% 38% / 0.08);
   --shadow-elevated: 0 12px 40px -8px hsl(199 89% 38% / 0.15);
 }
@@ -99,6 +96,7 @@
   --border-color: #e2e8f0;
   --message-bg-sender: #e0f2fe;
   --message-bg-receiver: #f1f5f9;
+  
 }
 
 /* =========================================
@@ -155,14 +153,6 @@ body {
   overflow-x: hidden;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-display);
-}
 
 html,
 body,
