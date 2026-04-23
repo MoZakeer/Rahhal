@@ -12,6 +12,58 @@ export interface TripDay {
   activities: string[];
 }
 
+export interface Attraction {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  location: string;
+  category: string;
+}
+
+export interface Hotel {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  rating: number;
+  reviewsCount: number;
+  pricePerNight: string;
+  location: string;
+}
+
+export interface Restaurant {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  rating: number;
+  reviewsCount: number;
+  cuisine: string;
+  priceRange: string;
+}
+
+export interface EventItem {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  date: string;
+  location: string;
+  category: string;
+}
+
+export type JoinRequestStatus = "pending" | "accepted" | "rejected";
+
+export interface JoinRequest {
+  id: string;
+  userName: string;
+  userAvatar: string;
+  message: string;
+  requestedAt: string;
+  status: JoinRequestStatus;
+}
+
 export interface Trip {
   id: string;
   name: string;
@@ -30,6 +82,11 @@ export interface Trip {
   budget?: string;
   itinerary: TripDay[];
   isAiGenerated: boolean;
+  attractions?: Attraction[];
+  hotels?: Hotel[];
+  restaurants?: Restaurant[];
+  events?: EventItem[];
+  joinRequests?: JoinRequest[];
 }
 
 export const mockTrips: Trip[] = [
@@ -168,6 +225,47 @@ export const mockTrips: Trip[] = [
     isAiGenerated: true,
   },
 ];
+
+// Sample additional details (attractions / hotels / restaurants / events / join requests).
+// In production these would come from the backend per trip; for now we attach the same
+// realistic samples to every trip so the details page is always populated.
+const sampleAttractions: Attraction[] = [
+  { id: "a1", name: "Old Town Square", description: "A historic plaza filled with charming architecture and street performers.", image: trip5, location: "City Center", category: "Landmark" },
+  { id: "a2", name: "Sunset Viewpoint", description: "Panoramic views over the coastline at golden hour.", image: trip1, location: "West Cliff", category: "Nature" },
+  { id: "a3", name: "Royal Museum", description: "World-class collection of art and cultural artifacts.", image: trip3, location: "Museum District", category: "Culture" },
+];
+
+const sampleHotels: Hotel[] = [
+  { id: "h1", name: "Azure Bay Resort", description: "Beachfront resort with infinity pool and private cabanas.", image: trip1, rating: 4.8, reviewsCount: 1240, pricePerNight: "$320", location: "Beachfront" },
+  { id: "h2", name: "Mountain Vista Lodge", description: "Cozy alpine lodge with panoramic mountain views.", image: trip2, rating: 4.6, reviewsCount: 870, pricePerNight: "$210", location: "Highlands" },
+  { id: "h3", name: "Heritage Boutique Hotel", description: "Restored historic building with modern luxury touches.", image: trip5, rating: 4.7, reviewsCount: 520, pricePerNight: "$180", location: "Old Town" },
+];
+
+const sampleRestaurants: Restaurant[] = [
+  { id: "r1", name: "La Marina", description: "Fresh seafood served on a candle-lit terrace by the sea.", image: trip1, rating: 4.7, reviewsCount: 980, cuisine: "Seafood", priceRange: "$$$" },
+  { id: "r2", name: "Sakura Bistro", description: "Authentic Japanese kitchen with seasonal tasting menu.", image: trip3, rating: 4.9, reviewsCount: 1530, cuisine: "Japanese", priceRange: "$$$$" },
+  { id: "r3", name: "Trattoria Bella", description: "Family-run trattoria with handmade pasta and local wines.", image: trip5, rating: 4.5, reviewsCount: 640, cuisine: "Italian", priceRange: "$$" },
+];
+
+const sampleEvents: EventItem[] = [
+  { id: "e1", name: "Summer Music Festival", description: "Three days of live music across multiple stages downtown.", image: trip4, date: "2026-07-12", location: "Downtown Arena", category: "Music" },
+  { id: "e2", name: "Cultural Heritage Night", description: "Traditional dances, food stalls, and craft markets.", image: trip6, date: "2026-08-20", location: "Heritage Park", category: "Festival" },
+  { id: "e3", name: "Food & Wine Expo", description: "Taste signature dishes from top chefs around the region.", image: trip2, date: "2026-06-05", location: "Convention Center", category: "Food" },
+];
+
+const sampleJoinRequests: JoinRequest[] = [
+  { id: "jr1", userName: "Yousef Karim", userAvatar: "YK", message: "I'd love to join — I have similar dates and interests!", requestedAt: "2026-03-10", status: "pending" },
+  { id: "jr2", userName: "Mariam Saleh", userAvatar: "MS", message: "Looking to share costs and explore together.", requestedAt: "2026-03-12", status: "pending" },
+  { id: "jr3", userName: "Hassan Tarek", userAvatar: "HT", message: "I'm a photographer, would love to document the trip.", requestedAt: "2026-03-08", status: "accepted" },
+];
+
+mockTrips.forEach((t) => {
+  t.attractions = sampleAttractions;
+  t.hotels = sampleHotels;
+  t.restaurants = sampleRestaurants;
+  t.events = sampleEvents;
+  t.joinRequests = sampleJoinRequests;
+});
 
 export const aiTripPreferences = {
   destinations: ["Maldives", "Switzerland", "Japan", "Dubai", "Italy", "Bali", "Greece", "Iceland", "Morocco", "New Zealand"],
