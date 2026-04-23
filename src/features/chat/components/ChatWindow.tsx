@@ -49,7 +49,7 @@ function ChatWindow() {
       <ChatHeader
         title={chatInfo?.title || ""}
         isOnline={isOnline}
-        lastSeen={lastSeen}
+        lastSeen={lastSeen || ""}
         avatar={conversationImage({
           isGroup: chatInfo?.isGroup || false,
           conversationPictureURL: chatInfo?.conversationPictureURL,
