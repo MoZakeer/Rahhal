@@ -202,30 +202,33 @@ const AiPlanner = () => {
   const isInterestValid =
     form.user_interests.includes("General Activities") ||
     form.user_interests.length >= 3;
- useEffect(() => {
-  const handleClickOutside = (e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-    // Only close if we clicked completely outside both search areas
-    if (!target.closest(".city-search-container") && !target.closest(".country-search-container")) {
-      setCityOpen(false);
-      setCountryOpen(false);
-    }
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Only close if we clicked completely outside both search areas
+      if (
+        !target.closest(".city-search-container") &&
+        !target.closest(".country-search-container")
+      ) {
+        setCityOpen(false);
+        setCountryOpen(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+  const handleCityInputClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevents the event from bubbling up
+    setCityOpen((prev) => !prev); // Toggles City
+    setCountryOpen(false); // Always closes Country
   };
 
-  document.addEventListener("click", handleClickOutside);
-  return () => document.removeEventListener("click", handleClickOutside);
-}, []);
-const handleCityInputClick = (e: React.MouseEvent) => {
-  e.stopPropagation(); // Prevents the event from bubbling up
-  setCityOpen((prev) => !prev); // Toggles City
-  setCountryOpen(false);       // Always closes Country
-};
-
-const handleCountryInputClick = (e: React.MouseEvent) => {
-  e.stopPropagation(); // Prevents the event from bubbling up
-  setCountryOpen((prev) => !prev); // Toggles Country
-  setCityOpen(false);              // Always closes City
-};
+  const handleCountryInputClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevents the event from bubbling up
+    setCountryOpen((prev) => !prev); // Toggles Country
+    setCityOpen(false); // Always closes City
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -408,7 +411,7 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
     localStorage.setItem("tripForm", JSON.stringify(form));
   }, [step, result, form]);
   return (
-    <div className="min-h-screen bg-[#f9fafb] flex justify-center px-4 py-8 md:py-16">
+    <div className="min-h-screen bg-[#f9fafb] dark:bg-slate-900 flex justify-center px-4 py-8 md:py-16">
       <div className="max-w-4xl w-full space-y-10">
         {/* HEADER SECTION */}
         <header className="text-center space-y-4">
@@ -416,7 +419,7 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
             <Sparkles className="w-4 h-4" />
             AI POWERED TRAVEL
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
             Plan your next{" "}
             <span className="text-primary italic">Adventure</span>
           </h1>
@@ -427,25 +430,27 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
         </header>
 
         {step === "form" && (
-          <div className="grid gap-8">
+          <div className="grid gap-8 ">
             {/* CARD 1: THE BASICS */}
-            <Card className="border-none shadow-xl shadow-slate-200/50 rounded-3xl overflow-hidden">
+            <Card className="border-none shadow-xl  rounded-3xl overflow-hidden dark:bg-slate-800">
               <CardContent className="p-8 space-y-8">
                 <div className="flex items-center gap-3 pb-4 border-b">
                   <div className="p-2 bg-primary rounded-lg text-white">
                     <Info className="w-5 h-5" />
                   </div>
-                  <h2 className="text-xl font-bold">Trip Logistics</h2>
+                  <h2 className="text-xl font-bold dark:text-slate-100">
+                    Trip Logistics
+                  </h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-sm font-semibold text-slate-600">
+                    <Label className="text-sm font-semibold text-slate-600 dark:text-slate-200">
                       Trip Name
                     </Label>
                     <Input
                       placeholder="e.g., Weekend Getaway"
-                      className="rounded-xl border-slate-200 h-12 focus:ring-primary"
+                      className="rounded-xl border-slate-200 h-12 dark:bg-slate-700 dark:border-slate-700 dark:focus:ring-accent-foreground focus:ring-primary"
                       onChange={(e) =>
                         setForm({ ...form, name: e.target.value })
                       }
@@ -455,15 +460,15 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
                     className="space-y-2 relative city-search-container"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Label className="flex items-center gap-2 text-sm font-semibold text-slate-600">
+                    <Label className="flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-200">
                       <MapPin className="w-4 h-4 text-primary" /> Destination
                       City
                     </Label>
 
                     <Input
-                    onClick={handleCityInputClick}
+                      onClick={handleCityInputClick}
                       placeholder="Search city..."
-                      className="rounded-xl border-slate-200 h-12"
+                      className="rounded-xl border-slate-200 h-12 dark:bg-slate-700 dark:border-slate-700"
                       value={citySearch}
                       onChange={(e) => {
                         setCitySearch(e.target.value);
@@ -471,7 +476,7 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
                     />
 
                     {cityOpen && (
-                      <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl max-h-60 overflow-auto p-2 animate-in fade-in zoom-in-95 duration-200">
+                      <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl max-h-60 overflow-auto p-2 animate-in fade-in zoom-in-95 duration-200 dark:bg-slate-800 dark:border-slate-700">
                         {cities
                           .filter((c) =>
                             c.name
@@ -510,13 +515,13 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
                     )}
                   </div>
                 </div>
-  <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-600">
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-slate-600 dark:text-slate-200">
                     Description
                   </Label>
                   <Textarea
                     placeholder="Mention any specific vibes or requirements..."
-                    className="rounded-xl border-slate-200 min-h-[100px] resize-none"
+                    className="rounded-xl border-slate-200 min-h-[100px] resize-none dark:bg-slate-700 dark:border-slate-700"
                     onChange={(e) =>
                       setForm({ ...form, description: e.target.value })
                     }
@@ -526,14 +531,14 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
                   className="space-y-2  country-search-container"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <Label className="flex items-center gap-2 text-sm font-semibold text-slate-600">
+                  <Label className="flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-200">
                     <MapPin className="w-4 h-4 text-primary" /> Country
                   </Label>
 
                   <Input
-                  onClick={handleCountryInputClick}
+                    onClick={handleCountryInputClick}
                     placeholder="Search country..."
-                    className="rounded-xl border-slate-200 h-12"
+                    className="rounded-xl border-slate-200 h-12 dark:bg-slate-700 dark:border-slate-700"
                     value={countrySearch}
                     onChange={(e) => {
                       setCountrySearch(e.target.value);
@@ -541,7 +546,7 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
                   />
 
                   {countryOpen && (
-                    <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl max-h-60 overflow-auto p-2 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl max-h-60 overflow-auto p-2 animate-in fade-in zoom-in-95 duration-200 dark:bg-slate-800 dark:border-slate-700">
                       {countries
                         .filter((c) =>
                           c.name
@@ -579,17 +584,14 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
                   )}
                 </div>
 
-              
-
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  
                   <div className="space-y-2">
-                    <Label className="text-xs uppercase tracking-wider font-bold text-slate-400">
+                    <Label className="text-xs uppercase tracking-wider font-bold text-slate-400 dark:text-slate-200">
                       Start Date
                     </Label>
                     <Input
                       type="date"
-                      className="rounded-xl"
+                      className="rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-slate-400"
                       onChange={(e) =>
                         setForm({
                           ...form,
@@ -601,26 +603,26 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-xs uppercase tracking-wider font-bold text-slate-400 flex items-center gap-1">
+                    <Label className="text-xs uppercase tracking-wider font-bold text-slate-400 flex items-center gap-1 dark:text-slate-200">
                       <Calendar className="w-3 h-3" /> Days
                     </Label>
                     <Input
                       type="number"
                       placeholder="1"
-                      className="rounded-xl"
+                      className="rounded-xl dark:bg-slate-700 dark:border-slate-700"
                       onChange={(e) =>
                         setForm({ ...form, user_days: +e.target.value })
                       }
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-xs uppercase tracking-wider font-bold text-slate-400 flex items-center gap-1">
+                    <Label className="text-xs uppercase tracking-wider font-bold text-slate-400 flex items-center gap-1 dark:text-slate-200">
                       <DollarSign className="w-3 h-3" /> Budget
                     </Label>
                     <Input
                       type="number"
                       placeholder="EGP"
-                      className="rounded-xl"
+                      className="rounded-xl dark:bg-slate-700 dark:border-slate-700"
                       onChange={(e) =>
                         setForm({
                           ...form,
@@ -635,19 +637,21 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
             </Card>
 
             {/* CARD 2: THE VIBE */}
-            <Card className="border-none shadow-xl shadow-slate-200/50 rounded-3xl">
+            <Card className="border-none dark:bg-slate-800 rounded-3xl ">
               <CardContent className="p-8 space-y-8">
                 <div className="flex items-center gap-3 pb-4 border-b">
                   <div className="p-2 bg-primary rounded-lg text-white">
                     <Compass className="w-5 h-5" />
                   </div>
-                  <h2 className="text-xl font-bold">Preferences & Interests</h2>
+                  <h2 className="text-xl font-bold dark:text-slate-100">
+                    Preferences & Interests
+                  </h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8">
                   {/* Activity Level */}
                   <div className="space-y-4">
-                    <Label className="text-sm font-bold text-slate-700">
+                    <Label className="text-sm font-bold text-slate-700 dark:text-slate-200">
                       Pace of Trip
                     </Label>
                     <div className="flex gap-2">
@@ -675,13 +679,13 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
 
                   {/* Travelers Count */}
                   <div className="space-y-4">
-                    <Label className="text-sm font-bold text-slate-700 flex items-center gap-1">
+                    <Label className="text-sm font-bold text-slate-700 flex items-center gap-1 dark:text-slate-200">
                       <Users className="w-4 h-4" /> Travelers
                     </Label>
                     <Input
                       type="number"
                       min={1}
-                      className="rounded-xl h-10 border-slate-200"
+                      className="rounded-xl h-10 border-slate-200 dark:bg-slate-700 dark:border-slate-700"
                       onChange={(e) =>
                         setForm({ ...form, numberOfTravelers: +e.target.value })
                       }
@@ -692,7 +696,7 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
                 {/* Interests Pills */}
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <Label className="text-sm font-bold text-slate-700">
+                    <Label className="text-sm font-bold text-slate-700 dark:text-slate-200">
                       Interests
                     </Label>
                     {!isInterestValid && (
@@ -709,7 +713,7 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
                         className={`px-4 py-2 cursor-pointer rounded-full transition-all text-xs font-medium border-none shadow-sm ${
                           form.user_interests.includes(i)
                             ? "bg-primary text-white scale-105"
-                            : "bg-white text-slate-600 hover:bg-slate-100"
+                            : "bg-white dark:bg-slate-500 dark:text-white text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-400"
                         }`}
                         onClick={() => toggleInterest(i)}
                       >
@@ -721,17 +725,17 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
 
                 {/* Travel Preferences (Dynamic) */}
                 <div className="space-y-4">
-                  <Label className="text-sm font-bold text-slate-700">
+                  <Label className="text-sm font-bold text-slate-700 dark:text-slate-200">
                     Travel Preferences
                   </Label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 ">
                     {preferences.map((p) => (
                       <Badge
                         key={p.id}
                         className={`px-4 py-2 cursor-pointer rounded-full transition-all text-xs font-medium border-none shadow-sm ${
                           form.travelPreferencesId.includes(p.id)
                             ? "bg-primary text-white scale-105"
-                            : "bg-white text-slate-600 hover:bg-slate-100"
+                            : "bg-white dark:bg-slate-500 dark:text-white text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-400"
                         }`}
                         onClick={() =>
                           setForm((prev) => ({
@@ -754,17 +758,17 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
                 {/* Demographics */}
                 <div className="grid md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
                   <div className="space-y-3">
-                    <Label className="text-sm font-bold text-slate-700">
+                    <Label className="text-sm font-bold text-slate-700 dark:text-slate-200">
                       Gender
                     </Label>
-                    <div className="flex gap-2 bg-slate-50 p-1.5 rounded-2xl">
+                    <div className="flex gap-2 bg-slate-50 p-1.5 rounded-2xl dark:bg-slate-700">
                       {["Any / Mixed", "Male only", "Female only"].map(
                         (g, i) => (
                           <button
                             key={g}
                             className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
                               form.gender === i
-                                ? "bg-white text-primary shadow-sm"
+                                ? "bg-white dark:bg-slate-300 text-primary shadow-sm"
                                 : "text-slate-400 hover:text-slate-600"
                             }`}
                             onClick={() => setForm({ ...form, gender: i })}
@@ -776,16 +780,16 @@ const handleCountryInputClick = (e: React.MouseEvent) => {
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <Label className="text-sm font-bold text-slate-700">
+                    <Label className="text-sm font-bold text-slate-700 dark:text-slate-200">
                       Age Range
                     </Label>
-                    <div className="flex gap-2 bg-slate-50 p-1.5 rounded-2xl">
+                    <div className="flex gap-2 bg-slate-50 p-1.5 rounded-2xl dark:bg-slate-700">
                       {[0, 1, 2, 3].map((a) => (
                         <button
                           key={a}
                           className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
                             form.ageGroup === a
-                              ? "bg-white text-primary shadow-sm"
+                              ? "bg-white dark:bg-slate-300 text-primary shadow-sm"
                               : "text-slate-400 hover:text-slate-600"
                           }`}
                           onClick={() => setForm({ ...form, ageGroup: a })}

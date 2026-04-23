@@ -22,15 +22,15 @@ const Hero: React.FC = () => {
     </span>
   </div>
 
-  <h1 className="text-8xl md:text-[12rem] font-black tracking-tighter text-white leading-[0.8]">
+  <h1 className="text-8xl md:text-[10rem] font-black tracking-tighter text-white leading-[0.8]">
     Rahhal<span className="text-[var(--color-primary-500)]">.</span>
   </h1>
-        <h2 className="mt-6 text-5xl font-bold leading-tight">
+        <h2 className="mt-2 text-5xl font-bold leading-tight">
           Discover Your Next{" "}
           <span className="text-[var(--color-primary-500)]">Adventure</span>
         </h2>
 
-        <p className="mt-4 text-gray-200">
+        <p className="mt-2 text-gray-200">
           Connect with travelers, plan amazing trips with AI assistance, and
           find your perfect travel companions.
         </p>

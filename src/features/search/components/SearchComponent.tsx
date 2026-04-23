@@ -17,7 +17,7 @@ export default function SearchComponent() {
   const isEmpty = !keyword.trim();
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-md mx-auto ">
       <div className="relative">
         {/* Input Field */}
         <input
@@ -32,7 +32,7 @@ export default function SearchComponent() {
             border border-gray-300
             shadow-sm
             outline-none
-            transition-colors duration-200
+            transition-colors duration-200 dark:bg-slate-900 dark:text-gray-900
           "
         />
 
@@ -43,12 +43,12 @@ export default function SearchComponent() {
           aria-label="Search"
           className={`
             absolute right-2 top-1/2 -translate-y-1/2
-            p-2.5 rounded-full
+            p-2.5 rounded-full dark:bg-slate-900
             flex items-center justify-center cursor-pointer
             ${
               isEmpty
-                ? "bg-gray-100 text-gray-300 cursor-not-allowed"
-                : "bg-black text-white hover:bg-gray-900 active:bg-gray-800"
+                ? " text-gray-300 cursor-not-allowed"
+                : " text-blue-900  active:bg-gray-800"
             }
             transition-colors duration-200
           `}

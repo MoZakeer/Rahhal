@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ShieldCheck } from "lucide-react";
 import {
   Popover,
@@ -21,7 +21,7 @@ import {
   Languages,
   ChevronDown,
 } from "lucide-react";
-import { useNotifications } from "../../hooks/useNotifications";
+import { useNotifications } from "../../features/Notifications/hooks/useNotifications";
 import ThemeToggleButton from "./ThemeToggleButton";
 const API_BASE_URL = "https://rahhal-api.runasp.net";
 import { getUserRole } from "../../utils/auth";
@@ -64,8 +64,15 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
   const [profile, setProfile] = useState<Profile>();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hasToken] = useState(() => !!localStorage.getItem("token"));
-  const { unreadCount } = useNotifications(hasToken);
+  // const { unreadCount } = useNotifications(hasToken);
 
+  const navigate = useNavigate();
+  // const { markAllAsRead, unreadCount } = useNotifications(true);
+  const { markAllAsRead, unreadCount } = useNotifications(!!token);
+  const handleClick = async () => {
+    await markAllAsRead();
+    navigate("/notifications");
+  };
   /* ================= FETCH PROFILE DATA ================= */
   useEffect(() => {
     const fetchProfile = async () => {
@@ -148,8 +155,8 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
           }}
         >
           <div className="relative flex h-10 w-10 items-center justify-center transition-transform group-hover:scale-110">
-            <div className="absolute inset-0 rounded-xl bg-orange-400 rotate-6 opacity-80" />
-            <div className="absolute inset-0 rounded-xl bg-indigo-600 dark:bg-indigo-500 -rotate-3" />
+            <div className="absolute inset-0 rounded-xl bg-orange-400 dark:bg-blue-200 rotate-6 opacity-80" />
+            <div className="absolute inset-0 rounded-xl bg-indigo-600 dark:bg-blue-500 -rotate-3" />
             <Plane
               className="relative h-5 w-5 text-white -rotate-45"
               strokeWidth={2.5}
@@ -157,7 +164,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
           </div>
           <span className="text-2xl font-black tracking-tight text-slate-800 dark:text-slate-100 ml-1 hidden sm:block">
             Rahhal
-            <span className="text-orange-500 dark:text-orange-400 text-3xl">
+            <span className="text-orange-500 dark:text-blue-400 text-3xl">
               .
             </span>
           </span>
@@ -171,7 +178,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
               to={path}
               className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
                 isActivePath(path)
-                  ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/30"
+                  ? "text-indigo-600 dark:text-blue-400  bg-indigo-50/50 dark:bg-indigo-900/30"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
               }`}
             >
@@ -185,18 +192,18 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
         <div className="flex items-center gap-2 ml-auto lg:gap-3">
           {hasToken ? (
             <>
-              <Link
-                to="/notifications"
+              <button
+                onClick={handleClick}
                 className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100"
               >
-                <Bell className="h-5 w-5" />
+                <Bell className="h-5 w-5 dark:text-blue-400" />
 
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-[10px] text-white px-1">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
-              </Link>
+              </button>
 
               <div className="hidden lg:block h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
 
@@ -210,7 +217,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                       alt="user"
                     />
                   ) : (
-                    <div className="h-9 w-9 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700 bg-linear-to-br from-purple-600 to-blue-500">
+                    <div className="h-9 w-9 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700 bg-linear-to-br from-purple-600 to-blue-500 dark:from-blue-900">
                       <span className="text-xs font-black text-white uppercase">
                         {profile?.fullName?.charAt(0) ||
                           profile?.userName?.charAt(0) ||
@@ -218,7 +225,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                       </span>
                     </div>
                   )}
-                  <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                  <p className="text-sm font-bold text-indigo-600 dark:text-blue-400">
                     {profile?.userName || "User"}
                   </p>
                   <ChevronDown className="h-4 w-4 text-slate-400 dark:text-slate-500 group-ui-open:rotate-180 transition-transform" />
