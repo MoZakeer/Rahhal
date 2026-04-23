@@ -13,7 +13,8 @@ export interface ChatResponse {
     isGroup: boolean;
     title: string;
     conversationPictureURL: string;
+    otherParticipantProfileId: string;
+    lastSeen: string;
     messages: PaginatedMessages;
-   
   };
 }
