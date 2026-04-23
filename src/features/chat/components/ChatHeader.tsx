@@ -2,7 +2,17 @@ import { Link, useNavigate } from "react-router";
 import Avatar from "./Avatar";
 import { HiOutlineChevronLeft } from "react-icons/hi2";
 
-function ChatHeader({ title, avatar }: { title: string; avatar: string }) {
+function ChatHeader({
+  title,
+  avatar,
+  isOnline,
+  lastSeen,
+}: {
+  title: string;
+  avatar: string;
+  isOnline: boolean;
+  lastSeen: string;
+}) {
   const navigate = useNavigate();
   return (
     <div className="bg-gray-0 flex items-center  gap-4 border-b  border-solid border-gray-200 shadow-sm px-4 py-2 w-full sm:px-6 sm:py-3">
@@ -16,12 +26,17 @@ function ChatHeader({ title, avatar }: { title: string; avatar: string }) {
         <Avatar src={avatar} />
         <div className="self-start">
           <h4 className="text-lg font-semibold text-gray-900 ">{title}</h4>
-          {/* <p
+          <p
             className={`text-gray-500 font-normal 
             ${isOnline ? "text-green-700 font-medium" : ""} `}
           >
-            {isOnline ? "online" : "last seen at 12:14 pm"}
-          </p> */}
+            {isOnline
+              ? "online"
+              : `last seen at ${new Date(lastSeen).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}`}
+          </p>
         </div>
       </Link>
     </div>
