@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { z } from "zod";
-import { UserPlus, Send } from "lucide-react";
+import { UserPlus, Send, Loader2 } from "lucide-react";
+import { requestJoinTrip } from "@/lib/tripApi";
+import { ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,15 +27,17 @@ const joinSchema = z.object({
 });
 
 interface Props {
+  tripId: string;
   tripName: string;
 }
 
-const JoinTripDialog = ({ tripName }: Props) => {
+const JoinTripDialog = ({ tripId, tripName }: Props) => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = joinSchema.safeParse({ message });
     if (!result.success) {
@@ -41,9 +45,19 @@ const JoinTripDialog = ({ tripName }: Props) => {
       return;
     }
     setError(null);
-    toast.success(`Your request to join "${tripName}" has been sent!`);
-    setMessage("");
-    setOpen(false);
+    setLoading(true);
+    try {
+      await requestJoinTrip(tripId);
+      toast.success(`Your request to join "${tripName}" has been sent!`);
+      setMessage("");
+      setOpen(false);
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Failed to send request";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -83,9 +97,9 @@ const JoinTripDialog = ({ tripName }: Props) => {
             <DialogClose asChild>
               <Button type="button" variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit" className="gap-2">
-              <Send className="h-4 w-4" />
-              Send Request
+            <Button type="submit" className="gap-2" disabled={loading}>
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              {loading ? "Sending..." : "Send Request"}
             </Button>
           </DialogFooter>
         </form>

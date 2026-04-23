@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { z } from "zod";
-import { Pencil, Save } from "lucide-react";
+import { Pencil, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,6 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import type { Trip } from "@/data/mockData";
+import { updateTrip } from "@/lib/tripApi";
+import { ApiError } from "@/lib/api";
 
 const editSchema = z.object({
   name: z.string().trim().min(3, { message: "Name must be at least 3 characters" }).max(100),
@@ -33,11 +35,28 @@ const editSchema = z.object({
 
 interface Props {
   trip: Trip;
+  // Required to call backend Update — pass IDs from the API response when available.
+  destinationId?: string;
+  countryId?: string;
+  travelPreferencesId?: string[];
+  gender?: number;
+  ageGroup?: number;
+  status?: number;
   onSaved?: () => void;
 }
 
-const EditTripDialog = ({ trip, onSaved }: Props) => {
+const EditTripDialog = ({
+  trip,
+  destinationId,
+  countryId,
+  travelPreferencesId,
+  gender = 0,
+  ageGroup = 1,
+  status = 1,
+  onSaved,
+}: Props) => {
   const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     name: trip.name,
     destination: trip.destination,
@@ -53,7 +72,7 @@ const EditTripDialog = ({ trip, onSaved }: Props) => {
     setForm((p) => ({ ...p, [k]: v }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = editSchema.safeParse(form);
     if (!result.success) {
@@ -65,19 +84,34 @@ const EditTripDialog = ({ trip, onSaved }: Props) => {
       return;
     }
     setErrors({});
-    // Mock mutation: update in-memory trip
-    Object.assign(trip, {
-      name: result.data.name,
-      destination: result.data.destination,
-      description: result.data.description,
-      startDate: result.data.startDate,
-      endDate: result.data.endDate,
-      travelers: result.data.travelers,
-      budget: result.data.budget || undefined,
-    });
-    toast.success("Trip updated successfully");
-    setOpen(false);
-    onSaved?.();
+
+    const budgetNum = Number(String(result.data.budget ?? "").replace(/[^0-9.]/g, "")) || 0;
+    setSubmitting(true);
+    try {
+      await updateTrip({
+        id: trip.id,
+        name: result.data.name,
+        description: result.data.description,
+        startDate: new Date(result.data.startDate).toISOString(),
+        endDate: new Date(result.data.endDate).toISOString(),
+        numberOfTravelers: result.data.travelers,
+        budget: budgetNum,
+        gender,
+        ageGroup,
+        status,
+        destinationId: destinationId ?? "",
+        countryId: countryId ?? "",
+        travelPreferencesId: travelPreferencesId ?? [],
+      });
+      toast.success("Trip updated successfully");
+      setOpen(false);
+      onSaved?.();
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Failed to update trip";
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -148,9 +182,9 @@ const EditTripDialog = ({ trip, onSaved }: Props) => {
             <DialogClose asChild>
               <Button type="button" variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit" className="gap-2">
-              <Save className="h-4 w-4" />
-              Save Changes
+            <Button type="submit" className="gap-2" disabled={submitting}>
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {submitting ? "Saving..." : "Save Changes"}
             </Button>
           </DialogFooter>
         </form>

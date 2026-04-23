@@ -15,7 +15,7 @@ const HotelsSection = ({ hotels }: Props) => {
       <p className="mt-1 text-sm text-muted-foreground">Top-rated places to stay</p>
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         {hotels.map((h) => (
-          <div key={h.id} className="overflow-hidden rounded-lg border border-gray-300 bg-card shadow-card transition-shadow hover:shadow-elegant">
+          <div key={h.id} className="overflow-hidden rounded-lg border  border-gray-300 bg-card shadow-card transition-shadow hover:shadow-elegant">
             <div className="aspect-[16/10] overflow-hidden">
               <img src={h.image} alt={h.name} className="h-full w-full object-cover transition-transform duration-300 hover:scale-105" />
             </div>

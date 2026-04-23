@@ -14,7 +14,7 @@ const EventsSection = ({ events }: Props) => {
       <p className="mt-1 text-sm text-muted-foreground">Don't miss what's happening during your stay</p>
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         {events.map((e) => (
-          <div key={e.id} className="overflow-hidden rounded-lg border border-gray-300 bg-card shadow-card transition-shadow hover:shadow-elegant">
+          <div key={e.id} className="overflow-hidden rounded-lg border  border-gray-300 bg-card shadow-card transition-shadow hover:shadow-elegant">
             <div className="aspect-[16/10] overflow-hidden">
               <img src={e.image} alt={e.name} className="h-full w-full object-cover transition-transform duration-300 hover:scale-105" />
             </div>
