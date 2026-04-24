@@ -24,7 +24,10 @@ export default function SearchComponent() {
           type="text"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSearch();
+            if (e.key === "Escape") setKeyword("");
+          }}
           placeholder="Search for anything..."
           className="
             w-full pl-4 pr-12 py-3 rounded-3xl

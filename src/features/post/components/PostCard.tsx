@@ -239,24 +239,28 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
         onTouchStart={(e) => handleStart(e.touches[0].clientX)}
         onTouchEnd={handleEnd}
       >
-        <button
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
-          onClick={prev}
-        >
-          <ChevronLeft size={32} />
-        </button>
+        {media.length > 1 && current !== 0 && (
+          <button
+            className="absolute left-4 opacity-0 group-hover:opacity-100 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+            onClick={prev}
+          >
+            <ChevronLeft size={32} />
+          </button>
+        )}
         <img
           onClick={() => setIsPreviewOpen(true)}
           src={normalizeMediaUrl(media[current].url)}
           className="w-full h-full object-cover transition-transform duration-300"
           draggable={false}
         />
-        <button
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
-          onClick={next}
-        >
-          <ChevronRight size={32} />
-        </button>
+        {media.length > 1 && current !== media.length - 1 && (
+          <button
+            className="absolute opacity-0 group-hover:opacity-100 right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+            onClick={next}
+          >
+            <ChevronRight size={32} />
+          </button>
+        )}
 
         {/* Counter */}
         <div
@@ -310,25 +314,27 @@ transition-all duration-300"
             >
               <X size={24} />
             </button>
-
-            <button
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
-              onClick={prev}
-            >
-              <ChevronLeft size={32} />
-            </button>
+            {media.length > 1 && (
+              <button
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+                onClick={prev}
+              >
+                <ChevronLeft size={32} />
+              </button>
+            )}
 
             <img
               src={normalizeMediaUrl(media[current].url)}
               className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
             />
-
-            <button
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
-              onClick={next}
-            >
-              <ChevronRight size={32} />
-            </button>
+            {media.length > 1 && (
+              <button
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+                onClick={next}
+              >
+                <ChevronRight size={32} />
+              </button>
+            )}
           </div>
         </div>
       )}

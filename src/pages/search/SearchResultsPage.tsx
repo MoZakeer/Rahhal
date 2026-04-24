@@ -37,7 +37,7 @@ function useQuery() {
 const Skeleton = ({ count = 3 }: { count?: number }) => (
   <div className="space-y-3 animate-pulse">
     {Array.from({ length: count }).map((_, i) => (
-      <div key={i} className="h-14 bg-gray-200 rounded w-full" />
+      <div key={i} className="h-14 bg-gray-200 rounded w-full " />
     ))}
   </div>
 );
@@ -157,10 +157,10 @@ export default function SearchResults() {
                     whileHover={{ scale: 1.02 }}
                   >
                     <div
-                      className="flex items-center justify-between w-full gap-4 p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                      className="flex items-center justify-between w-full gap-4 p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 cursor-pointer dark:bg-slate-700 dark:border-slate-600"
                       onClick={() => navigate(`/profile/${user.profileId}`)}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 dark:bg-slate-700">
                         <motion.img
                           whileHover={{ scale: 1.08 }}
                           transition={{ type: "spring", stiffness: 300 }}
@@ -169,15 +169,15 @@ export default function SearchResults() {
                               ? `${BASE_URL}${user.profilePictureUrl}`
                               : Image
                           }
-                          className="w-14 h-14 rounded-full object-cover ring-2 ring-gray-100"
+                          className="w-14 h-14 rounded-full object-cover ring-2 ring-gray-100 "
                           alt={user.username}
                         />
                         <div className="flex flex-col">
-                          <span className="font-semibold text-gray-900 text-sm">
+                          <span className="font-semibold text-gray-900 text-sm dark:text-slate-100">
                             {user.username}
                           </span>
                           {user.bio && (
-                            <span className="text-gray-500 text-xs line-clamp-1">
+                            <span className="text-gray-500 text-xs line-clamp-1 dark:text-slate-100">
                               {user.bio}
                             </span>
                           )}
@@ -188,7 +188,6 @@ export default function SearchResults() {
                 ))}
               </div>
 
-              
               {allPosts.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                   {allPosts.map((post: PostPreview) => (
@@ -221,7 +220,7 @@ export default function SearchResults() {
                   whileHover={{ scale: 1.02 }}
                 >
                   <div
-                    className="flex items-center justify-between w-full gap-4 p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                    className="flex items-center justify-between w-full gap-4 p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 cursor-pointer dark:bg-slate-700 dark:border-slate-600"
                     onClick={() => navigate(`/profile/${u.profileId}`)}
                   >
                     <div className="flex items-center gap-3">
@@ -237,11 +236,11 @@ export default function SearchResults() {
                         alt={u.username}
                       />
                       <div className="flex flex-col">
-                        <span className="font-semibold text-gray-900 text-sm">
+                        <span className="font-semibold text-gray-900 text-sm dark:text-slate-100">
                           {u.username}
                         </span>
                         {u.bio && (
-                          <span className="text-gray-500 text-xs line-clamp-1">
+                          <span className="text-gray-500 text-xs line-clamp-1 dark:text-slate-100">
                             {u.bio}
                           </span>
                         )}

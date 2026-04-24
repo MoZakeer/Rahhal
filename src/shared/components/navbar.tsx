@@ -25,7 +25,8 @@ import { useNotificationContext } from "../../context/NotificationProvider";
 import ThemeToggleButton from "./ThemeToggleButton";
 const API_BASE_URL = "https://rahhal-api.runasp.net";
 import { getUserRole } from "../../utils/auth";
-
+import AnimatedSearch from "../components/AnimatedSearch";
+// import SearchComponent from "../../features/search/components/SearchComponent";
 const navItems = [
   { icon: Home, label: "Home", path: "/feed" },
   { icon: Compass, label: "Explore", path: "/explore" },
@@ -59,13 +60,12 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
   const parsedAuth = auth ? JSON.parse(auth) : null;
   const profileId = parsedAuth?.profileId || "";
   const token = localStorage.getItem("token");
-
   const [profile, setProfile] = useState<Profile>();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hasToken] = useState(() => !!localStorage.getItem("token"));
   const navigate = useNavigate();
- 
-const { unreadCount, markAllAsRead } = useNotificationContext();
+
+  const { unreadCount, markAllAsRead } = useNotificationContext();
   const handleClick = async () => {
     await markAllAsRead();
     navigate("/notifications");
@@ -189,6 +189,7 @@ const { unreadCount, markAllAsRead } = useNotificationContext();
         <div className="flex items-center gap-2 ml-auto lg:gap-3">
           {hasToken ? (
             <>
+              <AnimatedSearch />
               <button
                 onClick={handleClick}
                 className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100"
@@ -304,6 +305,7 @@ const { unreadCount, markAllAsRead } = useNotificationContext();
           )}
 
           {/* Mobile Menu Toggle */}
+
           <button
             onClick={() => setMobileOpen(true)}
             className="lg:hidden p-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
