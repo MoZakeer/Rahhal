@@ -199,7 +199,7 @@ export default function SearchResults() {
                       transition={{ duration: 0.4, ease: "easeOut" }}
                       whileHover={{ scale: 1.03 }}
                     >
-                      <SearchPostCard post={post} baseUrl={BASE_URL} />
+                      <SearchPostCard post={post} />
                     </motion.div>
                   ))}
                 </div>
@@ -264,7 +264,7 @@ export default function SearchResults() {
                   transition={{ duration: 0.4, ease: "easeOut" }}
                   whileHover={{ scale: 1.03 }}
                 >
-                  <SearchPostCard post={p} baseUrl={BASE_URL} />
+                  <SearchPostCard post={p} />
                 </motion.div>
               ))}
             </div>
