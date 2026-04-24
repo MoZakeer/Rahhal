@@ -54,7 +54,7 @@ export function useEditPost(postId: string) {
           file: m.url.startsWith("http")
             ? m.url
             : `${BASE_URL}${m.url}`,
-          isNew: false, 
+          isNew: false,
         }))
       );
 
@@ -83,60 +83,62 @@ export function useEditPost(postId: string) {
   }, []);
 
   const handleUpdatePost = async () => {
-  if (!caption.trim() && media.length === 0) return;
+    if (!caption.trim() && media.length === 0) return;
 
-  const storedUser = getUserFromStorage();
-  if (!storedUser) return;
+    const storedUser = getUserFromStorage();
+    if (!storedUser) return;
 
-  const { token } = storedUser;
+    const { token } = storedUser;
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const formData = new FormData();
+      const formData = new FormData();
 
-    formData.append("ID", postId);
-    formData.append("Description", caption);
+      formData.append("ID", postId);
+      formData.append("Description", caption);
 
-    
-   media.forEach((m, index) => {
 
-  if (!m.isNew && typeof m.file === "string") {
-    formData.append(`Media[${index}].mediaId`, m.mediaId);
-    formData.append(`Media[${index}].file`, m.file);
-  }
+      let i = 0;
+      media.forEach((m) => {
+        if (!m.isNew && typeof m.file === "string") {
+          formData.append(`Media[${i}].mediaId`, m.mediaId);
+          formData.append(`Media[${i}].file`, m.file);
+        }
 
-  
-  if (m.isNew && m.file instanceof File) {
-    formData.append(`Media[${index}].file`, m.file);
-  }
-});
+        if (m.isNew && m.file instanceof File) {
+          formData.append(`Media[${i}].mediaId`, "");
+          formData.append(`Media[${i}].file`, m.file);
+        }
 
-    const res = await fetch(`${BASE_URL}/Post/Update`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
+        i++;
+      });
 
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("Update failed:", text);
-      throw new Error("Failed to update post");
+      const res = await fetch(`${BASE_URL}/Post/Update`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Update failed:", text);
+        throw new Error("Failed to update post");
+      }
+
+      toast.success("Post updated successfully");
+
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      navigate("/feed");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update post");
+    } finally {
+      setLoading(false);
     }
-
-    toast.success("Post updated successfully");
-
-    queryClient.invalidateQueries({ queryKey: ["posts"] });
-    navigate("/feed");
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to update post");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return {
     caption,

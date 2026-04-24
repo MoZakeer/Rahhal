@@ -16,6 +16,7 @@ const queryClient = new QueryClient({
   },
 });
 export default function App() {
+  
   return (
     <ThemeProvider>
       <Toaster />

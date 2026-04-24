@@ -53,6 +53,7 @@ import { isTokenValid } from "../utils/auth";
 
 import NotificationsPage from "../features/Notifications/NotificationsPage.tsx";
 import NotFound from "./NotFound/notfound";
+import { NotificationProvider } from "@/context/NotificationProvider.tsx";
 
 // React Query
 const queryClient = new QueryClient();
@@ -73,6 +74,7 @@ const Pages = () => {
         <Sonner />
 
         <Router>
+          <NotificationProvider>
           <Routes>
             <Route
               path="/"
@@ -105,7 +107,9 @@ const Pages = () => {
             <Route
               element={
                 isAuthenticated ? (
-                  <MainLayout onLogout={updateAuth} />
+                  // <NotificationProvider>
+                    <MainLayout onLogout={updateAuth} />
+                  // </NotificationProvider>
                 ) : (
                   <Navigate to="/login" replace />
                 )
@@ -182,6 +186,7 @@ const Pages = () => {
             {/* ================= 404 ================= */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </NotificationProvider>
         </Router>
       </TooltipProvider>
     </QueryClientProvider>

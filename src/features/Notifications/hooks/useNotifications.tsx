@@ -27,13 +27,10 @@ export const useNotifications = (hasToken: boolean) => {
   const token = localStorage.getItem("token");
   const connection = useSignalRNotificationConnection();
 
-  // NEW
   const location = useLocation();
   const isOnNotificationsPage = location.pathname.startsWith("/notifications");
 
- 
   // FETCH NOTIFICATIONS
-  
   const fetchNotifications = useCallback(
     async (page = 1, append = false) => {
       if (!hasToken || !token) return;
@@ -77,7 +74,6 @@ export const useNotifications = (hasToken: boolean) => {
     [hasToken, token]
   );
 
- 
   // FETCH UNREAD COUNT
   const fetchUnreadCount = useCallback(async () => {
     if (!hasToken || !token) return;
@@ -103,23 +99,20 @@ export const useNotifications = (hasToken: boolean) => {
     }
   }, [hasToken, token]);
 
-  
   // INITIAL LOAD
   useEffect(() => {
     fetchNotifications(1, false);
     fetchUnreadCount();
   }, [fetchNotifications, fetchUnreadCount]);
 
-  
-  // NEW: RESET COUNT ON PAGE OPEN
+  // RESET COUNT ON PAGE OPEN
   useEffect(() => {
     if (isOnNotificationsPage) {
       setUnreadCount(0);
     }
   }, [isOnNotificationsPage]);
 
-
-  // NEW: MARK ALL AS READ WHEN OPEN PAGE
+  // MARK ALL AS READ ON PAGE OPEN
   useEffect(() => {
     if (isOnNotificationsPage) {
       markAllAsRead();
@@ -148,45 +141,47 @@ export const useNotifications = (hasToken: boolean) => {
         );
       });
 
-      // MODIFIED
       if (!isOnNotificationsPage) {
         setUnreadCount((prev) => prev + 1);
       }
 
-      toast.custom(
-        (t) => (
-          <div
-            onClick={() => {
-              window.location.href = "/notifications";
-              toast.dismiss(t.id);
-            }}
-            className={`transform transition-all duration-500 ${
-              t.visible
-                ? "translate-x-0 opacity-100"
-                : "translate-x-20 opacity-0"
-            } bg-white shadow-xl rounded-2xl p-4 border border-gray-100 cursor-pointer
-            w-[90vw] sm:w-[360px] hover:scale-[1.02]`}
-          >
-            <div className="flex items-start gap-3">
-              <div className="text-blue-500 text-xl">🔔</div>
+      // ✅ TOAST ONLY IF NOT ON NOTIFICATIONS PAGE
+      if (!isOnNotificationsPage) {
+        toast.custom(
+          (t) => (
+            <div
+              onClick={() => {
+                window.location.href = "/notifications";
+                toast.dismiss(t.id);
+              }}
+              className={`transform transition-all duration-500 ${
+                t.visible
+                  ? "translate-x-0 opacity-100"
+                  : "translate-x-20 opacity-0"
+              } bg-white shadow-xl rounded-2xl p-4 border border-gray-100 cursor-pointer
+              w-[90vw] sm:w-[360px] hover:scale-[1.02]`}
+            >
+              <div className="flex items-start gap-3">
+                <div className="text-blue-500 text-xl">🔔</div>
 
-              <div className="flex-1">
-                <p className="font-semibold text-gray-800">
-                  New Notification
-                </p>
-                <p className="text-gray-500 text-sm line-clamp-2">
-                  {notification.message}
-                </p>
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-800">
+                    New Notification
+                  </p>
+                  <p className="text-gray-500 text-sm line-clamp-2">
+                    {notification.message}
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-[10px] text-gray-400 mt-2">
+                Click to view
               </div>
             </div>
-
-            <div className="text-[10px] text-gray-400 mt-2">
-              Click to view
-            </div>
-          </div>
-        ),
-        { id: notification.id, duration: 4000 }
-      );
+          ),
+          { id: notification.id, duration: 4000 }
+        );
+      }
     };
 
     connection.on("ReceiveNotification", handler);
@@ -195,7 +190,6 @@ export const useNotifications = (hasToken: boolean) => {
       connection.off("ReceiveNotification", handler);
     };
   }, [connection, isOnNotificationsPage]);
-
 
   // LOAD MORE
   const loadMore = async () => {
@@ -207,7 +201,6 @@ export const useNotifications = (hasToken: boolean) => {
     await fetchNotifications(next, true);
   };
 
-  
   // MARK ALL READ
   const markAllAsRead = async () => {
     if (!token) return;
@@ -227,7 +220,6 @@ export const useNotifications = (hasToken: boolean) => {
 
     setUnreadCount(0);
   };
-
 
   // MARK AS READ
   const markAsRead = async (id?: string) => {
@@ -255,7 +247,6 @@ export const useNotifications = (hasToken: boolean) => {
     fetchUnreadCount();
   };
 
-  
   // MARK AS DELIVERED
   const markAsDelivered = async (id: string) => {
     if (!token) return;
@@ -273,11 +264,7 @@ export const useNotifications = (hasToken: boolean) => {
         }
       );
 
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("UpdateDelivery failed:", text);
-        return;
-      }
+      if (!res.ok) return;
 
       setNotifications((prev) =>
         prev.map((n) =>
@@ -285,10 +272,40 @@ export const useNotifications = (hasToken: boolean) => {
         )
       );
     } catch (err) {
-      console.error("Network error:", err);
+      console.error(err);
     }
   };
 
+  // MARK ALL AS DELIVERED
+const markAllAsDelivered = async () => {
+  if (!token) return;
+
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/NotificationManagment/MakeAllAsDeliver`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      }
+    );
+
+    if (!res.ok) return;
+
+    // 👈 update UI
+    setNotifications((prev) =>
+      prev.map((n) => ({
+        ...n,
+        isDelivered: true,
+      }))
+    );
+  } catch (err) {
+    console.error(err);
+  }
+};
   // DELETE
   const deleteNotification = async (id: string) => {
     if (!token) return;
@@ -306,10 +323,7 @@ export const useNotifications = (hasToken: boolean) => {
         }
       );
 
-      if (!res.ok) {
-        console.error("Delete failed");
-        return;
-      }
+      if (!res.ok) return;
 
       setNotifications((prev) =>
         prev.filter((n) => n.id !== id)
@@ -317,7 +331,7 @@ export const useNotifications = (hasToken: boolean) => {
 
       fetchUnreadCount();
     } catch (err) {
-      console.error("Delete error:", err);
+      console.error(err);
     }
   };
 
@@ -331,6 +345,7 @@ export const useNotifications = (hasToken: boolean) => {
     markAllAsRead,
     markAsRead,
     markAsDelivered,
+    markAllAsDelivered,
     deleteNotification,
     refetch: () => {
       fetchNotifications(1, false);

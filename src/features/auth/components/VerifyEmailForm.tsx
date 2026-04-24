@@ -38,45 +38,55 @@ function VerifyEmailForm() {
   }
 
   const isWaiting = isSubmitting || isPending;
-  return (
-    <div className="box px-4 py-8 sm:px-8 sm:py-10 gap-10">
-      <div className="flex flex-col gap-3">
-        <h1 className="text-center text-2xl font-semibold text-gray-800">
-          Verify your email
-        </h1>
-        <p className="text-center text-sm text-gray-600">
-          Enter the 6-digit code we sent to your email.
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-        <OtpInput
-          length={6}
-          onComplete={(otp) => setValue("otp", otp, { shouldValidate: true })}
-        />
-
-        {errors.otp && (
-          <p className="text-sm text-red-600 text-center">
-            {errors.otp.message}
+ return (
+  <div className="min-h-screen grid place-items-center bg-gray-50 px-4">
+    <div className="w-full max-w-md">
+      <div className="box px-4 py-8 sm:px-8 sm:py-10 gap-10">
+        
+        <div className="flex flex-col gap-3">
+          <h1 className="text-center text-2xl font-semibold text-gray-800">
+            Verify your email
+          </h1>
+          <p className="text-center text-sm text-gray-600">
+            Enter the 6-digit code we sent to your email.
           </p>
-        )}
+        </div>
 
-        <Button disabled={isWaiting} loading={isWaiting}>
-          Verify email
-        </Button>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-5"
+        >
+          <OtpInput
+            length={6}
+            onComplete={(otp) =>
+              setValue("otp", otp, { shouldValidate: true })
+            }
+          />
 
-        <p className="text-center text-sm text-gray-600">
-          Didn’t receive the code?{" "}
-          <button
-            type="button"
-            className="font-medium text-primary-700 hover:underline cursor-pointer"
-          >
-            Resend
-          </button>
-        </p>
-      </form>
+          {errors.otp && (
+            <p className="text-sm text-red-600 text-center">
+              {errors.otp.message}
+            </p>
+          )}
+
+          <Button disabled={isWaiting} loading={isWaiting}>
+            Verify email
+          </Button>
+
+          <p className="text-center text-sm text-gray-600">
+            Didn’t receive the code?{" "}
+            <button
+              type="button"
+              className="font-medium text-primary-700 hover:underline cursor-pointer"
+            >
+              Resend
+            </button>
+          </p>
+        </form>
+      </div>
     </div>
-  );
+  </div>
+);
 }
 
 export default VerifyEmailForm;

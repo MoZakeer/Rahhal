@@ -21,7 +21,7 @@ import {
   Languages,
   ChevronDown,
 } from "lucide-react";
-import { useNotifications } from "../../features/Notifications/hooks/useNotifications";
+import { useNotificationContext } from "../../context/NotificationProvider";
 import ThemeToggleButton from "./ThemeToggleButton";
 const API_BASE_URL = "https://rahhal-api.runasp.net";
 import { getUserRole } from "../../utils/auth";
@@ -55,7 +55,6 @@ interface NavbarProps {
 export default function Navbar({ onLogoutClick }: NavbarProps) {
   const location = useLocation();
   const role = getUserRole();
-
   const auth = localStorage.getItem("auth");
   const parsedAuth = auth ? JSON.parse(auth) : null;
   const profileId = parsedAuth?.profileId || "";
@@ -64,11 +63,9 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
   const [profile, setProfile] = useState<Profile>();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hasToken] = useState(() => !!localStorage.getItem("token"));
-  // const { unreadCount } = useNotifications(hasToken);
-
   const navigate = useNavigate();
-  // const { markAllAsRead, unreadCount } = useNotifications(true);
-  const { markAllAsRead, unreadCount } = useNotifications(!!token);
+ 
+const { unreadCount, markAllAsRead } = useNotificationContext();
   const handleClick = async () => {
     await markAllAsRead();
     navigate("/notifications");
