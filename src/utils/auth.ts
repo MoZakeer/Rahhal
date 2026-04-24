@@ -12,6 +12,7 @@ export function getUserId(): string {
     return "";
   }
 }
+
 export function getUserRole(): string {
   try {
     const token = localStorage.getItem("token");

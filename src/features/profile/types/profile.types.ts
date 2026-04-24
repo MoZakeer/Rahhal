@@ -46,5 +46,6 @@ export interface ProfileData {
   countriesCount: number;
   followersCount: number;
   followingCount: number;
+  travelPersonality: string | null;
 }
 export type ProfileTab = "Posts" | "My trips" | "Saved";

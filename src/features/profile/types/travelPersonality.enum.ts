@@ -7,3 +7,6 @@ export const TravelPersonality = {
 } as const;
 
 export type TravelPersonality = typeof TravelPersonality[keyof typeof TravelPersonality];
+export const TravelPersonalityLabel = Object.fromEntries(
+  Object.entries(TravelPersonality).map(([key, value]) => [value, key])
+) as Record<TravelPersonality, keyof typeof TravelPersonality>;

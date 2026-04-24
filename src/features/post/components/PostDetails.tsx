@@ -253,24 +253,6 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
     isDragging.current = true;
   };
 
-  // Drag Move
-  const handleMove = (x: number) => {
-    if (!isDragging.current || startX.current === null) return;
-
-    const diff = x - startX.current;
-
-    // Threshold prevents accidental swipes
-    if (diff > 80) {
-      prev();
-      isDragging.current = false;
-    }
-
-    if (diff < -80) {
-      next();
-      isDragging.current = false;
-    }
-  };
-
   const handleEnd = () => {
     isDragging.current = false;
     startX.current = null;
@@ -281,20 +263,34 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
       {/* Main Image (Swipe Area) */}
       <div
         className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden group select-none bg-slate-100 dark:bg-slate-900 cursor-pointer"
-        onClick={() => setIsPreviewOpen(true)}
         onMouseDown={(e) => handleStart(e.clientX)}
-        onMouseMove={(e) => handleMove(e.clientX)}
         onMouseUp={handleEnd}
         onMouseLeave={handleEnd}
         onTouchStart={(e) => handleStart(e.touches[0].clientX)}
-        onTouchMove={(e) => handleMove(e.touches[0].clientX)}
         onTouchEnd={handleEnd}
       >
+        {media.length > 1 && current !== 0 && (
+          <button
+            className="absolute left-4 opacity-0 group-hover:opacity-100 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+            onClick={prev}
+          >
+            <ChevronLeft size={32} />
+          </button>
+        )}
         <img
+          onClick={() => setIsPreviewOpen(true)}
           src={normalizeMediaUrl(media[current].url)}
           className="w-full h-full object-cover transition-transform duration-300"
           draggable={false}
         />
+        {media.length > 1 && current !== media.length - 1 && (
+          <button
+            className="absolute opacity-0 group-hover:opacity-100 right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+            onClick={next}
+          >
+            <ChevronRight size={32} />
+          </button>
+        )}
 
         {/* Counter */}
         <div
@@ -348,31 +344,34 @@ transition-all duration-300"
             >
               <X size={24} />
             </button>
-
-            <button
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
-              onClick={prev}
-            >
-              <ChevronLeft size={32} />
-            </button>
+            {media.length > 1 && (
+              <button
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+                onClick={prev}
+              >
+                <ChevronLeft size={32} />
+              </button>
+            )}
 
             <img
               src={normalizeMediaUrl(media[current].url)}
               className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
             />
-
-            <button
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
-              onClick={next}
-            >
-              <ChevronRight size={32} />
-            </button>
+            {media.length > 1 && (
+              <button
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+                onClick={next}
+              >
+                <ChevronRight size={32} />
+              </button>
+            )}
           </div>
         </div>
       )}
     </div>
   );
 }
+
 export function PostActions({
   liked,
   saved,

@@ -54,7 +54,7 @@ const ProfilePostCard = ({ post }: Props) => {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400">
-             <ExternalLink size={24} strokeWidth={1.5} />
+            <ExternalLink size={24} strokeWidth={1.5} />
           </div>
         )}
 
@@ -78,7 +78,11 @@ const ProfilePostCard = ({ post }: Props) => {
           >
             <Heart
               size={18}
-              className={post.isLiked ? "text-red-500 fill-red-500" : "text-gray-700 dark:text-gray-300"}
+              className={
+                post.isLiked
+                  ? "text-red-500 fill-red-500"
+                  : "text-gray-700 dark:text-gray-300"
+              }
             />
           </button>
           <button
@@ -87,7 +91,11 @@ const ProfilePostCard = ({ post }: Props) => {
           >
             <Bookmark
               size={18}
-              className={post.isSaved ? "text-cyan-600 fill-cyan-600" : "text-gray-700 dark:text-gray-300"}
+              className={
+                post.isSaved
+                  ? "text-cyan-600 fill-cyan-600"
+                  : "text-gray-700 dark:text-gray-300"
+              }
             />
           </button>
         </div>
@@ -100,7 +108,7 @@ const ProfilePostCard = ({ post }: Props) => {
             {post.authorUsername || post.userName || "User"}
           </span>
         </div>
-        
+
         {shortDescription && (
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1.5 line-clamp-2 leading-relaxed font-medium">
             {shortDescription}
