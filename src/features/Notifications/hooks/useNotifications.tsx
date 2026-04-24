@@ -145,43 +145,49 @@ export const useNotifications = (hasToken: boolean) => {
         setUnreadCount((prev) => prev + 1);
       }
 
-      // ✅ TOAST ONLY IF NOT ON NOTIFICATIONS PAGE
+      // TOAST
       if (!isOnNotificationsPage) {
-        toast.custom(
-          (t) => (
-            <div
-              onClick={() => {
-                window.location.href = "/notifications";
-                toast.dismiss(t.id);
-              }}
-              className={`transform transition-all duration-500 ${
-                t.visible
-                  ? "translate-x-0 opacity-100"
-                  : "translate-x-20 opacity-0"
-              } bg-white shadow-xl rounded-2xl p-4 border border-gray-100 cursor-pointer
-              w-[90vw] sm:w-[360px] hover:scale-[1.02]`}
-            >
-              <div className="flex items-start gap-3">
-                <div className="text-blue-500 text-xl">🔔</div>
+  toast.custom(
+    (t) => (
+      <div
+        onClick={() => {
+          window.location.href = "/notifications";
+          toast.dismiss(t.id);
+        }}
+        className={`transform transition-all duration-500 ${
+          t.visible
+            ? "translate-x-0 opacity-100"
+            : "translate-x-20 opacity-0"
+        }
+        bg-white dark:bg-slate-800
+        shadow-xl
+        rounded-2xl p-4
+        border border-gray-100 dark:border-slate-700
+        cursor-pointer
+        w-[90vw] sm:w-[360px]
+        hover:scale-[1.02]`}
+      >
+        <div className="flex items-start gap-3">
+          <div className="text-blue-500 text-xl">🔔</div>
 
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-800">
-                    New Notification
-                  </p>
-                  <p className="text-gray-500 text-sm line-clamp-2">
-                    {notification.message}
-                  </p>
-                </div>
-              </div>
+          <div className="flex-1">
+            <p className="font-semibold text-gray-800 dark:text-slate-100">
+              New Notification
+            </p>
+            <p className="text-gray-500 dark:text-slate-400 text-sm line-clamp-2">
+              {notification.message}
+            </p>
+          </div>
+        </div>
 
-              <div className="text-[10px] text-gray-400 mt-2">
-                Click to view
-              </div>
-            </div>
-          ),
-          { id: notification.id, duration: 4000 }
-        );
-      }
+        <div className="text-[10px] text-gray-400 dark:text-slate-500 mt-2">
+          Click to view
+        </div>
+      </div>
+    ),
+    { id: notification.id, duration: 4000 }
+  );
+}
     };
 
     connection.on("ReceiveNotification", handler);

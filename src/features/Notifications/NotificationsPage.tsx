@@ -102,53 +102,55 @@ export default function NotificationsPage() {
   };
 
   const SkeletonItem = () => (
-    <div className="flex gap-4 p-5 rounded-xl bg-gray-200 animate-pulse">
-      <div className="w-6 h-6 rounded-full bg-gray-300" />
+    <div className="flex gap-4 p-5 rounded-xl bg-gray-200 dark:bg-slate-700 animate-pulse">
+      <div className="w-6 h-6 rounded-full bg-gray-300 dark:bg-slate-600" />
       <div className="flex-1 space-y-2">
-        <div className="h-4 w-1/3 bg-gray-300 rounded" />
-        <div className="h-3 w-2/3 bg-gray-300 rounded" />
-        <div className="h-3 w-1/4 bg-gray-300 rounded" />
+        <div className="h-4 w-1/3 bg-gray-300 dark:bg-slate-600 rounded" />
+        <div className="h-3 w-2/3 bg-gray-300 dark:bg-slate-600 rounded" />
+        <div className="h-3 w-1/4 bg-gray-300 dark:bg-slate-600 rounded" />
       </div>
     </div>
   );
 
   return (
-    <div
-      className="min-h-screen px-6 py-10 pt-24"
-      style={{
-        background: `linear-gradient(135deg, var(--color-primary-50), var(--color-primary-100), var(--color-primary-200))`,
-      }}
-    >
+  <div
+  className="
+    min-h-screen px-6 py-10 pt-24
+    bg-[linear-gradient(135deg,var(--color-primary-50),var(--color-primary-100),var(--color-primary-200))]
+    dark:bg-none
+    dark:bg-slate-900
+    transition-colors duration-500
+  "
+>
       <div className="max-w-4xl mx-auto">
 
-        {/* HEADER */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold">Notifications</h1>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-slate-100">
+            Notifications
+          </h1>
 
           {!isEmpty && (
             <button
               onClick={markAllAsDelivered}
-              className="text-m text-gray-600 hover:text-gray-800 transition"
+              className="text-sm text-gray-600 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200 transition"
             >
               Mark all as read
             </button>
           )}
         </div>
 
-        {/* EMPTY STATE */}
         {isEmpty && (
           <div className="flex flex-col items-center justify-center py-32 text-center">
             <div className="text-6xl mb-4">🔔</div>
-            <h2 className="text-2xl font-bold text-gray-700">
+            <h2 className="text-2xl font-bold text-gray-700 dark:text-slate-200">
               No notifications yet
             </h2>
-            <p className="text-gray-500 mt-2">
+            <p className="text-gray-500 dark:text-slate-400 mt-2">
               You will see updates here when something happens
             </p>
           </div>
         )}
 
-        {/* LOADING */}
         {loading && notifications.length === 0 && (
           <div className="space-y-3">
             {[1, 2, 3, 4].map((i) => (
@@ -157,7 +159,6 @@ export default function NotificationsPage() {
           </div>
         )}
 
-        {/* LIST */}
         {!isEmpty && (
           <AnimatePresence mode="popLayout">
             <div className="grid gap-4">
@@ -173,8 +174,8 @@ export default function NotificationsPage() {
                   className={`relative flex gap-4 p-5 rounded-xl cursor-pointer border transition
                   ${
                     !n.isDelivered
-                      ? "bg-blue-50 border-blue-400"
-                      : "bg-white border-gray-200"
+                      ? "bg-blue-50 dark:bg-blue-900/30 border-blue-400 dark:border-blue-700"
+                      : "bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700"
                   }`}
                 >
                   <div className="text-xl">
@@ -182,12 +183,16 @@ export default function NotificationsPage() {
                   </div>
 
                   <div className="flex-1">
-                    <p className="font-semibold">{n.title}</p>
-                    <p className="text-sm text-gray-500">{n.message}</p>
+                    <p className="font-semibold text-gray-900 dark:text-slate-100">
+                      {n.title}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-slate-400">
+                      {n.message}
+                    </p>
                   </div>
 
                   <div className="absolute top-3 right-3 flex items-center gap-2">
-                    <span className="text-[11px] text-gray-400 whitespace-nowrap">
+                    <span className="text-[11px] text-gray-400 dark:text-slate-500 whitespace-nowrap">
                       {formatTimeAgo(n.createdAt, now)}
                     </span>
 
@@ -200,7 +205,7 @@ export default function NotificationsPage() {
                         e.stopPropagation();
                         deleteNotification(n.id);
                       }}
-                      className="text-gray-400 hover:text-red-500 transition"
+                      className="text-gray-400 dark:text-slate-500 hover:text-red-500 transition"
                     >
                       <FaTimes />
                     </button>
@@ -211,7 +216,6 @@ export default function NotificationsPage() {
           </AnimatePresence>
         )}
 
-        {/* LOADING MORE */}
         {loadingMore && (
           <div className="space-y-3 mt-4">
             {[1, 2, 3].map((i) => (
