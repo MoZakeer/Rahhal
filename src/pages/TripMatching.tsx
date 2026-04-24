@@ -17,16 +17,23 @@ const TripMatching = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const [currentCriteria, setCurrentCriteria] = useState<MatchCriteria | null>(null); // لحفظ معايير البحث
+  const [currentCriteria, setCurrentCriteria] = useState<MatchCriteria | null>(null); 
   const constPageSize = 20; 
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
   const buildUrl = (criteria: MatchCriteria, page: number) => {
     let url = `https://rahhal-api.runasp.net/TripManagement/GetAllMatching?pageNumber=${page}&pageSize=${constPageSize}`;
+    
     if (criteria.budget) url += `&Budget=${criteria.budget}`;
     if (criteria.travelers) url += `&NumberOfTravelers=${criteria.travelers}`;
     if (criteria.destinationId && criteria.destinationId !== "ANY") url += `&DestinationId=${criteria.destinationId}`;
+    
+    if (criteria.gender !== undefined) url += `&Gender=${criteria.gender}`;
+    if (criteria.ageGroup !== undefined) url += `&AgeGroup=${criteria.ageGroup}`;
+    if (criteria.startDate) url += `&StartDate=${criteria.startDate}`;
+    if (criteria.endDate) url += `&EndDate=${criteria.endDate}`;
+
     if (criteria.preferenceIds && criteria.preferenceIds.length > 0) {
       criteria.preferenceIds.forEach(id => {
         url += `&PreferenceIds=${id}`;
