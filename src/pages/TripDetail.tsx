@@ -5,16 +5,22 @@ import {
   Calendar,
   Users,
   MapPin,
-  Share2,
   Globe,
   Lock,
   Sparkles,
+  Copy,
   DollarSign,
   Trash2,
   UserCheck,
   Loader2,
   Bookmark,
+  Share2,
+  Clock,
+  Ticket,
+  ExternalLink,
 } from "lucide-react";
+import { LayoutGrid, Bed, Utensils } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -39,13 +45,18 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+
+// Components
 import AttractionsSection from "@/components/trip-detail/AttractionsSection";
 import HotelsSection from "@/components/trip-detail/HotelsSection";
 import RestaurantsSection from "@/components/trip-detail/RestaurantsSection";
-import EventsSection from "@/components/trip-detail/EventsSection";
 import JoinRequestsSection from "@/components/trip-detail/JoinRequestsSection";
 import JoinTripDialog from "@/components/trip-detail/JoinTripDialog";
 import EditTripDialog from "@/components/trip-detail/EditTripDialog";
+import { usePageTitle } from "@/hooks/usePageTitle";
+
+
+// API & Types
 import {
   getTripById,
   deleteTrip,
@@ -55,9 +66,10 @@ import {
   mapApiTripToTrip,
   mapPendingToJoinRequest,
   type ApiTrip,
+  type TripDetailsFilter,
 } from "@/lib/tripApi";
 import { ApiError, getUserId } from "@/lib/api";
-import type { JoinRequest, JoinRequestStatus } from "@/data/mockData";
+import type { JoinRequest, JoinRequestStatus } from "@/types/trip";
 
 const TripDetail = () => {
   const { id } = useParams();
@@ -71,37 +83,41 @@ const TripDetail = () => {
   const [savingFav, setSavingFav] = useState(false);
   const [changingVision, setChangingVision] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [activeTab, setActiveTab] = useState<TripDetailsFilter>("all");
 
   // Join requests (admin)
   const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
   const [requestsLoading, setRequestsLoading] = useState(false);
 
-  const fetchTrip = useCallback(async () => {
-    if (!id) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getTripById(id);
-      // console.log(data);
-      setApiTrip(data);
-      setIsPublic(data.isPublic ?? true);
-      setIsFav(data.isFavorite ?? false);
-    } catch (err) {
-      const msg = err instanceof ApiError ? err.message : "Failed to load trip";
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
+
+  const fetchTrip = useCallback(
+    async (filter: TripDetailsFilter = "all") => {
+      if (!id) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getTripById(id, filter);
+        setApiTrip(data);
+        setIsPublic(data.isPublic ?? true);
+        setIsFav(data.isFavorite ?? false);
+      } catch (err) {
+        const msg = err instanceof ApiError ? err.message : "Failed to load trip";
+        setError(msg);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [id]
+  );
 
   useEffect(() => {
-    fetchTrip();
-  }, [fetchTrip]);
+    fetchTrip(activeTab);
+  }, [fetchTrip, activeTab]);
 
   const trip = apiTrip ? mapApiTripToTrip(apiTrip) : null;
   const currentUserId = getUserId();
   const isAdmin = Boolean(apiTrip && currentUserId && apiTrip.profileId === currentUserId);
-
+  usePageTitle(trip?.name || "Trip Detail");
   const loadPendingRequests = useCallback(async () => {
     if (!id) return;
     setRequestsLoading(true);
@@ -169,14 +185,9 @@ const TripDetail = () => {
     if (changingVision) return;
     setChangingVision(true);
     try {
-      const response = await changeTripVision(trip.id);
-
-      console.log("Vision Change Response:", response);
-
+      await changeTripVision(trip.id);
       setIsPublic((v) => !v);
-
-      toast.success(response?.message || `Trip is now ${!isPublic ? "public" : "private"}`);
-
+      toast.success(`Trip is now ${!isPublic ? "public" : "private"}`);
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "Failed to change visibility";
       toast.error(msg);
@@ -199,9 +210,9 @@ const TripDetail = () => {
     }
   };
 
-  const handleRequestStatusChange = (id: string, status: JoinRequestStatus) => {
+  const handleRequestStatusChange = (reqId: string, status: JoinRequestStatus) => {
     setJoinRequests((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status } : r))
+      prev.map((r) => (r.id === reqId ? { ...r, status } : r))
     );
   };
 
@@ -281,109 +292,188 @@ const TripDetail = () => {
 
             <Separator />
 
-            {/* Itinerary */}
+            {/* Itinerary (Shows only if it's an AI Plan with steps) */}
+            {/* Itinerary Section (Main focus for AI Trips) */}
             {trip.itinerary.length > 0 && (
-              <div>
-                <h2 className="font-display text-xl font-semibold">Itinerary</h2>
-                <div className="mt-4 space-y-4">
+              <section>
+                <h2 className="text-xl font-bold">Itinerary</h2>
+                <div className="mt-6 space-y-8">
                   {trip.itinerary.map((day) => (
-                    <div
-                      key={day.day}
-                      className="relative rounded-lg border  border-gray-300 bg-card p-4 shadow-card"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-                          {day.day}
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-display font-semibold">{day.title}</h3>
-                          <p className="text-sm text-muted-foreground">{day.description}</p>
-                          {day.activities.length > 0 && (
-                            <div className="mt-2 flex flex-wrap gap-1.5">
-                              {day.activities.map((act, i) => (
-                                <Badge
-                                  key={`${act}-${i}`}
-                                  variant="outline"
-                                  className="text-xs font-normal"
-                                >
-                                  {act}
-                                </Badge>
-                              ))}
+                    <div key={day.day} className="relative pl-8 border-l-2  border-primary/20">
+                      <div className="absolute -left-[11px] top-0 h-5 w-5 rounded-full bg-primary" />
+                      <h3 className="text-lg font-bold text-primary">Day {day.day}</h3>
+
+                      <div className="mt-4 space-y-6">
+                        {day.stops?.map((stop, idx) => (
+                          <div key={idx} className="rounded-xl border border-gray-200/50 bg-card overflow-hidden shadow-sm">
+                            <div className="flex flex-col md:flex-row">
+                              {/* Stop Image [cite: 72, 85] */}
+                              {stop.image && (
+                                <div className="h-48 md:w-48 shrink-0">
+                                  <img src={stop.image} className="h-full w-full object-cover" />
+                                </div>
+                              )}
+                              <div className="p-4 flex-1">
+                                <div className="flex items-start justify-between">
+                                  <div>
+                                    <h4 className="font-bold text-lg">{stop.place || stop.category}</h4>
+                                    <Badge variant="secondary" className="mt-1">{stop.category}</Badge>
+                                  </div>
+                                  {stop.arrivalTime && (
+                                    <Badge variant="outline" className="gap-1"><Clock className="h-3 w-3" /> {stop.arrivalTime}</Badge>
+                                  )}
+                                </div>
+                                <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{stop.description}</p>
+
+                                <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                                  {stop.ticketPrice !== undefined && <span className="flex items-center gap-1"><Ticket className="h-3 w-3" /> {stop.ticketPrice === 0 ? "Free" : `$${stop.ticketPrice}`}</span>}
+                                  {stop.mapsUrl && (
+                                    <a href={stop.mapsUrl} target="_blank" className="flex items-center gap-1 text-primary hover:underline ml-auto">
+                                      <ExternalLink className="h-3 w-3" /> View Map
+                                    </a>
+                                  )}
+                                </div>
+
+                                {/* Recommendations specific to this stop */}
+                                {stop.recommendations && (stop.recommendations as any[]).length > 0 && (
+                                  <div className="mt-4 pt-4 border-t border-gray-200/50">
+                                    <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">Nearby Places</p>
+                                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                                      {(stop.recommendations as any[]).map((reco: any, ri: number) => {
+                                        // نجهز رابط جوجل ماب (لو مش مبعوت جاهز، بنبنيه بخطوط الطول والعرض)
+                                        const mapLink = reco.mapsUrl || (reco.latitude && reco.longitude ? `https://www.google.com/maps/search/?api=1&query=${reco.latitude},${reco.longitude}` : undefined);
+
+                                        return (
+                                          <a
+                                            key={ri}
+                                            href={mapLink || "#"}
+                                            target={mapLink ? "_blank" : undefined}
+                                            rel={mapLink ? "noopener noreferrer" : undefined}
+                                            // ضفنا كلاسات group عشان نعمل أنيميشن لطيف لما اليوزر يقف بالماوس
+                                            className="min-w-[120px] max-w-[120px] text-center block group cursor-pointer"
+                                            onClick={(e) => {
+                                              // لو مفيش رابط خالص، نمنع الريفريش ونطلع رسالة لليوزر
+                                              if (!mapLink) {
+                                                e.preventDefault();
+                                                toast.info("Map location not available");
+                                              }
+                                            }}
+                                          >
+                                            <div className="overflow-hidden rounded-md">
+                                              <img
+                                                src={reco.image}
+                                                className="h-20 w-full object-cover bg-muted transition-transform duration-300 group-hover:scale-110"
+                                                alt={reco.name}
+                                              />
+                                            </div>
+                                            <p className="text-xs font-medium mt-1.5 truncate transition-colors group-hover:text-primary">
+                                              {reco.name}
+                                            </p>
+                                          </a>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          )}
-                        </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   ))}
                 </div>
-              </div>
+              </section>
             )}
 
-            {(trip.attractions?.length ||
-              trip.hotels?.length ||
-              trip.restaurants?.length ||
-              trip.events?.length) && (
-                <>
-                  <Separator />
-                  <div>
-                    <h2 className="font-display text-xl font-semibold">Discover the Destination</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Filter by category to explore
-                    </p>
+            {/* Recommendations (Attractions, Hotels, Restaurants) */}
+            {!trip.isAiGenerated && (trip.attractions?.length || trip.hotels?.length || trip.restaurants?.length) ? (
+              <>
+                <div>
+                  <h2 className="font-display text-xl font-semibold">Discover the Destination</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Filter by category to explore recommendations
+                  </p>
 
-                    <Tabs defaultValue="all" className="mt-4">
-                      <TabsList className="flex h-auto flex-wrap justify-start gap-1">
-                        <TabsTrigger value="all">All</TabsTrigger>
-                        {trip.attractions?.length ? (
-                          <TabsTrigger value="attractions">Attractions</TabsTrigger>
-                        ) : null}
-                        {trip.hotels?.length ? <TabsTrigger value="hotels">Hotels</TabsTrigger> : null}
-                        {trip.restaurants?.length ? (
-                          <TabsTrigger value="restaurants">Restaurants</TabsTrigger>
-                        ) : null}
-                        {trip.events?.length ? <TabsTrigger value="events">Events</TabsTrigger> : null}
-                      </TabsList>
+                  <Tabs
+                    value={activeTab}
+                    onValueChange={(v) => setActiveTab(v as TripDetailsFilter)}
+                    className="mt-4"
+                  >
+                    <TabsList className="flex h-auto flex-wrap justify-start gap-2 bg-muted/50 p-1.5 rounded-xl">
 
-                      <TabsContent value="all" className="mt-6 space-y-6">
-                        {trip.attractions?.length ? (
-                          <AttractionsSection attractions={trip.attractions} />
-                        ) : null}
-                        {trip.hotels?.length ? <HotelsSection hotels={trip.hotels} /> : null}
-                        {trip.restaurants?.length ? (
-                          <RestaurantsSection restaurants={trip.restaurants} />
-                        ) : null}
-                        {trip.events?.length ? <EventsSection events={trip.events} /> : null}
-                      </TabsContent>
+                      <TabsTrigger value="all" className="rounded-lg px-4 py-2 data-[state=active]:shadow-sm">
+                        <LayoutGrid className="w-4 h-4 mr-2" />
+                        All
+                      </TabsTrigger>
 
+                      {trip.attractions && trip.attractions.length > 0 && (
+                        <TabsTrigger value="attractions" className="rounded-lg px-4 py-2 data-[state=active]:shadow-sm">
+                          <MapPin className="w-4 h-4 mr-2" />
+                          Attractions
+                          <Badge variant="secondary" className="ml-2 text-[10px] px-1.5 py-0 bg-background">
+                            {trip.attractions.length}
+                          </Badge>
+                        </TabsTrigger>
+                      )}
+
+                      {trip.hotels && trip.hotels.length > 0 && (
+                        <TabsTrigger value="hotels" className="rounded-lg px-4 py-2 data-[state=active]:shadow-sm">
+                          <Bed className="w-4 h-4 mr-2" />
+                          Hotels
+                          <Badge variant="secondary" className="ml-2 text-[10px] px-1.5 py-0 bg-background">
+                            {trip.hotels.length}
+                          </Badge>
+                        </TabsTrigger>
+                      )}
+
+                      {trip.restaurants && trip.restaurants.length > 0 && (
+                        <TabsTrigger value="restaurants" className="rounded-lg px-4 py-2 data-[state=active]:shadow-sm">
+                          <Utensils className="w-4 h-4 mr-2" />
+                          Restaurants
+                          <Badge variant="secondary" className="ml-2 text-[10px] px-1.5 py-0 bg-background">
+                            {trip.restaurants.length}
+                          </Badge>
+                        </TabsTrigger>
+                      )}
+                    </TabsList>
+
+                    <TabsContent value="all" className="mt-6 space-y-6">
                       {trip.attractions?.length ? (
-                        <TabsContent value="attractions" className="mt-6">
-                          <AttractionsSection attractions={trip.attractions} />
-                        </TabsContent>
+                        <AttractionsSection attractions={trip.attractions} />
                       ) : null}
-                      {trip.hotels?.length ? (
-                        <TabsContent value="hotels" className="mt-6">
-                          <HotelsSection hotels={trip.hotels} />
-                        </TabsContent>
-                      ) : null}
+                      {trip.hotels?.length ? <HotelsSection hotels={trip.hotels} /> : null}
                       {trip.restaurants?.length ? (
-                        <TabsContent value="restaurants" className="mt-6">
-                          <RestaurantsSection restaurants={trip.restaurants} />
-                        </TabsContent>
+                        <RestaurantsSection restaurants={trip.restaurants} />
                       ) : null}
-                      {trip.events?.length ? (
-                        <TabsContent value="events" className="mt-6">
-                          <EventsSection events={trip.events} />
-                        </TabsContent>
-                      ) : null}
-                    </Tabs>
-                  </div>
-                </>
-              )}
+                    </TabsContent>
+
+                    {trip.attractions?.length ? (
+                      <TabsContent value="attractions" className="mt-6">
+                        <AttractionsSection attractions={trip.attractions} />
+                      </TabsContent>
+                    ) : null}
+
+                    {trip.hotels?.length ? (
+                      <TabsContent value="hotels" className="mt-6">
+                        <HotelsSection hotels={trip.hotels} />
+                      </TabsContent>
+                    ) : null}
+
+                    {trip.restaurants?.length ? (
+                      <TabsContent value="restaurants" className="mt-6">
+                        <RestaurantsSection restaurants={trip.restaurants} />
+                      </TabsContent>
+                    ) : null}
+                  </Tabs>
+                </div>
+              </>
+            ) : null}
           </div>
 
           {/* Sidebar */}
           <div className="space-y-4">
-            <div className="rounded-lg borderborder-gray-300 bg-card p-5 shadow-card">
+            <div className="rounded-lg borderborder-gray-200/50 bg-card p-5 shadow-card">
               <h3 className="font-display font-semibold">Trip Details</h3>
               <div className="mt-4 space-y-3">
                 <div className="flex items-center gap-3 text-sm">
@@ -423,10 +513,11 @@ const TripDetail = () => {
             </div>
 
             {/* Actions */}
-            <div className="space-y-3 rounded-lg border border-gray-300 bg-card p-5 shadow-card">
+            <div className="space-y-3 rounded-lg border border-gray-200/50 bg-card p-5 shadow-card">
               <h3 className="font-display font-semibold">Actions</h3>
 
               {!isAdmin && <JoinTripDialog tripId={trip.id} tripName={trip.name} />}
+
               {isAdmin && (
                 <EditTripDialog
                   trip={trip}
@@ -436,7 +527,7 @@ const TripDetail = () => {
                   gender={apiTrip.gender}
                   ageGroup={apiTrip.ageGroup}
                   status={apiTrip.status}
-                  onSaved={fetchTrip}
+                  onSaved={() => fetchTrip(activeTab)}
                 />
               )}
 
@@ -477,6 +568,7 @@ const TripDetail = () => {
                 Share Trip
               </Button>
 
+              {/* ============== To Do ===========     == */}
               {/* <Button variant="outline" className="w-full gap-2" onClick={() => toast.info("Matching coming soon")}>
                 <Copy className="h-4 w-4" />
                 Find Matching Trips

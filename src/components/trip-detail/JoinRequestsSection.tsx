@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { handleJoinRequest } from "@/lib/tripApi";
 import { ApiError } from "@/lib/api";
-import type { JoinRequest, JoinRequestStatus } from "@/data/mockData";
+import type { JoinRequest, JoinRequestStatus } from "@/types/trip";
 
 interface Props {
   requests: JoinRequest[];

@@ -1,7 +1,7 @@
 // TripManagement endpoints + adapter from API payloads to the existing UI Trip shape.
 
 import { apiRequest } from "@/lib/api";
-import type { Trip, TripDay, Attraction, Hotel, Restaurant, JoinRequest } from "@/data/mockData";
+import type { Trip, TripDay, ItineraryStop, Attraction, Hotel, Restaurant, JoinRequest } from "@/types/trip";
 
 // ---------- API response types ----------
 
@@ -44,6 +44,33 @@ export interface ApiRecommendation {
   Duration?: number;
 }
 
+// Manual trips (withPlan = false) — recommendations grouped by type.
+export interface ApiManualRecommendationItem {
+  name: string;
+  description?: string;
+  image?: string;
+  location?: string;
+  category?: string;
+  mapsUrl?: string;
+  latitude?: number;
+  longitude?: number;
+  openTime?: string;
+  closeTime?: string;
+  ticketPrice?: number;
+  duration?: number;
+  rating?: number;
+  reviewsCount?: number;
+  pricePerNight?: string | number;
+  cuisine?: string;
+  priceRange?: string;
+}
+
+export interface ApiManualRecommendations {
+  attractions?: ApiManualRecommendationItem[];
+  hotels?: ApiManualRecommendationItem[];
+  restaurants?: ApiManualRecommendationItem[];
+}
+
 export interface ApiTrip {
   tripId: string;
   name: string;
@@ -68,9 +95,11 @@ export interface ApiTrip {
   conversationId?: string;
   travelers: ApiTripTraveler[];
   travelPreferences: ApiTravelPreference[];
+  withPlan?: boolean;
   planData?: {
     itinerary?: ApiPlanItineraryItem[][];
   } | null;
+  recommendations?: ApiManualRecommendations | null;
   isPublic?: boolean;
   isFavorite?: boolean;
   isAiGenerated?: boolean;
@@ -92,8 +121,33 @@ export interface PagedResult<T> {
 
 // ---------- Endpoints ----------
 
-export const getTripById = (tripId: string, signal?: AbortSignal) =>
-  apiRequest<ApiTrip>("/TripManagement/GetById", { query: { TripId: tripId }, signal });
+// Filter values used by the backend's GetById endpoint.
+// Adjust if the backend documents different semantics.
+export type TripDetailsFilter = "all" | "attractions" | "hotels" | "restaurants";
+
+export const filterToParam = (f: TripDetailsFilter): number | undefined => {
+  switch (f) {
+    case "attractions":
+      return 0;
+    case "hotels":
+      return 1;
+    case "restaurants":
+      return 2;
+    case "all":
+    default:
+      return undefined;
+  }
+};
+
+export const getTripById = (
+  tripId: string,
+  filter?: TripDetailsFilter,
+  signal?: AbortSignal
+) =>
+  apiRequest<ApiTrip>("/TripManagement/GetById", {
+    query: { TripId: tripId, Filter: filterToParam(filter ?? "all") },
+    signal,
+  });
 
 export const deleteTrip = (tripId: string) =>
   apiRequest<{ message?: string } | null>("/TripManagement/Delete", {
@@ -123,8 +177,8 @@ export interface UpdateTripPayload {
   id: string;
   name: string;
   description: string;
-  startDate: string; // ISO
-  endDate: string; // ISO
+  startDate: string;
+  endDate: string;
   numberOfTravelers: number;
   budget: number;
   gender: number;
@@ -164,11 +218,26 @@ const slugifyId = (s: string, i: number) => `${s.toLowerCase().replace(/[^a-z0-9
 const flattenItinerary = (api: ApiTrip): TripDay[] => {
   const days = api.planData?.itinerary ?? [];
   return days.map((slots, idx) => {
-    const activities = slots
-      .map((s) => s.place || s.Category || "")
+    const stops: ItineraryStop[] = slots.map((s) => ({
+      place: s.place || s.Category || "",
+      arrivalTime: s.arrival_time,
+      departureTime: s.departure_time,
+      duration: s.Duration,
+      ticketPrice: s.Ticket_Price,
+      category: s.Category,
+      government: s.Government,
+      description: s.Description,
+      image: s.Image,
+      mapsUrl: s.Location,
+      recommendations: (s.List_of_recommendations ?? []).map((r, ri) => 
+        recoToAttraction(r, `reco-${idx}-${ri}`, api.destinationName)
+      )
+    }));
+    const activities = stops
+      .map((s) => s.place || s.category || "")
       .filter(Boolean) as string[];
-    const description = slots
-      .map((s) => s.Description)
+    const description = stops
+      .map((s) => s.description)
       .filter(Boolean)
       .slice(0, 1)
       .join(" ");
@@ -177,11 +246,61 @@ const flattenItinerary = (api: ApiTrip): TripDay[] => {
       title: `Day ${idx + 1}`,
       description: description || `${slots.length} planned stop${slots.length === 1 ? "" : "s"}`,
       activities,
+      stops,
     };
   });
 };
 
-const collectAttractions = (api: ApiTrip): Attraction[] => {
+const recoToAttraction = (r: ApiRecommendation, id: string, fallbackLocation: string): Attraction => ({
+  id,
+  name: r.Name,
+  description: r.Description ?? "",
+  image: r.Image || "",
+  location: r.Government ?? fallbackLocation,
+  category: r.Category ?? "Place",
+  mapsUrl: r.Location,
+  latitude: r.Latitude,
+  longitude: r.Longitude,
+  openTime: r["Open Time"],
+  closeTime: r["Close Time"],
+  ticketPrice: r["Ticket Price"],
+  duration: r.Duration,
+});
+
+const recoToHotel = (r: ApiRecommendation, id: string, fallbackLocation: string): Hotel => ({
+  id,
+  name: r.Name,
+  description: r.Description ?? "",
+  image: r.Image || "",
+  rating: 4.5,
+  reviewsCount: 0,
+  pricePerNight: r["Ticket Price"] ? `$${r["Ticket Price"]}` : "—",
+  location: r.Government ?? fallbackLocation,
+  mapsUrl: r.Location,
+  latitude: r.Latitude,
+  longitude: r.Longitude,
+  openTime: r["Open Time"],
+  closeTime: r["Close Time"],
+});
+
+const recoToRestaurant = (r: ApiRecommendation, id: string, fallbackLocation: string): Restaurant => ({
+  id,
+  name: r.Name,
+  description: r.Description ?? "",
+  image: r.Image || "",
+  rating: 4.5,
+  reviewsCount: 0,
+  cuisine: r.Category ?? "Local",
+  priceRange: r["Ticket Price"] && r["Ticket Price"] > 30 ? "$$$" : "$$",
+  location: r.Government ?? fallbackLocation,
+  mapsUrl: r.Location,
+  latitude: r.Latitude,
+  longitude: r.Longitude,
+  openTime: r["Open Time"],
+  closeTime: r["Close Time"],
+});
+
+const collectAttractionsFromPlan = (api: ApiTrip): Attraction[] => {
   const out: Attraction[] = [];
   const seen = new Set<string>();
   const days = api.planData?.itinerary ?? [];
@@ -193,21 +312,14 @@ const collectAttractions = (api: ApiTrip): Attraction[] => {
         const key = `${r.Name}-${r.Location}`;
         if (seen.has(key)) return;
         seen.add(key);
-        out.push({
-          id: slugifyId(r.Name || `attraction-${di}-${si}-${ri}`, ri),
-          name: r.Name,
-          description: r.Description ?? "",
-          image: r.Image || "",
-          location: r.Government ?? api.destinationName,
-          category: r.Category ?? "Place",
-        });
+        out.push(recoToAttraction(r, slugifyId(r.Name || `attraction-${di}-${si}-${ri}`, ri), api.destinationName));
       });
     });
   });
   return out;
 };
 
-const collectByCategory = <T,>(
+const collectByCategoryFromPlan = <T,>(
   api: ApiTrip,
   match: (cat: string) => boolean,
   build: (r: ApiRecommendation, key: string) => T
@@ -230,37 +342,58 @@ const collectByCategory = <T,>(
   return out;
 };
 
-const collectHotels = (api: ApiTrip): Hotel[] =>
-  collectByCategory(
-    api,
-    (cat) => cat.includes("hotel"),
-    (r, id) => ({
-      id,
-      name: r.Name,
-      description: r.Description ?? "",
-      image: r.Image || "",
-      rating: 4.5,
-      reviewsCount: 0,
-      pricePerNight: r["Ticket Price"] ? `$${r["Ticket Price"]}` : "—",
-      location: r.Government ?? api.destinationName,
-    })
-  );
+// Manual recommendations (withPlan = false) — items already grouped by type.
+const manualToAttraction = (r: ApiManualRecommendationItem, id: string, fallback: string): Attraction => ({
+  id,
+  name: r.name,
+  description: r.description ?? "",
+  image: r.image || "",
+  location: r.location ?? fallback,
+  category: r.category ?? "Place",
+  mapsUrl: r.mapsUrl,
+  latitude: r.latitude,
+  longitude: r.longitude,
+  openTime: r.openTime,
+  closeTime: r.closeTime,
+  ticketPrice: r.ticketPrice,
+  duration: r.duration,
+});
 
-const collectRestaurants = (api: ApiTrip): Restaurant[] =>
-  collectByCategory(
-    api,
-    (cat) => cat.includes("restaurant") || cat.includes("cafe"),
-    (r, id) => ({
-      id,
-      name: r.Name,
-      description: r.Description ?? "",
-      image: r.Image || "",
-      rating: 4.5,
-      reviewsCount: 0,
-      cuisine: r.Category ?? "Local",
-      priceRange: r["Ticket Price"] && r["Ticket Price"] > 30 ? "$$$" : "$$",
-    })
-  );
+const manualToHotel = (r: ApiManualRecommendationItem, id: string, fallback: string): Hotel => ({
+  id,
+  name: r.name,
+  description: r.description ?? "",
+  image: r.image || "",
+  rating: r.rating ?? 4.5,
+  reviewsCount: r.reviewsCount ?? 0,
+  pricePerNight:
+    typeof r.pricePerNight === "number"
+      ? `$${r.pricePerNight}`
+      : (r.pricePerNight ?? (r.ticketPrice ? `$${r.ticketPrice}` : "—")),
+  location: r.location ?? fallback,
+  mapsUrl: r.mapsUrl,
+  latitude: r.latitude,
+  longitude: r.longitude,
+  openTime: r.openTime,
+  closeTime: r.closeTime,
+});
+
+const manualToRestaurant = (r: ApiManualRecommendationItem, id: string, fallback: string): Restaurant => ({
+  id,
+  name: r.name,
+  description: r.description ?? "",
+  image: r.image || "",
+  rating: r.rating ?? 4.5,
+  reviewsCount: r.reviewsCount ?? 0,
+  cuisine: r.cuisine ?? r.category ?? "Local",
+  priceRange: r.priceRange ?? (r.ticketPrice && r.ticketPrice > 30 ? "$$$" : "$$"),
+  location: r.location ?? fallback,
+  mapsUrl: r.mapsUrl,
+  latitude: r.latitude,
+  longitude: r.longitude,
+  openTime: r.openTime,
+  closeTime: r.closeTime,
+});
 
 export const mapApiTripToTrip = (api: ApiTrip): Trip => {
   const initials = (api.profileUserName || "?")
@@ -270,6 +403,35 @@ export const mapApiTripToTrip = (api: ApiTrip): Trip => {
     .slice(0, 2)
     .join("")
     .toUpperCase();
+
+  const fallbackLoc = api.destinationName ?? "";
+  const usePlan = api.withPlan !== false && Boolean(api.planData?.itinerary?.length);
+
+  let attractions: Attraction[] = [];
+  let hotels: Hotel[] = [];
+  let restaurants: Restaurant[] = [];
+
+  if (usePlan) {
+    attractions = collectAttractionsFromPlan(api);
+    hotels = collectByCategoryFromPlan(api, (c) => c.includes("hotel"), (r, id) =>
+      recoToHotel(r, id, fallbackLoc)
+    );
+    restaurants = collectByCategoryFromPlan(
+      api,
+      (c) => c.includes("restaurant") || c.includes("cafe"),
+      (r, id) => recoToRestaurant(r, id, fallbackLoc)
+    );
+  } else if (api.recommendations) {
+    attractions = (api.recommendations.attractions ?? []).map((r, i) =>
+      manualToAttraction(r, slugifyId(r.name || `attr-${i}`, i), fallbackLoc)
+    );
+    hotels = (api.recommendations.hotels ?? []).map((r, i) =>
+      manualToHotel(r, slugifyId(r.name || `hotel-${i}`, i), fallbackLoc)
+    );
+    restaurants = (api.recommendations.restaurants ?? []).map((r, i) =>
+      manualToRestaurant(r, slugifyId(r.name || `rest-${i}`, i), fallbackLoc)
+    );
+  }
 
   return {
     id: api.tripId,
@@ -286,11 +448,11 @@ export const mapApiTripToTrip = (api: ApiTrip): Trip => {
     createdByAvatar: initials,
     tags: api.travelPreferences?.map((p) => p.name) ?? [],
     budget: api.budget ? `$${api.budget}` : undefined,
-    itinerary: flattenItinerary(api),
-    isAiGenerated: api.isAiGenerated ?? Boolean(api.planData?.itinerary?.length),
-    attractions: collectAttractions(api),
-    hotels: collectHotels(api),
-    restaurants: collectRestaurants(api),
+    itinerary: usePlan ? flattenItinerary(api) : [],
+    isAiGenerated: api.isAiGenerated ?? usePlan,
+    attractions,
+    hotels,
+    restaurants,
     events: [],
     joinRequests: [],
   };

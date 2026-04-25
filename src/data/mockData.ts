@@ -5,11 +5,25 @@ import trip4 from "@/assets/trip-4.jpg";
 import trip5 from "@/assets/trip-5.jpg";
 import trip6 from "@/assets/trip-6.jpg";
 
+export interface ItineraryStop {
+  place?: string;
+  arrivalTime?: string;
+  departureTime?: string;
+  duration?: number;
+  ticketPrice?: number;
+  category?: string;
+  government?: string;
+  description?: string;
+  image?: string;
+  mapsUrl?: string;
+}
+
 export interface TripDay {
   day: number;
   title: string;
   description: string;
   activities: string[];
+  stops?: ItineraryStop[];
 }
 
 export interface Attraction {
@@ -19,6 +33,13 @@ export interface Attraction {
   image: string;
   location: string;
   category: string;
+  mapsUrl?: string;
+  latitude?: number;
+  longitude?: number;
+  openTime?: string;
+  closeTime?: string;
+  ticketPrice?: number;
+  duration?: number;
 }
 
 export interface Hotel {
@@ -30,6 +51,11 @@ export interface Hotel {
   reviewsCount: number;
   pricePerNight: string;
   location: string;
+  mapsUrl?: string;
+  latitude?: number;
+  longitude?: number;
+  openTime?: string;
+  closeTime?: string;
 }
 
 export interface Restaurant {
@@ -41,6 +67,12 @@ export interface Restaurant {
   reviewsCount: number;
   cuisine: string;
   priceRange: string;
+  location?: string;
+  mapsUrl?: string;
+  latitude?: number;
+  longitude?: number;
+  openTime?: string;
+  closeTime?: string;
 }
 
 export interface EventItem {

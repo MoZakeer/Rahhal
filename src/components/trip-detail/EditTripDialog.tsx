@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import type { Trip } from "@/data/mockData";
+import type { Trip } from "@/types/trip";
 import { updateTrip } from "@/lib/tripApi";
 import { ApiError } from "@/lib/api";
 
