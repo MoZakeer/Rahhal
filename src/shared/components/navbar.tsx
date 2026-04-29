@@ -153,7 +153,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
         >
           <div className="relative flex h-10 w-10 items-center justify-center transition-transform group-hover:scale-110">
             <div className="absolute inset-0 rounded-xl bg-orange-400 dark:bg-blue-200 rotate-6 opacity-80" />
-            <div className="absolute inset-0 rounded-xl bg-indigo-600 dark:bg-blue-500 -rotate-3" />
+            <div className="absolute inset-0 rounded-xl bg-blue-600 dark:bg-blue-500 -rotate-3" />
             <Plane
               className="relative h-5 w-5 text-white -rotate-45"
               strokeWidth={2.5}
@@ -175,7 +175,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
               to={path}
               className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
                 isActivePath(path)
-                  ? "text-indigo-600 dark:text-blue-400  bg-indigo-50/50 dark:bg-indigo-900/30"
+                  ? "text-blue-600 dark:text-blue-400  bg-blue-50/50 dark:bg-blue-900/30"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
               }`}
             >
@@ -192,9 +192,9 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
               <AnimatedSearch />
               <button
                 onClick={handleClick}
-                className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100"
+                className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
               >
-                <Bell className="h-5 w-5 dark:text-blue-400" />
+                <Bell className="h-5 w-5 dark:text-blue-400 " />
 
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-[10px] text-white px-1">
@@ -223,7 +223,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                       </span>
                     </div>
                   )}
-                  <p className="text-sm font-bold text-indigo-600 dark:text-blue-400">
+                  <p className="text-sm font-bold text-blue-600 dark:text-blue-400">
                     {profile?.userName || "User"}
                   </p>
                   <ChevronDown className="h-4 w-4 text-slate-400 dark:text-slate-500 group-ui-open:rotate-180 transition-transform" />
@@ -245,33 +245,33 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                           className="group relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold 
                bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900
                text-slate-600 dark:text-slate-300 
-               hover:text-indigo-600 dark:hover:text-white
+               hover:text-blue-600 dark:hover:text-white
                border border-slate-200 dark:border-slate-700
-               hover:border-indigo-200 dark:hover:border-indigo-500/50
-               shadow-sm hover:shadow-indigo-500/10
+               hover:border-blue-200 dark:hover:border-blue-500/50
+               shadow-sm hover:shadow-blue-500/10
                transition-all duration-300 ease-out"
                         >
                           {/* Subtle Inner Glow on Hover */}
-                          <div className="absolute inset-0 rounded-2xl bg-indigo-500/0 group-hover:bg-indigo-500/[0.03] transition-colors" />
+                          <div className="absolute inset-0 rounded-2xl bg-blue-500/0 group-hover:bg-blue-500/[0.03] transition-colors" />
 
                           <div className="relative flex items-center justify-center h-8 w-8 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                            <ShieldCheck className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
+                            <ShieldCheck className="h-5 w-5 text-blue-500 dark:text-blue-400" />
                           </div>
 
                           <span className="relative">Admin Panel</span>
 
                           {/* Small "Live" Indicator or Badge */}
-                          <div className="ml-auto h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+                          <div className="ml-auto h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
                         </Link>
                       )}
                       <Link
                         to={`/profile/${profileId}`}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                       >
                         <User className="h-4 w-4" /> My Profile
                       </Link>
                       <ThemeToggleButton />
-                      <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer">
+                      <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
                         <Languages className="h-4 w-4" /> Arabic Language
                       </button>
                     </div>
@@ -291,13 +291,13 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
             <div className="hidden lg:flex items-center gap-3">
               <Link
                 to="/login"
-                className="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400"
+                className="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
               >
                 Sign In
               </Link>
               <Link
                 to="/sign-up"
-                className="rounded-xl bg-indigo-600 dark:bg-indigo-500 px-5 py-2 text-sm font-bold text-white shadow-lg"
+                className="rounded-xl bg-blue-600 dark:bg-blue-500 px-5 py-2 text-sm font-bold text-white shadow-lg"
               >
                 Sign Up
               </Link>
@@ -347,7 +347,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                 <Link
                   to={`/profile/${profileId}`}
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-500/10 mb-2 border border-indigo-100 dark:border-indigo-500/20"
+                  className="flex items-center gap-4 p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-500/10 mb-2 border border-blue-100 dark:border-blue-500/20"
                 >
                   <img
                     src={
@@ -362,7 +362,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                     <p className="font-black text-slate-800 dark:text-slate-100 leading-none">
                       {profile?.userName || "User"}
                     </p>
-                    <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 mt-1">
+                    <p className="text-xs font-bold text-blue-600 dark:text-blue-400 mt-1">
                       View My Profile
                     </p>
                   </div>
@@ -374,23 +374,23 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                   className="group relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold 
                bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900
                text-slate-600 dark:text-slate-300 
-               hover:text-indigo-600 dark:hover:text-white
+               hover:text-blue-600 dark:hover:text-white
                border border-slate-200 dark:border-slate-700
-               hover:border-indigo-200 dark:hover:border-indigo-500/50
-               shadow-sm hover:shadow-indigo-500/10
+               hover:border-blue-200 dark:hover:border-blue-500/50
+               shadow-sm hover:shadow-blue-500/10
                transition-all duration-300 ease-out"
                 >
                   {/* Subtle Inner Glow on Hover */}
-                  <div className="absolute inset-0 rounded-2xl bg-indigo-500/0 group-hover:bg-indigo-500/[0.03] transition-colors" />
+                  <div className="absolute inset-0 rounded-2xl bg-blue-500/0 group-hover:bg-blue-500/[0.03] transition-colors" />
 
                   <div className="relative flex items-center justify-center h-8 w-8 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                    <ShieldCheck className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
+                    <ShieldCheck className="h-5 w-5 text-blue-500 dark:text-blue-400" />
                   </div>
 
                   <span className="relative">Admin Panel</span>
 
                   {/* Small "Live" Indicator or Badge */}
-                  <div className="ml-auto h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+                  <div className="ml-auto h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
                 </Link>
               )}
 
@@ -403,7 +403,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                     onClick={() => setMobileOpen(false)}
                     className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${
                       isActivePath(path)
-                        ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400"
+                        ? "bg-blue-50 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400"
                         : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                     }`}
                   >
@@ -439,7 +439,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                   <Link
                     to="/sign-up"
                     onClick={() => setMobileOpen(false)}
-                    className="flex justify-center rounded-xl bg-indigo-600 dark:bg-indigo-500 p-4 font-bold text-white shadow-lg"
+                    className="flex justify-center rounded-xl bg-blue-600 dark:bg-blue-500 p-4 font-bold text-white shadow-lg"
                   >
                     Sign Up
                   </Link>

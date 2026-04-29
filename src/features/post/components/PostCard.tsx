@@ -114,7 +114,7 @@ export function PostHeader({
               e.stopPropagation();
               navigate(`/profile/${profileId}`);
             }}
-            className="font-semibold cursor-pointer text-slate-900 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+            className="font-semibold cursor-pointer text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
             {userName}
           </span>
@@ -285,7 +285,7 @@ transition-all duration-300"
               onMouseEnter={() => setCurrent(i)}
               className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${
                 i === current
-                  ? "ring-2 ring-indigo-500 dark:ring-indigo-400 opacity-100"
+                  ? "ring-2 ring-blue-500 dark:ring-blue-400 opacity-100"
                   : "opacity-60 hover:opacity-100"
               }`}
             >
@@ -365,9 +365,9 @@ export function PostActions({
           className="flex flex-col items-center transition-transform duration-200 ease-in-out"
         >
           {liked ? (
-            <HeartIcon className="w-6 h-6 text-indigo-600 fill-indigo-600 hover:text-indigo-600 hover:scale-125 hover:rotate-12 transition-all duration-500" />
+            <HeartIcon className="w-6 h-6 text-blue-500 fill-blue-500 hover:text-blue-500 hover:scale-125 hover:rotate-12 transition-all duration-500" />
           ) : (
-            <HeartIcon className="w-6 h-6 text-slate-400 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 scale-100 transition-all duration-300" />
+            <HeartIcon className="w-6 h-6 text-slate-400 dark:text-slate-300 hover:text-blue-500 dark:hover:text-blue-400 scale-100 transition-all duration-300" />
           )}
         </button>
 
@@ -375,21 +375,21 @@ export function PostActions({
           onClick={onComment}
           className="group transition-transform active:scale-110 focus:outline-none"
         >
-          <MessageCircle className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 group-hover:fill-indigo-50/30 transition-all duration-300 ease-out" />
+          <MessageCircle className="w-5 h-5 text-slate-400 group-hover:text-blue-500  transition-all duration-300 ease-out" />
         </button>
         <button
           onClick={onShare}
           className="group transition-transform active:scale-110"
         >
-          <Share2 className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+          <Share2 className="w-5 h-5 text-slate-400 group-hover:text-blue-500 transition-colors" />
         </button>
       </div>
 
       <button onClick={onSave}>
         {saved ? (
-          <Bookmark className="w-5 h-5 text-indigo-600 dark:text-indigo-400 fill-indigo-600 dark:fill-indigo-400 scale-100 hover:scale-110 transition-all duration-500" />
+          <Bookmark className="w-5 h-5 text-blue-600 dark:text-blue-400 fill-blue-600 dark:fill-blue-400 scale-100 hover:scale-110 transition-all duration-500" />
         ) : (
-          <Bookmark className="w-5 h-5 text-slate-400 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 scale-100 transition-all duration-300" />
+          <Bookmark className="w-5 h-5 text-slate-400 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 scale-100 transition-all duration-300" />
         )}
       </button>
     </div>

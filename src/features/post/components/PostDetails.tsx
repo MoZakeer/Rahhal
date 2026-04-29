@@ -150,7 +150,7 @@ export function PostHeader({
         <div className="flex flex-col leading-tight">
           <span
             onClick={() => navigate(`/profile/${profileId}`)}
-            className="font-semibold cursor-pointer text-slate-900 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+            className="font-semibold cursor-pointer text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
             {userName}
           </span>
@@ -169,7 +169,7 @@ export function PostHeader({
             className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${
               isFollowed
                 ? "bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                : "bg-slate-900 dark:bg-indigo-600 border border-slate-900 dark:border-indigo-600 text-white hover:bg-slate-800 dark:hover:bg-indigo-700"
+                : "bg-slate-900 dark:bg-blue-600 border border-slate-900 dark:border-blue-600 text-white hover:bg-slate-800 dark:hover:bg-blue-700"
             }`}
           >
             {isFollowed ? "Following" : "Follow"}
@@ -315,7 +315,7 @@ transition-all duration-300"
               onMouseEnter={() => setCurrent(i)}
               className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${
                 i === current
-                  ? "ring-2 ring-indigo-500 dark:ring-indigo-400 opacity-100"
+                  ? "ring-2 ring-blue-500 dark:ring-blue-400 opacity-100"
                   : "opacity-60 hover:opacity-100"
               }`}
             >
@@ -395,9 +395,9 @@ export function PostActions({
           className="flex flex-col items-center transition-transform duration-200 ease-in-out"
         >
           {liked ? (
-            <HeartIcon className="w-6 h-6 text-indigo-600 fill-indigo-600 hover:text-indigo-600 hover:scale-125 hover:rotate-12 transition-all duration-500" />
+            <HeartIcon className="w-6 h-6 text-blue-600 fill-blue-600 hover:text-blue-600 hover:scale-125 hover:rotate-12 transition-all duration-500" />
           ) : (
-            <HeartIcon className="w-6 h-6 text-slate-400 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 scale-100 transition-all duration-300" />
+            <HeartIcon className="w-6 h-6 text-slate-400 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 scale-100 transition-all duration-300" />
           )}
         </button>
 
@@ -405,21 +405,21 @@ export function PostActions({
           onClick={onComment}
           className="group transition-transform active:scale-110 focus:outline-none"
         >
-          <MessageCircle className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 group-hover:fill-indigo-50/30 transition-all duration-300 ease-out" />
+          <MessageCircle className="w-5 h-5 text-slate-400 group-hover:text-blue-500  transition-all duration-300 ease-out" />
         </button>
         <button
           onClick={onShare}
           className="group transition-transform active:scale-110"
         >
-          <Share2 className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+          <Share2 className="w-5 h-5 text-slate-400 group-hover:text-blue-500 transition-colors" />
         </button>
       </div>
 
       <button onClick={onSave}>
         {saved ? (
-          <Bookmark className="w-5 h-5 text-indigo-600 dark:text-indigo-400 fill-indigo-600 dark:fill-indigo-400 scale-100 hover:scale-110 transition-all duration-500" />
+          <Bookmark className="w-5 h-5 text-blue-600 dark:text-blue-400 fill-blue-600 dark:fill-blue-400 scale-100 hover:scale-110 transition-all duration-500" />
         ) : (
-          <Bookmark className="w-5 h-5 text-slate-400 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 scale-100 transition-all duration-300" />
+          <Bookmark className="w-5 h-5 text-slate-400 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 scale-100 transition-all duration-300" />
         )}
       </button>
     </div>
@@ -758,7 +758,7 @@ export function CommentsModal({
           result.push(
             <span
               key={`mention-${index}`}
-              className="text-indigo-600 dark:text-indigo-400 font-semibold"
+              className="text-blue-600 dark:text-blue-400 font-semibold"
             >
               {matches[index]}
             </span>,
@@ -788,13 +788,13 @@ export function CommentsModal({
               {editingId === id ? (
                 <div className="flex gap-2 flex-wrap w-full">
                   <input
-                    className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-indigo-500 dark:focus:border-indigo-400"
+                    className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
                     value={editText}
                     onChange={(e) => setEditText(e.target.value)}
                   />
                   <button
                     onClick={() => handleEdit(id)}
-                    className="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full bg-slate-900 dark:bg-indigo-600 text-white"
+                    className="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full bg-slate-900 dark:bg-blue-600 text-white"
                   >
                     Save
                   </button>
@@ -810,7 +810,7 @@ export function CommentsModal({
                   <div className="text-sm leading-5 break-words">
                     <span
                       onClick={() => navigate(`/profile/${comment.profileId}`)}
-                      className="font-semibold cursor-pointer text-slate-900 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-indigo-400"
+                      className="font-semibold cursor-pointer text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400"
                     >
                       {comment.userName}
                     </span>
@@ -897,8 +897,8 @@ export function CommentsModal({
                         ? (comment as ReplyItem).isLikedByCurrentUser
                         : (comment as CommentItem).isLikedByCurrentUser
                     )
-                      ? "text-indigo-600 fill-indigo-600 scale-110"
-                      : "text-slate-400 dark:text-slate-500 group-hover:text-indigo-600"
+                      ? "text-blue-600 fill-blue-600 scale-110"
+                      : "text-slate-400 dark:text-slate-500 group-hover:text-blue-600"
                   }`}
                 />
               </button>
@@ -1053,7 +1053,7 @@ export function CommentsModal({
                       }
                     }}
                     placeholder="Write a reply..."
-                    className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-indigo-500 dark:focus:border-indigo-400"
+                    className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-blue-500 dark:focus:border-blue-400"
                   />
                 </div>
                 <div className="flex items-center justify-end gap-1.5 pl-8">
@@ -1194,7 +1194,7 @@ export function CommentsModal({
               handleAddComment();
             }
           }}
-          className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-400"
+          className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400"
         />
 
         <button
@@ -1202,7 +1202,7 @@ export function CommentsModal({
           disabled={!newComment.trim() || addCommentMutation.isPending}
           className={`flex-shrink-0 text-sm font-semibold px-4 py-2 rounded-full transition-colors ${
             newComment.trim()
-              ? "bg-indigo-600 text-white hover:bg-indigo-700"
+              ? "bg-blue-600 text-white hover:bg-blue-700"
               : "text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 cursor-not-allowed"
           }`}
         >

@@ -379,7 +379,7 @@ export function CommentsModal({
           result.push(
             <span
               key={`mention-${index}`}
-              className="text-indigo-600 dark:text-indigo-400 font-semibold"
+              className="text-blue-600 dark:text-blue-400 font-semibold"
             >
               {matches[index]}
             </span>,
@@ -409,13 +409,13 @@ export function CommentsModal({
               {editingId === id ? (
                 <div className="flex gap-2 flex-wrap w-full">
                   <input
-                    className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-indigo-500 dark:focus:border-indigo-400"
+                    className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
                     value={editText}
                     onChange={(e) => setEditText(e.target.value)}
                   />
                   <button
                     onClick={() => handleEdit(id)}
-                    className="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full bg-slate-900 dark:bg-indigo-600 text-white"
+                    className="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full bg-slate-900 dark:bg-blue-600 text-white"
                   >
                     Save
                   </button>
@@ -431,7 +431,7 @@ export function CommentsModal({
                   <div className="text-sm leading-5 break-words">
                     <span
                       onClick={() => navigate(`/profile/${comment.profileId}`)}
-                      className="font-semibold cursor-pointer text-slate-900 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-indigo-400"
+                      className="font-semibold cursor-pointer text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400"
                     >
                       {comment.userName}
                     </span>
@@ -518,8 +518,8 @@ export function CommentsModal({
                         ? (comment as ReplyItem).isLikedByCurrentUser
                         : (comment as CommentItem).isLikedByCurrentUser
                     )
-                      ? "text-indigo-600 fill-indigo-600 scale-110"
-                      : "text-slate-400 dark:text-slate-500 group-hover:text-indigo-600"
+                      ? "text-blue-600 fill-blue-600 scale-110"
+                      : "text-slate-400 dark:text-slate-500 group-hover:text-blue-600"
                   }`}
                 />
               </button>
@@ -674,7 +674,7 @@ export function CommentsModal({
                       }
                     }}
                     placeholder="Write a reply..."
-                    className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-indigo-500 dark:focus:border-indigo-400"
+                    className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-blue-500 dark:focus:border-blue-400"
                   />
                 </div>
 
@@ -806,7 +806,7 @@ export function CommentsModal({
               handleAddComment();
             }
           }}
-          className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-indigo-500 dark:focus:border-indigo-400"
+          className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
         />
 
         <button

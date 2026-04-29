@@ -6,7 +6,7 @@ import {
   createPostReport,
   createUserReport,
 } from "../services/reportApi";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 
 interface Props {
@@ -73,13 +73,13 @@ export const ReportModal = ({
       <div className="relative w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-gray-800">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
             Report Content
           </h2>
 
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-gray-100 transition"
+            className="p-1 rounded-full hover:bg-gray-100 transition dark:hover:bg-gray-700"
           >
             <X className="w-5 h-5 text-gray-500" />
           </button>
@@ -87,30 +87,18 @@ export const ReportModal = ({
 
         {/* Reason */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-600">Reason</label>
+          <label className="text-sm font-medium text-gray-600 dark:text-gray-500">
+            Reason
+          </label>
 
           <div className="relative">
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className="w-full appearance-none border border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none p-3 pr-10 rounded-xl transition"
-            >
-              <option value="">Select reason</option>
-              <option value="Illegal Activities">Illegal activities</option>
-              <option value="Hate Or Bullying">Hate or bullying</option>
-              <option value="Sexual Content">Sexual content</option>
-              <option value="Impersonation">Impersonation</option>
-              <option value="Privacy Violation">Privacy violation</option>
-              <option value="Other">Other</option>
-            </select>
-
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <CustomDropdown value={type} onChange={(val) => setType(val)} />
           </div>
         </div>
 
         {/* Description */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-600">
+          <label className="text-sm font-medium text-gray-600 dark:text-gray-500">
             Description
           </label>
           <textarea
@@ -127,7 +115,7 @@ export const ReportModal = ({
           <button
             onClick={onClose}
             disabled={loading}
-            className="flex-1 border border-gray-300 text-gray-600 py-2 rounded-xl hover:bg-gray-100 transition"
+            className="flex-1 border border-gray-300 text-gray-600 dark:text-gray-500 py-2 rounded-xl hover:bg-gray-100 transition"
           >
             Cancel
           </button>
@@ -148,5 +136,91 @@ export const ReportModal = ({
       </div>
     </div>,
     document.body,
+  );
+};
+
+// 1. Define types for the component props
+interface CustomDropdownProps {
+  value: string;
+  onChange: (val: string) => void;
+}
+
+const CustomDropdown: React.FC<CustomDropdownProps> = ({ value, onChange }) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const options: string[] = [
+    "Illegal Activities",
+    "Hate Or Bullying",
+    "Sexual Content",
+    "Impersonation",
+    "Privacy Violation",
+    "Other",
+  ];
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelect = (option: string) => {
+    onChange(option);
+    setIsOpen(false);
+  };
+
+  return (
+    <div className="relative w-full" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full flex items-center justify-between border p-3 rounded-xl transition-all outline-none
+          ${
+            isOpen
+              ? "border-red-500 ring-2 ring-red-200"
+              : "border-gray-300 hover:border-gray-400"
+          }`}
+      >
+        <span
+          className={
+            !value ? "text-gray-400" : "text-gray-900 dark:text-gray-400"
+          }
+        >
+          {value || "Select reason"}
+        </span>
+        <ChevronDown
+          className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in duration-150">
+          <ul className="py-1">
+            {options.map((option: string) => (
+              <li
+                key={option}
+                onClick={() => handleSelect(option)}
+                className={`px-4 py-3 text-sm cursor-pointer transition-colors rounded-md
+                  ${
+                    value === option
+                      ? "bg-red-50 text-red-600 font-medium"
+                      : "text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300 dark:hover:text-gray-950"
+                  }`}
+              >
+                {option}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 };

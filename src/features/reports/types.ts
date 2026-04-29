@@ -9,7 +9,7 @@ export interface CommentReport {
 export interface UserReport {
   reportedUserId: string;
   reportedUserName: string;
-  reportedUserPicture: string ;
+  reportedUserPicture: string;
   countReports: number;
 }
 
@@ -33,13 +33,12 @@ export interface PostReport {
   id: string;
   userId: string;
   userName: string;
-  profileUrl: string ;
+  profileUrl: string;
   description: string;
   likes: number;
   comments: number;
   createdDate: string;
   countReports: number;
-
 
   mediaUrLs?: {
     id: string;

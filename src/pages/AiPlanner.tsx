@@ -250,7 +250,7 @@ const AiPlanner = () => {
     };
     fetchData();
   }, []);
-
+  const today = new Date().toISOString().split("T")[0];
   const toggleInterest = (item: string) => {
     setForm((prev) => ({
       ...prev,
@@ -270,8 +270,12 @@ const AiPlanner = () => {
     if (!form.user_start_date) return toast.error("Please select a start date");
     if (form.numberOfTravelers < 1)
       return toast.error("At least 1 traveler required");
-    if (form.user_budget <= 0) return toast.error("Budget cannot be negative");
-
+    if (form.user_budget < 100)
+      return toast.error(
+        "Budget must be at least $100 to generate an itinerary.",
+      );
+    if (!form.countryId)
+      return toast.error("Please select a departure country");
     // 2. Date Logic & Capping
 
     // 3. Sync the 'user_days' state and enforce the 5-day limit
@@ -390,7 +394,7 @@ const AiPlanner = () => {
             "lastResult",
             JSON.stringify(retrieveData.itinerary),
           );
-
+          console.log("Saved itinerary:", retrieveData.itinerary);
           localStorage.setItem("tripStep", "result");
           toast.success("Trip planned and saved to your profile!");
         } else {
@@ -450,7 +454,7 @@ const AiPlanner = () => {
                     </Label>
                     <Input
                       placeholder="e.g., Weekend Getaway"
-                      className="rounded-xl border-slate-200 h-12 dark:bg-slate-700 dark:border-slate-700 dark:focus:ring-accent-foreground focus:ring-primary"
+                      className="rounded-xl border-slate-200 h-12 dark:bg-slate-700 dark:border-slate-700 dark:text-white dark:focus:ring-accent-foreground focus:ring-primary"
                       onChange={(e) =>
                         setForm({ ...form, name: e.target.value })
                       }
@@ -460,7 +464,7 @@ const AiPlanner = () => {
                     className="space-y-2 relative city-search-container"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Label className="flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-200">
+                    <Label className="flex items-center gap-2 text-sm font-semibold text-slate-600  dark:text-slate-200">
                       <MapPin className="w-4 h-4 text-primary" /> Destination
                       City
                     </Label>
@@ -468,15 +472,19 @@ const AiPlanner = () => {
                     <Input
                       onClick={handleCityInputClick}
                       placeholder="Search city..."
-                      className="rounded-xl border-slate-200 h-12 dark:bg-slate-700 dark:border-slate-700"
+                      className="rounded-xl border-slate-200 h-12 dark:bg-slate-700 dark:text-white dark:border-slate-700"
                       value={citySearch}
                       onChange={(e) => {
                         setCitySearch(e.target.value);
                       }}
                     />
-
+                    {!form.destinationId && (
+                      <span className="flex items-center gap-1 text-[10px] text-amber-600 font-bold uppercase italic">
+                        <AlertCircle className="w-3 h-3" /> Required
+                      </span>
+                    )}
                     {cityOpen && (
-                      <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl max-h-60 overflow-auto p-2 animate-in fade-in zoom-in-95 duration-200 dark:bg-slate-800 dark:border-slate-700">
+                      <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 dark:text-white rounded-2xl shadow-2xl max-h-60 overflow-auto p-2 animate-in fade-in zoom-in-95 duration-200 dark:bg-slate-800 dark:border-slate-700">
                         {cities
                           .filter((c) =>
                             c.name
@@ -486,7 +494,7 @@ const AiPlanner = () => {
                           .map((c) => (
                             <div
                               key={c.id}
-                              className="px-4 py-3 hover:bg-primary/5 rounded-xl cursor-pointer text-sm font-medium transition-colors flex items-center justify-between group"
+                              className="px-4 py-3 hover:bg-primary/5  rounded-xl cursor-pointer text-sm font-medium transition-colors flex items-center justify-between group"
                               onClick={() => {
                                 setForm({
                                   ...form,
@@ -521,7 +529,7 @@ const AiPlanner = () => {
                   </Label>
                   <Textarea
                     placeholder="Mention any specific vibes or requirements..."
-                    className="rounded-xl border-slate-200 min-h-[100px] resize-none dark:bg-slate-700 dark:border-slate-700"
+                    className="rounded-xl border-slate-200 min-h-[100px] dark:text-white resize-none dark:bg-slate-700 dark:border-slate-700"
                     onChange={(e) =>
                       setForm({ ...form, description: e.target.value })
                     }
@@ -532,21 +540,26 @@ const AiPlanner = () => {
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Label className="flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-200">
-                    <MapPin className="w-4 h-4 text-primary" /> Country
+                    <MapPin className="w-4 h-4 text-primary" /> Departure
+                    Country
                   </Label>
 
                   <Input
                     onClick={handleCountryInputClick}
-                    placeholder="Search country..."
-                    className="rounded-xl border-slate-200 h-12 dark:bg-slate-700 dark:border-slate-700"
+                    placeholder="Starting your journey from ..."
+                    className="rounded-xl border-slate-200 h-12 dark:text-white dark:bg-slate-700 dark:border-slate-700"
                     value={countrySearch}
                     onChange={(e) => {
                       setCountrySearch(e.target.value);
                     }}
                   />
-
+                  {!form.countryId && (
+                    <span className="flex items-center gap-1 text-[10px] text-amber-600 font-bold uppercase italic">
+                      <AlertCircle className="w-3 h-3" /> Required
+                    </span>
+                  )}
                   {countryOpen && (
-                    <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl max-h-60 overflow-auto p-2 animate-in fade-in zoom-in-95 duration-200 dark:bg-slate-800 dark:border-slate-700">
+                    <div className="absolute z-50 w-full mt-2 bg-white border dark:text-white border-slate-100 rounded-2xl shadow-2xl max-h-60 overflow-auto p-2 animate-in fade-in zoom-in-95 duration-200 dark:bg-slate-800 dark:border-slate-700">
                       {countries
                         .filter((c) =>
                           c.name
@@ -586,12 +599,13 @@ const AiPlanner = () => {
 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-xs uppercase tracking-wider font-bold text-slate-400 dark:text-slate-200">
+                    <Label className=" block text-xs uppercase tracking-wider font-bold text-slate-400 dark:text-slate-200">
                       Start Date
                     </Label>
                     <Input
                       type="date"
-                      className="rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-slate-400"
+                      className="rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-white"
+                      min={today}
                       onChange={(e) =>
                         setForm({
                           ...form,
@@ -600,6 +614,11 @@ const AiPlanner = () => {
                         })
                       }
                     />
+                    {!form.startDate && (
+                      <span className="flex items-center gap-1 text-[10px] text-amber-600 font-bold uppercase italic">
+                        <AlertCircle className="w-3 h-3" /> Required
+                      </span>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -609,11 +628,35 @@ const AiPlanner = () => {
                     <Input
                       type="number"
                       placeholder="1"
-                      className="rounded-xl dark:bg-slate-700 dark:border-slate-700"
-                      onChange={(e) =>
-                        setForm({ ...form, user_days: +e.target.value })
+                      min={1}
+                      max={100}
+                      onKeyDown={(e) =>
+                        ["-", ".", "e", "+"].includes(e.key) &&
+                        e.preventDefault()
                       }
+                      className="rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-white"
+                      value={form.user_days || ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+
+                        if (val === "") {
+                          setForm({ ...form, user_days: 0 });
+                          return;
+                        }
+
+                        const numValue = parseInt(val, 10);
+                        const maxDays = 100;
+
+                        if (numValue > 0 && numValue <= maxDays) {
+                          setForm({ ...form, user_days: numValue });
+                        }
+                      }}
                     />
+                    {!form.user_days && (
+                      <span className="flex items-center gap-1 text-[10px] text-amber-600 font-bold uppercase italic">
+                        <AlertCircle className="w-3 h-3" /> Required
+                      </span>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs uppercase tracking-wider font-bold text-slate-400 flex items-center gap-1 dark:text-slate-200">
@@ -621,16 +664,35 @@ const AiPlanner = () => {
                     </Label>
                     <Input
                       type="number"
-                      placeholder="EGP"
-                      className="rounded-xl dark:bg-slate-700 dark:border-slate-700"
-                      onChange={(e) =>
+                      placeholder="dollars"
+                      onKeyDown={(e) =>
+                        ["-", "e", "E", "+"].includes(e.key) &&
+                        e.preventDefault()
+                      }
+                      min={30}
+                      max={9999}
+                      className="rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-white"
+                      onChange={(e) => {
+                        const value = +e.target.value;
+                        const maxBudget = 9999;
+
+                        // Validation logic
+                        if (value < 0) return;
+                        if (value > maxBudget) return;
+
                         setForm({
                           ...form,
-                          user_budget: +e.target.value,
-                          budget: +e.target.value,
-                        })
-                      }
+                          user_budget: value,
+                          budget: value,
+                        });
+                      }}
+                      value={form.user_budget || ""}
                     />
+                    {!form.budget && (
+                      <span className="flex items-center gap-1 text-[10px] text-amber-600 font-bold uppercase italic">
+                        <AlertCircle className="w-3 h-3" /> Required
+                      </span>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -684,11 +746,30 @@ const AiPlanner = () => {
                     </Label>
                     <Input
                       type="number"
+                      placeholder="1"
                       min={1}
-                      className="rounded-xl h-10 border-slate-200 dark:bg-slate-700 dark:border-slate-700"
-                      onChange={(e) =>
-                        setForm({ ...form, numberOfTravelers: +e.target.value })
+                      max={100}
+                      onKeyDown={(e) =>
+                        ["-", ".", "e", "+"].includes(e.key) &&
+                        e.preventDefault()
                       }
+                      className="rounded-xl h-10 border-slate-200 dark:text-white dark:bg-slate-700 dark:border-slate-700"
+                      value={form.numberOfTravelers || ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+
+                        if (val === "") {
+                          setForm({ ...form, numberOfTravelers: 0 });
+                          return;
+                        }
+
+                        const num = parseInt(val, 10);
+                        const maxTravelers = 100;
+
+                        if (num >= 1 && num <= maxTravelers) {
+                          setForm({ ...form, numberOfTravelers: num });
+                        }
+                      }}
                     />
                   </div>
                 </div>
@@ -728,6 +809,7 @@ const AiPlanner = () => {
                   <Label className="text-sm font-bold text-slate-700 dark:text-slate-200">
                     Travel Preferences
                   </Label>
+
                   <div className="flex flex-wrap gap-2 ">
                     {preferences.map((p) => (
                       <Badge
@@ -841,20 +923,15 @@ const AiPlanner = () => {
         {step === "result" && (
           <div className="space-y-8 animate-in slide-in-from-bottom-5 duration-500 max-w-4xl mx-auto">
             {/* COMPACT HEADER */}
-            <div className="flex items-center justify-between pb-4 border-b">
+            <div className="flex items-center justify-between pb-4 border-b dark:border-slate-700">
               <div>
-                <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                <h2 className="text-2xl font-black text-primary tracking-tight ">
                   {form.name || "Your Trip"}
                 </h2>
-                <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
-                  <MapPin className="w-3.5 h-3.5 text-primary" />
-                  {form.user_governorate}
-                </div>
               </div>
               <Button
-                variant="outline"
                 size="sm"
-                className="rounded-xl font-bold border-slate-200"
+                className="rounded-xl font-bold border-slate-200 dark:border-slate-700 dark:text-white"
                 onClick={() => setStep("form")}
               >
                 New Plan
@@ -866,9 +943,9 @@ const AiPlanner = () => {
               {(result as Place[][]).map((day, i) => (
                 <div
                   key={i}
-                  className="relative pl-8 border-l-2 border-slate-100"
+                  className="relative pl-8 border-l-2 border-slate-100 dark:border-slate-700"
                 >
-                  <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-primary border-2 border-white shadow-sm" />
+                  <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-primary dark:bg-primary dark:border-2 dark:border-white shadow-sm" />
                   <h3 className="text-sm font-black text-primary uppercase tracking-widest mb-6">
                     Day {i + 1}
                   </h3>
@@ -877,7 +954,7 @@ const AiPlanner = () => {
                     {day.map((p, idx) => (
                       <Card
                         key={idx}
-                        className="border border-slate-100 shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow"
+                        className="border dark:bg-slate-800 border-slate-100 shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow"
                       >
                         <div className="flex h-full min-h-[140px]">
                           {/* COMPACT IMAGE */}
@@ -897,11 +974,11 @@ const AiPlanner = () => {
                           <CardContent className="flex-1 p-4 flex flex-col justify-between">
                             <div>
                               <div className="flex justify-between items-start gap-2">
-                                <h4 className="text-lg font-bold text-slate-900 leading-tight">
+                                <h4 className="text-lg font-bold text-slate-900 leading-tight dark:text-slate-100">
                                   {p.place}
                                 </h4>
                                 <span className="text-xs font-bold text-emerald-600 whitespace-nowrap bg-emerald-50 px-2 py-0.5 rounded-lg">
-                                  {p.Ticket_Price * 50} EGP
+                                  {p.Ticket_Price} $
                                 </span>
                               </div>
 
@@ -949,10 +1026,10 @@ const AiPlanner = () => {
                                               <p className="text-[11px] font-bold text-slate-700 truncate leading-tight">
                                                 {rec.Name}
                                               </p>
-                                              <p className="text-[9px] text-slate-400 font-medium">
+                                              <p className="text-[9px] text-slate-400 dark:text-slate-600 font-medium">
                                                 {rec.Category} •{" "}
-                                                <span className="text-emerald-600">
-                                                  {rec.TicketPrice * 50} EGP
+                                                <span className="text-emerald-700">
+                                                  {rec.TicketPrice} $
                                                 </span>
                                               </p>
                                             </div>
@@ -961,7 +1038,7 @@ const AiPlanner = () => {
                                           <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-6 w-6 rounded-full opacity-0 group-hover/rec:opacity-100 transition-opacity"
+                                            className="h-6 w-6 rounded-full opacity-0 group-hover/rec:opacity-100 transition-opacity "
                                             asChild
                                           >
                                             <a

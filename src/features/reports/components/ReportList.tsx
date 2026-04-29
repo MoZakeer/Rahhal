@@ -27,7 +27,7 @@ export const ReportList = ({ type }: Props) => {
 
   if (isLoading && !data)
     return (
-      <div className="space-y-4">
+      <div className="space-y-2 dark:opacity-60 transition-opacity">
         <Skeleton height={20} width={200} />
         <Skeleton height={15} count={3} />
         <Skeleton height={200} />

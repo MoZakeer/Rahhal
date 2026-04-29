@@ -133,7 +133,7 @@ const MyTrips = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FB] pb-10">
+    <div className="min-h-screen bg-[#F8F9FB] pb-10 dark:bg-slate-900">
       {/* --- MINIMIZED HERO SECTION --- */}
       <div className="relative overflow-hidden bg-[#0f172a] py-12 text-white">
         <div className="absolute inset-0 z-0">
@@ -189,18 +189,18 @@ const MyTrips = () => {
 
       {/* --- COMPACT FLOATING FILTER BAR --- */}
       <div className="container mx-auto px-4">
-        <div className="relative -mt-8 rounded-3xl border border-white/20 bg-white/95 p-3 shadow-xl backdrop-blur-xl md:p-4">
+        <div className="relative -mt-8 rounded-3xl border dark:bg-slate-900 border-white/20 bg-white/95 p-3 shadow-xl backdrop-blur-xl md:p-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
             {/* Category Toggle */}
-            <div className="flex p-1 bg-slate-100 rounded-xl w-fit border border-slate-200/50">
+            <div className="flex p-1 bg-slate-100 dark:bg-slate-800 dark:border-slate-600 rounded-xl w-fit border border-slate-200/50">
               {filterTypes.map((t) => (
                 <button
                   key={t.value}
                   onClick={() => setActiveFilter(t.value)}
                   className={`px-6 py-2 text-xs font-bold transition-all rounded-lg ${
                     activeFilter === t.value
-                      ? "bg-white text-primary shadow-sm ring-1 ring-black/5"
-                      : "text-slate-500 hover:text-slate-800"
+                      ? "bg-white dark:bg-slate-300 text-primary shadow-sm ring-1 ring-black/5"
+                      : "text-slate-500 hover:text-slate-900"
                   }`}
                 >
                   {t.label}
@@ -210,18 +210,18 @@ const MyTrips = () => {
 
             {/* Search Bar */}
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-white" />
               <Input
                 placeholder="Search destinations..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="h-11 w-full border-none bg-slate-50 pl-11 rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-primary/10"
+                className="h-11 w-full border-none bg-slate-100 dark:bg-slate-800 pl-11 dark:text-white rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-primary/10"
               />
             </div>
           </div>
 
           {/* Status Pills */}
-          <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3 px-2">
+          <div className="mt-3 flex flex-wrap items-center gap-2 border-t  border-slate-100 dark:border-slate-400 pt-3 px-2">
             <span className="text-[10px] font-black uppercase tracking-tighter text-slate-400 mr-2">
               Status
             </span>
@@ -234,7 +234,7 @@ const MyTrips = () => {
                 className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all border ${
                   activeStatus === s.value
                     ? "bg-primary border-primary text-white shadow-sm"
-                    : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"
+                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-500 hover:border-slate-300"
                 }`}
               >
                 {s.label}
@@ -243,7 +243,6 @@ const MyTrips = () => {
           </div>
         </div>
       </div>
-
       {/* --- CONTENT GRID --- */}
       <main className="container mx-auto px-4 py-10">
         {loading ? (

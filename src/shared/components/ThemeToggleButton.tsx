@@ -13,8 +13,8 @@ export default function ThemeToggleButton() {
     <button
       onClick={toggleTheme}
       className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold w-full cursor-pointer transition-colors
-      text-slate-600 hover:bg-indigo-50 hover:text-indigo-600
-      dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-indigo-400"
+      text-slate-600 hover:bg-blue-50 hover:text-blue-600
+      dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-blue-400"
     >
       {theme === "dark" ? (
         <>
