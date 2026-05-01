@@ -1,15 +1,9 @@
 import { useEffect, useState } from "react";
-import { FaHeart, FaUserPlus, FaComment, FaTimes } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
 import { useNotifications } from "./hooks/useNotifications";
+import type { NotificationData } from "./hooks/useNotifications";
 import { motion, AnimatePresence } from "framer-motion";
-
-const getNotificationType = (title: string): "like" | "follow" | "message" => {
-  const t = title.toLowerCase();
-
-  if (t.includes("like")) return "like";
-  if (t.includes("follow") || t.includes("follower")) return "follow";
-  return "message";
-};
+import { useNavigate } from "react-router-dom";
 
 export function useNow(interval = 60000) {
   const [now, setNow] = useState(Date.now());
@@ -49,7 +43,8 @@ export function formatTimeAgo(dateString: string, now: number) {
 
 export default function NotificationsPage() {
   const now = useNow();
-
+  const navigate = useNavigate();
+  const DEFAULT_AVATAR = "https://www.gravatar.com/avatar/?d=mp&f=y";
   const {
     notifications,
     loading,
@@ -86,20 +81,24 @@ export default function NotificationsPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [hasMore, loadingMore, loadMore]);
 
-  const handleClick = async (id: string) => {
-    await markAsDelivered(id);
-  };
+  const handleClick = (n: NotificationData) => {
+    markAsDelivered(n.id);
 
-  const getIcon = (type: "like" | "follow" | "message") => {
-    switch (type) {
-      case "like":
-        return <FaHeart className="text-red-500" />;
-      case "follow":
-        return <FaUserPlus className="text-green-500" />;
-      default:
-        return <FaComment className="text-blue-500" />;
+    if (!n.typeId) return;
+
+    const postTypes = ["AddPost", "AddLike", "Comment", "LikeToComment"];
+    const tripTypes = ["RequestToTrip", "RespondToTrip"];
+
+    if (postTypes.includes(n.notificationType)) {
+      navigate(`/post/${n.typeId}`);
+    } else if (n.notificationType === "MakeFollow") {
+      navigate(`/profile/${n.typeId}`); 
+    } else if (tripTypes.includes(n.notificationType)) {
+      navigate(`/trip/${n.typeId}`); 
     }
   };
+
+
 
   const SkeletonItem = () => (
     <div className="flex gap-4 p-5 rounded-xl bg-gray-200 dark:bg-slate-700 animate-pulse">
@@ -113,15 +112,15 @@ export default function NotificationsPage() {
   );
 
   return (
-  <div
-  className="
+    <div
+      className="
     min-h-screen px-6 py-10 pt-24
     bg-[linear-gradient(135deg,var(--color-primary-50),var(--color-primary-100),var(--color-primary-200))]
     dark:bg-none
     dark:bg-slate-900
     transition-colors duration-500
   "
->
+    >
       <div className="max-w-4xl mx-auto">
 
         <div className="flex items-center justify-between mb-8">
@@ -170,16 +169,23 @@ export default function NotificationsPage() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, x: 100, scale: 0.9 }}
                   transition={{ duration: 0.25 }}
-                  onClick={() => handleClick(n.id)}
+                  onClick={() => handleClick(n)}
                   className={`relative flex gap-4 p-5 rounded-xl cursor-pointer border transition
-                  ${
-                    !n.isDelivered
+                  ${!n.isDelivered
                       ? "bg-blue-50 dark:bg-blue-900/30 border-blue-400 dark:border-blue-700"
                       : "bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700"
-                  }`}
+                    }`}
                 >
-                  <div className="text-xl">
-                    {getIcon(getNotificationType(n.title))}
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 dark:bg-slate-700">
+                    <img
+                      src={
+                        n.senderProfilePicture
+                          ? `https://rahhal-api.runasp.net${n.senderProfilePicture}`
+                          : DEFAULT_AVATAR
+                      }
+                      alt="user"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
 
                   <div className="flex-1">
