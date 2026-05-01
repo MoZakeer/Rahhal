@@ -125,7 +125,7 @@ export default function HiddenGemsHighlight() {
           {GEMS_DATA.map((_, i) => (
             <div
               key={i}
-              className={`h-1 w-3 rounded-full transition-all ${i === index ? "bg-indigo-500 dark:bg-blue-500 w-5" : "bg-slate-200 dark:bg-slate-700"}`}
+              className={`h-1 w-3 rounded-full transition-all ${i === index ? "bg-blue-500 w-5" : "bg-slate-200 dark:bg-slate-700"}`}
             />
           ))}
         </div>

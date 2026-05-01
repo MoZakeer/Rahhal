@@ -54,7 +54,7 @@ export default function AnimatedSearch({
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
-            className="p-2 rounded-full hover:bg-gray-200 transition dark:text-blue-400"
+            className="p-2 rounded-full hover:bg-gray-200 transition text-slate-500 dark:text-blue-400"
           >
             <Search className="w-5 h-5" />
           </motion.button>

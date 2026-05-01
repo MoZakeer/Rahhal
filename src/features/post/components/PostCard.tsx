@@ -138,7 +138,7 @@ export function PostHeader({
             className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${
               isFollowing
                 ? "bg-slate-50 dark:bg-blue-950 border border-slate-200 dark:border-blue-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                : "bg-slate-900 dark:bg-blue-700 border border-slate-900 dark:border-blue-900 text-white hover:bg-slate-800 dark:hover:bg-blue-900"
+                : "bg-blue-700 dark:bg-blue-700 border border-blue-700 dark:border-blue-900 text-white hover:bg-blue-800 dark:hover:bg-blue-900"
             }`}
           >
             {isFollowing ? "Following" : "Follow"}
@@ -365,7 +365,7 @@ export function PostActions({
           className="flex flex-col items-center transition-transform duration-200 ease-in-out"
         >
           {liked ? (
-            <HeartIcon className="w-6 h-6 text-blue-500 fill-blue-500 hover:text-blue-500 hover:scale-125 hover:rotate-12 transition-all duration-500" />
+            <HeartIcon className="w-6 h-6 text-blue-700 fill-blue-700 hover:text-blue-500 hover:scale-125 hover:rotate-12 transition-all duration-500" />
           ) : (
             <HeartIcon className="w-6 h-6 text-slate-400 dark:text-slate-300 hover:text-blue-500 dark:hover:text-blue-400 scale-100 transition-all duration-300" />
           )}
