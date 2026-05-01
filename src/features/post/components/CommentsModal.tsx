@@ -366,7 +366,10 @@ export function CommentsModal({
 
     const renderWithMentions = (text: string) => {
       const HIDDEN = "\u200B";
-      const regex = new RegExp(`@[^${HIDDEN}]+${HIDDEN}`, "g");
+      const regex = new RegExp(
+        `@[^${HIDDEN}]+${HIDDEN}(?:[^${HIDDEN}]+${HIDDEN})?`,
+        "g",
+      );
       const parts = text.split(regex);
       const matches = text.match(regex) || [];
 
@@ -376,12 +379,25 @@ export function CommentsModal({
         result.push(<span key={`text-${index}`}>{part}</span>);
 
         if (matches[index]) {
+          const inner = matches[index].slice(1); 
+          const segments = inner.split(HIDDEN).filter(Boolean);
+          const displayName = segments[0];
+          const profileId = segments[1] ?? null; 
+
           result.push(
             <span
               key={`mention-${index}`}
-              className="text-blue-600 dark:text-blue-400 font-semibold"
+              className={`text-blue-600 dark:text-blue-400 font-semibold ${profileId ? "cursor-pointer " : ""}`}
+              onClick={
+                profileId
+                  ? (e) => {
+                      e.stopPropagation();
+                      navigate(`/profile/${profileId}`);
+                    }
+                  : undefined
+              }
             >
-              {matches[index]}
+              @{displayName}
             </span>,
           );
         }
@@ -389,7 +405,14 @@ export function CommentsModal({
 
       return result;
     };
-
+    const toDisplayText = (text: string) => {
+      const HIDDEN = "\u200B";
+      const regex = new RegExp(
+        `(@[^${HIDDEN}]+)${HIDDEN}[^${HIDDEN}]+${HIDDEN}`,
+        "g",
+      );
+      return text.replace(regex, `$1${HIDDEN}`);
+    };
     return (
       <div key={id} className="flex gap-3 w-full">
         <img
@@ -518,7 +541,7 @@ export function CommentsModal({
                         ? (comment as ReplyItem).isLikedByCurrentUser
                         : (comment as CommentItem).isLikedByCurrentUser
                     )
-                      ? "text-blue-600 fill-blue-600 scale-110"
+                      ? "text-blue-700 fill-blue-700 scale-110"
                       : "text-slate-400 dark:text-slate-500 group-hover:text-blue-600"
                   }`}
                 />
@@ -582,8 +605,7 @@ export function CommentsModal({
                 setReplyingToName(comment.userName);
 
                 if (!isReplyingToSelf) {
-                  const HIDDEN = "\u200B";
-                  const mention = `@${comment.userName}${HIDDEN}`;
+                  const mention = `@${comment.userName}\u200B${comment.profileId}\u200B`;
                   setReplyText((prev) =>
                     prev.startsWith(mention) ? prev : mention,
                   );
@@ -661,8 +683,20 @@ export function CommentsModal({
                   </button>
 
                   <input
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
+                    value={toDisplayText(replyText)}
+                    onChange={(e) => {
+                      const HIDDEN = "\u200B";
+                      const newVal = e.target.value;
+                      if (!newVal.includes(HIDDEN)) {
+                        setReplyText(newVal);
+                      } else {
+                        setReplyText((prev) => {
+                          const displayPrev = toDisplayText(prev);
+                          const suffix = newVal.slice(displayPrev.length);
+                          return prev + suffix;
+                        });
+                      }
+                    }}
                     onKeyDown={(e) => {
                       if (
                         e.key === "Enter" &&

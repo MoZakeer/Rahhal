@@ -192,9 +192,9 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
               <AnimatedSearch />
               <button
                 onClick={handleClick}
-                className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 "
               >
-                <Bell className="h-5 w-5 dark:text-blue-400 " />
+                <Bell className="h-5 w-5 dark:text-blue-400 text-slate-500 " />
 
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-[10px] text-white px-1">
@@ -215,7 +215,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                       alt="user"
                     />
                   ) : (
-                    <div className="h-9 w-9 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700 bg-linear-to-br from-purple-600 to-blue-500 dark:from-blue-900">
+                    <div className="h-9 w-9 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700 bg-linear-to-br  to-blue-500 from-blue-900">
                       <span className="text-xs font-black text-white uppercase">
                         {profile?.fullName?.charAt(0) ||
                           profile?.userName?.charAt(0) ||

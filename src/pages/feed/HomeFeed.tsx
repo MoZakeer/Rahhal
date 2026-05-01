@@ -60,7 +60,7 @@ export default function HomeFeed() {
               /* 2. تم تعديل ألوان الزرار ليتماشى مع لون البراند (Indigo) 
                 وتعديل الـ Shadow والـ Hover للدارك مود 
               */
-              className="fixed bottom-24 right-6 lg:bottom-10 lg:right-[calc(25vw)] z-50 flex items-center justify-center w-14 h-14 bg-indigo-600 dark:bg-blue-900 text-white rounded-full shadow-lg shadow-indigo-500/30 dark:shadow-indigo-900/50 hover:bg-indigo-700 dark:hover:bg-blue-600 active:scale-95 transition-colors"
+              className="fixed bottom-24 right-6 lg:bottom-10 lg:right-[calc(25vw)] z-50 flex items-center justify-center w-14 h-14 bg-blue-900 text-white rounded-full shadow-lg shadow-indigo-500/30 dark:shadow-indigo-900/50 hover:bg-indigo-700 dark:hover:bg-blue-600 active:scale-95 transition-colors"
               aria-label="Create Post"
             >
               {/*(Plus Icon) */}

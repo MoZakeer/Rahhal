@@ -70,16 +70,16 @@ export const ReportModal = ({
       <div onClick={onClose} className="absolute inset-0  backdrop-blur-sm" />
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-md mx-4 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-700">
             Report Content
           </h2>
 
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-gray-100 transition dark:hover:bg-gray-700"
+            className="p-1 rounded-full hover:bg-gray-100 transition dark:hover:bg-gray-300"
           >
             <X className="w-5 h-5 text-gray-500" />
           </button>
@@ -87,7 +87,7 @@ export const ReportModal = ({
 
         {/* Reason */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-600 dark:text-gray-500">
+          <label className="text-sm font-medium text-gray-600 dark:text-gray-800">
             Reason
           </label>
 
@@ -98,7 +98,7 @@ export const ReportModal = ({
 
         {/* Description */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-600 dark:text-gray-500">
+          <label className="text-sm font-medium text-gray-600 dark:text-gray-800">
             Description
           </label>
           <textarea
@@ -106,7 +106,7 @@ export const ReportModal = ({
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe the issue..."
             rows={4}
-            className="w-full border border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none p-3 rounded-xl resize-none transition"
+            className="w-full border border-gray-300 focus:border-red-500  focus:ring-red-200 outline-none p-3 rounded-xl resize-none transition dark:text-gray-700"
           />
         </div>
 
@@ -185,13 +185,13 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ value, onChange }) => {
         className={`w-full flex items-center justify-between border p-3 rounded-xl transition-all outline-none
           ${
             isOpen
-              ? "border-red-500 ring-2 ring-red-200"
+              ? "border-red-500  ring-red-200"
               : "border-gray-300 hover:border-gray-400"
           }`}
       >
         <span
           className={
-            !value ? "text-gray-400" : "text-gray-900 dark:text-gray-400"
+            !value ? "text-gray-400" : "text-gray-900 dark:text-gray-700"
           }
         >
           {value || "Select reason"}
@@ -202,8 +202,8 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ value, onChange }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in duration-150">
-          <ul className="py-1">
+        <div className="absolute z-10 w-full mt-2 bg-white border dark:bg-slate-700 border-gray-200 rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in duration-150">
+          <ul className="">
             {options.map((option: string) => (
               <li
                 key={option}
@@ -212,7 +212,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ value, onChange }) => {
                   ${
                     value === option
                       ? "bg-red-50 text-red-600 font-medium"
-                      : "text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300 dark:hover:text-gray-950"
+                      : "text-gray-700  hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-slate-700 dark:text-gray-900 dark:hover:text-gray-950"
                   }`}
               >
                 {option}
