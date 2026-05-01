@@ -27,12 +27,23 @@ const API_BASE_URL = "https://rahhal-api.runasp.net";
 import { getUserRole } from "../../utils/auth";
 import AnimatedSearch from "../components/AnimatedSearch";
 // import SearchComponent from "../../features/search/components/SearchComponent";
-const navItems = [
+import { Map, Sparkles, GitCompareArrows } from "lucide-react";
+const travelDropdownItems = [
+  { label: "Create Trip", path: "/create-trip", icon: Map },
+  { label: "AI Planner", path: "/ai-planner", icon: Sparkles },
+  { label: "Matching", path: "/matching", icon: GitCompareArrows },
+  { label: "My Trips", path: "/my-trips", icon: Plane },
+];
+// Before Travel
+const navItemsBefore = [
   { icon: Home, label: "Home", path: "/feed" },
   { icon: Compass, label: "Explore", path: "/explore" },
-  { icon: Plane, label: "My Trips", path: "/my-trips" },
+];
+// After Travel
+const navItemsAfter = [
   { icon: MessageCircle, label: "Messages", path: "/chat" },
 ];
+const travelPaths = travelDropdownItems.map((i) => i.path);
 interface Profile {
   // data: ProfileData | null | undefined;
   Id: string;
@@ -133,15 +144,33 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
   //   navigate("/landing-page");
   // };
 
-  const isActivePath = (path: string) => location.pathname === path;
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const isActivePath = (path: string) => location.pathname === path;
+  const isTravelActive = travelPaths.some((p) => isActivePath(p));
+
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setDropdownOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => setDropdownOpen(false), 120);
+  };
+  const activeTravelItem = travelDropdownItems.find((i) =>
+    isActivePath(i.path),
+  );
+
+  const TravelIcon = activeTravelItem?.icon ?? Plane;
+  const travelLabel = activeTravelItem?.label ?? "Trips";
   return (
     <header
-      className={`fixed top-0 z-40 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${
+      className={`fixed top-0 z-40  w-full  bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${
         isNavVisible ? "translate-y-0" : "-translate-y-full"
       }`}
     >
-      <div className="mx-auto flex h-16 items-center justify-between px-4 md:px-6">
+      <div className="mx-auto  flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo Section */}
         <Link
           to="/feed"
@@ -169,14 +198,76 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
 
         {/* Center: Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center">
-          {navItems.map(({ icon: Icon, label, path }) => (
+          {navItemsBefore.map(({ icon: Icon, label, path }) => (
             <Link
               key={path}
               to={path}
               className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
                 isActivePath(path)
-                  ? "text-blue-600 dark:text-blue-400  bg-blue-50/50 dark:bg-blue-900/30"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                  ? "text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/30"
+                  : "text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+              }`}
+            >
+              <Icon className="h-5 w-5" />
+              <span>{label}</span>
+            </Link>
+          ))}
+
+          {/* Travel dropdown trigger */}
+          <div
+            className="relative"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <button
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                isTravelActive
+                  ? "text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/30"
+                  : "text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+              }`}
+            >
+              <TravelIcon className="h-5 w-5" />
+              <span>{travelLabel}</span>
+            </button>
+
+            {/* Dropdown */}
+            <div
+              className={`absolute top-full left-1/2 -translate-x-1/2 mt-1.5 w-48 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/60 dark:shadow-slate-950/60 overflow-hidden transition-all duration-200 z-50 ${
+                dropdownOpen
+                  ? "opacity-100 translate-y-0 pointer-events-auto"
+                  : "opacity-0 -translate-y-1 pointer-events-none"
+              }`}
+            >
+              {/* small arrow pointer */}
+              <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 bg-white dark:bg-slate-900 border-l border-t border-slate-200 dark:border-slate-700" />
+
+              <div className="p-1.5 relative">
+                {travelDropdownItems.map(({ label, path, icon: Icon }) => (
+                  <Link
+                    key={path}
+                    to={path}
+                    onClick={() => setDropdownOpen(false)}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
+                      isActivePath(path)
+                        ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30"
+                        : "text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+          {navItemsAfter.map(({ icon: Icon, label, path }) => (
+            <Link
+              key={path}
+              to={path}
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                isActivePath(path)
+                  ? "text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/30"
+                  : "text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
               }`}
             >
               <Icon className="h-5 w-5" />
@@ -349,15 +440,21 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                   onClick={() => setMobileOpen(false)}
                   className="flex items-center gap-4 p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-500/10 mb-2 border border-blue-100 dark:border-blue-500/20"
                 >
-                  <img
-                    src={
-                      profile?.profilePicture
-                        ? `${API_BASE_URL}${profile.profilePicture}`
-                        : "/api/placeholder/40/40"
-                    }
-                    className="h-12 w-12 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm"
-                    alt="avatar"
-                  />
+                  {profile?.profilePicture ? (
+                    <img
+                      src={`${API_BASE_URL}${profile.profilePicture}?t=${new Date().getTime()}`}
+                      className="h-9 w-9 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700"
+                      alt="user"
+                    />
+                  ) : (
+                    <div className="h-9 w-9 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700 bg-linear-to-br  to-blue-500 from-blue-900">
+                      <span className="text-xs font-black text-white uppercase">
+                        {profile?.fullName?.charAt(0) ||
+                          profile?.userName?.charAt(0) ||
+                          "U"}
+                      </span>
+                    </div>
+                  )}
                   <div>
                     <p className="font-black text-slate-800 dark:text-slate-100 leading-none">
                       {profile?.userName || "User"}
@@ -394,7 +491,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                 </Link>
               )}
 
-              {navItems.map(({ icon: Icon, label, path }) => {
+              {navItemsBefore.map(({ icon: Icon, label, path }) => {
                 if (label === "Messages" && !hasToken) return null;
                 return (
                   <Link
@@ -411,6 +508,38 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                   </Link>
                 );
               })}
+              {navItemsAfter.map(({ icon: Icon, label, path }) => {
+                if (label === "Messages" && !hasToken) return null;
+                return (
+                  <Link
+                    key={path}
+                    to={path}
+                    onClick={() => setMobileOpen(false)}
+                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${
+                      isActivePath(path)
+                        ? "bg-blue-50 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400"
+                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                    }`}
+                  >
+                    <Icon className="h-6 w-6" /> {label}
+                  </Link>
+                );
+              })}
+              {travelDropdownItems.map(({ label, path, icon: Icon }) => (
+                <Link
+                  key={path}
+                  to={path}
+                  onClick={() => setMobileOpen(false)}
+                  className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${
+                    isActivePath(path)
+                      ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30"
+                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60"
+                  }`}
+                >
+                  <Icon className="h-6 w-6 " />
+                  {label}
+                </Link>
+              ))}
 
               <div className="h-px bg-slate-50 dark:bg-slate-800 my-2" />
               <ThemeToggleButton />
