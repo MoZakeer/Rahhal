@@ -1,4 +1,4 @@
-import { MapPin, Clock, ExternalLink, Bed } from "lucide-react";
+import { MapPin, ExternalLink, Bed } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import RatingStars from "./RatingStars";
 import type { Hotel } from "@/types/trip";

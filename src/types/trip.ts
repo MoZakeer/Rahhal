@@ -11,6 +11,7 @@ export interface ItineraryStop {
   description?: string;
   image?: string;
   mapsUrl?: string;
+  recommendations:any
 }
 
 export interface TripDay {

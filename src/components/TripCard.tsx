@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Heart, Users, Calendar, MapPin, Lock, Globe, Sparkles } from "lucide-react";
+import { Heart, Users, Calendar, MapPin, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -28,17 +28,20 @@ interface TripCardProps {
 }
 
 const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
-
-  const avatarLetter = trip.createdBy ? trip.createdBy.charAt(0).toUpperCase() : "U";
+  const avatarLetter = trip.createdBy
+    ? trip.createdBy.charAt(0).toUpperCase()
+    : "U";
 
   const hasValidImage = Boolean(
     trip.imageUrl &&
     trip.imageUrl !== "" &&
     trip.imageUrl !== "string" &&
-    trip.imageUrl.startsWith("http")
+    trip.imageUrl.startsWith("http"),
   );
 
-  const imageSeed = encodeURIComponent(trip.destination || trip.name || trip.id);
+  const imageSeed = encodeURIComponent(
+    trip.destination || trip.name || trip.id,
+  );
 
   const displayImage = hasValidImage
     ? (trip.imageUrl ?? `https://picsum.photos/seed/${imageSeed}/800/600`)
@@ -53,7 +56,8 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
             alt={trip.name}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = "https://placehold.co/800x600/e2e8f0/94a3b8?text=Travel+Trip";
+              (e.target as HTMLImageElement).src =
+                "https://placehold.co/800x600/e2e8f0/94a3b8?text=Travel+Trip";
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
@@ -79,7 +83,9 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
               onToggleFavorite?.(trip.id);
             }}
           >
-            <Heart className={`h-4 w-4 ${trip.isSaved ? "fill-destructive text-destructive" : "text-muted-foreground"}`} />
+            <Heart
+              className={`h-4 w-4 ${trip.isSaved ? "fill-destructive text-destructive" : "text-muted-foreground"}`}
+            />
           </Button>
 
           {trip.matchPercentage && (
@@ -90,7 +96,9 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
         </div>
 
         <div className="p-4">
-          <h3 className="font-display text-lg font-semibold text-card-foreground line-clamp-1">{trip.name}</h3>
+          <h3 className="font-display text-lg font-semibold text-card-foreground line-clamp-1">
+            {trip.name}
+          </h3>
 
           {trip.destination && (
             <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
@@ -99,11 +107,17 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
             </div>
           )}
 
-          <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{trip.description}</p>
+          <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+            {trip.description}
+          </p>
 
           <div className="mt-3 flex flex-wrap gap-1.5">
             {trip.travelPreference?.map((pref) => (
-              <Badge key={pref.id} variant="secondary" className="text-xs font-normal">
+              <Badge
+                key={pref.id}
+                variant="secondary"
+                className="text-xs font-normal"
+              >
                 {pref.name}
               </Badge>
             ))}
@@ -113,7 +127,12 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Calendar className="h-3.5 w-3.5" />
-                {trip.startDate ? new Date(trip.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "TBD"}
+                {trip.startDate
+                  ? new Date(trip.startDate).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    })
+                  : "TBD"}
               </span>
               <span className="flex items-center gap-1">
                 <Users className="h-3.5 w-3.5" />
@@ -124,7 +143,9 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
                 {avatarLetter}
               </div>
-              <span className="text-xs text-muted-foreground">{trip.createdBy || "Unknown"}</span>
+              <span className="text-xs text-muted-foreground">
+                {trip.createdBy || "Unknown"}
+              </span>
             </div>
           </div>
         </div>

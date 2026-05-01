@@ -8,7 +8,6 @@ import {
   Globe,
   Lock,
   Sparkles,
-  Copy,
   DollarSign,
   Trash2,
   UserCheck,
@@ -55,7 +54,6 @@ import JoinTripDialog from "@/components/trip-detail/JoinTripDialog";
 import EditTripDialog from "@/components/trip-detail/EditTripDialog";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
-
 // API & Types
 import {
   getTripById,
@@ -89,7 +87,6 @@ const TripDetail = () => {
   const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
   const [requestsLoading, setRequestsLoading] = useState(false);
 
-
   const fetchTrip = useCallback(
     async (filter: TripDetailsFilter = "all") => {
       if (!id) return;
@@ -101,13 +98,14 @@ const TripDetail = () => {
         setIsPublic(data.isPublic ?? true);
         setIsFav(data.isFavorite ?? false);
       } catch (err) {
-        const msg = err instanceof ApiError ? err.message : "Failed to load trip";
+        const msg =
+          err instanceof ApiError ? err.message : "Failed to load trip";
         setError(msg);
       } finally {
         setLoading(false);
       }
     },
-    [id]
+    [id],
   );
 
   useEffect(() => {
@@ -116,7 +114,9 @@ const TripDetail = () => {
 
   const trip = apiTrip ? mapApiTripToTrip(apiTrip) : null;
   const currentUserId = getUserId();
-  const isAdmin = Boolean(apiTrip && currentUserId && apiTrip.profileId === currentUserId);
+  const isAdmin = Boolean(
+    apiTrip && currentUserId && apiTrip.profileId === currentUserId,
+  );
   usePageTitle(trip?.name || "Trip Detail");
   const loadPendingRequests = useCallback(async () => {
     if (!id) return;
@@ -125,7 +125,8 @@ const TripDetail = () => {
       const page = await getPendingRequests(id, 1, 50);
       setJoinRequests((page?.items ?? []).map(mapPendingToJoinRequest));
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : "Failed to load requests";
+      const msg =
+        err instanceof ApiError ? err.message : "Failed to load requests";
       toast.error(msg);
     } finally {
       setRequestsLoading(false);
@@ -144,7 +145,9 @@ const TripDetail = () => {
   if (error || !trip || !apiTrip) {
     return (
       <div className="container flex min-h-[60vh] flex-col items-center justify-center gap-3">
-        <p className="text-lg text-muted-foreground">{error ?? "Trip not found"}</p>
+        <p className="text-lg text-muted-foreground">
+          {error ?? "Trip not found"}
+        </p>
         <Link to="/">
           <Button>Back to Explore</Button>
         </Link>
@@ -156,13 +159,13 @@ const TripDetail = () => {
     1,
     Math.ceil(
       (new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) /
-      (1000 * 60 * 60 * 24)
-    )
+        (1000 * 60 * 60 * 24),
+    ),
   );
 
   const handleShare = () => {
     const url = window.location.href;
-    navigator.clipboard?.writeText(url).catch(() => { });
+    navigator.clipboard?.writeText(url).catch(() => {});
     toast.success("Trip link copied to clipboard");
   };
 
@@ -189,7 +192,8 @@ const TripDetail = () => {
       setIsPublic((v) => !v);
       toast.success(`Trip is now ${!isPublic ? "public" : "private"}`);
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : "Failed to change visibility";
+      const msg =
+        err instanceof ApiError ? err.message : "Failed to change visibility";
       toast.error(msg);
     } finally {
       setChangingVision(false);
@@ -203,27 +207,37 @@ const TripDetail = () => {
       toast.success("Trip deleted successfully");
       navigate("/");
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : "Failed to delete trip";
+      const msg =
+        err instanceof ApiError ? err.message : "Failed to delete trip";
       toast.error(msg);
     } finally {
       setDeleting(false);
     }
   };
 
-  const handleRequestStatusChange = (reqId: string, status: JoinRequestStatus) => {
+  const handleRequestStatusChange = (
+    reqId: string,
+    status: JoinRequestStatus,
+  ) => {
     setJoinRequests((prev) =>
-      prev.map((r) => (r.id === reqId ? { ...r, status } : r))
+      prev.map((r) => (r.id === reqId ? { ...r, status } : r)),
     );
   };
 
-  const pendingCount = joinRequests.filter((r) => r.status === "pending").length;
+  const pendingCount = joinRequests.filter(
+    (r) => r.status === "pending",
+  ).length;
 
   return (
     <div className="min-h-screen pb-12">
       {/* Hero image */}
       <div className="relative h-[300px] md:h-[400px]">
         {trip.image ? (
-          <img src={trip.image} alt={trip.name} className="h-full w-full object-cover" />
+          <img
+            src={trip.image}
+            alt={trip.name}
+            className="h-full w-full object-cover"
+          />
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-primary/30 to-secondary/30" />
         )}
@@ -250,11 +264,18 @@ const TripDetail = () => {
                 </Badge>
               )}
               <Badge className="gap-1 border-0 bg-card/80 text-card-foreground backdrop-blur-sm">
-                {isPublic ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
+                {isPublic ? (
+                  <Globe className="h-3 w-3" />
+                ) : (
+                  <Lock className="h-3 w-3" />
+                )}
                 {isPublic ? "Public" : "Private"}
               </Badge>
               {apiTrip.tripStatus && (
-                <Badge variant="outline" className="border-card/40 bg-card/60 text-card-foreground backdrop-blur-sm">
+                <Badge
+                  variant="outline"
+                  className="border-card/40 bg-card/60 text-card-foreground backdrop-blur-sm"
+                >
                   {apiTrip.tripStatus}
                 </Badge>
               )}
@@ -275,7 +296,9 @@ const TripDetail = () => {
           {/* Main content */}
           <div className="space-y-6 lg:col-span-2">
             <div>
-              <h2 className="font-display text-xl font-semibold">About This Trip</h2>
+              <h2 className="font-display text-xl font-semibold">
+                About This Trip
+              </h2>
               <p className="mt-2 leading-relaxed text-muted-foreground">
                 {trip.description || "No description provided."}
               </p>
@@ -299,82 +322,132 @@ const TripDetail = () => {
                 <h2 className="text-xl font-bold">Itinerary</h2>
                 <div className="mt-6 space-y-8">
                   {trip.itinerary.map((day) => (
-                    <div key={day.day} className="relative pl-8 border-l-2  border-primary/20">
+                    <div
+                      key={day.day}
+                      className="relative pl-8 border-l-2  border-primary/20"
+                    >
                       <div className="absolute -left-[11px] top-0 h-5 w-5 rounded-full bg-primary" />
-                      <h3 className="text-lg font-bold text-primary">Day {day.day}</h3>
+                      <h3 className="text-lg font-bold text-primary">
+                        Day {day.day}
+                      </h3>
 
                       <div className="mt-4 space-y-6">
                         {day.stops?.map((stop, idx) => (
-                          <div key={idx} className="rounded-xl border border-gray-200/50 bg-card overflow-hidden shadow-sm">
+                          <div
+                            key={idx}
+                            className="rounded-xl border border-gray-200/50 bg-card overflow-hidden shadow-sm"
+                          >
                             <div className="flex flex-col md:flex-row">
                               {/* Stop Image [cite: 72, 85] */}
                               {stop.image && (
                                 <div className="h-48 md:w-48 shrink-0">
-                                  <img src={stop.image} className="h-full w-full object-cover" />
+                                  <img
+                                    src={stop.image}
+                                    className="h-full w-full object-cover"
+                                  />
                                 </div>
                               )}
                               <div className="p-4 flex-1">
                                 <div className="flex items-start justify-between">
                                   <div>
-                                    <h4 className="font-bold text-lg">{stop.place || stop.category}</h4>
-                                    <Badge variant="secondary" className="mt-1">{stop.category}</Badge>
+                                    <h4 className="font-bold text-lg">
+                                      {stop.place || stop.category}
+                                    </h4>
+                                    <Badge variant="secondary" className="mt-1">
+                                      {stop.category}
+                                    </Badge>
                                   </div>
                                   {stop.arrivalTime && (
-                                    <Badge variant="outline" className="gap-1"><Clock className="h-3 w-3" /> {stop.arrivalTime}</Badge>
+                                    <Badge variant="outline" className="gap-1">
+                                      <Clock className="h-3 w-3" />{" "}
+                                      {stop.arrivalTime}
+                                    </Badge>
                                   )}
                                 </div>
-                                <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{stop.description}</p>
+                                <p className="mt-2 text-sm text-muted-foreground line-clamp-3">
+                                  {stop.description}
+                                </p>
 
                                 <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                                  {stop.ticketPrice !== undefined && <span className="flex items-center gap-1"><Ticket className="h-3 w-3" /> {stop.ticketPrice === 0 ? "Free" : `$${stop.ticketPrice}`}</span>}
+                                  {stop.ticketPrice !== undefined && (
+                                    <span className="flex items-center gap-1">
+                                      <Ticket className="h-3 w-3" />{" "}
+                                      {stop.ticketPrice === 0
+                                        ? "Free"
+                                        : `$${stop.ticketPrice}`}
+                                    </span>
+                                  )}
                                   {stop.mapsUrl && (
-                                    <a href={stop.mapsUrl} target="_blank" className="flex items-center gap-1 text-primary hover:underline ml-auto">
-                                      <ExternalLink className="h-3 w-3" /> View Map
+                                    <a
+                                      href={stop.mapsUrl}
+                                      target="_blank"
+                                      className="flex items-center gap-1 text-primary hover:underline ml-auto"
+                                    >
+                                      <ExternalLink className="h-3 w-3" /> View
+                                      Map
                                     </a>
                                   )}
                                 </div>
 
                                 {/* Recommendations specific to this stop */}
-                                {stop.recommendations && (stop.recommendations as any[]).length > 0 && (
-                                  <div className="mt-4 pt-4 border-t border-gray-200/50">
-                                    <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">Nearby Places</p>
-                                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                                      {(stop.recommendations as any[]).map((reco: any, ri: number) => {
-                                        // نجهز رابط جوجل ماب (لو مش مبعوت جاهز، بنبنيه بخطوط الطول والعرض)
-                                        const mapLink = reco.mapsUrl || (reco.latitude && reco.longitude ? `https://www.google.com/maps/search/?api=1&query=${reco.latitude},${reco.longitude}` : undefined);
+                                {stop?.recommendations &&
+                                  (stop?.recommendations as any[]).length >
+                                    0 && (
+                                    <div className="mt-4 pt-4 border-t border-gray-200/50">
+                                      <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
+                                        Nearby Places
+                                      </p>
+                                      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                                        {(stop.recommendations as any[]).map(
+                                          (reco: any, ri: number) => {
+                                            // نجهز رابط جوجل ماب (لو مش مبعوت جاهز، بنبنيه بخطوط الطول والعرض)
+                                            const mapLink =
+                                              reco.mapsUrl ||
+                                              (reco.latitude && reco.longitude
+                                                ? `https://www.google.com/maps/search/?api=1&query=${reco.latitude},${reco.longitude}`
+                                                : undefined);
 
-                                        return (
-                                          <a
-                                            key={ri}
-                                            href={mapLink || "#"}
-                                            target={mapLink ? "_blank" : undefined}
-                                            rel={mapLink ? "noopener noreferrer" : undefined}
-                                            // ضفنا كلاسات group عشان نعمل أنيميشن لطيف لما اليوزر يقف بالماوس
-                                            className="min-w-[120px] max-w-[120px] text-center block group cursor-pointer"
-                                            onClick={(e) => {
-                                              // لو مفيش رابط خالص، نمنع الريفريش ونطلع رسالة لليوزر
-                                              if (!mapLink) {
-                                                e.preventDefault();
-                                                toast.info("Map location not available");
-                                              }
-                                            }}
-                                          >
-                                            <div className="overflow-hidden rounded-md">
-                                              <img
-                                                src={reco.image}
-                                                className="h-20 w-full object-cover bg-muted transition-transform duration-300 group-hover:scale-110"
-                                                alt={reco.name}
-                                              />
-                                            </div>
-                                            <p className="text-xs font-medium mt-1.5 truncate transition-colors group-hover:text-primary">
-                                              {reco.name}
-                                            </p>
-                                          </a>
-                                        );
-                                      })}
+                                            return (
+                                              <a
+                                                key={ri}
+                                                href={mapLink || "#"}
+                                                target={
+                                                  mapLink ? "_blank" : undefined
+                                                }
+                                                rel={
+                                                  mapLink
+                                                    ? "noopener noreferrer"
+                                                    : undefined
+                                                }
+                                                // ضفنا كلاسات group عشان نعمل أنيميشن لطيف لما اليوزر يقف بالماوس
+                                                className="min-w-[120px] max-w-[120px] text-center block group cursor-pointer"
+                                                onClick={(e) => {
+                                                  // لو مفيش رابط خالص، نمنع الريفريش ونطلع رسالة لليوزر
+                                                  if (!mapLink) {
+                                                    e.preventDefault();
+                                                    toast.info(
+                                                      "Map location not available",
+                                                    );
+                                                  }
+                                                }}
+                                              >
+                                                <div className="overflow-hidden rounded-md">
+                                                  <img
+                                                    src={reco.image}
+                                                    className="h-20 w-full object-cover bg-muted transition-transform duration-300 group-hover:scale-110"
+                                                    alt={reco.name}
+                                                  />
+                                                </div>
+                                                <p className="text-xs font-medium mt-1.5 truncate transition-colors group-hover:text-primary">
+                                                  {reco.name}
+                                                </p>
+                                              </a>
+                                            );
+                                          },
+                                        )}
+                                      </div>
                                     </div>
-                                  </div>
-                                )}
+                                  )}
                               </div>
                             </div>
                           </div>
@@ -387,10 +460,15 @@ const TripDetail = () => {
             )}
 
             {/* Recommendations (Attractions, Hotels, Restaurants) */}
-            {!trip.isAiGenerated && (trip.attractions?.length || trip.hotels?.length || trip.restaurants?.length) ? (
+            {!trip.isAiGenerated &&
+            (trip.attractions?.length ||
+              trip.hotels?.length ||
+              trip.restaurants?.length) ? (
               <>
                 <div>
-                  <h2 className="font-display text-xl font-semibold">Discover the Destination</h2>
+                  <h2 className="font-display text-xl font-semibold">
+                    Discover the Destination
+                  </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Filter by category to explore recommendations
                   </p>
@@ -401,37 +479,57 @@ const TripDetail = () => {
                     className="mt-4"
                   >
                     <TabsList className="flex h-auto flex-wrap justify-start gap-2 bg-muted/50 p-1.5 rounded-xl">
-
-                      <TabsTrigger value="all" className="rounded-lg px-4 py-2 data-[state=active]:shadow-sm">
+                      <TabsTrigger
+                        value="all"
+                        className="rounded-lg px-4 py-2 data-[state=active]:shadow-sm"
+                      >
                         <LayoutGrid className="w-4 h-4 mr-2" />
                         All
                       </TabsTrigger>
 
                       {trip.attractions && trip.attractions.length > 0 && (
-                        <TabsTrigger value="attractions" className="rounded-lg px-4 py-2 data-[state=active]:shadow-sm">
+                        <TabsTrigger
+                          value="attractions"
+                          className="rounded-lg px-4 py-2 data-[state=active]:shadow-sm"
+                        >
                           <MapPin className="w-4 h-4 mr-2" />
                           Attractions
-                          <Badge variant="secondary" className="ml-2 text-[10px] px-1.5 py-0 bg-background">
+                          <Badge
+                            variant="secondary"
+                            className="ml-2 text-[10px] px-1.5 py-0 bg-background"
+                          >
                             {trip.attractions.length}
                           </Badge>
                         </TabsTrigger>
                       )}
 
                       {trip.hotels && trip.hotels.length > 0 && (
-                        <TabsTrigger value="hotels" className="rounded-lg px-4 py-2 data-[state=active]:shadow-sm">
+                        <TabsTrigger
+                          value="hotels"
+                          className="rounded-lg px-4 py-2 data-[state=active]:shadow-sm"
+                        >
                           <Bed className="w-4 h-4 mr-2" />
                           Hotels
-                          <Badge variant="secondary" className="ml-2 text-[10px] px-1.5 py-0 bg-background">
+                          <Badge
+                            variant="secondary"
+                            className="ml-2 text-[10px] px-1.5 py-0 bg-background"
+                          >
                             {trip.hotels.length}
                           </Badge>
                         </TabsTrigger>
                       )}
 
                       {trip.restaurants && trip.restaurants.length > 0 && (
-                        <TabsTrigger value="restaurants" className="rounded-lg px-4 py-2 data-[state=active]:shadow-sm">
+                        <TabsTrigger
+                          value="restaurants"
+                          className="rounded-lg px-4 py-2 data-[state=active]:shadow-sm"
+                        >
                           <Utensils className="w-4 h-4 mr-2" />
                           Restaurants
-                          <Badge variant="secondary" className="ml-2 text-[10px] px-1.5 py-0 bg-background">
+                          <Badge
+                            variant="secondary"
+                            className="ml-2 text-[10px] px-1.5 py-0 bg-background"
+                          >
                             {trip.restaurants.length}
                           </Badge>
                         </TabsTrigger>
@@ -442,7 +540,9 @@ const TripDetail = () => {
                       {trip.attractions?.length ? (
                         <AttractionsSection attractions={trip.attractions} />
                       ) : null}
-                      {trip.hotels?.length ? <HotelsSection hotels={trip.hotels} /> : null}
+                      {trip.hotels?.length ? (
+                        <HotelsSection hotels={trip.hotels} />
+                      ) : null}
                       {trip.restaurants?.length ? (
                         <RestaurantsSection restaurants={trip.restaurants} />
                       ) : null}
@@ -516,14 +616,18 @@ const TripDetail = () => {
             <div className="space-y-3 rounded-lg border border-gray-200/50 bg-card p-5 shadow-card">
               <h3 className="font-display font-semibold">Actions</h3>
 
-              {!isAdmin && <JoinTripDialog tripId={trip.id} tripName={trip.name} />}
+              {!isAdmin && (
+                <JoinTripDialog tripId={trip.id} tripName={trip.name} />
+              )}
 
               {isAdmin && (
                 <EditTripDialog
                   trip={trip}
                   destinationId={apiTrip.destinationId}
                   countryId={apiTrip.countryId}
-                  travelPreferencesId={apiTrip.travelPreferences?.map((p) => p.id) ?? []}
+                  travelPreferencesId={
+                    apiTrip.travelPreferences?.map((p) => p.id) ?? []
+                  }
                   gender={apiTrip.gender}
                   ageGroup={apiTrip.ageGroup}
                   status={apiTrip.status}
@@ -540,7 +644,9 @@ const TripDetail = () => {
                 {savingFav ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Bookmark className={`h-4 w-4 ${isFav ? "fill-current" : ""}`} />
+                  <Bookmark
+                    className={`h-4 w-4 ${isFav ? "fill-current" : ""}`}
+                  />
                 )}
                 {isFav ? "Saved" : "Save Trip"}
               </Button>
@@ -563,7 +669,11 @@ const TripDetail = () => {
                 </Button>
               )}
 
-              <Button variant="outline" className="w-full gap-2" onClick={handleShare}>
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                onClick={handleShare}
+              >
                 <Share2 className="h-4 w-4" />
                 Share Trip
               </Button>
@@ -589,9 +699,12 @@ const TripDetail = () => {
                   </DialogTrigger>
                   <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
                     <DialogHeader>
-                      <DialogTitle className="font-display">Join Requests</DialogTitle>
+                      <DialogTitle className="font-display">
+                        Join Requests
+                      </DialogTitle>
                       <DialogDescription>
-                        Review and respond to travelers who want to join this trip.
+                        Review and respond to travelers who want to join this
+                        trip.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="mt-2">
@@ -609,7 +722,11 @@ const TripDetail = () => {
               {isAdmin && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" className="w-full gap-2" disabled={deleting}>
+                    <Button
+                      variant="destructive"
+                      className="w-full gap-2"
+                      disabled={deleting}
+                    >
                       {deleting ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
@@ -622,8 +739,8 @@ const TripDetail = () => {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Delete this trip?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This action cannot be undone. The trip and all its details will be
-                        permanently removed.
+                        This action cannot be undone. The trip and all its
+                        details will be permanently removed.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
