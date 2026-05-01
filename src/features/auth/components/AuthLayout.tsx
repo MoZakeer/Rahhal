@@ -3,14 +3,21 @@ import { motion } from "framer-motion";
 
 function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col md:flex-row items-center justify-center gap-2 relative overflow-hidden">
+    <div className="
+      min-h-screen flex flex-col md:flex-row items-center justify-center gap-2
+      relative overflow-hidden
+      bg-slate-50 dark:bg-slate-900
+      transition-colors duration-500
+    ">
 
-    
-      <div className="absolute top-0 left-0 w-72 h-72 bg-primary-200 rounded-full mix-blend-multiply opacity-30 animate-blob"></div>
-      <div className="absolute top-1/4 right-0 w-64 h-64 bg-gray-200 rounded-full mix-blend-multiply opacity-30 animate-blob animation-delay-2000"></div>
-      <div className="absolute bottom-0 left-20 w-80 h-80 bg-primary-100 rounded-full mix-blend-multiply opacity-30 animate-blob animation-delay-4000"></div>
+      
+      <div className="absolute top-0 left-0 w-72 h-72 bg-primary-200 dark:bg-blue-900 rounded-full mix-blend-multiply opacity-30 animate-blob"></div>
 
-   
+      <div className="absolute top-1/4 right-0 w-64 h-64 bg-gray-200 dark:bg-slate-700 rounded-full mix-blend-multiply opacity-30 animate-blob animation-delay-2000"></div>
+
+      <div className="absolute bottom-0 left-20 w-80 h-80 bg-primary-100 dark:bg-blue-800 rounded-full mix-blend-multiply opacity-30 animate-blob animation-delay-4000"></div>
+
+      {/* LEFT SIDE */}
       <motion.div
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -21,7 +28,7 @@ function AuthLayout({ children }: { children: ReactNode }) {
           Explore The World With Us
         </h2>
 
-        <p className="text-gray-600 text-center mt-2 max-w-sm">
+        <p className="text-gray-600 dark:text-slate-400 text-center mt-2 max-w-sm">
           Discover new destinations, share your adventures, and connect with travelers around the world.
         </p>
 
@@ -32,7 +39,7 @@ function AuthLayout({ children }: { children: ReactNode }) {
         />
       </motion.div>
 
-      
+      {/* RIGHT SIDE (FORM) */}
       <motion.div
         initial={{ x: 100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -41,7 +48,16 @@ function AuthLayout({ children }: { children: ReactNode }) {
       >
         <motion.div
           layout
-          className="w-full max-w-xl backdrop-blur-md bg-opacity-70  p-10"
+          className="
+            w-full max-w-xl
+            backdrop-blur-md
+            bg-white/70 dark:bg-slate-800/70
+            border border-gray-200 dark:border-slate-700
+            rounded-2xl
+            shadow-xl dark:shadow-black/40
+            p-10
+            transition-colors duration-500
+          "
         >
           {children}
         </motion.div>

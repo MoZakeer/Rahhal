@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 interface LoginFormProps {
   onLoginSuccess: () => void;
 }
+
 function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const { isPending, login } = useLogin();
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ function LoginForm({ onLoginSuccess }: LoginFormProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-slate-100 text-center mb-6">
           Login to your profile
         </h1>
 
@@ -71,7 +72,7 @@ function LoginForm({ onLoginSuccess }: LoginFormProps) {
 
           <Link
             to="/forget-password"
-            className="self-end text-sm font-medium text-primary-700 hover:underline"
+            className="self-end text-sm font-medium text-primary-700 dark:text-blue-400 hover:underline"
           >
             Forgot password?
           </Link>
@@ -80,9 +81,9 @@ function LoginForm({ onLoginSuccess }: LoginFormProps) {
             Login
           </Button>
 
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-sm text-gray-600 dark:text-slate-400">
             Don’t have an account?{" "}
-            <Link to="/sign-up" className="text-primary-700 font-medium">
+            <Link to="/sign-up" className="text-primary-700 dark:text-blue-400 font-medium">
               Sign up
             </Link>
           </p>
