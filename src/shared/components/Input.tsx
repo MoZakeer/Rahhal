@@ -24,7 +24,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       id,
       ...props
     },
-    ref,
+    ref
   ) => {
     const hasIcon = Boolean(icon);
 
@@ -33,7 +33,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={id}
-            className="block text-sm font-medium text-gray-600"
+            className="block text-sm font-medium text-gray-600 dark:text-slate-300"
           >
             {label}
           </label>
@@ -43,8 +43,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           {hasIcon && (
             <span
               className={clsx(
-                "pointer-events-none absolute top-1/2 -translate-y-1/2 text-gray-400",
-                iconPosition === "left" ? "left-3" : "right-3",
+                "pointer-events-none absolute top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500",
+                iconPosition === "left" ? "left-3" : "right-3"
               )}
             >
               {icon}
@@ -58,7 +58,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
             className={clsx(
               "w-full rounded-md border py-2.5 text-sm transition",
-              "focus:outline-none focus:ring-2 bg-gray-0",
+              "focus:outline-none focus:ring-2",
+              "bg-white dark:bg-slate-800",
+              "text-gray-900 dark:text-slate-100",
               hasIcon
                 ? iconPosition === "left"
                   ? "pl-10 pr-3"
@@ -66,8 +68,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 : "px-3",
               error
                 ? "border-red-500 focus:ring-red-500"
-                : "border-gray-200 focus:ring-primary-600",
-              className,
+                : "border-gray-200 dark:border-slate-700 focus:ring-primary-600",
+              className
             )}
           />
           {rightElement}
@@ -76,7 +78,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {error && <p className="text-xs text-red-600">{error}</p>}
       </div>
     );
-  },
+  }
 );
 
 Input.displayName = "Input";

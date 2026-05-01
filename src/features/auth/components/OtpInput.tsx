@@ -69,8 +69,12 @@ function OtpInput({ length = 6, onComplete }: OtpInputProps) {
           onKeyDown={(e) => handleKeyDown(e, index)}
           onPaste={handlePaste}
           className="
-            h-12 w-12 rounded-md border border-gray-300
+            h-12 w-12 rounded-md border
+            border-gray-300 dark:border-slate-600
+            bg-white dark:bg-slate-800
+            text-gray-900 dark:text-slate-100
             text-center text-lg font-semibold
+            transition
             focus:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-600
           "
         />

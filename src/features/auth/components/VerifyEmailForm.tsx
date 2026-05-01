@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import Button from "../../../shared/components/button"
+import Button from "../../../shared/components/button";
 import OtpInput from "./OtpInput";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { verifySchema, type TVerifyType } from "../validation/verifySchema";
@@ -11,6 +11,7 @@ function VerifyEmailForm() {
   const { isPending, verifyEmail } = useVerifyEmail();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
   const {
     handleSubmit,
     setValue,
@@ -38,55 +39,68 @@ function VerifyEmailForm() {
   }
 
   const isWaiting = isSubmitting || isPending;
- return (
-  <div className="min-h-screen grid place-items-center bg-gray-50 px-4">
-    <div className="w-full max-w-md">
-      <div className="box px-4 py-8 sm:px-8 sm:py-10 gap-10">
+
+  return (
+    <div className="min-h-screen grid place-items-center bg-gray-50 dark:bg-slate-900 px-4 transition-colors duration-500">
+      <div className="w-full max-w-md">
         
-        <div className="flex flex-col gap-3">
-          <h1 className="text-center text-2xl font-semibold text-gray-800">
-            Verify your email
-          </h1>
-          <p className="text-center text-sm text-gray-600">
-            Enter the 6-digit code we sent to your email.
-          </p>
+        {/* CARD */}
+        <div className="
+          box px-4 py-8 sm:px-8 sm:py-10 gap-10
+          bg-white dark:bg-slate-800
+          border border-gray-200 dark:border-slate-700
+          shadow-lg dark:shadow-black/40
+          rounded-xl
+          transition-colors duration-500
+        ">
+          
+          {/* HEADER */}
+          <div className="flex flex-col gap-3">
+            <h1 className="text-center text-2xl font-semibold text-gray-800 dark:text-slate-100">
+              Verify your email
+            </h1>
+            <p className="text-center text-sm text-gray-600 dark:text-slate-400">
+              Enter the 6-digit code we sent to your email.
+            </p>
+          </div>
+
+          {/* FORM */}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-5"
+          >
+            <OtpInput
+              length={6}
+              onComplete={(otp) =>
+                setValue("otp", otp, { shouldValidate: true })
+              }
+            />
+
+            {errors.otp && (
+              <p className="text-sm text-red-600 text-center">
+                {errors.otp.message}
+              </p>
+            )}
+
+            <Button disabled={isWaiting} loading={isWaiting}>
+              Verify email
+            </Button>
+
+            <p className="text-center text-sm text-gray-600 dark:text-slate-400">
+              Didn’t receive the code?{" "}
+              <button
+                type="button"
+                className="font-medium text-primary-700 dark:text-blue-400 hover:underline cursor-pointer"
+              >
+                Resend
+              </button>
+            </p>
+          </form>
         </div>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-5"
-        >
-          <OtpInput
-            length={6}
-            onComplete={(otp) =>
-              setValue("otp", otp, { shouldValidate: true })
-            }
-          />
-
-          {errors.otp && (
-            <p className="text-sm text-red-600 text-center">
-              {errors.otp.message}
-            </p>
-          )}
-
-          <Button disabled={isWaiting} loading={isWaiting}>
-            Verify email
-          </Button>
-
-          <p className="text-center text-sm text-gray-600">
-            Didn’t receive the code?{" "}
-            <button
-              type="button"
-              className="font-medium text-primary-700 hover:underline cursor-pointer"
-            >
-              Resend
-            </button>
-          </p>
-        </form>
       </div>
     </div>
-  </div>
-);
+  );
 }
 
 export default VerifyEmailForm;
