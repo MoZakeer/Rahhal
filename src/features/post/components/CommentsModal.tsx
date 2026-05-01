@@ -379,10 +379,10 @@ export function CommentsModal({
         result.push(<span key={`text-${index}`}>{part}</span>);
 
         if (matches[index]) {
-          const inner = matches[index].slice(1); 
+          const inner = matches[index].slice(1);
           const segments = inner.split(HIDDEN).filter(Boolean);
           const displayName = segments[0];
-          const profileId = segments[1] ?? null; 
+          const profileId = segments[1] ?? null;
 
           result.push(
             <span
@@ -687,14 +687,33 @@ export function CommentsModal({
                     onChange={(e) => {
                       const HIDDEN = "\u200B";
                       const newVal = e.target.value;
-                      if (!newVal.includes(HIDDEN)) {
-                        setReplyText(newVal);
+
+                      const mentionMatch = replyText.match(
+                        new RegExp(
+                          `^@[^${HIDDEN}]+${HIDDEN}[^${HIDDEN}]+${HIDDEN}`,
+                        ),
+                      );
+                      const mentionPrefix = mentionMatch
+                        ? mentionMatch[0]
+                        : null;
+                      const displayPrefix = mentionPrefix
+                        ? toDisplayText(mentionPrefix)
+                        : null;
+
+                      if (mentionPrefix && displayPrefix) {
+                        if (!newVal.startsWith(displayPrefix)) {
+                          setReplyText(
+                            newVal.replace(
+                              new RegExp(`^@[^${HIDDEN}]*${HIDDEN}?`),
+                              "",
+                            ),
+                          );
+                        } else {
+                          const suffix = newVal.slice(displayPrefix.length);
+                          setReplyText(mentionPrefix + suffix);
+                        }
                       } else {
-                        setReplyText((prev) => {
-                          const displayPrev = toDisplayText(prev);
-                          const suffix = newVal.slice(displayPrev.length);
-                          return prev + suffix;
-                        });
+                        setReplyText(newVal);
                       }
                     }}
                     onKeyDown={(e) => {
