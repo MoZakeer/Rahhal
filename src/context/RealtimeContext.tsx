@@ -33,7 +33,7 @@ export const RealtimeProvider = ({ children }: { children: ReactNode }) => {
       .build();
 
     const notification = new signalR.HubConnectionBuilder()
-      .withUrl(`${BASE_URL}/Realtime/notificationHub`, {
+      .withUrl(`${BASE_URL}/Realtime/Notification`, {
         accessTokenFactory: () => user.token,
       })
       .withAutomaticReconnect()

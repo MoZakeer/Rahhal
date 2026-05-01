@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useSignalRNotificationConnection } from "./useSignalRNotificationConnection";
 import { useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useUpdateNotification } from "./useUpdateNotification";
 
 export interface NotificationData {
   id: string;
@@ -17,7 +18,6 @@ const API_BASE_URL = "https://rahhal-api.runasp.net";
 export const useNotifications = (hasToken: boolean) => {
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
 
-  
   const [unreadCount, setUnreadCount] = useState(0);
 
   const [pageIndex, setPageIndex] = useState(1);
@@ -47,7 +47,7 @@ export const useNotifications = (hasToken: boolean) => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         if (!res.ok) return;
@@ -62,9 +62,7 @@ export const useNotifications = (hasToken: boolean) => {
         setNotifications((prev) => {
           const merged = append ? [...prev, ...items] : items;
 
-          return Array.from(
-            new Map(merged.map((n) => [n.id, n])).values()
-          );
+          return Array.from(new Map(merged.map((n) => [n.id, n])).values());
         });
       } catch (err) {
         console.error(err);
@@ -73,7 +71,7 @@ export const useNotifications = (hasToken: boolean) => {
         setLoadingMore(false);
       }
     },
-    [hasToken, token]
+    [hasToken, token],
   );
 
   // FETCH UNREAD COUNT
@@ -81,14 +79,11 @@ export const useNotifications = (hasToken: boolean) => {
     if (!hasToken || !token) return;
 
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/Notification/UnreadCount`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/Notification/UnreadCount`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!res.ok) return;
 
@@ -138,9 +133,7 @@ export const useNotifications = (hasToken: boolean) => {
       setNotifications((prev) => {
         const merged = [newItem, ...prev];
 
-        return Array.from(
-          new Map(merged.map((n) => [n.id, n])).values()
-        );
+        return Array.from(new Map(merged.map((n) => [n.id, n])).values());
       });
 
       if (!isOnNotificationsPage) {
@@ -149,18 +142,18 @@ export const useNotifications = (hasToken: boolean) => {
 
       // TOAST
       if (!isOnNotificationsPage) {
-  toast.custom(
-    (t) => (
-      <div
-        onClick={() => {
-          window.location.href = "/notifications";
-          toast.dismiss(t.id);
-        }}
-        className={`transform transition-all duration-500 ${
-          t.visible
-            ? "translate-x-0 opacity-100"
-            : "translate-x-20 opacity-0"
-        }
+        toast.custom(
+          (t) => (
+            <div
+              onClick={() => {
+                window.location.href = "/notifications";
+                toast.dismiss(t.id);
+              }}
+              className={`transform transition-all duration-500 ${
+                t.visible
+                  ? "translate-x-0 opacity-100"
+                  : "translate-x-20 opacity-0"
+              }
         bg-white dark:bg-slate-800
         shadow-xl
         rounded-2xl p-4
@@ -168,28 +161,28 @@ export const useNotifications = (hasToken: boolean) => {
         cursor-pointer
         w-[90vw] sm:w-[360px]
         hover:scale-[1.02]`}
-      >
-        <div className="flex items-start gap-3">
-          <div className="text-blue-500 text-xl">🔔</div>
+            >
+              <div className="flex items-start gap-3">
+                <div className="text-blue-500 text-xl">🔔</div>
 
-          <div className="flex-1">
-            <p className="font-semibold text-gray-800 dark:text-slate-100">
-              New Notification
-            </p>
-            <p className="text-gray-500 dark:text-slate-400 text-sm line-clamp-2">
-              {notification.message}
-            </p>
-          </div>
-        </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-800 dark:text-slate-100">
+                    New Notification
+                  </p>
+                  <p className="text-gray-500 dark:text-slate-400 text-sm line-clamp-2">
+                    {notification.message}
+                  </p>
+                </div>
+              </div>
 
-        <div className="text-[10px] text-gray-400 dark:text-slate-500 mt-2">
-          Click to view
-        </div>
-      </div>
-    ),
-    { id: notification.id, duration: 4000 }
-  );
-}
+              <div className="text-[10px] text-gray-400 dark:text-slate-500 mt-2">
+                Click to view
+              </div>
+            </div>
+          ),
+          { id: notification.id, duration: 4000 },
+        );
+      }
     };
 
     connection.on("ReceiveNotification", handler);
@@ -198,7 +191,8 @@ export const useNotifications = (hasToken: boolean) => {
       connection.off("ReceiveNotification", handler);
     };
   }, [connection, isOnNotificationsPage]);
-
+  // Realtime notification
+  useUpdateNotification(setNotifications);
   // LOAD MORE
   const loadMore = async () => {
     if (pageIndex >= pages || loadingMore) return;
@@ -222,9 +216,7 @@ export const useNotifications = (hasToken: boolean) => {
       body: JSON.stringify({}),
     });
 
-    setNotifications((prev) =>
-      prev.map((n) => ({ ...n, isRead: true }))
-    );
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
 
     setUnreadCount(0);
   };
@@ -248,8 +240,8 @@ export const useNotifications = (hasToken: boolean) => {
           ? n.id === id
             ? { ...n, isRead: true }
             : n
-          : { ...n, isRead: true }
-      )
+          : { ...n, isRead: true },
+      ),
     );
 
     fetchUnreadCount();
@@ -269,15 +261,13 @@ export const useNotifications = (hasToken: boolean) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ notificationId: id }),
-        }
+        },
       );
 
       if (!res.ok) return;
 
       setNotifications((prev) =>
-        prev.map((n) =>
-          n.id === id ? { ...n, isDelivered: true } : n
-        )
+        prev.map((n) => (n.id === id ? { ...n, isDelivered: true } : n)),
       );
     } catch (err) {
       console.error(err);
@@ -285,57 +275,52 @@ export const useNotifications = (hasToken: boolean) => {
   };
 
   // MARK ALL AS DELIVERED
-const markAllAsDelivered = async () => {
-  if (!token) return;
+  const markAllAsDelivered = async () => {
+    if (!token) return;
 
-  try {
-    const res = await fetch(
-      `${API_BASE_URL}/NotificationManagment/MakeAllAsDeliver`,
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/NotificationManagment/MakeAllAsDeliver`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
         },
-        body: JSON.stringify({}),
-      }
-    );
+      );
 
-    if (!res.ok) return;
+      if (!res.ok) return;
 
-    // 👈 update UI
-    setNotifications((prev) =>
-      prev.map((n) => ({
-        ...n,
-        isDelivered: true,
-      }))
-    );
-  } catch (err) {
-    console.error(err);
-  }
-};
+      // 👈 update UI
+      setNotifications((prev) =>
+        prev.map((n) => ({
+          ...n,
+          isDelivered: true,
+        })),
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
   // DELETE
   const deleteNotification = async (id: string) => {
     if (!token) return;
 
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/NotificationManagment/Delete`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ notificationId: id }),
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/NotificationManagment/Delete`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ notificationId: id }),
+      });
 
       if (!res.ok) return;
 
-      setNotifications((prev) =>
-        prev.filter((n) => n.id !== id)
-      );
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
 
       fetchUnreadCount();
     } catch (err) {
