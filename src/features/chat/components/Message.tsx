@@ -71,7 +71,7 @@ function Message({
       >
         {!isSend && name && isGroup && (
           <div className="flex items-center w-full">
-            <span className="text-xs font-medium text-primary-100">{name}</span>
+            <span className="text-xs font-medium text-primary-600">{name}</span>
 
             <HiOutlineChevronDown
               className="
