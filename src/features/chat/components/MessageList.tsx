@@ -25,6 +25,32 @@ function MessageList({
   const lastMessageIdRef = useRef<string | undefined>(undefined);
 
   const observerTarget = useRef<HTMLDivElement>(null);
+  const getMessageDateLabel = function (dateString: string) {
+    const date = new Date(dateString);
+    const now = new Date();
+
+    const isToday =
+      date.getDate() === now.getDate() &&
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear();
+
+    const yesterday = new Date();
+    yesterday.setDate(now.getDate() - 1);
+
+    const isYesterday =
+      date.getDate() === yesterday.getDate() &&
+      date.getMonth() === yesterday.getMonth() &&
+      date.getFullYear() === yesterday.getFullYear();
+
+    if (isToday) return "Today";
+    if (isYesterday) return "Yesterday";
+
+    return date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -56,7 +82,10 @@ function MessageList({
       lastMessageIdRef.current = currentLastMessage.messageId;
     }
   }, [messages]);
-
+  const sortedMessages = [...messages].sort(
+    (a, b) =>
+      new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime(),
+  );
   return (
     <div className="flex-1 overflow-y-auto no-scrollbar">
       <div ref={observerTarget} className="w-full h-1" />
@@ -69,22 +98,46 @@ function MessageList({
         </div>
       ) : (
         <ul className="flex flex-col gap-5 px-3 py-4 sm:py-6 sm:px-10">
-          {messages.map((message: TMessage, index) => (
-            <Message
-              name={message.senderName}
-              key={`${message.messageId}-${index}`}
-              type={
-                user?.userId === message?.senderProfileId ? "send" : "receive"
-              }
-              time={formatDate(message?.createdDate)}
-              attachments={message.attachments}
-              isGroup={isGroup}
-              isSeen={message.isSeen}
-              message={message}
-            >
-              {message?.content}
-            </Message>
-          ))}
+          {sortedMessages.map((message: TMessage, index) => {
+            const currentDate = getMessageDateLabel(message.createdDate);
+
+            const prevMessage = sortedMessages[index - 1];
+            const prevDate = prevMessage
+              ? getMessageDateLabel(prevMessage.createdDate)
+              : null;
+
+            const showDateHeader = currentDate !== prevDate;
+
+            return (
+              <div key={`${message.messageId}-${index}`}>
+                {showDateHeader && (
+                  <div className="flex justify-center my-3">
+                    <div className="flex justify-center my-4">
+                      <span className=" bg-gray-100 backdrop-blur  text-gray-800 text-xs px-4 py-1.5 rounded-lg shadow-sm">
+                        {currentDate}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <Message
+                  name={message.senderName}
+                  type={
+                    user?.userId === message?.senderProfileId
+                      ? "send"
+                      : "receive"
+                  }
+                  time={formatDate(message?.createdDate)}
+                  attachments={message.attachments}
+                  isGroup={isGroup}
+                  isSeen={message.isSeen}
+                  message={message}
+                >
+                  {message?.content}
+                </Message>
+              </div>
+            );
+          })}
           <div ref={messagesEndRef} />
         </ul>
       )}

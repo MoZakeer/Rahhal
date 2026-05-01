@@ -16,5 +16,6 @@ export interface ChatResponse {
     otherParticipantProfileId: string;
     lastSeen: string;
     messages: PaginatedMessages;
+    membersCount:number
   };
 }

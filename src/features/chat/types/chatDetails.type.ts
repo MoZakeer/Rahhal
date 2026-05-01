@@ -16,6 +16,7 @@ export type ChatDetails = {
   isCurrentUserAdmin: boolean;
   participants: Participant[];
   otherProfileId: string | null;
+  membersCount: number;
 };
 
 export type ChatDetailsResponse = {

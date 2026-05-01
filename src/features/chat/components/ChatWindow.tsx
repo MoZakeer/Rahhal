@@ -47,6 +47,8 @@ function ChatWindow() {
         title={chatInfo?.title || ""}
         isOnline={isOnline}
         lastSeen={lastSeen || ""}
+        isGroup={chatInfo?.isGroup || false}
+        membersCount={chatInfo?.membersCount || 1}
         avatar={conversationImage({
           isGroup: chatInfo?.isGroup || false,
           conversationPictureURL: chatInfo?.conversationPictureURL,

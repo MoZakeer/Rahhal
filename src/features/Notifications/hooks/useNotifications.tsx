@@ -16,6 +16,8 @@ const API_BASE_URL = "https://rahhal-api.runasp.net";
 
 export const useNotifications = (hasToken: boolean) => {
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
+
+  
   const [unreadCount, setUnreadCount] = useState(0);
 
   const [pageIndex, setPageIndex] = useState(1);

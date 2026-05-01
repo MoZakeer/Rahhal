@@ -19,30 +19,53 @@ export const RealtimeProvider = ({ children }: { children: ReactNode }) => {
   const [presenceConnection, setPresenceConnection] =
     useState<signalR.HubConnection | null>(null);
 
+  const [notificationConnection, setNotificationConnection] =
+    useState<signalR.HubConnection | null>(null);
+
   useEffect(() => {
     if (!user?.token) return;
 
-    const connection = new signalR.HubConnectionBuilder()
+    const presence = new signalR.HubConnectionBuilder()
       .withUrl(`${BASE_URL}/Realtime/presenceHub`, {
         accessTokenFactory: () => user.token,
       })
       .withAutomaticReconnect()
       .build();
 
-    connection
-      .start()
-      .then(() => {
-        setPresenceConnection(connection);
+    const notification = new signalR.HubConnectionBuilder()
+      .withUrl(`${BASE_URL}/Realtime/notificationHub`, {
+        accessTokenFactory: () => user.token,
       })
-      .catch(console.error);
+      .withAutomaticReconnect()
+      .build();
+
+    const startConnections = async () => {
+      try {
+        await presence.start();
+        await notification.start();
+
+        setPresenceConnection(presence);
+        setNotificationConnection(notification);
+      } catch (error) {
+        console.error("SignalR Error:", error);
+      }
+    };
+
+    startConnections();
 
     return () => {
-      connection.stop();
+      presence.stop();
+      notification.stop();
     };
   }, [user?.token]);
 
   return (
-    <RealtimeContext.Provider value={{ presenceConnection }}>
+    <RealtimeContext.Provider
+      value={{
+        presenceConnection,
+        notificationConnection,
+      }}
+    >
       {children}
     </RealtimeContext.Provider>
   );

@@ -63,7 +63,7 @@ function Message({
           px-3 pt-2 p-1
           shadow-md max-w-[75%] min-w-20 group
           ${
-            isSend
+            !isSend
               ? "bg-gray-0 text-gray-800 rounded-tr-lg rounded-bl-lg"
               : "bg-primary-600 text-primary-50 rounded-tl-lg rounded-br-lg"
           }
@@ -169,7 +169,7 @@ function Message({
             {isSend && (
               <IoCheckmarkDoneOutline
                 size={14}
-                className={`${isSeen ? "text-primary-700" : "text-gray-400"}`}
+                className={`${isSeen ? "text-primary-400" : "text-gray-400"}`}
               />
             )}
           </span>
