@@ -310,13 +310,18 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
               )} */}
               <div className="relative">
                 <Icon className="h-5 w-5" />
-
-                {unreadMessages && unreadMessages > 0 && (
-                  <span className="absolute -top-2.5 -right-2 min-w-4 h-4 flex items-center justify-center rounded-full bg-red-500 text-xs text-white px-1 font-bold">
-                    {unreadMessages && unreadMessages > 9
-                      ? "9+"
-                      : unreadMessages}
-                  </span>
+                {unreadMessages && unreadMessages > 0 ? (
+                  <>
+                    {unreadMessages && unreadMessages > 0 && (
+                      <span className="absolute -top-2.5 -right-2 min-w-4 h-4 flex items-center justify-center rounded-full bg-red-500 text-xs text-white px-1 font-bold">
+                        {unreadMessages && unreadMessages > 9
+                          ? "9+"
+                          : unreadMessages}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  ""
                 )}
               </div>
 
