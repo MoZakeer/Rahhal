@@ -103,6 +103,7 @@ export interface ApiTrip {
   isPublic?: boolean;
   isFavorite?: boolean;
   isAiGenerated?: boolean;
+  userJoinStatus?: number;
 }
 
 export interface ApiPendingRequest {
@@ -205,12 +206,17 @@ export const getPendingRequests = (
 
 export type HandleRequestStatus = "Accepted" | "Rejected";
 
-export const handleJoinRequest = (requestId: string, newStatus: HandleRequestStatus) =>
-  apiRequest<{ requestId: string; newStatus: string }>("/TripManagement/HandleRequest", {
-    method: "POST",
-    body: { requestId, newStatus },
-  });
+export const handleJoinRequest = (requestId: string, newStatus: HandleRequestStatus) => {
+  const statusNumber = newStatus === "Accepted" ? 2 : 3;
 
+  return apiRequest("/TripManagement/HandleRequest", {
+    method: "POST",
+    body: {
+      requestId: requestId,
+      status: statusNumber
+    },
+  });
+};
 // ---------- Adapter: ApiTrip -> UI Trip ----------
 
 const slugifyId = (s: string, i: number) => `${s.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${i}`;
@@ -229,7 +235,7 @@ const flattenItinerary = (api: ApiTrip): TripDay[] => {
       description: s.Description,
       image: s.Image,
       mapsUrl: s.Location,
-      recommendations: (s.List_of_recommendations ?? []).map((r, ri) => 
+      recommendations: (s.List_of_recommendations ?? []).map((r, ri) =>
         recoToAttraction(r, `reco-${idx}-${ri}`, api.destinationName)
       )
     }));

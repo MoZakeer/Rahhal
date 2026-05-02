@@ -128,6 +128,8 @@ const TripDetail = () => {
   const [deleting, setDeleting] = useState(false);
   const [activeTab, setActiveTab] = useState<TripDetailsFilter>("all");
 
+  console.log(apiTrip)
+
   // Join requests (admin)
   const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
   const [requestsLoading, setRequestsLoading] = useState(false);
@@ -663,8 +665,12 @@ const TripDetail = () => {
             <div className="space-y-3 rounded-lg border border-gray-200/50 bg-card p-5 shadow-card">
               <h3 className="font-display font-semibold">Actions</h3>
 
-              {!isAdmin && (
-                <JoinTripDialog tripId={trip.id} tripName={trip.name} />
+              {trip && apiTrip && !isAdmin && (
+                <JoinTripDialog
+                  tripId={trip.id}
+                  tripName={trip.name}
+                  userStatus={apiTrip?.userJoinStatus}
+                />
               )}
 
               {isAdmin && (

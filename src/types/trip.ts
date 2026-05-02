@@ -11,7 +11,7 @@ export interface ItineraryStop {
   description?: string;
   image?: string;
   mapsUrl?: string;
-  recommendations:any
+  recommendations: any
 }
 
 export interface TripDay {
@@ -115,4 +115,5 @@ export interface Trip {
   restaurants?: Restaurant[];
   events?: EventItem[];
   joinRequests?: JoinRequest[];
+  userJoinStatus?: number;
 }

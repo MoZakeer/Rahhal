@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { UserPlus, Send, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { UserPlus, Send, Loader2, CheckCircle2, Clock } from "lucide-react";
 import { requestJoinTrip } from "@/lib/tripApi";
 import { ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -15,14 +15,27 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
+// عرفنا الـ Enum هنا عشان الكود يكون مقروء (اختياري بس بيخلي الشغل نضيف)
+export enum UserTripStatus {
+  Joined = 1,
+  Requested = 2,
+  CanJoin = 3,
+}
+
 interface Props {
   tripId: string;
   tripName: string;
+  userStatus?: UserTripStatus | 1 | 2 | 3; 
 }
 
-const JoinTripDialog = ({ tripId, tripName }: Props) => {
+const JoinTripDialog = ({ tripId, tripName, userStatus = 3 }: Props) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState(userStatus);
+
+  useEffect(() => {
+    setCurrentStatus(userStatus);
+  }, [userStatus]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +44,7 @@ const JoinTripDialog = ({ tripId, tripName }: Props) => {
       await requestJoinTrip(tripId);
       toast.success(`Your request to join "${tripName}" has been sent!`);
       setOpen(false);
+      setCurrentStatus(UserTripStatus.Requested); 
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "Failed to send request";
       toast.error(msg);
@@ -38,6 +52,24 @@ const JoinTripDialog = ({ tripId, tripName }: Props) => {
       setLoading(false);
     }
   };
+
+  if (currentStatus === UserTripStatus.Joined) {
+    return (
+      <Button variant="secondary" className="w-full gap-2 cursor-default opacity-100" disabled>
+        <CheckCircle2 className="h-4 w-4 text-primary" />
+        Already Joined
+      </Button>
+    );
+  }
+
+  if (currentStatus === UserTripStatus.Requested) {
+    return (
+      <Button variant="outline" className="w-full gap-2 cursor-default opacity-100" disabled>
+        <Clock className="h-4 w-4 text-muted-foreground" />
+        Request Pending
+      </Button>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
