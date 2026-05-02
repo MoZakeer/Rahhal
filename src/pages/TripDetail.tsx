@@ -295,7 +295,7 @@ const TripDetail = () => {
       <div className="container mt-6 px-6">
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Main content */}
-          <div className="space-y-6 lg:col-span-2">
+          <div className="space-y-6 lg:col-span-2 min-w-0">
             <div>
               <h2 className="font-display text-xl font-semibold">
                 About This Trip
@@ -348,7 +348,8 @@ const TripDetail = () => {
                                   />
                                 </div>
                               )}
-                              <div className="p-4 flex-1">
+                              
+                              <div className="p-4 flex-1 min-w-0">
                                 <div className="flex items-start justify-between">
                                   <div>
                                     <h4 className="font-bold text-lg">
