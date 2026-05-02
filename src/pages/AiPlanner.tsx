@@ -419,13 +419,13 @@ const AiPlanner = () => {
       <div className="max-w-4xl w-full space-y-10">
         {/* HEADER SECTION */}
         <header className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide">
+          <div className="inline-flex items-center gap-2 bg-blue-900/10 text-blue-900 px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide">
             <Sparkles className="w-4 h-4" />
             AI POWERED TRAVEL
           </div>
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
             Plan your next{" "}
-            <span className="text-primary italic">Adventure</span>
+            <span className="text-blue-900 italic">Adventure</span>
           </h1>
           <p className="text-slate-500 max-w-lg mx-auto">
             Fill in your preferences below and let our AI curate the perfect
@@ -439,7 +439,7 @@ const AiPlanner = () => {
             <Card className="border-none shadow-xl  rounded-3xl overflow-hidden dark:bg-slate-800">
               <CardContent className="p-8 space-y-8">
                 <div className="flex items-center gap-3 pb-4 border-b">
-                  <div className="p-2 bg-primary rounded-lg text-white">
+                  <div className="p-2 bg-blue-900 rounded-lg text-white">
                     <Info className="w-5 h-5" />
                   </div>
                   <h2 className="text-xl font-bold dark:text-slate-100">
@@ -454,7 +454,7 @@ const AiPlanner = () => {
                     </Label>
                     <Input
                       placeholder="e.g., Weekend Getaway"
-                      className="rounded-xl border-slate-200 h-12 dark:bg-slate-700 dark:border-slate-700 dark:text-white dark:focus:ring-accent-foreground focus:ring-primary"
+                      className="rounded-xl border-slate-200 h-12 dark:bg-slate-700 dark:border-slate-700 dark:text-white dark:focus:ring-accent-foreground focus:ring-blue-900"
                       onChange={(e) =>
                         setForm({ ...form, name: e.target.value })
                       }
@@ -465,7 +465,7 @@ const AiPlanner = () => {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Label className="flex items-center gap-2 text-sm font-semibold text-slate-600  dark:text-slate-200">
-                      <MapPin className="w-4 h-4 text-primary" /> Destination
+                      <MapPin className="w-4 h-4 text-blue-900" /> Destination
                       City
                     </Label>
 
@@ -494,7 +494,7 @@ const AiPlanner = () => {
                           .map((c) => (
                             <div
                               key={c.id}
-                              className="px-4 py-3 hover:bg-primary/5  rounded-xl cursor-pointer text-sm font-medium transition-colors flex items-center justify-between group"
+                              className="px-4 py-3 hover:bg-blue-900/5  rounded-xl cursor-pointer text-sm font-medium transition-colors flex items-center justify-between group"
                               onClick={() => {
                                 setForm({
                                   ...form,
@@ -506,7 +506,7 @@ const AiPlanner = () => {
                               }}
                             >
                               <span>{c.name}</span>
-                              <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 text-primary transition-all" />
+                              <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 text-blue-900 transition-all" />
                             </div>
                           ))}
 
@@ -540,7 +540,7 @@ const AiPlanner = () => {
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Label className="flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-200">
-                    <MapPin className="w-4 h-4 text-primary" /> Departure
+                    <MapPin className="w-4 h-4 text-blue-900" /> Departure
                     Country
                   </Label>
 
@@ -569,7 +569,7 @@ const AiPlanner = () => {
                         .map((c) => (
                           <div
                             key={c.id}
-                            className="px-4 py-3 hover:bg-primary/5 rounded-xl cursor-pointer text-sm font-medium transition-colors flex items-center justify-between group"
+                            className="px-4 py-3 hover:bg-blue-900/5 rounded-xl cursor-pointer text-sm font-medium transition-colors flex items-center justify-between group"
                             onClick={() => {
                               setForm({
                                 ...form,
@@ -580,7 +580,7 @@ const AiPlanner = () => {
                             }}
                           >
                             <span>{c.name}</span>
-                            <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 text-primary transition-all" />
+                            <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 text-blue-900 transition-all" />
                           </div>
                         ))}
 
@@ -702,7 +702,7 @@ const AiPlanner = () => {
             <Card className="border-none dark:bg-slate-800 rounded-3xl ">
               <CardContent className="p-8 space-y-8">
                 <div className="flex items-center gap-3 pb-4 border-b">
-                  <div className="p-2 bg-primary rounded-lg text-white">
+                  <div className="p-2 bg-blue-900 rounded-lg text-white">
                     <Compass className="w-5 h-5" />
                   </div>
                   <h2 className="text-xl font-bold dark:text-slate-100">
@@ -793,7 +793,7 @@ const AiPlanner = () => {
                         key={i}
                         className={`px-4 py-2 cursor-pointer rounded-full transition-all text-xs font-medium border-none shadow-sm ${
                           form.user_interests.includes(i)
-                            ? "bg-primary text-white scale-105"
+                            ? "bg-blue-900 text-white scale-105"
                             : "bg-white dark:bg-slate-500 dark:text-white text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-400"
                         }`}
                         onClick={() => toggleInterest(i)}
@@ -816,7 +816,7 @@ const AiPlanner = () => {
                         key={p.id}
                         className={`px-4 py-2 cursor-pointer rounded-full transition-all text-xs font-medium border-none shadow-sm ${
                           form.travelPreferencesId.includes(p.id)
-                            ? "bg-primary text-white scale-105"
+                            ? "bg-blue-900 text-white scale-105"
                             : "bg-white dark:bg-slate-500 dark:text-white text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-400"
                         }`}
                         onClick={() =>
@@ -850,7 +850,7 @@ const AiPlanner = () => {
                             key={g}
                             className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
                               form.gender === i
-                                ? "bg-white dark:bg-slate-300 text-primary shadow-sm"
+                                ? "bg-white dark:bg-slate-300 text-blue-900 shadow-sm"
                                 : "text-slate-400 hover:text-slate-600"
                             }`}
                             onClick={() => setForm({ ...form, gender: i })}
@@ -871,7 +871,7 @@ const AiPlanner = () => {
                           key={a}
                           className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
                             form.ageGroup === a
-                              ? "bg-white dark:bg-slate-300 text-primary shadow-sm"
+                              ? "bg-white dark:bg-slate-300 text-blue-900 shadow-sm"
                               : "text-slate-400 hover:text-slate-600"
                           }`}
                           onClick={() => setForm({ ...form, ageGroup: a })}
@@ -894,7 +894,7 @@ const AiPlanner = () => {
             <Button
               onClick={handleGenerate}
               size="lg"
-              className="w-full h-16 rounded-3xl text-xl font-bold shadow-2xl shadow-primary/20 transition-transform active:scale-95 group"
+              className="w-full h-16 rounded-3xl text-xl font-bold shadow-2xl shadow-blue-900/20 transition-transform active:scale-95 group"
             >
               Build My Journey{" "}
               <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
@@ -906,8 +906,8 @@ const AiPlanner = () => {
         {step === "loading" && (
           <div className="flex flex-col items-center justify-center py-40 space-y-8 animate-in fade-in duration-700">
             <div className="relative">
-              <div className="w-24 h-24 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-              <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary w-8 h-8" />
+              <div className="w-24 h-24 border-4 border-blue-900/20 border-t-blue-900 rounded-full animate-spin" />
+              <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-900 w-8 h-8" />
             </div>
             <div className="text-center space-y-2">
               <h2 className="text-2xl font-bold text-slate-800">
@@ -925,7 +925,7 @@ const AiPlanner = () => {
             {/* COMPACT HEADER */}
             <div className="flex items-center justify-between pb-4 border-b dark:border-slate-700">
               <div>
-                <h2 className="text-2xl font-black text-primary tracking-tight ">
+                <h2 className="text-2xl font-black text-blue-900 tracking-tight ">
                   {form.name || "Your Trip"}
                 </h2>
               </div>
@@ -945,8 +945,8 @@ const AiPlanner = () => {
                   key={i}
                   className="relative pl-8 border-l-2 border-slate-100 dark:border-slate-700"
                 >
-                  <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-primary dark:bg-primary dark:border-2 dark:border-white shadow-sm" />
-                  <h3 className="text-sm font-black text-primary uppercase tracking-widest mb-6">
+                  <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-blue-900 dark:bg-blue-900 dark:border-2 dark:border-white shadow-sm" />
+                  <h3 className="text-sm font-black text-blue-900 uppercase tracking-widest mb-6">
                     Day {i + 1}
                   </h3>
 
@@ -1046,7 +1046,7 @@ const AiPlanner = () => {
                                               target="_blank"
                                               rel="noreferrer"
                                             >
-                                              <MapPin className="w-3 h-3 text-primary" />
+                                              <MapPin className="w-3 h-3 text-blue-900" />
                                             </a>
                                           </Button>
                                         </div>
@@ -1057,7 +1057,7 @@ const AiPlanner = () => {
 
                               <Button
                                 variant="link"
-                                className="p-0 h-auto text-primary text-[11px] font-black uppercase"
+                                className="p-0 h-auto text-blue-900 text-[11px] font-black uppercase"
                                 asChild
                               >
                                 <a

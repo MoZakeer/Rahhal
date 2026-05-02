@@ -1,4 +1,4 @@
-import { Plus, Share2 } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 import HiddenGemsHighlight from "./HiddenGemsHighlight";
 import { useNavigate } from "react-router-dom";
 
@@ -21,10 +21,10 @@ export function RightSidebar() {
 
           {/* Secondary Button (Glassmorphism) */}
           <button
-            onClick={() => navigate("/my-trips")}
+            onClick={() => navigate("/ai-planner")}
             className="flex items-center justify-center gap-2 bg-white/20 dark:bg-white/10 backdrop-blur-md text-white py-3 rounded-2xl font-bold text-sm hover:bg-white/30 dark:hover:bg-white/20 transition-all"
           >
-            <Share2 className="h-4 w-4" /> Share My Plan
+            Generate with Ai <Sparkles className="h-4 w-4" />
           </button>
         </div>
       </div>

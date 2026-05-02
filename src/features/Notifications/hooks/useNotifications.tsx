@@ -11,6 +11,9 @@ export interface NotificationData {
   isRead: boolean;
   isDelivered: boolean;
   createdAt: string;
+  notificationType: string;
+  typeId: string | null;
+  senderProfilePicture: string | null
 }
 
 const API_BASE_URL = "https://rahhal-api.runasp.net";
@@ -54,7 +57,17 @@ export const useNotifications = (hasToken: boolean) => {
 
         const result = await res.json();
 
-        const items: NotificationData[] = result?.data?.items ?? [];
+        const items: NotificationData[] = (result?.data?.items ?? []).map((n: any) => ({
+          id: n.id,
+          title: n.title,
+          message: n.message,
+          isRead: n.isRead,
+          isDelivered: n.isDelivered,
+          createdAt: n.createdAt,
+          notificationType: n.notificationType,
+          typeId: n.typeId,
+          senderProfilePicture: n.senderProfilePicture,
+        }));
         const totalPages = result?.data?.pages ?? 1;
 
         setPages(totalPages);
@@ -128,6 +141,9 @@ export const useNotifications = (hasToken: boolean) => {
         isRead: false,
         isDelivered: notification.isDelivered ?? false,
         createdAt: new Date().toISOString(),
+        notificationType: notification.notificationType,
+        typeId: notification.typeId,
+        senderProfilePicture: notification.senderProfilePicture,
       };
 
       setNotifications((prev) => {
@@ -164,7 +180,19 @@ export const useNotifications = (hasToken: boolean) => {
             >
               <div className="flex items-start gap-3">
                 <div className="text-blue-500 text-xl">🔔</div>
+            >
+              <div className="flex items-start gap-3">
+                <div className="text-blue-500 text-xl">🔔</div>
 
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-800 dark:text-slate-100">
+                    New Notification
+                  </p>
+                  <p className="text-gray-500 dark:text-slate-400 text-sm line-clamp-2">
+                    {notification.message}
+                  </p>
+                </div>
+              </div>
                 <div className="flex-1">
                   <p className="font-semibold text-gray-800 dark:text-slate-100">
                     New Notification
@@ -277,6 +305,8 @@ export const useNotifications = (hasToken: boolean) => {
   // MARK ALL AS DELIVERED
   const markAllAsDelivered = async () => {
     if (!token) return;
+  const markAllAsDelivered = async () => {
+    if (!token) return;
 
     try {
       const res = await fetch(
@@ -291,6 +321,7 @@ export const useNotifications = (hasToken: boolean) => {
         },
       );
 
+      if (!res.ok) return;
       if (!res.ok) return;
 
       // 👈 update UI

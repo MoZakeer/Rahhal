@@ -137,7 +137,7 @@ const MyTrips = () => {
       {/* --- MINIMIZED HERO SECTION --- */}
       <div className="relative overflow-hidden bg-[#0f172a] py-12 text-white">
         <div className="absolute inset-0 z-0">
-          <div className="absolute -left-[5%] -top-[10%] h-[120%] w-[40%] rounded-full bg-primary/15 blur-[100px]" />
+          <div className="absolute -left-[5%] -top-[10%] h-[120%] w-[40%] rounded-full bg-blue-900/15 blur-[100px]" />
           <div className="absolute -right-[5%] bottom-0 h-[80%] w-[30%] rounded-full bg-blue-600/10 blur-[80px]" />
         </div>
 
@@ -145,14 +145,14 @@ const MyTrips = () => {
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="space-y-3 text-center md:text-left">
               <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1 backdrop-blur-md border border-white/10">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                <Sparkles className="h-3.5 w-3.5 text-blue-900" />
                 <span className="text-[9px] font-black uppercase tracking-widest text-blue-200">
                   My Passport
                 </span>
               </div>
               <h1 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">
                 My{" "}
-                <span className="bg-gradient-to-r from-blue-400 to-primary bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-400 to-blue-900 bg-clip-text text-transparent">
                   Adventures
                 </span>
               </h1>
@@ -199,7 +199,7 @@ const MyTrips = () => {
                   onClick={() => setActiveFilter(t.value)}
                   className={`px-6 py-2 text-xs font-bold transition-all rounded-lg ${
                     activeFilter === t.value
-                      ? "bg-white dark:bg-slate-300 text-primary shadow-sm ring-1 ring-black/5"
+                      ? "bg-white dark:bg-slate-300 text-blue-900 shadow-sm ring-1 ring-black/5"
                       : "text-slate-500 hover:text-slate-900"
                   }`}
                 >
@@ -215,7 +215,7 @@ const MyTrips = () => {
                 placeholder="Search destinations..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="h-11 w-full border-none bg-slate-100 dark:bg-slate-800 pl-11 dark:text-white rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-primary/10"
+                className="h-11 w-full border-none bg-slate-100 dark:bg-slate-800 pl-11 dark:text-white rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-blue-900/10"
               />
             </div>
           </div>
@@ -233,7 +233,7 @@ const MyTrips = () => {
                 }
                 className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all border ${
                   activeStatus === s.value
-                    ? "bg-primary border-primary text-white shadow-sm"
+                    ? "bg-blue-900 border-blue-900 text-white shadow-sm"
                     : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-500 hover:border-slate-300"
                 }`}
               >

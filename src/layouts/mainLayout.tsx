@@ -1,7 +1,7 @@
 import { useLocation, Outlet, useNavigate } from "react-router-dom";
 import Navbar from "../shared/components/navbar";
 import Footer from "../shared/components/footer";
-import AppHeader from "@/components/AppHeader";
+// import AppHeader from "@/components/AppHeader";
 interface MainLayoutProps {
   onLogout: () => void;
 }
@@ -41,9 +41,11 @@ const MainLayout = ({ onLogout }: MainLayoutProps) => {
 
   return (
     <>
-      {showAppHeader ? <AppHeader /> : <Navbar onLogoutClick={handleLogout} />}
+      <Navbar onLogoutClick={handleLogout} />
 
-      <main className="min-h-screen bg-gray-100">
+      <main
+        className={`min-h-screen bg-gray-100 ${showAppHeader ? "mt-15" : ""}`}
+      >
         <Outlet />
       </main>
 
