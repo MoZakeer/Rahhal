@@ -66,7 +66,7 @@ function ChatList() {
                 ${
                   activeTab === tab.key
                     ? "bg-primary-600 text-gray-0 shadow-sm"
-                    : "bg-white border border-gray-300 text-gray-700 hover:border-gray-400"
+                    : "bg-gray-0 border border-gray-300 text-gray-700 hover:border-gray-400"
                 }`}
             >
               {tab.label}

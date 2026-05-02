@@ -10,17 +10,21 @@ export function useChatOnline(
 
   useEffect(() => {
     if (!presenceConnection || !id) return;
-
     presenceConnection.invoke("SubscribeToStatuses", [id]);
 
     const handler = (data: any) => {
-      setIsOnline(data?.isOnline);
+      if (!data || !data.profileId) return;
+
+      if (String(data.profileId) !== String(id)) return;
+
+      setIsOnline(Boolean(data.isOnline));
     };
 
     presenceConnection.on("UserStatusChanged", handler);
 
     return () => {
       presenceConnection.off("UserStatusChanged", handler);
+      // presenceConnection.invoke("UnsubscribeFromStatuses", [id]);
     };
   }, [presenceConnection, id, setIsOnline]);
 }
