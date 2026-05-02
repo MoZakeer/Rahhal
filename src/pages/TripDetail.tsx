@@ -128,8 +128,6 @@ const TripDetail = () => {
   const [deleting, setDeleting] = useState(false);
   const [activeTab, setActiveTab] = useState<TripDetailsFilter>("all");
 
-  console.log(apiTrip)
-
   // Join requests (admin)
   const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
   const [requestsLoading, setRequestsLoading] = useState(false);
