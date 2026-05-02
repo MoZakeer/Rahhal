@@ -28,6 +28,7 @@ import { getUserRole } from "../../utils/auth";
 import AnimatedSearch from "../components/AnimatedSearch";
 // import SearchComponent from "../../features/search/components/SearchComponent";
 import { Map, Sparkles, GitCompareArrows } from "lucide-react";
+import { useNavbar } from "../hooks/useNavbar";
 const travelDropdownItems = [
   { label: "Create Trip", path: "/create-trip", icon: Map },
   { label: "AI Planner", path: "/ai-planner", icon: Sparkles },
@@ -73,6 +74,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
   const token = localStorage.getItem("token");
   const [profile, setProfile] = useState<Profile>();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [unreadMessages, setUnreadMessages] = useState<number>();
   const [hasToken] = useState(() => !!localStorage.getItem("token"));
   const navigate = useNavigate();
 
@@ -134,7 +136,32 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+  useEffect(() => {
+    // 1️⃣ initial fetch
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/Chat/GetTotalUnreadCount`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
 
+        if (!res.ok) throw new Error("Failed to fetch unread count");
+
+        const result = await res.json();
+
+        if (result.isSuccess) {
+          setUnreadMessages(result.data.totalUnreadCount);
+        }
+      } catch (err) {
+        console.error("Unread count error:", err);
+      }
+    };
+
+    fetchUnreadCount();
+  }, [token]);
+  useNavbar(setUnreadMessages);
   // const handleLogout = () => {
   //   localStorage.removeItem("token");
   //   localStorage.removeItem("auth");
@@ -270,7 +297,29 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                   : "text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
               }`}
             >
-              <Icon className="h-5 w-5" />
+              {/* <Icon className="h-5 w-5" />
+              {label === "Messages" ? (
+                <span>
+                  {label}{" "}
+                  {unreadMessages && unreadMessages > 0
+                    ? `(${unreadMessages})`
+                    : ""}
+                </span>
+              ) : (
+                <span>{label}</span>
+              )} */}
+              <div className="relative">
+                <Icon className="h-5 w-5" />
+
+                {unreadMessages && unreadMessages > 0 && (
+                  <span className="absolute -top-2.5 -right-2 min-w-4 h-4 flex items-center justify-center rounded-full bg-red-500 text-xs text-white px-1 font-bold">
+                    {unreadMessages && unreadMessages > 9
+                      ? "9+"
+                      : unreadMessages}
+                  </span>
+                )}
+              </div>
+
               <span>{label}</span>
             </Link>
           ))}

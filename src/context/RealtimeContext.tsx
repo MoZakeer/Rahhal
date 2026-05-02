@@ -1,5 +1,4 @@
 /* eslint-disable react-refresh/only-export-components */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   createContext,
   useContext,
@@ -11,7 +10,13 @@ import * as signalR from "@microsoft/signalr";
 import { BASE_URL } from "../utils/constant";
 import { useUser } from "./UserContext";
 
-const RealtimeContext = createContext<any>(null);
+type RealtimeContextType = {
+  presenceConnection: signalR.HubConnection | null;
+  notificationConnection: signalR.HubConnection | null;
+  chatConnection: signalR.HubConnection | null;
+};
+
+const RealtimeContext = createContext<RealtimeContextType | null>(null);
 
 export const RealtimeProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useUser();
@@ -20,6 +25,9 @@ export const RealtimeProvider = ({ children }: { children: ReactNode }) => {
     useState<signalR.HubConnection | null>(null);
 
   const [notificationConnection, setNotificationConnection] =
+    useState<signalR.HubConnection | null>(null);
+
+  const [chatConnection, setChatConnection] =
     useState<signalR.HubConnection | null>(null);
 
   useEffect(() => {
@@ -39,13 +47,24 @@ export const RealtimeProvider = ({ children }: { children: ReactNode }) => {
       .withAutomaticReconnect()
       .build();
 
+    const chat = new signalR.HubConnectionBuilder()
+      .withUrl(`${BASE_URL}/Realtime/ChatHub`, {
+        accessTokenFactory: () => user.token,
+      })
+      .withAutomaticReconnect()
+      .build();
+
     const startConnections = async () => {
       try {
-        await presence.start();
-        await notification.start();
+        await Promise.all([
+          presence.start(),
+          notification.start(),
+          chat.start(),
+        ]);
 
         setPresenceConnection(presence);
         setNotificationConnection(notification);
+        setChatConnection(chat);
       } catch (error) {
         console.error("SignalR Error:", error);
       }
@@ -56,6 +75,7 @@ export const RealtimeProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       presence.stop();
       notification.stop();
+      chat.stop();
     };
   }, [user?.token]);
 
@@ -64,6 +84,7 @@ export const RealtimeProvider = ({ children }: { children: ReactNode }) => {
       value={{
         presenceConnection,
         notificationConnection,
+        chatConnection,
       }}
     >
       {children}

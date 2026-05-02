@@ -11,7 +11,7 @@ import { conversationImage } from "../../../utils/helper";
 import { useChatOnline } from "../hooks/useChatOnline";
 import { useState } from "react";
 
-type ChatContextType = { connection: HubConnection | null };
+type ChatContextType = { chatConnection: HubConnection | null };
 
 function ChatWindow() {
   const { conversationId } = useParams<{ conversationId: string }>();
@@ -24,7 +24,7 @@ function ChatWindow() {
   const context = useOutletContext<ChatContextType>() as
     | ChatContextType
     | undefined;
-  const connection = context?.connection ?? null;
+  const connection = context?.chatConnection ?? null;
   const { user } = useUser();
 
   useChatOnline(senderProfileId, setIsOnline);

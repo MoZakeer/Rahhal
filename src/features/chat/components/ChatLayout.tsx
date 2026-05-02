@@ -1,15 +1,14 @@
 import { Outlet, useMatch } from "react-router-dom";
 import ChatList from "./ChatList";
-import { useSignalRConnection } from "../hooks/useSignalRConnection";
 import { useSidebarUpdates } from "../hooks/useSidebarUpdates";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useRealtime } from "@/context/RealtimeContext";
 
 function ChatLayout() {
   const inChat = useMatch("/chat/:conversationId/*");
-
-  const connection = useSignalRConnection("/Realtime/ChatHub");
+  const { chatConnection } = useRealtime();
   usePageTitle("Chatting");
-  useSidebarUpdates(connection);
+  useSidebarUpdates(chatConnection);
   return (
     <div
       className="grid grid-cols-1 sm:grid-cols-[370px_1fr] 
@@ -25,7 +24,7 @@ function ChatLayout() {
       <main
         className={`h-screen w-full bg-gray-50 ${!inChat ? "hidden md:flex" : "flex"}`}
       >
-        <Outlet context={{ connection }} />
+        <Outlet context={{ chatConnection }} />
       </main>
     </div>
   );
