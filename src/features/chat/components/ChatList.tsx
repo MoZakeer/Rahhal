@@ -65,7 +65,7 @@ function ChatList() {
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200
                 ${
                   activeTab === tab.key
-                    ? "bg-primary-600 text-gray-0 shadow-sm"
+                    ? "bg-primary-600 text-white shadow-sm"
                     : "bg-gray-0 border border-gray-300 text-gray-700 hover:border-gray-400"
                 }`}
             >
