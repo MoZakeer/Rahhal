@@ -70,6 +70,50 @@ import {
 import { ApiError, getUserId } from "@/lib/api";
 import type { JoinRequest, JoinRequestStatus } from "@/types/trip";
 
+
+interface SafeImageProps {
+  src?: string;
+  alt?: string;
+  category?: string;
+  className?: string;
+}
+
+const SafeImage = ({ src, alt, className, category }: SafeImageProps) => {
+  const initialSrc = src?.startsWith("http://") ? src.replace("http://", "https://") : src;
+
+  const [imgSrc, setImgSrc] = useState(initialSrc);
+  const [hasError, setHasError] = useState(!initialSrc);
+
+  const getFallback = (cat?: string) => {
+    const categoryLower = cat?.toLowerCase() || "";
+    if (categoryLower.includes("beach") || categoryLower.includes("sea"))
+      return "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=500&q=80";
+    if (categoryLower.includes("restaurant") || categoryLower.includes("food") || categoryLower.includes("cafe"))
+      return "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500&q=80";
+    if (categoryLower.includes("historic") || categoryLower.includes("museum") || categoryLower.includes("temple"))
+      return "https://images.unsplash.com/photo-1548013146-72479768bbaa?w=500&q=80";
+    if (categoryLower.includes("hotel") || categoryLower.includes("resort"))
+      return "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80";
+
+    return "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=500&q=80";
+  };
+
+  return (
+    <img
+      src={imgSrc || getFallback(category)}
+      alt={alt || "Trip image"}
+      loading="lazy"
+      className={`${className} ${hasError ? "opacity-90" : "opacity-100"}`}
+      onError={() => {
+        if (!hasError) {
+          setHasError(true);
+          setImgSrc(getFallback(category));
+        }
+      }}
+    />
+  );
+};
+
 const TripDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -160,13 +204,13 @@ const TripDetail = () => {
     1,
     Math.ceil(
       (new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) /
-        (1000 * 60 * 60 * 24),
+      (1000 * 60 * 60 * 24),
     ),
   );
 
   const handleShare = () => {
     const url = window.location.href;
-    navigator.clipboard?.writeText(url).catch(() => {});
+    navigator.clipboard?.writeText(url).catch(() => { });
     toast.success("Trip link copied to clipboard");
   };
 
@@ -341,14 +385,15 @@ const TripDetail = () => {
                             <div className="flex flex-col md:flex-row">
                               {/* Stop Image [cite: 72, 85] */}
                               {stop.image && (
-                                <div className="h-48 md:w-48 shrink-0">
-                                  <img
+                                <div className="overflow-hidden rounded-md">
+                                  <SafeImage
                                     src={stop.image}
-                                    className="h-full w-full object-cover"
+                                    category={stop.category}
+                                    className="h-20 w-full object-cover bg-muted transition-transform duration-300 md:group-hover:scale-110"
                                   />
                                 </div>
                               )}
-                              
+
                               <div className="p-4 flex-1 min-w-0">
                                 <div className="flex items-start justify-between">
                                   <div>
@@ -394,7 +439,7 @@ const TripDetail = () => {
                                 {/* Recommendations specific to this stop */}
                                 {stop?.recommendations &&
                                   (stop?.recommendations as any[]).length >
-                                    0 && (
+                                  0 && (
                                     <div className="mt-4 pt-4 border-t border-gray-200/50">
                                       <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
                                         Nearby Places
@@ -463,9 +508,9 @@ const TripDetail = () => {
 
             {/* Recommendations (Attractions, Hotels, Restaurants) */}
             {!trip.isAiGenerated &&
-            (trip.attractions?.length ||
-              trip.hotels?.length ||
-              trip.restaurants?.length) ? (
+              (trip.attractions?.length ||
+                trip.hotels?.length ||
+                trip.restaurants?.length) ? (
               <>
                 <div>
                   <h2 className="font-display text-xl font-semibold">
