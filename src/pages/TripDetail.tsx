@@ -83,6 +83,7 @@ const SafeImage = ({ src, alt, className, category }: SafeImageProps) => {
 
   const [imgSrc, setImgSrc] = useState(initialSrc);
   const [hasError, setHasError] = useState(!initialSrc);
+  const navigate = useNavigate();
 
   const getFallback = (cat?: string) => {
     const categoryLower = cat?.toLowerCase() || "";
@@ -289,15 +290,14 @@ const TripDetail = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
 
         <div className="absolute left-4 top-4">
-          <Link to="/explore">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full bg-card/80 backdrop-blur-sm hover:bg-card"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
+          <Button
+            onClick={() => navigate(-1)} 
+            variant="ghost"
+            size="icon"
+            className="rounded-full bg-card/80 backdrop-blur-sm hover:bg-card"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
         </div>
 
         <div className="absolute bottom-6 left-0 right-0 px-4">
