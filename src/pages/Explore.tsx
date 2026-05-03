@@ -10,6 +10,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useFavicon } from "@/hooks/useFavicon";
 
 // ==========================================
 // API Fetcher Functions (For React Query)
@@ -55,6 +56,7 @@ const fetchTripsAPI = async ({ pageParam = 1, queryKey }: any) => {
 const Explore = () => {
   usePageTitle("Explore the World");
   const queryClient = useQueryClient();
+  useFavicon("/compass.png");
 
   // --- 1. URL Search Params (State Preservation) ---
   const [searchParams, setSearchParams] = useSearchParams();

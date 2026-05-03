@@ -70,7 +70,6 @@ import {
 import { ApiError, getUserId } from "@/lib/api";
 import type { JoinRequest, JoinRequestStatus } from "@/types/trip";
 
-// 1. إضافة React Query
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface SafeImageProps {
