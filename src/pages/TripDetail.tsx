@@ -70,6 +70,8 @@ import {
 import { ApiError, getUserId } from "@/lib/api";
 import type { JoinRequest, JoinRequestStatus } from "@/types/trip";
 
+// 1. إضافة React Query
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface SafeImageProps {
   src?: string;
@@ -83,7 +85,6 @@ const SafeImage = ({ src, alt, className, category }: SafeImageProps) => {
 
   const [imgSrc, setImgSrc] = useState(initialSrc);
   const [hasError, setHasError] = useState(!initialSrc);
-  const navigate = useNavigate();
 
   const getFallback = (cat?: string) => {
     const categoryLower = cat?.toLowerCase() || "";
@@ -118,45 +119,43 @@ const SafeImage = ({ src, alt, className, category }: SafeImageProps) => {
 const TripDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const [apiTrip, setApiTrip] = useState<ApiTrip | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<TripDetailsFilter>("all");
+
+  // 2. استخدام React Query لجلب الداتا بدل الـ useEffect
+  const { 
+    data: apiTrip, 
+    isLoading: loading, 
+    error: queryError 
+  } = useQuery({
+    // المفتاح هنا بيعتمد على الـ id والـ tab الحالي
+    queryKey: ['tripDetails', id, activeTab], 
+    queryFn: () => getTripById(id!, activeTab),
+    enabled: !!id, // ميعملش ريكويست لو مفيش ID
+    staleTime: 1000 * 60 * 2, // الكاش بيعيش دقيقتين
+  });
+
+  const error = queryError instanceof ApiError ? queryError.message : queryError?.message || null;
+
+  // Local states for optimistic UI updates
   const [isFav, setIsFav] = useState(false);
   const [isPublic, setIsPublic] = useState(true);
   const [savingFav, setSavingFav] = useState(false);
   const [changingVision, setChangingVision] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [activeTab, setActiveTab] = useState<TripDetailsFilter>("all");
 
   // Join requests (admin)
   const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
   const [requestsLoading, setRequestsLoading] = useState(false);
 
-  const fetchTrip = useCallback(
-    async (filter: TripDetailsFilter = "all") => {
-      if (!id) return;
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await getTripById(id, filter);
-        setApiTrip(data);
-        setIsPublic(data.isPublic ?? true);
-        setIsFav(data.isFavorite ?? false);
-      } catch (err) {
-        const msg =
-          err instanceof ApiError ? err.message : "Failed to load trip";
-        setError(msg);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [id],
-  );
-
+  // تحديث حالة الزرار المفضل والرؤية أول ما الداتا تيجي
   useEffect(() => {
-    fetchTrip(activeTab);
-  }, [fetchTrip, activeTab]);
+    if (apiTrip) {
+      setIsPublic(apiTrip.isPublic ?? true);
+      setIsFav(apiTrip.isFavorite ?? false);
+    }
+  }, [apiTrip]);
 
   const trip = apiTrip ? mapApiTripToTrip(apiTrip) : null;
   const currentUserId = getUserId();
@@ -164,6 +163,7 @@ const TripDetail = () => {
     apiTrip && currentUserId && apiTrip.profileId === currentUserId,
   );
   usePageTitle(trip?.name || "Trip Detail");
+
   const loadPendingRequests = useCallback(async () => {
     if (!id) return;
     setRequestsLoading(true);
@@ -194,9 +194,7 @@ const TripDetail = () => {
         <p className="text-lg text-muted-foreground">
           {error ?? "Trip not found"}
         </p>
-        <Link to="/">
-          <Button>Back to Explore</Button>
-        </Link>
+        <Button onClick={() => navigate(-1)}>Back to Explore</Button>
       </div>
     );
   }
@@ -360,8 +358,6 @@ const TripDetail = () => {
 
             <Separator />
 
-            {/* Itinerary (Shows only if it's an AI Plan with steps) */}
-            {/* Itinerary Section (Main focus for AI Trips) */}
             {trip.itinerary.length > 0 && (
               <section>
                 <h2 className="text-xl font-bold">Itinerary</h2>
@@ -383,7 +379,6 @@ const TripDetail = () => {
                             className="rounded-xl border border-gray-200/50 bg-card overflow-hidden shadow-sm"
                           >
                             <div className="flex flex-col md:flex-row">
-                              {/* Stop Image [cite: 72, 85] */}
                               {stop.image && (
                                 <div className="overflow-hidden rounded-md">
                                   <SafeImage
@@ -436,7 +431,6 @@ const TripDetail = () => {
                                   )}
                                 </div>
 
-                                {/* Recommendations specific to this stop */}
                                 {stop?.recommendations &&
                                   (stop?.recommendations as any[]).length >
                                   0 && (
@@ -447,7 +441,6 @@ const TripDetail = () => {
                                       <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                                         {(stop.recommendations as any[]).map(
                                           (reco: any, ri: number) => {
-                                            // نجهز رابط جوجل ماب (لو مش مبعوت جاهز، بنبنيه بخطوط الطول والعرض)
                                             const mapLink =
                                               reco.mapsUrl ||
                                               (reco.latitude && reco.longitude
@@ -466,10 +459,8 @@ const TripDetail = () => {
                                                     ? "noopener noreferrer"
                                                     : undefined
                                                 }
-                                                // ضفنا كلاسات group عشان نعمل أنيميشن لطيف لما اليوزر يقف بالماوس
                                                 className="min-w-[120px] max-w-[120px] text-center block group cursor-pointer"
                                                 onClick={(e) => {
-                                                  // لو مفيش رابط خالص، نمنع الريفريش ونطلع رسالة لليوزر
                                                   if (!mapLink) {
                                                     e.preventDefault();
                                                     toast.info(
@@ -506,7 +497,6 @@ const TripDetail = () => {
               </section>
             )}
 
-            {/* Recommendations (Attractions, Hotels, Restaurants) */}
             {!trip.isAiGenerated &&
               (trip.attractions?.length ||
                 trip.hotels?.length ||
@@ -682,7 +672,8 @@ const TripDetail = () => {
                   gender={apiTrip.gender}
                   ageGroup={apiTrip.ageGroup}
                   status={apiTrip.status}
-                  onSaved={() => fetchTrip(activeTab)}
+                  // 3. لما التعديل يخلص، بنقول للـ React Query يـ Invalidate الكاش عشان يطلب الداتا الجديدة
+                  onSaved={() => queryClient.invalidateQueries({ queryKey: ['tripDetails', id] })}
                 />
               )}
 
@@ -728,12 +719,6 @@ const TripDetail = () => {
                 <Share2 className="h-4 w-4" />
                 Share Trip
               </Button>
-
-              {/* ============== To Do ===========     == */}
-              {/* <Button variant="outline" className="w-full gap-2" onClick={() => toast.info("Matching coming soon")}>
-                <Copy className="h-4 w-4" />
-                Find Matching Trips
-              </Button> */}
 
               {isAdmin && (
                 <Dialog onOpenChange={(o) => o && loadPendingRequests()}>

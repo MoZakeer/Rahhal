@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 // ==========================================
 // API Fetcher Functions (For React Query)
@@ -26,9 +26,9 @@ const fetchPreferencesAPI = async () => {
 const fetchTripsAPI = async ({ pageParam = 1, queryKey }: any) => {
   const [_key, searchTerm, filterId] = queryKey;
   let token = localStorage.getItem("token")?.replace(/^"(.*)"$/, '$1') || "";
-  
+
   let url = `https://rahhal-api.runasp.net/TripManagement/GetAll?PageNumber=${pageParam}&PageSize=20&SortByLastAdded=true`;
-  
+
   if (searchTerm && searchTerm.trim() !== "") {
     url += `&SearchTerm=${encodeURIComponent(searchTerm.trim())}`;
   }
@@ -55,21 +55,20 @@ const fetchTripsAPI = async ({ pageParam = 1, queryKey }: any) => {
 const Explore = () => {
   usePageTitle("Explore the World");
   const queryClient = useQueryClient();
-  
+
   // --- 1. URL Search Params (State Preservation) ---
   const [searchParams, setSearchParams] = useSearchParams();
   const urlSearch = searchParams.get("q") || "";
   const urlFilter = searchParams.get("cat") || "ALL";
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const navigate = useNavigate();
 
-  // حالة محلية للـ Input عشان الكتابة تكون سريعة (بدون تأخير الرابط)
   const [searchInput, setSearchInput] = useState(urlSearch);
 
-  // تحديث الـ Input لو المستخدم رجع (Back) والرابط اتغير
   useEffect(() => {
     setSearchInput(urlSearch);
   }, [urlSearch]);
 
-  // Debounce للكتابة: تحديث الرابط بعد التوقف عن الكتابة بنصف ثانية
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchInput !== urlSearch) {
@@ -78,7 +77,7 @@ const Explore = () => {
           if (searchInput) newParams.set("q", searchInput);
           else newParams.delete("q");
           return newParams;
-        }, { replace: true }); // replace تمنع تراكم الصفحات في سجل المتصفح
+        }, { replace: true });
       }
     }, 500);
     return () => clearTimeout(timer);
@@ -103,7 +102,7 @@ const Explore = () => {
       const currentScrollY = window.scrollY;
       if (currentScrollY > lastScrollY.current && currentScrollY > 60) {
         setIsHeaderVisible(false);
-        setIsFabMenuOpen(false); 
+        setIsFabMenuOpen(false);
       } else if (currentScrollY < lastScrollY.current) {
         setIsHeaderVisible(true);
       }
@@ -166,7 +165,6 @@ const Explore = () => {
       return;
     }
 
-    // تحديث الكاش فوراً قبل حتى ما السيرفر يرد (UX ممتاز)
     queryClient.setQueryData(['trips', urlSearch, urlFilter], (oldData: any) => {
       if (!oldData) return oldData;
       return {
@@ -186,33 +184,31 @@ const Explore = () => {
 
     try {
       const res = await fetch(`https://rahhal-api.runasp.net/TripManagement/SaveTrip`, {
-        method: "POST", 
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ tripId: id }) 
+        body: JSON.stringify({ tripId: id })
       });
 
       const data = await res.json();
       if (!data.isSuccess) throw new Error(data.message);
-      
+
     } catch (error) {
       console.error("Error updating trip:", error);
       toast.error("Failed to update favorite status.");
-      // لو حصل خطأ في السيرفر، نعمل مسح للكاش عشان يجيب الداتا الصح
       queryClient.invalidateQueries({ queryKey: ['trips', urlSearch, urlFilter] });
     }
   };
 
   return (
     <div className="min-h-screen relative pt-[140px] lg:pt-[150px]">
-      
+
       {/* --- Sticky Top Header (Search & Filters) --- */}
       <div
-        className={`fixed top-16 left-0 right-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${
-          isHeaderVisible ? "translate-y-0" : "-translate-y-[200px]" 
-        }`}
+        className={`fixed top-16 left-0 right-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${isHeaderVisible ? "translate-y-0" : "-translate-y-[200px]"
+          }`}
       >
         <div className="container mx-auto px-4 py-3">
           <div className="flex flex-col gap-3">
@@ -236,25 +232,23 @@ const Explore = () => {
             <div className="flex overflow-x-auto pb-1 gap-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               <Badge
                 variant={urlFilter === "ALL" ? "default" : "outline"}
-                className={`cursor-pointer transition-colors whitespace-nowrap px-4 py-1.5 ${
-                  urlFilter === "ALL" 
-                    ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600" 
-                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-                }`}
+                className={`cursor-pointer transition-colors whitespace-nowrap px-4 py-1.5 ${urlFilter === "ALL"
+                  ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                  : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                  }`}
                 onClick={() => handleFilterChange("ALL")}
               >
                 All
               </Badge>
-              
+
               {preferences.map((pref: any) => (
                 <Badge
                   key={pref.id}
                   variant={urlFilter === pref.id ? "default" : "outline"}
-                  className={`cursor-pointer transition-colors whitespace-nowrap px-4 py-1.5 ${
-                    urlFilter === pref.id 
-                      ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600" 
-                      : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-                  }`}
+                  className={`cursor-pointer transition-colors whitespace-nowrap px-4 py-1.5 ${urlFilter === pref.id
+                    ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    }`}
                   onClick={() => handleFilterChange(pref.id)}
                 >
                   {pref.name}
@@ -348,7 +342,7 @@ const Explore = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => { setIsFabMenuOpen(false); }}
+              onClick={() => { setIsFabMenuOpen(false); navigate('/ai-planner'); }}
               className="flex items-center gap-2 rounded-2xl shadow-xl bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 text-sm font-bold transition-colors"
             >
               <span>Create AI Trip</span>
@@ -357,7 +351,7 @@ const Explore = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => { setIsFabMenuOpen(false); }}
+              onClick={() => { setIsFabMenuOpen(false); navigate('/create-trip'); }}
               className="flex items-center gap-2 rounded-2xl shadow-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 px-5 py-3 text-sm font-bold transition-colors"
             >
               <span>Create Manual Trip</span>
