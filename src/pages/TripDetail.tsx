@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import {
   ArrowLeft,
@@ -64,7 +64,6 @@ import {
   getPendingRequests,
   mapApiTripToTrip,
   mapPendingToJoinRequest,
-  type ApiTrip,
   type TripDetailsFilter,
 } from "@/lib/tripApi";
 import { ApiError, getUserId } from "@/lib/api";
