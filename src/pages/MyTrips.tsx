@@ -27,6 +27,9 @@ export interface ApiTrip {
   tripStatus: string;
   travelPreference?: { id: string; name: string }[];
   destination?: string;
+  withPlan?: boolean;
+  isPublic?: boolean;
+
   isSaved?: boolean;
 }
 interface RawApiTrip extends Omit<ApiTrip, "id" | "name"> {
