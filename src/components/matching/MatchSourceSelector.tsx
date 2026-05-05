@@ -73,6 +73,7 @@ const MatchSourceSelector = ({
   const [isFetchingTrips, setIsFetchingTrips] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
 
+  // 🚀 ADDED: تهيئة الحقول من البيانات السابقة (initialData)
   const [destinationId, setDestinationId] = useState(initialData?.destinationId || "ANY");
   const [selectedPreferenceIds, setSelectedPreferenceIds] = useState<string[]>(initialData?.preferenceIds || []);
   const [travelers, setTravelers] = useState(initialData?.travelers?.toString() || "");
@@ -87,6 +88,7 @@ const MatchSourceSelector = ({
     d.name.toLowerCase().includes(destSearch.toLowerCase())
   );
 
+  // 🚀 ADDED: مزامنة الحقول لو initialData اتغيرت من بره
   useEffect(() => {
     if (initialData) {
       setDestinationId(initialData.destinationId || "ANY");
@@ -381,17 +383,20 @@ const MatchSourceSelector = ({
                 <label className={labelClass}>Destination</label>
                 <div className="relative">
                   <MapPin className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 z-10 pointer-events-none" />
-                  <Select 
-                    value={destinationId} 
+                  <Select
+                    value={destinationId}
                     onValueChange={setDestinationId}
                     onOpenChange={(open) => !open && setDestSearch("")}
                   >
                     <SelectTrigger className={`pl-11 ${inputClass}`}>
                       <SelectValue placeholder="Anywhere" />
                     </SelectTrigger>
-                    
+
                     <SelectContent className="rounded-xl border-slate-100 shadow-xl max-h-[300px]">
-                      <div className="sticky top-0 z-10 bg-white p-2 border-b border-slate-100">
+                      <div
+                        className="sticky top-0 z-10 bg-white p-2 border-b border-slate-100"
+                        onPointerDown={(e) => e.stopPropagation()}
+                      >
                         <div className="relative">
                           <Search className="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
                           <Input
@@ -399,6 +404,7 @@ const MatchSourceSelector = ({
                             value={destSearch}
                             onChange={(e) => setDestSearch(e.target.value)}
                             onKeyDown={(e) => e.stopPropagation()}
+                            onTouchStart={(e) => e.currentTarget.focus()}
                             className="h-8 pl-7 text-xs bg-slate-50 border-none focus-visible:ring-1 focus-visible:ring-slate-200"
                           />
                         </div>
@@ -407,7 +413,7 @@ const MatchSourceSelector = ({
                       <SelectItem value="ANY" className="font-medium text-slate-700">
                         Any Destination
                       </SelectItem>
-                      
+
                       {filteredDestinations.length > 0 ? (
                         filteredDestinations.map((d) => (
                           <SelectItem key={d.id} value={d.id}>

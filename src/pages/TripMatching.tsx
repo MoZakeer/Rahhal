@@ -360,8 +360,7 @@ const TripMatching = () => {
                 className="bg-white rounded-full shadow-[0_12px_40px_rgb(0,0,0,0.08)] border border-slate-100/80 px-6 py-3.5 flex flex-row items-center justify-between gap-4 cursor-pointer hover:shadow-[0_16px_50px_rgb(0,0,0,0.12)] transition-shadow group mx-auto max-w-3xl"
                 onClick={() => setIsCriteriaExpanded(true)}
               >
-                {/* الجزء الأيسر: أيقونة وتفاصيل البحث */}
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-5 gap-y-2 text-sm font-medium text-slate-700 flex-1">
+                <div className="flex flex-wrap items-center justify-between md:justify-center sm:justify-start gap-x-5 gap-y-2 text-sm font-medium text-slate-700 flex-1">
                   <div className="flex items-center gap-2 text-primary bg-primary/5 px-3 py-1.5 rounded-full hidden md:flex">
                     <Sparkles className="h-4 w-4" />
                     <span className="font-bold text-xs uppercase tracking-wider">Filtered</span>
@@ -369,10 +368,26 @@ const TripMatching = () => {
 
                   <div className="flex items-center gap-4 text-slate-500">
                     <span className="flex items-center gap-1.5 transition-colors group-hover:text-slate-700">
-                      <MapPin className="h-4 w-4" />
-                      {currentCriteria?.destinationId && currentCriteria.destinationId !== "ANY"
-                        ? (destinations.find(d => d.id === currentCriteria.destinationId)?.name || "Destination")
-                        : "Anywhere"}                    </span>
+                      <MapPin className="h-4 w-4 shrink-0" />
+
+                      {(() => {
+                        const destName = currentCriteria?.destinationId && currentCriteria.destinationId !== "ANY"
+                          ? (destinations.find(d => d.id === currentCriteria.destinationId)?.name || "Destination")
+                          : "Anywhere";
+
+                        return (
+                          <>
+                            <span className="sm:hidden">
+                              {destName.length > 5 ? `${destName.substring(0, 4)}..` : destName}
+                            </span>
+
+                            <span className="hidden sm:inline">
+                              {destName}
+                            </span>
+                          </>
+                        );
+                      })()}
+                    </span>
 
                     {currentCriteria?.travelers && (
                       <span className="flex items-center gap-1.5 transition-colors group-hover:text-slate-700">
