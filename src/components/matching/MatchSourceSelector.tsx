@@ -86,13 +86,8 @@ const MatchSourceSelector = ({
   const [ageGroup, setAgeGroup] = useState<string>(initialData?.ageGroup?.toString() || "");
   const [startDate, setStartDate] = useState(initialData?.startDate || "");
   const [endDate, setEndDate] = useState(initialData?.endDate || "");
-  const [destSearch, setDestSearch] = useState("");
 
   const [openDest, setOpenDest] = useState(false);
-
-  const filteredDestinations = destinations.filter((d) =>
-    d.name.toLowerCase().includes(destSearch.toLowerCase())
-  );
 
   useEffect(() => {
     if (initialData) {
