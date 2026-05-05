@@ -436,6 +436,20 @@ export function CommentsModal({
                     className="flex-1 min-w-0 rounded-2xl border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none"
                     value={editText}
                     onChange={(e) => setEditText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && e.shiftKey) {
+                        return;
+                      }
+
+                      if (
+                        e.key === "Enter" &&
+                        editText.trim() &&
+                        !addCommentMutation.isPending
+                      ) {
+                        e.preventDefault();
+                        handleEdit(id);
+                      }
+                    }}
                   />
                   <button
                     onClick={() => handleEdit(id)}
@@ -717,6 +731,20 @@ export function CommentsModal({
                         setReplyText(newVal);
                       }
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && e.shiftKey) {
+                        return;
+                      }
+
+                      if (
+                        e.key === "Enter" &&
+                        replyText.trim() &&
+                        !addCommentMutation.isPending
+                      ) {
+                        e.preventDefault();
+                        handleAddComment(id);
+                      }
+                    }}
                     placeholder="Write a reply..."
                     rows={1}
                     className="flex-1 min-w-0 rounded-2xl border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none"
@@ -841,6 +869,20 @@ export function CommentsModal({
           placeholder="Add a comment..."
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && e.shiftKey) {
+              return;
+            }
+
+            if (
+              e.key === "Enter" &&
+              newComment.trim() &&
+              !addCommentMutation.isPending
+            ) {
+              e.preventDefault();
+              handleAddComment();
+            }
+          }}
           rows={1}
           className="flex-1 min-w-0 rounded-2xl border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none"
         />
