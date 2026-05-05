@@ -17,9 +17,9 @@ export default function ReportHeader({ type }: Props) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6 space-y-3">
+    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6 space-y-3 transition-colors">
       <div>
-        <h1 className="text-xl font-semibold text-gray-800">
+        <h1 className="text-xl font-semibold text-gray-800 dark:text-white">
           {getTitle()}
         </h1>
       </div>

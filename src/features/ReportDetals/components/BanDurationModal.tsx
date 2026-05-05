@@ -2,14 +2,17 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
-
 interface BanDurationModalProps {
   open: boolean;
   onClose: () => void;
   onConfirm: (hours: number | null) => Promise<void>;
 }
 
-export const BanDurationModal = ({ open, onClose, onConfirm }: BanDurationModalProps) => {
+export const BanDurationModal = ({
+  open,
+  onClose,
+  onConfirm,
+}: BanDurationModalProps) => {
   const [hours, setHours] = useState<number | null | "">("");
   const [loading, setLoading] = useState(false);
 
@@ -18,7 +21,6 @@ export const BanDurationModal = ({ open, onClose, onConfirm }: BanDurationModalP
   const isDisabled = hours === "" || hours === 0 || loading;
 
   const handleSubmit = async () => {
-     console.log("handleSubmit called, hours:", hours);
     if (isDisabled) return;
     setLoading(true);
     try {
@@ -35,20 +37,25 @@ export const BanDurationModal = ({ open, onClose, onConfirm }: BanDurationModalP
         onClick={onClose}
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
       />
-      <div className="relative w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl p-6 space-y-5">
+
+      <div className="relative w-full max-w-md mx-4 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 space-y-5">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-gray-800">Ban Duration</h2>
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-600">
+            Ban Duration
+          </h2>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-gray-100 transition"
+            className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5 text-gray-500 dark:text-gray-500" />
           </button>
         </div>
+
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-600">
+          <label className="text-sm font-medium text-gray-600 dark:text-gray-500">
             Select duration
           </label>
+
           <select
             value={hours === null ? "null" : hours}
             onChange={(e) => {
@@ -57,7 +64,7 @@ export const BanDurationModal = ({ open, onClose, onConfirm }: BanDurationModalP
               else if (val === "null") setHours(null);
               else setHours(Number(val));
             }}
-            className="w-full border border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none p-3 rounded-xl transition"
+            className="w-full border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-800 dark:text-gray-600 focus:border-red-500 focus:ring-2 focus:ring-red-200 dark:focus:ring-red-900 outline-none p-3 rounded-xl transition"
           >
             <option value="">Choose duration</option>
             <option value={24}>1 Day</option>
@@ -67,14 +74,16 @@ export const BanDurationModal = ({ open, onClose, onConfirm }: BanDurationModalP
             <option value="null">Permanent</option>
           </select>
         </div>
+
         <div className="flex gap-3 pt-2">
           <button
             onClick={onClose}
             disabled={loading}
-            className="flex-1 border border-gray-300 text-gray-600 py-2 rounded-xl hover:bg-gray-100 transition"
+            className="flex-1 border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-gray-600 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 transition"
           >
             Cancel
           </button>
+
           <button
             onClick={handleSubmit}
             disabled={isDisabled}

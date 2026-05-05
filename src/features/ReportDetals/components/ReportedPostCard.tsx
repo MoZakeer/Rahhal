@@ -17,7 +17,7 @@ export default function ReportedPostCard({ id }: Props) {
 
   if (!data?.isSuccess || !data.data) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm p-5 text-center text-gray-500">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-5 text-center text-gray-500">
         Post not found or may have been deleted.
       </div>
     );
@@ -26,7 +26,7 @@ export default function ReportedPostCard({ id }: Props) {
   const post = data.data;
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-sm mb-6 max-w-xl mx-auto">
+    <div className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm mb-6 max-w-xl mx-auto">
 
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-3">
@@ -36,7 +36,7 @@ export default function ReportedPostCard({ id }: Props) {
           />
 
           <div className="flex flex-col leading-tight">
-            <span className="font-semibold">
+            <span className="font-semibold  dark:text-white">
               {post.userName}
             </span>
             <span className="text-xs text-gray-500">
