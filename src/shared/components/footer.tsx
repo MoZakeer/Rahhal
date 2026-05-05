@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import {Plane} from "lucide-react";
+import { Plane } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -11,7 +11,7 @@ export default function Footer() {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2 text-white">
               <div className="flex items-center justify-center h-8 w-8 bg-primary/20 rounded-full text-primary">
-            <Plane className="h-5 w-5 text-primary-foreground" />
+                <Plane className="h-5 w-5 text-primary-foreground" />
               </div>
               <span className="text-xl font-bold">Rahhal</span>
             </div>
@@ -79,7 +79,6 @@ export default function Footer() {
               Privacy Policy
             </Link>
           </div>
-
         </div>
 
         {/* Bottom */}
@@ -87,7 +86,6 @@ export default function Footer() {
           <p className="text-slate-400 text-xs">
             © 2026 Rahhal Inc. All rights reserved.
           </p>
-
         </div>
       </div>
     </footer>

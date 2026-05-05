@@ -811,8 +811,9 @@ export function CommentsModal({
             <div className="flex-1 min-w-0">
               {editingId === id ? (
                 <div className="flex gap-2 flex-wrap w-full">
-                  <input
-                    className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                  <textarea
+                    rows={1}
+                    className="flex-1 min-w-0 rounded-2xl border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none"
                     value={editText}
                     onChange={(e) => setEditText(e.target.value)}
                   />
@@ -838,7 +839,7 @@ export function CommentsModal({
                     >
                       {comment.userName}
                     </span>
-                    <p className="rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700/50 px-3 py-2 mt-1 text-slate-800 dark:text-slate-200">
+                    <p className="rounded-2xl bg-slate-50 whitespace-pre-wrap dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700/50 px-3 py-2 mt-1 text-slate-800 dark:text-slate-200">
                       {renderWithMentions(comment.description)}
                     </p>
                   </div>
@@ -1063,7 +1064,7 @@ export function CommentsModal({
                     <HiOutlineFaceSmile className="w-6 h-6 sm:w-7 sm:h-7 text-slate-700 dark:text-slate-300" />
                   </button>
 
-                  <input
+                  <textarea
                     value={toDisplayText(replyText)}
                     onChange={(e) => {
                       const HIDDEN = "\u200B";
@@ -1097,18 +1098,9 @@ export function CommentsModal({
                         setReplyText(newVal);
                       }
                     }}
-                    onKeyDown={(e) => {
-                      if (
-                        e.key === "Enter" &&
-                        replyText.trim() &&
-                        !addCommentMutation.isPending
-                      ) {
-                        e.preventDefault();
-                        handleAddComment(id);
-                      }
-                    }}
                     placeholder="Write a reply..."
-                    className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                    rows={1}
+                    className="flex-1 min-w-0 rounded-2xl border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none"
                   />
                 </div>
                 <div className="flex items-center justify-end gap-1.5 pl-8">
@@ -1235,21 +1227,12 @@ export function CommentsModal({
           )}
         </div>
 
-        <input
+        <textarea
           placeholder="Add a comment..."
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          onKeyDown={(e) => {
-            if (
-              e.key === "Enter" &&
-              newComment.trim() &&
-              !addCommentMutation.isPending
-            ) {
-              e.preventDefault();
-              handleAddComment();
-            }
-          }}
-          className="flex-1 min-w-0 rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400"
+          rows={1}
+          className="flex-1 min-w-0 rounded-2xl border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none"
         />
 
         <button
