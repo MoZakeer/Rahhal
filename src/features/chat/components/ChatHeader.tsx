@@ -70,13 +70,16 @@ function ChatHeader({
             ${isOnline ? "text-green-700 font-medium" : ""} `}
           >
             {!isGroup ? (
-              <>
+              <p
+                className={`text-gray-500 font-normal ${
+                  isOnline ? "text-green-700 font-medium" : ""
+                }`}
+              >
                 {isOnline ? "online" : `last seen ${formatLastSeen(lastSeen)}`}
-              </>
+              </p>
             ) : (
               <p className="text-gray-500 font-medium">
-                {membersCount} Member
-                {membersCount > 1 && "s"}
+                {membersCount} Member{membersCount > 1 && "s"}
               </p>
             )}
           </p>

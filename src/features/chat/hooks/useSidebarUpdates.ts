@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from "react";
 import { useParams } from "react-router";
 import { HubConnection } from "@microsoft/signalr";
@@ -7,9 +8,9 @@ import type { ChatType } from "../../../types/ChatType";
 export type UpdateSidebarData = {
   conversationId: string;
   lastMessageContent: string;
-  lastMessageDate: string; 
+  lastMessageDate: string;
   unreadCount: number;
-  messageType: number; 
+  messageType: number;
 };
 export const useSidebarUpdates = (connection: HubConnection | null) => {
   const queryClient = useQueryClient();
@@ -75,13 +76,29 @@ export const useSidebarUpdates = (connection: HubConnection | null) => {
         },
       );
     };
+    const handleNewChat = function (newChat: ChatType) {
+      queryClient.setQueryData(["all-chats"], (oldData: any) => {
+        if (!oldData) return oldData;
 
+        const chats: ChatType[] = oldData.data ?? [];
+
+        const filtered = chats.filter(
+          (chat) => chat.conversationId !== newChat.conversationId,
+        );
+
+        return {
+          ...oldData,
+          data: [newChat, ...filtered],
+        };
+      });
+    };
     connection.on("UpdateSidebar", handleUpdateSidebar);
     connection.on("UpdateUnreadCount", handleUpdateUnreadCount);
-
+    connection.on("NewChatCreated", handleNewChat);
     return () => {
       connection.off("UpdateSidebar", handleUpdateSidebar);
       connection.off("UpdateUnreadCount", handleUpdateUnreadCount);
+      connection.off("NewChatCreated", handleNewChat);
     };
   }, [connection, queryClient, activeChatId]);
 };

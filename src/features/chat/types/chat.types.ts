@@ -15,7 +15,8 @@ export interface ChatResponse {
     conversationPictureURL: string;
     otherParticipantProfileId: string;
     lastSeen: string;
+    isOnline: boolean;
     messages: PaginatedMessages;
-    membersCount:number
+    membersCount: number;
   };
 }

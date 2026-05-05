@@ -10,7 +10,6 @@ import { useNavigate } from "react-router";
 function ChatList() {
   const navigate = useNavigate();
   const { isPending, data } = useGetAllChats();
-
   const [query, setQuery] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"all" | "private" | "group">(
     "all",

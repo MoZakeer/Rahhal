@@ -3,11 +3,13 @@ import ChatList from "./ChatList";
 import { useSidebarUpdates } from "../hooks/useSidebarUpdates";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useRealtime } from "@/context/RealtimeContext";
+import { useFavicon } from "@/hooks/useFavicon";
 
 function ChatLayout() {
   const inChat = useMatch("/chat/:conversationId/*");
   const { chatConnection } = useRealtime();
   usePageTitle("Chatting");
+  useFavicon("/bubble-chat.png");
   useSidebarUpdates(chatConnection);
   return (
     <div

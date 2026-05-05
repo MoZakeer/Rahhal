@@ -33,6 +33,22 @@ export const RealtimeProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (!user?.token) return;
 
+    let isMounted = true;
+
+    // 🔥 helper: start with retry
+    const startConnection = async (conn: signalR.HubConnection) => {
+      try {
+        if (conn.state === "Disconnected") {
+          await conn.start();
+          console.log(`${conn.baseUrl} connected`);
+        }
+      } catch (err) {
+        console.error("SignalR retry...", err);
+        setTimeout(() => startConnection(conn), 2000);
+      }
+    };
+
+    // 🔥 create connections
     const presence = new signalR.HubConnectionBuilder()
       .withUrl(`${BASE_URL}/Realtime/presenceHub`, {
         accessTokenFactory: () => user.token,
@@ -54,28 +70,45 @@ export const RealtimeProvider = ({ children }: { children: ReactNode }) => {
       .withAutomaticReconnect()
       .build();
 
-    const startConnections = async () => {
-      try {
-        await Promise.all([
-          presence.start(),
-          notification.start(),
-          chat.start(),
-        ]);
+    // 🔥 optional: debug logs
+    presence.onreconnected(() => console.log("Presence reconnected"));
+    notification.onreconnected(() =>
+      console.log("Notification reconnected"),
+    );
+    chat.onreconnected(() => console.log("Chat reconnected"));
 
-        setPresenceConnection(presence);
-        setNotificationConnection(notification);
-        setChatConnection(chat);
-      } catch (error) {
-        console.error("SignalR Error:", error);
-      }
+    const startConnections = async () => {
+      // ⚠️ sequential start (مش Promise.all)
+      await startConnection(presence);
+      await startConnection(notification);
+      await startConnection(chat);
+
+      if (!isMounted) return;
+
+      setPresenceConnection(presence);
+      setNotificationConnection(notification);
+      setChatConnection(chat);
     };
 
     startConnections();
 
+    // 🔥 cleanup safe
     return () => {
-      presence.stop();
-      notification.stop();
-      chat.stop();
+      isMounted = false;
+
+      const stopConnection = async (conn: signalR.HubConnection) => {
+        try {
+          if (conn.state === "Connected") {
+            await conn.stop();
+          }
+        } catch (err) {
+          console.error("Error stopping connection:", err);
+        }
+      };
+
+      stopConnection(presence);
+      stopConnection(notification);
+      stopConnection(chat);
     };
   }, [user?.token]);
 

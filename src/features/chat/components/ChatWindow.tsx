@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useParams, useOutletContext } from "react-router";
 import { useGetChatById } from "../hooks/useGetChatById";
 import { useChatWindowUpdates } from "../hooks/useChatWindowUpdates";
@@ -9,7 +10,7 @@ import type { HubConnection } from "@microsoft/signalr";
 import { useUser } from "../../../context/UserContext";
 import { conversationImage } from "../../../utils/helper";
 import { useChatOnline } from "../hooks/useChatOnline";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ChatContextType = { chatConnection: HubConnection | null };
 
@@ -18,21 +19,23 @@ function ChatWindow() {
   const [isOnline, setIsOnline] = useState<boolean>(false);
   const { isPending, data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetChatById();
-  const senderProfileId =
-    data?.pages?.[0].data.otherParticipantProfileId || null;
-  const lastSeen = data?.pages?.[0].data.lastSeen;
+  const chatInfo = data?.pages?.[0]?.data;
+  const senderProfileId = chatInfo?.otherParticipantProfileId || null;
+  const lastSeen = chatInfo?.lastSeen;
   const context = useOutletContext<ChatContextType>() as
     | ChatContextType
     | undefined;
   const connection = context?.chatConnection ?? null;
   const { user } = useUser();
-
+  useEffect(() => {
+    if (chatInfo?.isOnline !== undefined) {
+      setIsOnline(chatInfo.isOnline);
+    }
+  }, [chatInfo?.isOnline]);
   useChatOnline(senderProfileId, setIsOnline);
   useChatWindowUpdates(connection, conversationId, user?.userId);
 
   if (isPending) return <ChatSkeleton />;
-
-  const chatInfo = data?.pages?.[0]?.data;
 
   const allMessages = data?.pages
     ? [...data.pages].reverse().flatMap((page) => page?.data?.messages.items)

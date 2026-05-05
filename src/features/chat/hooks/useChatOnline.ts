@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRealtime } from "@/context/RealtimeContext";
 import { useEffect } from "react";
 
@@ -10,21 +9,29 @@ export function useChatOnline(
 
   useEffect(() => {
     if (!presenceConnection || !id) return;
-    presenceConnection.invoke("SubscribeToStatuses", [id]);
 
     const handler = (data: any) => {
-      if (!data || !data.profileId) return;
+      if (!data?.profileId) return;
 
       if (String(data.profileId) !== String(id)) return;
 
       setIsOnline(Boolean(data.isOnline));
     };
 
+    // listen
     presenceConnection.on("UserStatusChanged", handler);
+
+    // subscribe
+    presenceConnection.invoke("SubscribeToStatuses", id);
+
+    // 🔥 مهم جدًا
+    presenceConnection.onreconnected(() => {
+      presenceConnection.invoke("SubscribeToStatuses", id);
+    });
 
     return () => {
       presenceConnection.off("UserStatusChanged", handler);
-      // presenceConnection.invoke("UnsubscribeFromStatuses", [id]);
+      presenceConnection.invoke("UnsubscribeFromStatus", id);
     };
   }, [presenceConnection, id, setIsOnline]);
 }
