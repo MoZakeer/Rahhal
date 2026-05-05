@@ -24,7 +24,7 @@ export interface ApiTrip {
   tripStatus: string;
   travelPreference?: { id: string; name: string }[];
   destination?: string;
-  isAiGenerated?: boolean;
+  withPlan?: boolean;
   isPublic?: boolean;
   isSaved?: boolean;
   matchPercentage?: number;
@@ -37,7 +37,7 @@ interface TripCardProps {
 
 const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
   const queryClient = useQueryClient(); // 3. تهيئة الكلاينت
-
+  const isMyTripsPage = location.pathname === "/my-trips";
   const avatarLetter = trip.createdBy
     ? trip.createdBy.charAt(0).toUpperCase()
     : "U";
@@ -97,14 +97,32 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
           <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="md:hidden absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent" />
 
-          {trip.isAiGenerated && (
-            <div className="absolute left-4 top-4 md:left-5 md:top-5 z-20">
-              <div className="flex items-center gap-1.5 rounded-full bg-white/80 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm border border-white/50">
-                <Sparkles className="h-3.5 w-3.5 text-blue-500" />
-                <span>AI Planned</span>
+          <div className="absolute left-4 top-4 md:left-5 md:top-5 z-20 flex flex-col gap-2">
+            {isMyTripsPage && (
+              <div
+                className={`flex items-center gap-1.5 max-w-28 rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm backdrop-blur-md border
+      ${
+        trip.isPublic
+          ? "bg-blue-500/10 text-blue-700 border-blue-200"
+          : "bg-rose-500/10 text-rose-700 border-rose-200"
+      }`}
+              >
+                <div
+                  className={`h-2 w-2 rounded-full ${
+                    trip.isPublic ? "bg-blue-500" : "bg-rose-500"
+                  }`}
+                />
+                <span>{trip.isPublic ? "Public Trip" : "Private Trip"}</span>
               </div>
-            </div>
-          )}
+            )}
+
+            {trip.withPlan && (
+              <div className="flex items-center gap-1.5 rounded-full bg-blue-500/10 text-blue-700 border border-blue-200 px-3 py-1.5 text-xs font-semibold shadow-sm backdrop-blur-md">
+                <Sparkles className="h-3.5 w-3.5 text-blue-500" />
+                <span>AI-Generated Plan</span>
+              </div>
+            )}
+          </div>
 
           {/* Favorite Button */}
           <Button
