@@ -100,7 +100,7 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
           <div className="absolute left-4 top-4 md:left-5 md:top-5 z-20 flex flex-col gap-2">
             {isMyTripsPage && (
               <div
-                className={`flex items-center gap-1.5 max-w-28 rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm backdrop-blur-md border
+                className={`flex items-center gap-1.5 max-w-20 rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm backdrop-blur-md border
       ${
         trip.isPublic
           ? "bg-blue-500/10 text-blue-700 border-blue-200"
@@ -112,14 +112,14 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
                     trip.isPublic ? "bg-blue-500" : "bg-rose-500"
                   }`}
                 />
-                <span>{trip.isPublic ? "Public Trip" : "Private Trip"}</span>
+                <span>{trip.isPublic ? "Public" : "Private"}</span>
               </div>
             )}
 
             {trip.withPlan && (
               <div className="flex items-center gap-1.5 rounded-full bg-blue-500/10 text-blue-700 border border-blue-200 px-3 py-1.5 text-xs font-semibold shadow-sm backdrop-blur-md">
                 <Sparkles className="h-3.5 w-3.5 text-blue-500" />
-                <span>AI-Generated Plan</span>
+                <span>AI-Generated</span>
               </div>
             )}
           </div>
