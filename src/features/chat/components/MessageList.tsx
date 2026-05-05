@@ -1,4 +1,4 @@
-import { useEffect, useRef, useLayoutEffect } from "react";
+import { useEffect, useRef, useLayoutEffect, useMemo } from "react";
 import Message from "./Message";
 import type { Message as TMessage } from "../types/message.types";
 import { formatDate } from "../../../utils/helper";
@@ -22,13 +22,12 @@ function MessageList({
 }: MessageListProps) {
   const { user } = useUser();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const lastMessageIdRef = useRef<string | undefined>(undefined);
-  const isFirstLoadRef = useRef(true);
-
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const previousScrollHeightRef = useRef<number>(0);
-
   const observerTarget = useRef<HTMLDivElement>(null);
+
+  const isFirstLoadRef = useRef(true);
+  const lastMessageIdRef = useRef<string | undefined>(undefined);
+  const firstMessageIdRef = useRef<string | undefined>(undefined); // ده الـ Ref الجديد
 
   const getMessageDateLabel = function (dateString: string) {
     const date = new Date(dateString);
@@ -77,56 +76,65 @@ function MessageList({
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  // رتبنا الرسايل هنا وحفظناها بـ useMemo عشان متتأثرش بالريندر العشوائي
+  const sortedMessages = useMemo(() => {
+    if (!messages) return [];
+    return [...messages].sort(
+      (a, b) =>
+        new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime()
+    );
+  }, [messages]);
+
   useLayoutEffect(() => {
-    if (!messages || messages.length === 0) return;
+    if (!sortedMessages || sortedMessages.length === 0) return;
 
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    const currentLastMessage = messages[messages.length - 1];
+    const currentFirstMessage = sortedMessages[0];
+    const currentLastMessage = sortedMessages[sortedMessages.length - 1];
 
-    // الحالة الأولى: أول مرة الشات يفتح (بينزل لآخر رسالة تحت)
+    // 1. أول مرة الشات يفتح (بينزل لآخر رسالة تحت)
     if (isFirstLoadRef.current) {
       messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
       isFirstLoadRef.current = false;
       lastMessageIdRef.current = currentLastMessage.messageId;
-      previousScrollHeightRef.current = container.scrollHeight;
+      firstMessageIdRef.current = currentFirstMessage.messageId;
       return;
     }
 
-    // الحالة التانية: فيه رسالة جديدة اتبعتت أو استقبلتها (بينزل لتحت سموث)
+    // 2. فيه رسالة جديدة اتبعتت أو استقبلتها (بينزل لتحت)
     if (lastMessageIdRef.current !== currentLastMessage.messageId) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       lastMessageIdRef.current = currentLastMessage.messageId;
-      previousScrollHeightRef.current = container.scrollHeight;
+      firstMessageIdRef.current = currentFirstMessage.messageId;
       return;
     }
 
-    // الحالة التالتة: بنعمل سكرول لفوق وجبنا رسايل قديمة (بنحافظ على مكان السكرول)
-    const newScrollHeight = container.scrollHeight;
-    const heightDifference = newScrollHeight - previousScrollHeightRef.current;
+    // 3. بنعمل سكرول لفوق وجبنا رسايل قديمة (السحر هنا)
+    if (
+      firstMessageIdRef.current &&
+      firstMessageIdRef.current !== currentFirstMessage.messageId
+    ) {
+      const oldFirstMessageElement = document.getElementById(
+        `msg-${firstMessageIdRef.current}`
+      );
 
-    if (heightDifference > 0) {
-      // بنعمل إزاحة للسكرول بمقدار الرسايل اللي اتحملت عشان الـ Observer يختفي وميعملش Loop
-      container.scrollTop += heightDifference;
+      if (oldFirstMessageElement) {
+        container.scrollTop = oldFirstMessageElement.offsetTop - 50;
+      }
+
+      firstMessageIdRef.current = currentFirstMessage.messageId;
     }
-
-    // بنحدث الارتفاع عشان المرة الجاية
-    previousScrollHeightRef.current = container.scrollHeight;
-  }, [messages]);
-
-  const sortedMessages = [...messages].sort(
-    (a, b) =>
-      new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime()
-  );
+  }, [messages, sortedMessages]);
 
   return (
-    <div ref={scrollContainerRef} className="flex-1 overflow-y-auto no-scrollbar">
+    <div ref={scrollContainerRef} className="flex-1 overflow-y-auto no-scrollbar relative">
       <div ref={observerTarget} className="w-full h-1" />
 
       {isFetchingNextPage && <MessagePaginationSkeleton />}
 
-      {messages?.length === 0 ? (
+      {sortedMessages?.length === 0 ? (
         <div className="h-full flex justify-center items-center text-gray-500">
           There are no messages yet… start the conversation!
         </div>
@@ -134,16 +142,14 @@ function MessageList({
         <ul className="flex flex-col gap-5 px-3 py-4 sm:py-6 sm:px-10">
           {sortedMessages.map((message: TMessage, index) => {
             const currentDate = getMessageDateLabel(message.createdDate);
-
             const prevMessage = sortedMessages[index - 1];
             const prevDate = prevMessage
               ? getMessageDateLabel(prevMessage.createdDate)
               : null;
-
             const showDateHeader = currentDate !== prevDate;
 
             return (
-              <div key={`${message.messageId}-${index}`}>
+              <div key={`${message.messageId}-${index}`} id={`msg-${message.messageId}`}>
                 {showDateHeader && (
                   <div className="flex justify-center my-3">
                     <div className="flex justify-center my-4">
