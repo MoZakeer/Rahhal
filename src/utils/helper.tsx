@@ -32,3 +32,26 @@ export function conversationImage({
 
   return src;
 }
+export function parseMessageContent(text: string) {
+  const urlRegex = /((?:https?:\/\/|www\.)[^\s]+)/g;
+
+  return text.split(urlRegex).map((part, index) => {
+    if (/^(?:https?:\/\/|www\.)/.test(part)) {
+      const href = part.startsWith("http") ? part : `https://${part}`;
+
+      return (
+        <a
+          key={index}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-400 underline break-all hover:text-blue-300 transition"
+        >
+          {part}
+        </a>
+      );
+    }
+
+    return <span key={index}>{part}</span>;
+  });
+}

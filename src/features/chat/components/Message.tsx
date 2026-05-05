@@ -7,6 +7,7 @@ import { ReportModal } from "@/features/reports/components/ReportModal";
 import { Flag } from "lucide-react";
 import type { Message as TMessage } from "../types/message.types";
 import { useUser } from "@/context/UserContext";
+import { parseMessageContent } from "@/utils/helper";
 
 type Props = {
   type: "send" | "receive";
@@ -38,7 +39,6 @@ function Message({
     user: { userId: reporterId },
   } = useUser();
 
-  // ✅ close menu on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -113,7 +113,6 @@ function Message({
           />
         )}
 
-        {/* ===== Dropdown Menu ===== */}
         {isMenuOpen && (
           <div
             ref={menuRef}
@@ -130,7 +129,6 @@ function Message({
               overflow-visible
             "
           >
-            {/* ===== Arrow ===== */}
             <div className="absolute -top-1 right-4 w-2 h-2 bg-inherit rotate-45 border-l border-t border-black/5 dark:border-white/10"></div>
 
             <button
@@ -155,14 +153,15 @@ function Message({
         <MessageAttachments attachments={attachments} isSend={isSend} />
 
         <span className="text-xs leading-relaxed wrap-break-word">
-          {children}
+          {typeof children === "string"
+            ? parseMessageContent(children)
+            : children}
 
-          {/* ===== Time + Seen INLINE ===== */}
           <span
             className={`
-      inline-flex jsel items-center gap-1 ml-2 whitespace-nowrap align-bottom
-      ${isSend ? "text-primary-200" : "text-gray-400"}
-    `}
+              inline-flex items-center gap-1 ml-2 whitespace-nowrap align-bottom
+              ${isSend ? "text-primary-200" : "text-gray-400"}
+            `}
           >
             <span className="text-[10px]">{time}</span>
 
