@@ -79,8 +79,18 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
   const [unreadMessages, setUnreadMessages] = useState<number>();
   const [hasToken] = useState(() => isTokenValid());
   const navigate = useNavigate();
-  const showMobileComponent = location.pathname === "/feed";
+  const isFeedPage = location.pathname === "/feed";
 
+  const allowedPages = new Set([
+    "/ai-planner",
+    "/profile",
+    "/admin/reports/users",
+    "/admin/reports/posts",
+    "/admin/reports/comments",
+    "/create-trip",
+  ]);
+
+  const isAllowedPage = allowedPages.has(location.pathname);
   const { unreadCount, markAllAsRead } = useNotificationContext();
   const handleClick = async () => {
     await markAllAsRead();
@@ -342,11 +352,11 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
         <div className="flex items-center gap-2 ml-auto lg:gap-3">
           {hasToken ? (
             <>
-              {showMobileComponent && (
-                <div className="block lg:hidden">
+              {(isAllowedPage || isFeedPage) && (
+                <div className={isFeedPage ? "lg:hidden" : ""}>
                   <AnimatedSearch />
                 </div>
-              )}{" "}
+              )}
               <button
                 onClick={handleClick}
                 className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 "
