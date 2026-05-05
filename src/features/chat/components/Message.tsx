@@ -1,13 +1,14 @@
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
 import type { Attachment } from "../types/attachment.types";
 import MessageAttachments from "./MessageAttachments";
-import { HiOutlineChevronDown } from "react-icons/hi2";
+import { HiOutlineChevronDown, HiTrash } from "react-icons/hi2";
 import { useEffect, useRef, useState } from "react";
 import { ReportModal } from "@/features/reports/components/ReportModal";
 import { Flag } from "lucide-react";
 import type { Message as TMessage } from "../types/message.types";
 import { useUser } from "@/context/UserContext";
 import { parseMessageContent } from "@/utils/helper";
+import { useDeleteMessage } from "../hooks/useDeleteMessage";
 
 type Props = {
   type: "send" | "receive";
@@ -35,6 +36,8 @@ function Message({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const { isPending, deleteMessage } = useDeleteMessage();
+
   const {
     user: { userId: reporterId },
   } = useUser();
@@ -55,6 +58,11 @@ function Message({
     };
   }, [isMenuOpen]);
 
+  function handleDelete() {
+    deleteMessage(message.messageId);
+    setIsMenuOpen(false);
+  }
+
   return (
     <li className={`flex w-full ${isSend ? "justify-start" : "justify-end"}`}>
       <div
@@ -72,81 +80,87 @@ function Message({
         {!isSend && name && isGroup && (
           <div className="flex items-center w-full">
             <span className="text-xs font-medium text-primary-600">{name}</span>
-
-            <HiOutlineChevronDown
-              className="
-                ml-auto 
-                opacity-0 
-                translate-y-1
-                group-hover:opacity-100 
-                group-hover:translate-y-0
-                transition-all 
-                duration-200 
-                w-5 h-5 
-                cursor-pointer 
-                p-1
-              "
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsMenuOpen((prev) => !prev);
-              }}
-            />
           </div>
         )}
 
-        {!isSend && !(name && isGroup) && (
-          <HiOutlineChevronDown
-            className="
-              absolute top-1 right-1
-              opacity-0 
-              group-hover:opacity-100 
-              transition-all 
-              duration-200 
-              w-5 h-5 
-              cursor-pointer 
-              p-1
-            "
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsMenuOpen((prev) => !prev);
-            }}
-          />
-        )}
+        <HiOutlineChevronDown
+          className={`
+    absolute top-1 right-1
+    opacity-0 
+    group-hover:opacity-100 
+    transition-all 
+    duration-200 
+    w-5 h-5 
+    cursor-pointer 
+    p-1
+  `}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsMenuOpen((prev) => !prev);
+          }}
+        />
 
         {isMenuOpen && (
           <div
             ref={menuRef}
             onClick={(e) => e.stopPropagation()}
-            className="
-              absolute right-2 top-8
-              w-36 
+            className={`
+              absolute top-8
+              ${isSend ? "left-2" : "right-2"}
+              w-40 
               bg-white dark:bg-slate-800 
               rounded-xl shadow-lg 
               ring-1 ring-black/5 dark:ring-white/10 
               z-50
               border border-transparent dark:border-slate-700
               animate-fadeIn
-              overflow-visible
-            "
+            `}
           >
-            <div className="absolute -top-1 right-4 w-2 h-2 bg-inherit rotate-45 border-l border-t border-black/5 dark:border-white/10"></div>
+            <div
+              className={`
+                absolute -top-1 w-2 h-2 bg-inherit rotate-45
+                border-l border-t border-black/5 dark:border-white/10
+                ${isSend ? "left-4" : "right-4"}
+              `}
+            ></div>
 
-            <button
-              className="
+            {!isSend && (
+              <>
+                <button
+                  className="
+                    flex items-center gap-2 w-full text-left 
+                    px-4 py-2 text-sm 
+                    text-red-500 dark:text-red-400 
+                    hover:bg-red-50 dark:hover:bg-red-500/10 
+                    transition-colors
+                  "
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setIsReportOpen(true);
+                  }}
+                >
+                  <Flag className="w-4 h-4" />
+                  Report
+                </button>
+
+                <div className="h-px bg-gray-100 dark:bg-slate-700 mx-2" />
+              </>
+            )}
+            {isSend && (
+              <button
+                disabled={isPending}
+                className="
                 flex items-center gap-2 w-full text-left 
                 px-4 py-2 text-sm 
-                text-red-500 dark:text-red-400 
-                dark:hover:bg-red-500/10 
+                text-red-600 
+                hover:bg-red-50 dark:hover:bg-red-500/10 
                 transition-colors
-              "
-              onClick={() => {
-                setIsMenuOpen(false);
-                setIsReportOpen(true);
-              }}
-            >
-              <Flag className="w-4 h-4" />
-              Report
-            </button>
+                "
+                onClick={handleDelete}
+              >
+                <HiTrash className="w-4 h-4" /> Delete
+              </button>
+            )}
           </div>
         )}
 
