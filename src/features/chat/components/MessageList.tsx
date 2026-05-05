@@ -23,8 +23,10 @@ function MessageList({
   const { user } = useUser();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const lastMessageIdRef = useRef<string | undefined>(undefined);
+  const isFirstLoadRef = useRef(true);
 
   const observerTarget = useRef<HTMLDivElement>(null);
+
   const getMessageDateLabel = function (dateString: string) {
     const date = new Date(dateString);
     const now = new Date();
@@ -77,15 +79,24 @@ function MessageList({
 
     const currentLastMessage = messages[messages.length - 1];
 
+    if (isFirstLoadRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+      isFirstLoadRef.current = false;
+      lastMessageIdRef.current = currentLastMessage.messageId;
+      return;
+    }
+
     if (lastMessageIdRef.current !== currentLastMessage.messageId) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       lastMessageIdRef.current = currentLastMessage.messageId;
     }
   }, [messages]);
+
   const sortedMessages = [...messages].sort(
     (a, b) =>
       new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime(),
   );
+
   return (
     <div className="flex-1 overflow-y-auto no-scrollbar">
       <div ref={observerTarget} className="w-full h-1" />
@@ -94,7 +105,7 @@ function MessageList({
 
       {messages?.length === 0 ? (
         <div className="h-full flex justify-center items-center text-gray-500">
-          There are no messages yet… start the conversation!{" "}
+          There are no messages yet… start the conversation!
         </div>
       ) : (
         <ul className="flex flex-col gap-5 px-3 py-4 sm:py-6 sm:px-10">
@@ -113,7 +124,7 @@ function MessageList({
                 {showDateHeader && (
                   <div className="flex justify-center my-3">
                     <div className="flex justify-center my-4">
-                      <span className=" bg-gray-100 backdrop-blur  text-gray-800 text-xs px-4 py-1.5 rounded-lg shadow-sm">
+                      <span className="bg-gray-100 backdrop-blur text-gray-800 text-xs px-4 py-1.5 rounded-lg shadow-sm">
                         {currentDate}
                       </span>
                     </div>
