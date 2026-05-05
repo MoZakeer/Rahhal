@@ -11,10 +11,10 @@ interface Props {
 
 function ReportDetailSkeleton() {
   return (
-    <div className="flex gap-3 items-start">
+    <div className="flex gap-3 items-start dark:opacity-60 transition-opacity">
       <Skeleton circle width={40} height={40} />
 
-      <div className="flex-1 space-y-2">
+      <div className="space-y-2 dark:opacity-60 transition-opacity">
         <Skeleton width={140} height={16} />
         <Skeleton width={100} height={12} />
         <Skeleton count={2} />
@@ -29,8 +29,8 @@ export default function ReportDetailsList({ type, id }: Props) {
   if (isError) return <div>Error loading reports</div>;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
-      <h2 className="text-sm font-semibold text-gray-700">
+    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6 space-y-4">
+      <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-500">
         {isLoading ? (
           <Skeleton width={180} />
         ) : (
@@ -40,27 +40,27 @@ export default function ReportDetailsList({ type, id }: Props) {
 
       {isLoading
         ? Array(2)
-            .fill(0)
-            .map((_, i) => <ReportDetailSkeleton key={i} />)
+          .fill(0)
+          .map((_, i) => <ReportDetailSkeleton key={i} />)
         : reports?.map((report) => (
-            <ReportDetailItem
-              key={report.reportId}
-              name={report.reporterUserName || "Anonymous User"}
-              username={
-                report.reporterUserName
-                  ? `@${report.reporterUserName}`
-                  : ""
-              }
-              type={report.type || "unknown"}
-              time={new Date(report.createdDate).toLocaleString()}
-              comment={report.description || "No comment provided"}
-              avatar={
-                report.reporterPicture
-                  ? normalizeMediaUrl(report.reporterPicture)
-                  : undefined
-              }
-            />
-          ))}
+          <ReportDetailItem
+            key={report.reportId}
+            name={report.reporterUserName || "Anonymous User"}
+            username={
+              report.reporterUserName
+                ? `@${report.reporterUserName}`
+                : ""
+            }
+            type={report.type || "unknown"}
+            time={new Date(report.createdDate).toLocaleString()}
+            comment={report.description || "No comment provided"}
+            avatar={
+              report.reporterPicture
+                ? normalizeMediaUrl(report.reporterPicture)
+                : undefined
+            }
+          />
+        ))}
     </div>
   );
 }
