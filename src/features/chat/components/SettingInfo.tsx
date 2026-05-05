@@ -12,61 +12,98 @@ export default function ChatSettingsInfo({
     description: string;
     isGroup: boolean;
     avatar: string;
+    isAdmin: boolean;
   };
 }) {
-  const [name, setName] = useState(chatInfo.name);
-  const [description, setDescription] = useState(chatInfo.description);
-  const [avatar, setAvatar] = useState(chatInfo.avatar);
-  const [file, setFile] = useState<File | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const { isPending, editChatSetting } = useEditChatSettings();
-  const { conversationId } = useParams<{ conversationId: string }>();
+  const DEFAULT_AVATAR = "/group-default.png";
 
+  // 🟢 initial values
   const [initialData, setInitialData] = useState({
     name: chatInfo.name,
     description: chatInfo.description,
   });
 
-  const isChanged = useMemo(() => {
-    return (
-      name !== initialData.name ||
-      description !== initialData.description ||
-      file !== null
-    );
-  }, [name, description, initialData, file]);
+  const [initialAvatar] = useState(chatInfo.avatar || DEFAULT_AVATAR);
 
-  function handleImageChange(e: React.ChangeEvent) {
-    const selectedFile = (e.target as HTMLInputElement).files?.[0];
+  // 🟢 current state
+  const [name, setName] = useState(chatInfo.name);
+  const [description, setDescription] = useState(chatInfo.description);
+  const [avatar, setAvatar] = useState(chatInfo.avatar || DEFAULT_AVATAR);
+
+  const [file, setFile] = useState<File | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const { isPending, editChatSetting } = useEditChatSettings();
+  const { conversationId } = useParams<{ conversationId: string }>();
+
+  // 🧠 detect changes (clean logic)
+  const isChanged = useMemo(() => {
+    const isNameChanged = name !== initialData.name;
+    const isDescChanged = description !== initialData.description;
+
+    const isAvatarChanged = file !== null || avatar !== initialAvatar;
+
+    return isNameChanged || isDescChanged || isAvatarChanged;
+  }, [name, description, initialData, file, avatar, initialAvatar]);
+
+  // 🖼️ upload image
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
-    setFile(selectedFile);
+
     const preview = URL.createObjectURL(selectedFile);
+
+    setFile(selectedFile);
     setAvatar(preview);
   }
 
+  // ❌ delete image
+  function handleDeleteImage() {
+    setAvatar(DEFAULT_AVATAR);
+    setFile(null);
+  }
+
+  // 💾 save
   function handleSave() {
-    setInitialData({ name, description });
-    setIsEditing(false);
+    if (!chatInfo.isAdmin) return; 
+
+    const shouldDelete =
+      avatar === DEFAULT_AVATAR && initialAvatar !== DEFAULT_AVATAR;
+
     editChatSetting({
       conversationId: conversationId || "",
       name,
       description,
       avatar: file,
+      isPictureDeleted: shouldDelete,
     });
+
+    // update initial state 
+    setInitialData({ name, description });
+    setIsEditing(false);
     setFile(null);
   }
 
+  // 🔄 cancel
   function handleCancel() {
     setName(initialData.name);
     setDescription(initialData.description);
+    setAvatar(initialAvatar);
+    setFile(null);
     setIsEditing(false);
   }
 
+  const hasRealAvatar = !!avatar && avatar !== DEFAULT_AVATAR;
+
   return (
-    <div className="w-full max-w-md   flex flex-col gap-6">
+    <div className="w-full max-w-md flex flex-col gap-6">
       <SettingAvatar
         avatar={avatar}
         isEditing={isEditing}
         onImageChange={handleImageChange}
+        onDeleteImage={handleDeleteImage}
+        hasRealAvatar={hasRealAvatar}
+        isAdmin={chatInfo.isAdmin}
       />
 
       {/* Divider */}
@@ -82,14 +119,14 @@ export default function ChatSettingsInfo({
           value={name}
           onChange={(e) => setName(e.target.value)}
           className={`
-              w-full px-4 py-2.5 rounded-xl border text-sm
-              outline-none transition-all duration-200
-              ${
-                isEditing
-                  ? "border-primary-500 bg-white focus:ring-2 focus:ring-primary-100"
-                  : "border-transparent bg-gray-100 text-gray-500 cursor-not-allowed"
-              }
-            `}
+            w-full px-4 py-2.5 rounded-xl border text-sm
+            outline-none transition-all duration-200
+            ${
+              isEditing
+                ? "border-primary-500 bg-white focus:ring-2 focus:ring-primary-100"
+                : "border-transparent bg-gray-100 text-gray-500 cursor-not-allowed"
+            }
+          `}
         />
       </div>
 
@@ -104,14 +141,14 @@ export default function ChatSettingsInfo({
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
           className={`
-              w-full px-4 py-2.5 rounded-xl border text-sm resize-none
-              outline-none transition-all duration-200
-              ${
-                isEditing
-                  ? "border-primary-500 bg-white focus:ring-2 focus:ring-primary-100"
-                  : "border-transparent bg-gray-100 text-gray-500 cursor-not-allowed"
-              }
-            `}
+            w-full px-4 py-2.5 rounded-xl border text-sm resize-none
+            outline-none transition-all duration-200
+            ${
+              isEditing
+                ? "border-primary-500 bg-white focus:ring-2 focus:ring-primary-100"
+                : "border-transparent bg-gray-100 text-gray-500 cursor-not-allowed"
+            }
+          `}
         />
         {isEditing && (
           <span className="text-xs text-gray-400 text-right">
@@ -119,7 +156,9 @@ export default function ChatSettingsInfo({
           </span>
         )}
       </div>
-      {chatInfo.isGroup && (
+
+      {/* Buttons (Admin only) */}
+      {chatInfo.isGroup && chatInfo.isAdmin && (
         <div className="flex gap-3 pt-2">
           {!isEditing ? (
             <button

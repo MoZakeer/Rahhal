@@ -24,6 +24,7 @@ function ChatSettings() {
     name: settings?.title || "",
     description: settings?.description || "",
     isGroup: settings?.isGroup || false,
+    isAdmin: settings?.isCurrentUserAdmin || false,
     avatar: conversationImage({
       isGroup: settings?.isGroup || false,
       conversationPictureURL: settings?.conversationPictureURL,
