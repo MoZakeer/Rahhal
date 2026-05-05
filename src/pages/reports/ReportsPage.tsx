@@ -2,9 +2,11 @@ import { useParams } from "react-router-dom";
 import { ReportList } from "../../features/reports/components/ReportList";
 import type { ReportType } from "../../features/reports/types";
 import { ReportTabs } from "../../features/reports/components/ReportTabs";
+import { useFavicon } from "@/hooks/useFavicon";
 
 export const ReportsPage = () => {
   const { type } = useParams();
+  useFavicon("/shield-check.png")
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-24 pb-12 px-4 sm:px-6 lg:px-8 transition-colors duration-500">

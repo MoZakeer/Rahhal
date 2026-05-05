@@ -5,6 +5,8 @@ import { motion, AnimateSharedLayout } from "framer-motion";
 import SearchComponent from "../../features/search/components/SearchComponent";
 import Image from "../../../public/profile_img.jpg";
 import SearchPostCard from "../../features/search/components/SearchPostCard";
+import { usePageTitle } from "@/hooks/usePageTitle";
+import { useFavicon } from "@/hooks/useFavicon";
 
 interface User {
   profileId: string;
@@ -48,6 +50,8 @@ const cardVariants = {
 };
 
 export default function SearchResults() {
+  usePageTitle("Search");
+  useFavicon("/global-research.png");
   const query = useQuery();
   const navigate = useNavigate();
   const keyword = query.get("keyword") || "";

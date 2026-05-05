@@ -5,8 +5,10 @@ import FeedHeader from "../../features/post/components/feedHeader";
 import CreatePostModal from "../../features/post/components/createPostModal";
 import { LeftSidebar } from "./LeftSidebar";
 import { RightSidebar } from "./RightSidebar";
+import { useFavicon } from "@/hooks/useFavicon";
 
 export default function HomeFeed() {
+  useFavicon("/plane-globe (2).png")
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
