@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { usePageInView } from "framer-motion";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useFavicon } from "@/hooks/useFavicon";
 // import type { S } from "node_modules/framer-motion/dist/types.d-DOCC-kZB";
 
 type PlannerForm = {
@@ -149,7 +150,7 @@ type ActivityLevel = "Relaxed" | "Moderate" | "Active";
 const AiPlanner = () => {
   usePageTitle("AI Trip Planner");
   usePageInView();
-  usePageTitle("AI Trip Planner");
+  useFavicon("/artificial-intelligence.png")
   type Step = "form" | "loading" | "result";
 
   const [step, setStep] = useState<Step>(() => {

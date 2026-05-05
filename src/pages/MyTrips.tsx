@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import TripCard from "@/components/TripCard";
 import { toast } from "sonner";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useFavicon } from "@/hooks/useFavicon";
 
 // --- Types & Interfaces ---
 export interface ApiTrip {
@@ -50,6 +51,7 @@ const statusTypes = [
 ];
 
 const MyTrips = () => {
+  useFavicon("/plane-lock.png")
   usePageTitle("My Adventures");
   const [trips, setTrips] = useState<ApiTrip[]>([]);
   const [activeFilter, setActiveFilter] = useState<number>(2);
