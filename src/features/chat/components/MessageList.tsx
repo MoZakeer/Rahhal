@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useLayoutEffect } from "react";
 import Message from "./Message";
 import type { Message as TMessage } from "../types/message.types";
 import { formatDate } from "../../../utils/helper";
@@ -24,6 +24,9 @@ function MessageList({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const lastMessageIdRef = useRef<string | undefined>(undefined);
   const isFirstLoadRef = useRef(true);
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const previousScrollHeightRef = useRef<number>(0);
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -64,7 +67,7 @@ function MessageList({
       {
         rootMargin: "20px",
         threshold: 0,
-      },
+      }
     );
 
     if (observerTarget.current) {
@@ -74,31 +77,51 @@ function MessageList({
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!messages || messages.length === 0) return;
+
+    const container = scrollContainerRef.current;
+    if (!container) return;
 
     const currentLastMessage = messages[messages.length - 1];
 
+    // الحالة الأولى: أول مرة الشات يفتح (بينزل لآخر رسالة تحت)
     if (isFirstLoadRef.current) {
       messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
       isFirstLoadRef.current = false;
       lastMessageIdRef.current = currentLastMessage.messageId;
+      previousScrollHeightRef.current = container.scrollHeight;
       return;
     }
 
+    // الحالة التانية: فيه رسالة جديدة اتبعتت أو استقبلتها (بينزل لتحت سموث)
     if (lastMessageIdRef.current !== currentLastMessage.messageId) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       lastMessageIdRef.current = currentLastMessage.messageId;
+      previousScrollHeightRef.current = container.scrollHeight;
+      return;
     }
+
+    // الحالة التالتة: بنعمل سكرول لفوق وجبنا رسايل قديمة (بنحافظ على مكان السكرول)
+    const newScrollHeight = container.scrollHeight;
+    const heightDifference = newScrollHeight - previousScrollHeightRef.current;
+
+    if (heightDifference > 0) {
+      // بنعمل إزاحة للسكرول بمقدار الرسايل اللي اتحملت عشان الـ Observer يختفي وميعملش Loop
+      container.scrollTop += heightDifference;
+    }
+
+    // بنحدث الارتفاع عشان المرة الجاية
+    previousScrollHeightRef.current = container.scrollHeight;
   }, [messages]);
 
   const sortedMessages = [...messages].sort(
     (a, b) =>
-      new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime(),
+      new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime()
   );
 
   return (
-    <div className="flex-1 overflow-y-auto no-scrollbar">
+    <div ref={scrollContainerRef} className="flex-1 overflow-y-auto no-scrollbar">
       <div ref={observerTarget} className="w-full h-1" />
 
       {isFetchingNextPage && <MessagePaginationSkeleton />}
