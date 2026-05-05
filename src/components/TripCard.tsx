@@ -1,5 +1,12 @@
 import { Link } from "react-router-dom";
-import { Heart, Users, Calendar, MapPin, Sparkles, Navigation } from "lucide-react";
+import {
+  Heart,
+  Users,
+  Calendar,
+  MapPin,
+  Sparkles,
+  Navigation,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
@@ -28,7 +35,6 @@ interface TripCardProps {
   onToggleFavorite?: (id: string) => void;
 }
 
-
 const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
   const queryClient = useQueryClient(); // 3. تهيئة الكلاينت
 
@@ -40,11 +46,11 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
     trip.imageUrl &&
     trip.imageUrl !== "" &&
     trip.imageUrl !== "string" &&
-    trip.imageUrl.startsWith("http")
+    trip.imageUrl.startsWith("http"),
   );
 
   const imageSeed = encodeURIComponent(
-    trip.destination || trip.name || trip.id
+    trip.destination || trip.name || trip.id,
   );
 
   const displayImage = hasValidImage
@@ -57,8 +63,8 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
     // eslint-disable-next-line react-hooks/immutability
     prefetchTimeout = setTimeout(() => {
       queryClient.prefetchQuery({
-        queryKey: ['tripDetails', trip.id, 'all'],
-        queryFn: () => getTripById(trip.id, 'all'),
+        queryKey: ["tripDetails", trip.id, "all"],
+        queryFn: () => getTripById(trip.id, "all"),
         staleTime: 1000 * 60 * 2,
       });
     }, 150);
@@ -75,11 +81,9 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
       onMouseLeave={handleCancelPrefetch}
       onTouchStart={handlePrefetch}
     >
-
-      <div className="relative flex h-auto md:h-[420px] w-full flex-col overflow-hidden rounded-3xl bg-white shadow-sm md:transition-all md:duration-500 md:ease-out md:group-hover:-translate-y-2 md:group-hover:shadow-[0_20px_50px_rgba(37,99,235,0.08)] border border-slate-100 md:border-none">
-
+      <div className="relative flex h-auto md:h-[420px] dark:bg-slate-800 w-full flex-col overflow-hidden rounded-3xl bg-white shadow-sm md:transition-all md:duration-500 md:ease-out md:group-hover:-translate-y-2 md:group-hover:shadow-[0_20px_50px_rgba(37,99,235,0.08)] border border-slate-100 md:border-none">
         {/* Image Section */}
-        <div className="relative h-[240px] w-full shrink-0 overflow-hidden bg-slate-50 md:absolute md:inset-0 md:h-full">
+        <div className="relative h-[240px] w-full shrink-0 overflow-hidden dark:bg-slate-800 bg-slate-50 md:absolute md:inset-0 md:h-full">
           <img
             src={displayImage}
             alt={trip.name}
@@ -106,17 +110,18 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-4 top-4 md:right-5 md:top-5 h-10 w-10 rounded-full bg-white/90 backdrop-blur-md shadow-sm border border-white/50 hover:bg-white transition-all duration-300 z-30"
+            className="absolute right-4 top-4 md:right-5 md:top-5 h-10 w-10 rounded-full bg-white/90 dark:bg-slate-700  backdrop-blur-md shadow-sm border border-white/50 dark:border-slate-400 hover:bg-white dark:hover:bg-slate-300 transition-all duration-300 z-30"
             onClick={(e) => {
               e.preventDefault();
               onToggleFavorite?.(trip.id);
             }}
           >
             <Heart
-              className={`h-5 w-5 transition-colors duration-300 ${trip.isSaved
-                  ? "fill-red-500 text-red-500"
+              className={`h-5 w-5 transition-colors duration-300 ${
+                trip.isSaved
+                  ? "fill-red-500 text-red-500 dark:fill-red-600 dark:text-red-600"
                   : "text-slate-400"
-                }`}
+              }`}
             />
           </Button>
 
@@ -129,9 +134,7 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
           )}
         </div>
 
-
-        <div className="relative z-20 flex flex-1 flex-col bg-white p-5 md:absolute md:bottom-0 md:left-0 md:right-0 md:p-6 md:transition-transform md:duration-500 md:ease-out md:translate-y-[120px] md:group-hover:translate-y-0">
-
+        <div className="relative z-20 flex flex-1 flex-col dark:bg-slate-800 bg-white p-5 md:absolute md:bottom-0 md:left-0 md:right-0 md:p-6 md:transition-transform md:duration-500 md:ease-out md:translate-y-[120px] md:group-hover:translate-y-0">
           <div className="mb-3 md:mb-4">
             {/* Location */}
             {trip.destination && (
@@ -142,15 +145,14 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
             )}
 
             {/* Title */}
-            <h3 className="font-display text-xl md:text-2xl font-bold text-slate-900 line-clamp-1 md:transition-colors md:duration-300 md:group-hover:text-blue-900">
+            <h3 className="font-display text-xl md:text-2xl font-bold text-slate-900  dark:text-slate-300 line-clamp-1 md:transition-colors md:duration-300 md:group-hover:text-blue-900 dark:md:group-hover:text-slate-100">
               {trip.name}
             </h3>
           </div>
 
-
           <div className="flex flex-1 flex-col md:opacity-0 md:group-hover:opacity-100 md:transition-opacity md:duration-500 md:delay-100">
             {/* Description */}
-            <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed mb-4">
+            <p className="text-sm text-slate-500 dark:text-slate-300 line-clamp-2 leading-relaxed mb-4">
               {trip.description}
             </p>
 
@@ -160,7 +162,7 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
                 <Badge
                   key={pref.id}
                   variant="secondary"
-                  className="bg-slate-50 text-slate-600 border border-slate-100 text-[11px] md:text-xs px-2.5 py-1 rounded-full font-medium"
+                  className="bg-slate-50 text-slate-600 border dark:bg-slate-900 dark:text-blue-700 dark:border-slate-700 border-slate-100 text-[11px] md:text-xs px-2.5 py-1 rounded-full font-medium"
                 >
                   {pref.name}
                 </Badge>
@@ -172,33 +174,32 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 md:gap-4 text-xs md:text-sm text-slate-500 font-medium">
                   <span className="flex items-center gap-1.5">
-                    <Calendar className="h-4 w-4 text-blue-400" />
+                    <Calendar className="h-4 w-4 text-blue-400 dark:text-blue-700" />
                     {trip.startDate
                       ? new Date(trip.startDate).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      })
+                          month: "short",
+                          day: "numeric",
+                        })
                       : "TBD"}
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <Users className="h-4 w-4 text-blue-400" />
+                    <Users className="h-4 w-4 text-blue-400 dark:text-blue-700" />
                     {trip.numberOfUser || 0}
                   </span>
                 </div>
 
                 {/* Creator */}
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] md:text-xs font-medium text-slate-500 hidden sm:block">
+                  <span className="text-[11px] md:text-xs font-medium text-slate-500 dark:text-slate-300 hidden sm:block">
                     {trip.createdBy || "Unknown"}
                   </span>
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-xs font-bold text-blue-700 border border-blue-100">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 dark:bg-slate-500 text-xs font-bold text-blue-700 dark:text-blue-800 border border-blue-100 dark:border-slate-500">
                     {avatarLetter}
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </Link>

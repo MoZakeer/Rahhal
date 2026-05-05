@@ -27,10 +27,12 @@ const API_BASE_URL = "https://rahhal-api.runasp.net";
 import { getUserRole } from "../../utils/auth";
 import AnimatedSearch from "../components/AnimatedSearch";
 // import SearchComponent from "../../features/search/components/SearchComponent";
-import { Map, Sparkles, GitCompareArrows } from "lucide-react";
+import { Plus, Sparkles, GitCompareArrows } from "lucide-react";
 import { useNavbar } from "../hooks/useNavbar";
+import { isTokenValid } from "../../utils/auth";
+
 const travelDropdownItems = [
-  { label: "Create Trip", path: "/create-trip", icon: Map },
+  { label: "Create Trip", path: "/create-trip", icon: Plus },
   { label: "AI Planner", path: "/ai-planner", icon: Sparkles },
   { label: "Matching", path: "/matching", icon: GitCompareArrows },
   { label: "My Trips", path: "/my-trips", icon: Plane },
@@ -75,8 +77,9 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
   const [profile, setProfile] = useState<Profile>();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState<number>();
-  const [hasToken] = useState(() => !!localStorage.getItem("token"));
+  const [hasToken] = useState(() => isTokenValid());
   const navigate = useNavigate();
+  const showMobileComponent = location.pathname === "/feed";
 
   const { unreadCount, markAllAsRead } = useNotificationContext();
   const handleClick = async () => {
@@ -255,6 +258,11 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
             >
               <TravelIcon className="h-5 w-5" />
               <span>{travelLabel}</span>
+              <ChevronDown
+                className={`h-3.5 w-3.5 transition-transform duration-200 ${
+                  dropdownOpen ? "rotate-180" : ""
+                }`}
+              />
             </button>
 
             {/* Dropdown */}
@@ -334,7 +342,11 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
         <div className="flex items-center gap-2 ml-auto lg:gap-3">
           {hasToken ? (
             <>
-              <AnimatedSearch />
+              {showMobileComponent && (
+                <div className="block lg:hidden">
+                  <AnimatedSearch />
+                </div>
+              )}{" "}
               <button
                 onClick={handleClick}
                 className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 "
@@ -347,9 +359,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                   </span>
                 )}
               </button>
-
               <div className="hidden lg:block h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
-
               {/* User Account Popover */}
               <Popover className="relative hidden lg:block">
                 <Popover.Button className="flex items-center gap-2 p-1 pr-3 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-all outline-none border border-transparent hover:border-slate-100 dark:hover:border-slate-700 group">
@@ -521,6 +531,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
               )}
               {role === "SuperAdmin" && (
                 <Link
+                  onClick={() => setMobileOpen(false)}
                   to="/admin/reports/users"
                   className="group relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold 
                bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900

@@ -279,7 +279,6 @@ const AiPlanner = () => {
     // 2. Date Logic & Capping
 
     // 3. Sync the 'user_days' state and enforce the 5-day limit
-
     if (form.user_days > 5) {
       toast.warning(
         "Our AI planner is currently limited to 5 days. We'll generate the first 5 days of your trip!",
@@ -394,7 +393,6 @@ const AiPlanner = () => {
             "lastResult",
             JSON.stringify(retrieveData.itinerary),
           );
-          console.log("Saved itinerary:", retrieveData.itinerary);
           localStorage.setItem("tripStep", "result");
           toast.success("Trip planned and saved to your profile!");
         } else {
@@ -657,6 +655,12 @@ const AiPlanner = () => {
                         <AlertCircle className="w-3 h-3" /> Required
                       </span>
                     )}
+                    {form.user_days > 5 && (
+                      <span className="flex items-center gap-1 text-[10px] text-blue-400 font-bold uppercase italic">
+                        <AlertCircle className="w-3 h-3" /> AI-generated plans
+                        are available for 5 days only
+                      </span>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs uppercase tracking-wider font-bold text-slate-400 flex items-center gap-1 dark:text-slate-200">
@@ -844,7 +848,7 @@ const AiPlanner = () => {
                       Gender
                     </Label>
                     <div className="flex gap-2 bg-slate-50 p-1.5 rounded-2xl dark:bg-slate-700">
-                      {["Any / Mixed", "Male only", "Female only"].map(
+                      {["Male only", "Female only", "Any / Mixed"].map(
                         (g, i) => (
                           <button
                             key={g}
@@ -866,7 +870,7 @@ const AiPlanner = () => {
                       Age Range
                     </Label>
                     <div className="flex gap-2 bg-slate-50 p-1.5 rounded-2xl dark:bg-slate-700">
-                      {[0, 1, 2, 3].map((a) => (
+                      {[1, 2, 3, 4].map((a) => (
                         <button
                           key={a}
                           className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -876,11 +880,11 @@ const AiPlanner = () => {
                           }`}
                           onClick={() => setForm({ ...form, ageGroup: a })}
                         >
-                          {a === 0
+                          {a === 1
                             ? "All Ages"
-                            : a === 1
+                            : a === 2
                               ? "Youth (18-25)"
-                              : a === 2
+                              : a === 3
                                 ? "Adults (26-40)"
                                 : "Seniors (40+)"}
                         </button>
