@@ -22,6 +22,11 @@ import {
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { Check, ChevronsUpDown } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+
 export interface MatchCriteria {
   destinationId?: string;
   preferenceIds?: string[];
@@ -73,7 +78,6 @@ const MatchSourceSelector = ({
   const [isFetchingTrips, setIsFetchingTrips] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
 
-  // 🚀 ADDED: تهيئة الحقول من البيانات السابقة (initialData)
   const [destinationId, setDestinationId] = useState(initialData?.destinationId || "ANY");
   const [selectedPreferenceIds, setSelectedPreferenceIds] = useState<string[]>(initialData?.preferenceIds || []);
   const [travelers, setTravelers] = useState(initialData?.travelers?.toString() || "");
@@ -84,11 +88,12 @@ const MatchSourceSelector = ({
   const [endDate, setEndDate] = useState(initialData?.endDate || "");
   const [destSearch, setDestSearch] = useState("");
 
+  const [openDest, setOpenDest] = useState(false);
+
   const filteredDestinations = destinations.filter((d) =>
     d.name.toLowerCase().includes(destSearch.toLowerCase())
   );
 
-  // 🚀 ADDED: مزامنة الحقول لو initialData اتغيرت من بره
   useEffect(() => {
     if (initialData) {
       setDestinationId(initialData.destinationId || "ANY");
@@ -381,53 +386,49 @@ const MatchSourceSelector = ({
             <div className="grid gap-5 sm:grid-cols-3">
               <div>
                 <label className={labelClass}>Destination</label>
-                <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 z-10 pointer-events-none" />
-                  <Select
-                    value={destinationId}
-                    onValueChange={setDestinationId}
-                    onOpenChange={(open) => !open && setDestSearch("")}
-                  >
-                    <SelectTrigger className={`pl-11 ${inputClass}`}>
-                      <SelectValue placeholder="Anywhere" />
-                    </SelectTrigger>
-
-                    <SelectContent className="rounded-xl border-slate-100 shadow-xl max-h-[300px]">
-                      <div
-                        className="sticky top-0 z-10 bg-white p-2 border-b border-slate-100"
-                        onPointerDown={(e) => e.stopPropagation()}
-                      >
-                        <div className="relative">
-                          <Search className="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
-                          <Input
-                            placeholder="Search cities..."
-                            value={destSearch}
-                            onChange={(e) => setDestSearch(e.target.value)}
-                            onKeyDown={(e) => e.stopPropagation()}
-                            onTouchStart={(e) => e.currentTarget.focus()}
-                            className="h-8 pl-7 text-xs bg-slate-50 border-none focus-visible:ring-1 focus-visible:ring-slate-200"
-                          />
-                        </div>
-                      </div>
-
-                      <SelectItem value="ANY" className="font-medium text-slate-700">
-                        Any Destination
-                      </SelectItem>
-
-                      {filteredDestinations.length > 0 ? (
-                        filteredDestinations.map((d) => (
-                          <SelectItem key={d.id} value={d.id}>
+                <Popover open={openDest} onOpenChange={setOpenDest}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={openDest}
+                      className={cn("w-full justify-start pl-11 text-left font-normal relative", inputClass)}
+                    >
+                      <MapPin className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 z-10" />
+                      {destinationId === "ANY"
+                        ? "Anywhere"
+                        : destinations.find((d) => d.id === destinationId)?.name || "Select City..."}
+                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 rounded-xl shadow-xl border-slate-100" align="start">
+                    <Command className="rounded-xl">
+                      <CommandInput placeholder="Search city..." className="h-11" />
+                      <CommandEmpty>No city found.</CommandEmpty>
+                      <CommandGroup className="max-h-[250px] overflow-y-auto">
+                        <CommandItem
+                          value="any"
+                          onSelect={() => { setDestinationId("ANY"); setOpenDest(false); }}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          <Check className={cn("h-4 w-4", destinationId === "ANY" ? "opacity-100" : "opacity-0")} />
+                          Any Destination
+                        </CommandItem>
+                        {destinations.map((d) => (
+                          <CommandItem
+                            key={d.id}
+                            value={d.name}
+                            onSelect={() => { setDestinationId(d.id); setOpenDest(false); }}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            <Check className={cn("h-4 w-4", destinationId === d.id ? "opacity-100" : "opacity-0")} />
                             {d.name}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <div className="py-4 text-center text-xs text-slate-400">
-                          No cities found
-                        </div>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div>
