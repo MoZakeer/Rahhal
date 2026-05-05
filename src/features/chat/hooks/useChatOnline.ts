@@ -10,7 +10,7 @@ export function useChatOnline(
   useEffect(() => {
     if (!presenceConnection || !id) return;
 
-    const handler = (data: any) => {
+    const handler = (data: { profileId: string; isOnline: boolean }) => {
       if (!data?.profileId) return;
 
       if (String(data.profileId) !== String(id)) return;
