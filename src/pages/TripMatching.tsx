@@ -93,6 +93,19 @@ const TripMatching = () => {
     }
   }, []);
 
+  const [destinations, setDestinations] = useState<any[]>([]);
+  useEffect(() => {
+    const fetchDestinations = async () => {
+      try {
+        const res = await fetch("https://rahhal-api.runasp.net/City/GetAll?SortByLastAdded=true");
+        const data = await res.json();
+        if (data.isSuccess) setDestinations(data.data);
+      } catch (error) {
+        console.error("Error fetching destinations", error);
+      }
+    };
+    fetchDestinations();
+  }, []);
 
   // 🚀 Logic for Smart Header (Hide on Scroll Down, Show on Scroll Up)
   const [isVisible, setIsVisible] = useState(true);
@@ -334,7 +347,7 @@ const TripMatching = () => {
                 className="overflow-hidden"
               >
                 <div className="bg-white rounded-[2rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-slate-100 p-2 sm:p-4 mb-2">
-                  <MatchSourceSelector onMatch={handleMatch} isMatching={isMatching} initialData={currentCriteria} />
+                  <MatchSourceSelector onMatch={handleMatch} isMatching={isMatching} initialData={currentCriteria} destinations={destinations} />
                 </div>
               </motion.div>
             ) : (
@@ -349,7 +362,7 @@ const TripMatching = () => {
               >
                 {/* الجزء الأيسر: أيقونة وتفاصيل البحث */}
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-5 gap-y-2 text-sm font-medium text-slate-700 flex-1">
-                  <div className="flex items-center gap-2 text-primary bg-primary/5 px-3 py-1.5 rounded-full">
+                  <div className="flex items-center gap-2 text-primary bg-primary/5 px-3 py-1.5 rounded-full hidden md:flex">
                     <Sparkles className="h-4 w-4" />
                     <span className="font-bold text-xs uppercase tracking-wider">Filtered</span>
                   </div>
@@ -357,8 +370,9 @@ const TripMatching = () => {
                   <div className="flex items-center gap-4 text-slate-500">
                     <span className="flex items-center gap-1.5 transition-colors group-hover:text-slate-700">
                       <MapPin className="h-4 w-4" />
-                      {currentCriteria?.destinationId && currentCriteria.destinationId !== "ANY" ? "Specific Dest." : "Anywhere"}
-                    </span>
+                      {currentCriteria?.destinationId && currentCriteria.destinationId !== "ANY"
+                        ? (destinations.find(d => d.id === currentCriteria.destinationId)?.name || "Destination")
+                        : "Anywhere"}                    </span>
 
                     {currentCriteria?.travelers && (
                       <span className="flex items-center gap-1.5 transition-colors group-hover:text-slate-700">
@@ -412,53 +426,48 @@ const TripMatching = () => {
       {!isMatching && hasMatched && (
         <div className="container mx-auto max-w-5xl px-4 relative">
 
-          {/* 
-            🚀 Always Visible Sticky Search + Sort + Map Toggle
-          */}
-          <div className={`sticky top-18 z-40 mb-10 mx-auto max-w-5xl pt-2 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-            <div className="rounded-[2rem] bg-white/80 backdrop-blur-xl p-2.5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-200/50 flex flex-wrap items-center justify-between transition-all gap-3">
+          <div className={`sticky top-20 z-40 mb-10 mx-auto max-w-5xl pt-2 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+            <div className="rounded-[2rem] bg-white/80 backdrop-blur-xl p-1.5 sm:p-2.5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-200/50 flex flex-row items-center justify-between transition-all gap-2">
 
-              <div className="hidden md:flex items-center gap-2 pl-4">
+              <div className="hidden md:flex items-center gap-2 pl-4 shrink-0">
                 <span className="font-display font-semibold text-slate-900">Matches</span>
                 <span className="flex items-center justify-center bg-slate-100 text-slate-500 text-xs font-bold px-2 py-0.5 rounded-full">
                   {filteredAndSorted.length}
                 </span>
               </div>
 
-              <div className="flex-1 flex items-center justify-end gap-3 w-full md:w-auto flex-nowrap">
+              <div className="flex-1 flex flex-row items-center justify-between gap-1.5 sm:gap-3">
 
-                {/* Search Input */}
-                <div className="relative w-full sm:w-auto sm:flex-1 max-w-xs">
-                  <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <div className="relative flex-1 min-w-[80px] max-w-xs">
+                  <Search className="absolute left-3 sm:left-4 top-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 -translate-y-1/2 text-slate-400" />
                   <Input
-                    placeholder="Search matches..."
+                    placeholder="Search..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-11 bg-slate-50 border-transparent hover:bg-slate-100 focus:bg-white focus:border-primary/20 focus-visible:ring-2 focus-visible:ring-primary/20 rounded-full h-11 transition-all shadow-none"
+                    className="pl-8 sm:pl-11 bg-slate-50 border-transparent hover:bg-slate-100 focus:bg-white focus:border-primary/20 rounded-full h-9 sm:h-11 text-xs sm:text-sm transition-all shadow-none"
                   />
                 </div>
 
-                {/* Smart Sorting Dropdown */}
                 <div className="shrink-0">
                   <Select value={sortBy} onValueChange={(val: any) => setSortBy(val)}>
-                    <SelectTrigger className="w-[160px] bg-slate-50 border-transparent hover:bg-slate-100 text-sm font-semibold text-slate-700 rounded-full h-11 shadow-none focus:ring-0 transition-colors">
-                      <SelectValue placeholder="Sort by" />
+                    <SelectTrigger className="w-[90px] sm:w-[150px] bg-slate-50 border-transparent hover:bg-slate-100 text-[10px] sm:text-sm font-semibold text-slate-700 rounded-full h-9 sm:h-11 shadow-none focus:ring-0 px-2 sm:px-4">
+                      <SelectValue placeholder="Sort" />
                     </SelectTrigger>
                     <SelectContent className="rounded-2xl border-slate-100 shadow-xl p-1">
-                      <SelectItem value="best_match" className="font-medium rounded-xl py-2 cursor-pointer focus:bg-primary/5 focus:text-primary transition-colors">
-                        <div className="flex items-center gap-2.5">
+                      <SelectItem value="best_match" className="font-medium rounded-xl py-2 cursor-pointer">
+                        <div className="flex items-center gap-2">
                           <Sparkles className="h-4 w-4 text-primary" />
                           <span>Best Match</span>
                         </div>
                       </SelectItem>
-                      <SelectItem value="budget_asc" className="font-medium rounded-xl py-2 cursor-pointer focus:bg-slate-50 transition-colors">
-                        <div className="flex items-center gap-2.5">
+                      <SelectItem value="budget_asc" className="font-medium rounded-xl py-2 cursor-pointer">
+                        <div className="flex items-center gap-2">
                           <Banknote className="h-4 w-4 text-slate-400" />
                           <span>Lowest Price</span>
                         </div>
                       </SelectItem>
-                      <SelectItem value="date_asc" className="font-medium rounded-xl py-2 cursor-pointer focus:bg-slate-50 transition-colors">
-                        <div className="flex items-center gap-2.5">
+                      <SelectItem value="date_asc" className="font-medium rounded-xl py-2 cursor-pointer">
+                        <div className="flex items-center gap-2">
                           <CalendarClock className="h-4 w-4 text-slate-400" />
                           <span>Soonest</span>
                         </div>
@@ -467,31 +476,26 @@ const TripMatching = () => {
                   </Select>
                 </div>
 
-                {/* 🗺️ View Toggle Switch */}
-                <div className="flex items-center bg-slate-100/80 p-1 rounded-full border border-slate-200/50 shrink-0 h-11">
+                <div className="flex items-center bg-slate-100/80 p-0.5 sm:p-1 rounded-full border border-slate-200/50 shrink-0 h-9 sm:h-11">
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`relative px-4 h-full rounded-full flex items-center justify-center transition-all z-10 ${viewMode === 'list' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'}`}
-                    title="List View"
+                    className={`relative px-2 sm:px-4 h-full rounded-full flex items-center justify-center transition-all z-10 ${viewMode === 'list' ? 'text-primary' : 'text-slate-400'}`}
                   >
-                    <List className="h-4 w-4" />
+                    <List className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     {viewMode === 'list' && <motion.div layoutId="viewToggle" className="absolute inset-0 bg-white rounded-full shadow-sm border border-slate-200/50 -z-10" />}
                   </button>
                   <button
                     onClick={() => { setViewMode('map'); setSelectedMapTrip(null); }}
-                    className={`relative px-4 h-full rounded-full flex items-center justify-center transition-all z-10 ${viewMode === 'map' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'}`}
-                    title="Map View"
+                    className={`relative px-2 sm:px-4 h-full rounded-full flex items-center justify-center transition-all z-10 ${viewMode === 'map' ? 'text-primary' : 'text-slate-400'}`}
                   >
-                    <MapIcon className="h-4 w-4" />
+                    <MapIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     {viewMode === 'map' && <motion.div layoutId="viewToggle" className="absolute inset-0 bg-white rounded-full shadow-sm border border-slate-200/50 -z-10" />}
                   </button>
                 </div>
               </div>
-
             </div>
           </div>
 
-          {/* 🚀 Dynamic Content Area (List vs Map) */}
           <AnimatePresence mode="wait">
 
             {viewMode === 'list' ? (

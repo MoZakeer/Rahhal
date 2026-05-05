@@ -36,7 +36,8 @@ export interface MatchCriteria {
 interface MatchSourceSelectorProps {
   onMatch: (criteria: MatchCriteria) => void;
   isMatching: boolean;
-  initialData?: MatchCriteria | null; // 🚀 ADDED: استلام البيانات المحفوظة
+  initialData?: MatchCriteria | null;
+  destinations: any[]
 }
 
 const genderOptions = [
@@ -55,11 +56,12 @@ const ageGroupOptions = [
 const MatchSourceSelector = ({
   onMatch,
   isMatching,
-  initialData, // 🚀 ADDED
+  initialData,
+  destinations,
 }: MatchSourceSelectorProps) => {
   const [mode, setMode] = useState<"trip" | "custom">("custom");
 
-  const [destinations, setDestinations] = useState<any[]>([]);
+  // const [destinations, setDestinations] = useState<any[]>([]);
   const [preferences, setPreferences] = useState<any[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
 
@@ -71,7 +73,6 @@ const MatchSourceSelector = ({
   const [isFetchingTrips, setIsFetchingTrips] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
 
-  // 🚀 ADDED: تهيئة الحقول من البيانات السابقة (initialData)
   const [destinationId, setDestinationId] = useState(initialData?.destinationId || "ANY");
   const [selectedPreferenceIds, setSelectedPreferenceIds] = useState<string[]>(initialData?.preferenceIds || []);
   const [travelers, setTravelers] = useState(initialData?.travelers?.toString() || "");
@@ -80,8 +81,12 @@ const MatchSourceSelector = ({
   const [ageGroup, setAgeGroup] = useState<string>(initialData?.ageGroup?.toString() || "");
   const [startDate, setStartDate] = useState(initialData?.startDate || "");
   const [endDate, setEndDate] = useState(initialData?.endDate || "");
+  const [destSearch, setDestSearch] = useState("");
 
-  // 🚀 ADDED: مزامنة الحقول لو initialData اتغيرت من بره
+  const filteredDestinations = destinations.filter((d) =>
+    d.name.toLowerCase().includes(destSearch.toLowerCase())
+  );
+
   useEffect(() => {
     if (initialData) {
       setDestinationId(initialData.destinationId || "ANY");
@@ -96,28 +101,20 @@ const MatchSourceSelector = ({
   }, [initialData]);
 
   useEffect(() => {
-    const fetchInitialData = async () => {
+    const fetchPreferences = async () => {
       try {
-        const [destRes, prefRes] = await Promise.all([
-          fetch("https://rahhal-api.runasp.net/City/GetAll?SortByLastAdded=true"),
-          fetch("https://rahhal-api.runasp.net/TravelPreference/GetAll?SortByLastAdded=true"),
-        ]);
-
-        if (destRes.ok) {
-          const d = await destRes.json();
-          if (d.isSuccess) setDestinations(d.data);
-        }
+        const prefRes = await fetch("https://rahhal-api.runasp.net/TravelPreference/GetAll?SortByLastAdded=true");
         if (prefRes.ok) {
           const p = await prefRes.json();
           if (p.isSuccess) setPreferences(p.data);
         }
       } catch (error) {
-        console.error("Error fetching match data", error);
+        console.error("Error fetching preferences", error);
       } finally {
         setIsLoadingData(false);
       }
     };
-    fetchInitialData();
+    fetchPreferences();
   }, []);
 
   useEffect(() => {
@@ -384,15 +381,44 @@ const MatchSourceSelector = ({
                 <label className={labelClass}>Destination</label>
                 <div className="relative">
                   <MapPin className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 z-10 pointer-events-none" />
-                  <Select value={destinationId} onValueChange={setDestinationId}>
+                  <Select 
+                    value={destinationId} 
+                    onValueChange={setDestinationId}
+                    onOpenChange={(open) => !open && setDestSearch("")}
+                  >
                     <SelectTrigger className={`pl-11 ${inputClass}`}>
                       <SelectValue placeholder="Anywhere" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl border-slate-100 shadow-xl">
-                      <SelectItem value="ANY" className="font-medium text-slate-700">Any Destination</SelectItem>
-                      {destinations.map((d) => (
-                        <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                      ))}
+                    
+                    <SelectContent className="rounded-xl border-slate-100 shadow-xl max-h-[300px]">
+                      <div className="sticky top-0 z-10 bg-white p-2 border-b border-slate-100">
+                        <div className="relative">
+                          <Search className="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
+                          <Input
+                            placeholder="Search cities..."
+                            value={destSearch}
+                            onChange={(e) => setDestSearch(e.target.value)}
+                            onKeyDown={(e) => e.stopPropagation()}
+                            className="h-8 pl-7 text-xs bg-slate-50 border-none focus-visible:ring-1 focus-visible:ring-slate-200"
+                          />
+                        </div>
+                      </div>
+
+                      <SelectItem value="ANY" className="font-medium text-slate-700">
+                        Any Destination
+                      </SelectItem>
+                      
+                      {filteredDestinations.length > 0 ? (
+                        filteredDestinations.map((d) => (
+                          <SelectItem key={d.id} value={d.id}>
+                            {d.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="py-4 text-center text-xs text-slate-400">
+                          No cities found
+                        </div>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -504,8 +530,8 @@ const MatchSourceSelector = ({
                       key={pref.id}
                       onClick={() => togglePreference(pref.id)}
                       className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 border ${isSelected
-                          ? "bg-slate-900 text-white border-slate-900 shadow-md scale-[1.02]"
-                          : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                        ? "bg-slate-900 text-white border-slate-900 shadow-md scale-[1.02]"
+                        : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
                         }`}
                     >
                       {pref.name}
