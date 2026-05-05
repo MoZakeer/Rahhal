@@ -65,7 +65,7 @@ export default function ChatSettingsInfo({
 
   // 💾 save
   function handleSave() {
-    if (!chatInfo.isAdmin) return; 
+    if (!chatInfo.isAdmin) return;
 
     const shouldDelete =
       avatar === DEFAULT_AVATAR && initialAvatar !== DEFAULT_AVATAR;
@@ -78,7 +78,7 @@ export default function ChatSettingsInfo({
       isPictureDeleted: shouldDelete,
     });
 
-    // update initial state 
+    // update initial state
     setInitialData({ name, description });
     setIsEditing(false);
     setFile(null);
@@ -120,10 +120,10 @@ export default function ChatSettingsInfo({
           onChange={(e) => setName(e.target.value)}
           className={`
             w-full px-4 py-2.5 rounded-xl border text-sm
-            outline-none transition-all duration-200
+            outline-none transition-all duration-200 text-gray-800
             ${
               isEditing
-                ? "border-primary-500 bg-white focus:ring-2 focus:ring-primary-100"
+                ? "border-primary-500 bg-gray-0 focus:ring-2 focus:ring-primary-100"
                 : "border-transparent bg-gray-100 text-gray-500 cursor-not-allowed"
             }
           `}
@@ -142,10 +142,10 @@ export default function ChatSettingsInfo({
           rows={3}
           className={`
             w-full px-4 py-2.5 rounded-xl border text-sm resize-none
-            outline-none transition-all duration-200
+            outline-none transition-all duration-200 text-gray-800
             ${
               isEditing
-                ? "border-primary-500 bg-white focus:ring-2 focus:ring-primary-100"
+                ? "border-primary-500 bg-gray-0 focus:ring-2 focus:ring-primary-100"
                 : "border-transparent bg-gray-100 text-gray-500 cursor-not-allowed"
             }
           `}
@@ -163,7 +163,7 @@ export default function ChatSettingsInfo({
           {!isEditing ? (
             <button
               onClick={() => setIsEditing(true)}
-              className="w-full py-3 rounded-xl text-sm font-medium border border-primary-500 text-primary-600 hover:bg-primary-50 transition"
+              className="w-full py-3 rounded-xl text-sm font-medium border border-primary-500 text-primary-600 hover:bg-primary-600 hover:text-primary-50  transition"
             >
               Edit Profile
             </button>
@@ -175,7 +175,7 @@ export default function ChatSettingsInfo({
                 className={`flex-1 py-3 rounded-xl text-sm font-medium transition
                 ${
                   isChanged
-                    ? "bg-primary-600 text-white hover:bg-primary-700"
+                    ? "bg-primary-600 text-primary-50 hover:bg-primary-700"
                     : "bg-gray-200 text-gray-400 cursor-not-allowed"
                 }`}
               >

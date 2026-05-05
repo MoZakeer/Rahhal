@@ -36,7 +36,7 @@ function SettingAvatar({
               htmlFor="avatar-upload"
               className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 rounded-full flex items-center justify-center cursor-pointer transition"
             >
-              <HiOutlineCamera className="text-white w-6 h-6" />
+              <HiOutlineCamera className="text-gray-0 w-6 h-6" />
             </label>
           )}
 
