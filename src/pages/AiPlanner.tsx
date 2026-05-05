@@ -150,7 +150,7 @@ type ActivityLevel = "Relaxed" | "Moderate" | "Active";
 const AiPlanner = () => {
   usePageTitle("AI Trip Planner");
   usePageInView();
-  useFavicon("/artificial-intelligence.png")
+  useFavicon("/artificial-intelligence.png");
   type Step = "form" | "loading" | "result";
 
   const [step, setStep] = useState<Step>(() => {
@@ -234,7 +234,9 @@ const AiPlanner = () => {
     const fetchData = async () => {
       try {
         const [cityRes, prefRes, countryres] = await Promise.all([
-          fetch("https://rahhal-api.runasp.net/City/GetAll"),
+          fetch(
+            "https://rahhal-api.runasp.net/City/GetAll?IsAvailableForPlanner=true",
+          ),
           fetch("https://rahhal-api.runasp.net/TravelPreference/GetAll"),
           fetch("https://rahhal-api.runasp.net/Country/GetAll"),
         ]);
