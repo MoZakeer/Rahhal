@@ -463,7 +463,7 @@ const TripMatching = () => {
                       <SelectItem value="budget_asc" className="font-medium rounded-xl py-2 cursor-pointer">
                         <div className="flex items-center gap-2">
                           <Banknote className="h-4 w-4 text-slate-400" />
-                          <span>Lowest Price</span>
+                          <span>Low Price</span>
                         </div>
                       </SelectItem>
                       <SelectItem value="date_asc" className="font-medium rounded-xl py-2 cursor-pointer">
