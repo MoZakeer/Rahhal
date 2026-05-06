@@ -9,12 +9,14 @@ import { loginSchema, type TLoginInputsType } from "../validation/loginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLogin } from "../hooks/useLogin";
 import toast from "react-hot-toast";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 interface LoginFormProps {
   onLoginSuccess: () => void;
 }
 
 function LoginForm({ onLoginSuccess }: LoginFormProps) {
+   usePageTitle("Login");
   const { isPending, login } = useLogin();
   const navigate = useNavigate();
 

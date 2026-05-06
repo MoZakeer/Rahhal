@@ -6,6 +6,7 @@ type OtpInputProps = {
 };
 
 function OtpInput({ length = 6, onComplete }: OtpInputProps) {
+  
   const [otp, setOtp] = useState<string[]>(Array(length).fill(""));
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
 

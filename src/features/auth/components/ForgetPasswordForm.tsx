@@ -9,8 +9,10 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForgetPassword } from "../hooks/useForgetPassword";
 import toast from "react-hot-toast";
+import { usePageTitle } from "@/hooks/usePageTitle.tsx";
 
 function ForgotPassword() {
+  usePageTitle("Forgot Password");
   const { isPending, forgetPassword } = useForgetPassword();
   const navigate = useNavigate();
 

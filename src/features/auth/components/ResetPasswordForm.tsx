@@ -9,8 +9,10 @@ import {
   type TResetInputsType,
 } from "../validation/resetPasswordSchema";
 import { useResetPassword } from "../hooks/useResetPassword";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 function ResetPasswordForm() {
+  usePageTitle("Reset Password");
   const { isPending, resetPassword } = useResetPassword();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();

@@ -9,8 +9,10 @@ import { signUpSchema, type TSignUpType } from "../validation/signUpSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSignUp } from "../hooks/useSignUp";
 import toast from "react-hot-toast";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 function SignUpForm() {
+  usePageTitle("Sign Up");
   const { isPending, signUp } = useSignUp();
   const navigate = useNavigate();
 

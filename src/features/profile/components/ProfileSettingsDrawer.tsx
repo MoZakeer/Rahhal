@@ -29,7 +29,7 @@ export default function ProfileSettingsDrawer({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          // هنا السر: الـ Overlay يغطي الشاشة بالكامل مع Blur
+         
           className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start justify-end z-9999"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
