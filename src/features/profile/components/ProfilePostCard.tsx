@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Heart, MessageCircle, Bookmark, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -14,25 +15,60 @@ const ProfilePostCard = ({ post }: Props) => {
   const likeMutation = useLikePost();
   const saveMutation = useSavePost();
 
+  
+  const [isLiked, setIsLiked] = useState(post.isLiked ?? false);
+  const [likesCount, setLikesCount] = useState(post.likes ?? 0);
+  const [isSaved, setIsSaved] = useState(post.isSaved ?? false);
+
+ 
+  useEffect(() => {
+    setIsLiked(post.isLiked ?? false);
+    setLikesCount(post.likes ?? 0);
+    setIsSaved(post.isSaved ?? false);
+  }, [post.isLiked, post.likes, post.isSaved]);
+
   const firstImage =
     post.mediaUrLs && post.mediaUrLs.length > 0
       ? normalizeMediaUrl(post.mediaUrLs[0].url)
       : null;
 
-  // جعلنا الوصف أقصر قليلاً ليناسب الـ UI الجديد
   const shortDescription =
     post.description?.length > 50
       ? post.description.slice(0, 50) + "..."
       : post.description;
 
+ 
   function handleLike(e: React.MouseEvent) {
     e.stopPropagation();
-    likeMutation.mutate(post.id);
+
+  
+    const nextLikedState = !isLiked;
+    setIsLiked(nextLikedState);
+    setLikesCount((prev) => (nextLikedState ? prev + 1 : Math.max(0, prev - 1)));
+
+  
+    likeMutation.mutate(post.id, {
+      onError: () => {
+     
+        setIsLiked(!nextLikedState);
+        setLikesCount((prev) => (nextLikedState ? Math.max(0, prev - 1) : prev + 1));
+      },
+    });
   }
 
+ 
   function handleSave(e: React.MouseEvent) {
     e.stopPropagation();
-    saveMutation.mutate(post.id);
+
+    const nextSavedState = !isSaved;
+    setIsSaved(nextSavedState);
+
+    saveMutation.mutate(post.id, {
+      onError: () => {
+       
+        setIsSaved(!nextSavedState);
+      },
+    });
   }
 
   return (
@@ -61,8 +97,11 @@ const ProfilePostCard = ({ post }: Props) => {
         {/* Hover Overlay (Stats) */}
         <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-6 text-white backdrop-blur-[2px]">
           <div className="flex items-center gap-1.5 font-bold">
-            <Heart size={20} className="fill-white" />
-            <span>{post.likes}</span>
+            <Heart 
+              size={20} 
+              className={isLiked ? "text-red-500 fill-red-500" : "fill-white"} 
+            />
+            <span>{likesCount}</span>
           </div>
           <div className="flex items-center gap-1.5 font-bold">
             <MessageCircle size={20} className="fill-white" />
@@ -71,7 +110,7 @@ const ProfilePostCard = ({ post }: Props) => {
         </div>
 
         {/* Quick Actions (Floating) */}
-        <div className="absolute top-3 right-3 flex flex-col gap-2 translate-x-10 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
+        <div className="absolute top-3 right-3 flex flex-col gap-2 translate-x-10 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 z-20">
           <button
             onClick={handleLike}
             className="bg-white/90 dark:bg-slate-800/90 p-2 rounded-xl shadow-lg hover:scale-110 transition active:scale-95"
@@ -79,7 +118,7 @@ const ProfilePostCard = ({ post }: Props) => {
             <Heart
               size={18}
               className={
-                post.isLiked
+                isLiked
                   ? "text-red-500 fill-red-500"
                   : "text-gray-700 dark:text-gray-300"
               }
@@ -92,7 +131,7 @@ const ProfilePostCard = ({ post }: Props) => {
             <Bookmark
               size={18}
               className={
-                post.isSaved
+                isSaved
                   ? "text-cyan-600 fill-cyan-600"
                   : "text-gray-700 dark:text-gray-300"
               }

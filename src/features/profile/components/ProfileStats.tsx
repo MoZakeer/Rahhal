@@ -199,7 +199,7 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
                 animate="show"
                 exit="exit"
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white dark:bg-zinc-900 w-[90%] sm:w-[400px] max-h-[75vh] rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-zinc-800"
+                className="bg-white dark:bg-zinc-900 w-[90%] sm:w-100 max-h-[75vh] rounded-4xl shadow-2xl overflow-hidden border border-gray-100 dark:border-zinc-800"
               >
                 {/* Header */}
                 <div className="flex justify-between items-center px-6 py-5 border-b border-gray-50 dark:border-zinc-800">
