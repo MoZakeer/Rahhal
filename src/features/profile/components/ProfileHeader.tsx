@@ -63,7 +63,7 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-32 h-32 md:w-36 md:h-36 rounded-[2rem] overflow-hidden shadow-xl ring-4 ring-white dark:ring-zinc-800"
+            className="w-32 h-32 md:w-36 md:h-36 rounded-4xl overflow-hidden shadow-xl ring-4 ring-white dark:ring-zinc-800"
           >
             {image ? (
               <img

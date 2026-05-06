@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-
+import { useProfileStore } from "../../features/profile/store/profile.store";
 interface FollowButtonProps {
     profileId: string;
     isMyProfile?: boolean;
@@ -10,6 +10,7 @@ interface FollowButtonProps {
 const FollowButton: React.FC<FollowButtonProps> = ({ profileId, isMyProfile }) => {
     const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
     const [loading, setLoading] = useState(false);
+    const { updateFollowers } = useProfileStore();
 
   
     useEffect(() => {
@@ -24,6 +25,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({ profileId, isMyProfile }) =
                         headers: { Authorization: `Bearer ${token}` },
                     }
                 );
+                 updateFollowers(isFollowing ? -1 : +1);
                 if (res.data?.isSuccess) setIsFollowing(res.data.data.isFollowing);
             } catch (error) {
                 console.error("Error fetching follow status", error);
@@ -43,6 +45,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({ profileId, isMyProfile }) =
                 { followingProfileId: profileId },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+             updateFollowers(isFollowing ? -1 : +1);
             if (res.data?.isSuccess) setIsFollowing(res.data.data.isFollowing);
         } catch (error) {
             console.error("Error toggling follow", error);

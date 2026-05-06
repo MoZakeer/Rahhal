@@ -10,6 +10,7 @@ interface ProfileState {
   updateProfile: (data: FormData) => Promise<void>;
   ChangePassword: (data: { oldPassword: string; newPassword: string; confirmNewPassword: string }) => Promise<void>;
   GetUserPosts: (UserId: string, pageNum: number, pageSize: number) => Promise<void>;
+  updateFollowers: (delta: number) => void;
 }
 
 export const useProfileStore = create<ProfileState>((set) => ({
@@ -134,5 +135,14 @@ export const useProfileStore = create<ProfileState>((set) => ({
     } catch (err) {
       console.error(err);
     }
-  }
+  },
+  updateFollowers: (delta: number) =>
+  set((state) => ({
+    profile: state.profile
+      ? {
+          ...state.profile,
+          followersCount: state.profile.followersCount + delta,
+        }
+      : null,
+  })),
 }));
