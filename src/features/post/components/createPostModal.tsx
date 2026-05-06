@@ -11,7 +11,7 @@ import { useCreatePost } from "./hooks/useCreatePost";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
-const MAX_CHARS = 300;
+// const MAX_CHARS = 300;
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -71,11 +71,11 @@ export default function CreatePostModal({ isOpen, onClose }: CreatePostModalProp
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto max-h-[50vh] px-6 py-4 flex flex-col gap-4">
+            <div className="flex-1 overflow-y-auto max-h-[50vh] px-6 py-4 flex flex-col gap-4 ">
               <PostCaption
                 caption={caption}
                 onChange={setCaption}
-                maxChars={MAX_CHARS}
+                // maxChars={MAX_CHARS}
                 placeholder="What's your next adventure?..."
               />
 

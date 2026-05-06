@@ -51,7 +51,7 @@ const CreateTrip = () => {
 
    const [selectedPreferencesIds, setSelectedPreferencesIds] = useState<string[]>([]);
 
-   const selectClassName = "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+   const selectClassName = "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-white";
 
    // Fetch initial data on mount
    useEffect(() => {
@@ -105,14 +105,28 @@ const CreateTrip = () => {
 
       setIsSubmitting(true);
 
-      const numericBudget = Number(form.budget.toString().replace(/[^0-9.-]+/g, "")) || 0;
+      // const numericBudget = Number(form.budget.toString().replace(/[^0-9.-]+/g, "")) || 0;
+      const rawBudget = form.budget.toString().trim();
+      const numericBudget = Number(rawBudget);
 
-      // 1. التعديل الجوهري: إرسال التاريخ كما هو (YYYY-MM-DD) بدون وقت
+      if (!rawBudget || isNaN(numericBudget)) {
+         toast.error("Budget must be a numeric value");
+          setIsSubmitting(false);
+         return;
+      }
+
+      if (numericBudget <= 0) {
+         toast.error("Budget must be greater than 0");
+          setIsSubmitting(false);
+         return;
+      }
+
+
       const payload = {
          name: form.name,
          description: form.description || "",
-         startDate: form.startDate, // تم إزالة .toISOString()
-         endDate: form.endDate,     // تم إزالة .toISOString()
+         startDate: form.startDate,
+         endDate: form.endDate,
          numberOfTravelers: Number(form.travelers),
          budget: numericBudget,
          destinationId: form.destinationId,
@@ -160,27 +174,27 @@ const CreateTrip = () => {
    }
 
    return (
-      <div className="flex justify-center">
+      <div className="flex justify-center dark:bg-slate-900">
          <div className="max-w-2xl py-10 w-full px-4">
             <div className="mb-8">
-               <h1 className="font-display text-3xl font-bold">Create a New Trip</h1>
+               <h1 className="font-display text-3xl font-bold dark:text-slate-100">Create a New Trip</h1>
                <p className="mt-2 text-muted-foreground">Plan your next adventure by selecting the details below.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
                {/* Name */}
                <div className="space-y-2">
-                  <Label htmlFor="name" className="flex items-center gap-2">
-                     <FileText className="h-4 w-4 text-primary" /> Trip Name *
+                  <Label htmlFor="name" className="flex items-center gap-2 dark:text-slate-100">
+                     <FileText className="h-4 w-4 text-blue-700 " /> Trip Name *
                   </Label>
-                  <Input id="name" placeholder="e.g., Summer Exploration" value={form.name} onChange={(e) => update("name", e.target.value)} disabled={isSubmitting} />
+                  <Input className="rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-white" id="name" placeholder="e.g., Summer Exploration" value={form.name} onChange={(e) => update("name", e.target.value)} disabled={isSubmitting} />
                </div>
 
                {/* Country & Destination */}
                <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                     <Label htmlFor="country" className="flex items-center gap-2">
-                        <Globe className="h-4 w-4 text-primary" /> Country *
+                     <Label htmlFor="country" className="flex items-center gap-2 dark:text-slate-100">
+                        <Globe className="h-4 w-4 text-blue-700 " /> Country *
                      </Label>
                      <select
                         id="country"
@@ -199,8 +213,8 @@ const CreateTrip = () => {
                   </div>
 
                   <div className="space-y-2">
-                     <Label htmlFor="dest" className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-primary" /> Destination (City) *
+                     <Label htmlFor="dest" className="flex items-center gap-2 dark:text-slate-100">
+                        <MapPin className="h-4 w-4 text-blue-700 " /> Destination (City) *
                      </Label>
                      <select
                         id="dest"
@@ -224,24 +238,24 @@ const CreateTrip = () => {
                {/* Dates */}
                <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                     <Label htmlFor="start" className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-primary" /> Start Date *
+                     <Label htmlFor="start" className="flex items-center gap-2 dark:text-slate-100">
+                        <Calendar className="h-4 w-4 text-blue-700 " /> Start Date *
                      </Label>
-                     <Input id="start" type="date" value={form.startDate} onChange={(e) => update("startDate", e.target.value)} disabled={isSubmitting} />
+                     <Input className="rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-white  dark:[color-scheme:dark]" id="start" type="date" value={form.startDate} onChange={(e) => update("startDate", e.target.value)} disabled={isSubmitting} />
                   </div>
                   <div className="space-y-2">
-                     <Label htmlFor="end" className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-primary" /> End Date *
+                     <Label htmlFor="end" className="flex items-center gap-2 dark:text-slate-100">
+                        <Calendar className="h-4 w-4 text-blue-700 " /> End Date *
                      </Label>
-                     <Input id="end" type="date" value={form.endDate} onChange={(e) => update("endDate", e.target.value)} disabled={isSubmitting} />
+                     <Input className="rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-white  dark:[color-scheme:dark]" id="end" type="date" value={form.endDate} onChange={(e) => update("endDate", e.target.value)} disabled={isSubmitting} />
                   </div>
                </div>
 
                {/* Demographics (Gender & Age) */}
                <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                     <Label htmlFor="gender" className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-primary" /> Target Gender
+                     <Label htmlFor="gender" className="flex items-center gap-2 dark:text-slate-100">
+                        <User className="h-4 w-4 text-blue-700 " /> Target Gender
                      </Label>
                      <select id="gender" className={selectClassName} value={form.gender} onChange={(e) => update("gender", Number(e.target.value))} disabled={isSubmitting}>
                         {genderOptions.map((opt) => (
@@ -250,8 +264,8 @@ const CreateTrip = () => {
                      </select>
                   </div>
                   <div className="space-y-2">
-                     <Label htmlFor="ageGroup" className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-primary" /> Age Group
+                     <Label htmlFor="ageGroup" className="flex items-center gap-2 dark:text-slate-100">
+                        <Clock className="h-4 w-4 text-blue-700 " /> Age Group
                      </Label>
                      <select id="ageGroup" className={selectClassName} value={form.ageGroup} onChange={(e) => update("ageGroup", Number(e.target.value))} disabled={isSubmitting}>
                         {ageGroupOptions.map((opt) => (
@@ -264,40 +278,46 @@ const CreateTrip = () => {
                {/* Travelers & Budget */}
                <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                     <Label htmlFor="travelers" className="flex items-center gap-2">
-                        <Users className="h-4 w-4 text-primary" /> Number of Travelers
+                     <Label htmlFor="travelers" className="flex items-center gap-2 dark:text-slate-100">
+                        <Users className="h-4 w-4 text-blue-700 " /> Number of Travelers
                      </Label>
-                     <Input id="travelers" type="number" min={1} value={form.travelers} onChange={(e) => update("travelers", parseInt(e.target.value))} disabled={isSubmitting} />
+                     <Input className="rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-white" id="travelers" type="number" min={1} value={form.travelers} onChange={(e) => update("travelers", parseInt(e.target.value))} disabled={isSubmitting} />
                   </div>
                   <div className="space-y-2">
-                     <Label htmlFor="budget" className="flex items-center gap-2">
-                        <DollarSign className="h-4 w-4 text-primary" /> Budget
+                     <Label htmlFor="budget" className="flex items-center gap-2 dark:text-slate-100">
+                        <DollarSign className="h-4 w-4 text-blue-700 " /> Budget
                      </Label>
-                     <Input id="budget" placeholder="e.g., 2500" value={form.budget} onChange={(e) => update("budget", e.target.value)} disabled={isSubmitting} />
+                     <Input className="rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-white" id="budget" placeholder="e.g., 2500" value={form.budget} onChange={(e) => update("budget", e.target.value)} disabled={isSubmitting} />
                   </div>
                </div>
 
                {/* Description */}
                <div className="space-y-2">
-                  <Label htmlFor="desc" className="flex items-center gap-2">
-                     <FileText className="h-4 w-4 text-primary" /> Description
+                  <Label htmlFor="desc" className="flex items-center gap-2 dark:text-slate-100">
+                     <FileText className="h-4 w-4 text-blue-700 " /> Description
                   </Label>
-                  <Textarea id="desc" rows={4} placeholder="Describe your trip..." value={form.description} onChange={(e) => update("description", e.target.value)} disabled={isSubmitting} />
+                  <Textarea className="rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-white" id="desc" rows={4} placeholder="Describe your trip..." value={form.description} onChange={(e) => update("description", e.target.value)} disabled={isSubmitting} />
                </div>
 
                {/* Travel Preferences (Dynamic Badges) */}
                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                     <Tag className="h-4 w-4 text-primary" /> Travel Preferences
+                  <Label className="flex items-center gap-2 dark:text-slate-100">
+                     <Tag className="h-4 w-4 text-blue-700 " /> Travel Preferences
                   </Label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 ">
                      {preferences.map((pref) => {
                         const isSelected = selectedPreferencesIds.includes(pref.id);
                         return (
                            <Badge
                               key={pref.id}
                               variant={isSelected ? "default" : "outline"}
-                              className={`cursor-pointer transition-colors ${isSubmitting ? "opacity-50 pointer-events-none" : ""}`}
+                              className={`cursor-pointer transition-colors dark:border-0 
+                                 ${isSelected
+                                    ? "dark:bg-blue-700 dark:text-white"
+                                    : "dark:bg-slate-500 dark:text-white"
+                                 } 
+                               ${isSubmitting ? "opacity-50 pointer-events-none" : ""}
+                              `}
                               onClick={() => !isSubmitting && togglePreference(pref.id)}
                            >
                               {pref.name}
@@ -309,7 +329,7 @@ const CreateTrip = () => {
 
                {/* Submit */}
                <div className="flex gap-3 pt-4">
-                  <Button type="submit" className="flex-1" disabled={isSubmitting}>
+                  <Button type="submit" className="flex-1 bg-blue-700 " disabled={isSubmitting}>
                      {isSubmitting ? "Creating..." : "Create Trip"}
                   </Button>
                   <Button type="button" variant="outline" onClick={() => navigate("/")} disabled={isSubmitting}>
