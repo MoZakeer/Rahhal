@@ -3,20 +3,20 @@ import { useRef } from "react";
 type Props = {
   caption: string;
   onChange: (value: string) => void;
-  maxChars: number;
+  // maxChars: number;
   placeholder?: string;
 };
 
 export default function PostCaption({
   caption,
   onChange,
-  maxChars,
+  // maxChars,
   placeholder,
 }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const remaining = maxChars - caption.length;
-  const warning = remaining <= 50;
+  // const remaining = maxChars - caption.length;
+  // const warning = remaining <= 50;
 
   return (
     <div className="flex flex-col gap-2 relative w-full">
@@ -25,7 +25,7 @@ export default function PostCaption({
           ref={textareaRef}
           value={caption}
           onChange={(e) => onChange(e.target.value)}
-          maxLength={maxChars}
+          // maxLength={maxChars}
           placeholder={placeholder}
           rows={5}
           className="
@@ -42,17 +42,20 @@ export default function PostCaption({
             outline-none
             focus:ring-2
             focus:ring-[var(--color-primary-500)]
+            dark:bg-slate-700
+            dark:border-0
+            
           "
         />
       </div>
 
-      <div
+      {/* <div
         className={`text-right text-xs ${
           warning ? "text-red-500" : "text-gray-400"
         }`}
       >
         {caption.length}/{maxChars}
-      </div>
+      </div> */}
     </div>
   );
 }

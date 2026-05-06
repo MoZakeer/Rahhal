@@ -7,7 +7,7 @@ import { useEditPost } from "./hooks/useEditPost";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
-const MAX_CHARS = 300;
+// const MAX_CHARS = 300;
 
 type Props = {
   postId: string;
@@ -71,7 +71,7 @@ export default function EditPostModal({ postId, onCancel }: Props) {
               <PostCaption
                 caption={caption}
                 onChange={setCaption}
-                maxChars={MAX_CHARS}
+                // maxChars={MAX_CHARS}
                 placeholder="Edit your adventure..."
               />
 
@@ -84,7 +84,7 @@ export default function EditPostModal({ postId, onCancel }: Props) {
                 <button
                   onClick={handleSave}
                   disabled={loading || (!caption?.trim() && media.length === 0)}
-                  className="flex items-center gap-2 bg-indigo-600 dark:bg-indigo-500 text-white px-6 py-2.5 rounded-full font-bold shadow-lg shadow-cyan-600/20 dark:shadow-cyan-900/20 hover:bg-cyan-700 dark:hover:bg-cyan-600 hover:shadow-cyan-600/40 dark:hover:shadow-cyan-900/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed group active:scale-95 cursor-pointer"
+                  className="flex items-center gap-2 bg-indigo-600 dark:bg-indigo-500 text-white px-6 py-2.5 rounded-full font-bold shadow-lg shadow-cyan-600/20 dark:shadow-cyan-900/20 hover:bg-indigo-700 dark:hover:bg-indigo-600 hover:shadow-cyan-600/40 dark:hover:shadow-cyan-900/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed group active:scale-95 cursor-pointer"
                 >
                   {loading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
