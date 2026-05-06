@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { createPortal } from "react-dom"; 
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useProfileStore } from "../store/profile.store";
 import { useNavigate } from "react-router-dom";
@@ -47,6 +47,7 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [loading, setLoading] = useState(false);
+  const [modalType, setModalType] = useState<"countries" | "users" | null>(null);
 
   const baseUrl = "https://rahhal-api.runasp.net";
 
@@ -64,12 +65,16 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
     return () => window.removeEventListener("keydown", close);
   }, []);
 
-  if (!profile) return null;
+  if (!profile) { return null; }
+  // const [modalType, setModalType] = useState<"countries" | "users" | null>(null);
 
   const statsToShow = [
     {
       label: "Countries",
       value: profile.countriesCount,
+      endpoint: "Country/GetUserCountriesVisited",
+      key: "countries",
+      type: "countries",
       icon: IoGlobeOutline,
     },
     {
@@ -77,6 +82,7 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
       value: profile.followersCount,
       endpoint: "Followers/GetAllUserFollowers",
       key: "followers",
+      type: "users",
       icon: IoPeopleOutline,
     },
     {
@@ -84,29 +90,56 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
       value: profile.followingCount,
       endpoint: "Followers/GetAllUserFollowings",
       key: "followings",
+      type: "users",
       icon: IoPersonAddOutline,
     },
   ];
-
-  const fetchUsers = async (endpoint: string, key: string, title: string) => {
+  const fetchUsers = async (endpoint: string, type: string, title: string) => {
     if (!profileId) return;
-    setLoading(true);
+
+    setModalType(type as any);
     setModalTitle(title);
     setShowModal(true);
+    setLoading(true);
 
     try {
       const token = localStorage.getItem("token");
+
       const res = await axios.get(`${baseUrl}/${endpoint}`, {
         params: {
           ProfileId: profileId,
           PageNumber: 1,
-          PageSize: 50, 
+          PageSize: 50,
         },
         headers: { Authorization: `Bearer ${token}` },
       });
-      setModalUsers(res.data.data[key] || []);
-    } catch (error) {
-      console.log("Error fetching users:", error);
+
+      const data = res.data?.data;
+
+      let normalized: User[] = [];
+
+      if (type === "countries") {
+        normalized = (data || []).map((c: any) => ({
+          profileId: c.id,
+          profileName: c.name,
+          profilePicture: c.flagUrl,
+          bio: c.isoCode,
+        }));
+      } else {
+        const list =
+          data?.followers ||
+          data?.followings ||
+          [];
+
+        normalized = list.map((u: any) => ({
+          profileId: u.profileId,
+          profileName: u.profileName,
+          profilePicture: u.profilePicture,
+          bio: u.bio,
+        }));
+      }
+
+      setModalUsers(normalized);
     } finally {
       setLoading(false);
     }
@@ -131,7 +164,7 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
               className={`flex-1 ${stat.endpoint ? "cursor-pointer group" : ""}`}
               onClick={() =>
                 stat.endpoint &&
-                fetchUsers(stat.endpoint, stat.key!, stat.label)
+                fetchUsers(stat.endpoint, stat.type, stat.label)
               }
             >
               <p className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-cyan-500 transition-colors">
@@ -149,7 +182,7 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
         })}
       </motion.div>
 
-      
+
       {createPortal(
         <AnimatePresence>
           {showModal && (
@@ -186,7 +219,7 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
                   {loading ? (
                     <div className="py-12 text-center text-gray-400 font-medium">
                       <div className="animate-spin mb-2 inline-block">⏳</div>
-                      <p>Loading users...</p>
+                      <p>Loading ...</p>
                     </div>
                   ) : modalUsers.length === 0 ? (
                     <div className="py-12 text-center text-gray-400">
@@ -203,12 +236,14 @@ const ProfileStats: React.FC<Props> = ({ profileId }) => {
                             whileHover={{ x: 4 }}
                             className="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 dark:hover:bg-zinc-800/50 rounded-2xl cursor-pointer transition-all"
                             onClick={() => {
-                              setShowModal(false);
-                              navigate(`/profile/${user.profileId}`);
+                              if (modalType !== "countries") {
+                                setShowModal(false);
+                                navigate(`/profile/${user.profileId}`);
+                              }
                             }}
                           >
                             <div className="relative">
-                               <img
+                              <img
                                 src={image || `https://ui-avatars.com/api/?name=${user.profileName}&background=random`}
                                 alt={user.profileName}
                                 className="w-11 h-11 rounded-full object-cover border-2 border-white dark:border-zinc-800 shadow-sm"

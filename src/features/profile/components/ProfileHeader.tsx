@@ -22,6 +22,7 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
 
   useEffect(() => {
     if (profileId) fetchProfile(profileId);
+    console.log("FETCHING PROFILE:", profileId);
   }, [profileId, fetchProfile]);
 
   const baseUrl = "https://rahhal-api.runasp.net";

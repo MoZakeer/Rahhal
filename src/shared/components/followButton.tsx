@@ -25,7 +25,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({ profileId, isMyProfile }) =
                         headers: { Authorization: `Bearer ${token}` },
                     }
                 );
-                 updateFollowers(isFollowing ? -1 : +1);
+                 
                 if (res.data?.isSuccess) setIsFollowing(res.data.data.isFollowing);
             } catch (error) {
                 console.error("Error fetching follow status", error);
