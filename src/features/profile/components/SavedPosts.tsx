@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { motion } from "framer-motion"; // ضفنا الأنيميشن لتوحيد التجربة
+import { motion } from "framer-motion";
 import PostCardSkeleton from "../skeletons/PostCardSkeleton";
 import type { Post, PostMediaItem } from "../../../types/post";
 import ProfilePostCard from "./ProfilePostCard";
@@ -75,7 +75,7 @@ const SavedPosts: React.FC<Props> = ({ isMyProfile, baseUrl }) => {
 
   if (!isMyProfile) return null;
 
-  // 1. Loading State: Matching ProfilePosts Grid
+  // 1. Loading State
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
@@ -86,14 +86,14 @@ const SavedPosts: React.FC<Props> = ({ isMyProfile, baseUrl }) => {
     );
   }
 
-  // 2. Empty State: Matching ProfilePosts Style
+  // 2. Empty State (Updated with Slate and Cyan)
   if (!loading && posts.length === 0) {
     return (
-      <div className="w-full flex justify-center py-20">
-        <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[2.5rem] p-16 text-center shadow-sm w-full max-w-2xl">
+      <div className="w-full flex justify-center py-20 px-4">
+        <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-[2.5rem] p-12 sm:p-16 text-center shadow-sm w-full max-w-2xl transition-colors duration-300">
           <span className="text-5xl block mb-4">🔖</span>
-          <h2 className="text-xl font-bold text-gray-800 dark:text-zinc-100">No Saved Posts</h2>
-          <p className="text-gray-500 dark:text-zinc-400 mt-2">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white">No Saved Posts</h2>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">
             When you save a journey, it will appear here for you to explore again.
           </p>
         </div>
@@ -101,7 +101,7 @@ const SavedPosts: React.FC<Props> = ({ isMyProfile, baseUrl }) => {
     );
   }
 
-  // 3. Final Grid: Exact match to ProfilePosts (Layout + Motion)
+  // 3. Final Grid
   return (
     <div className="w-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">

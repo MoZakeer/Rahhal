@@ -15,7 +15,7 @@ const ProfileTabs: React.FC<Props> = ({ activeTab, setActiveTab, isMyProfile }) 
   }
 
   return (
-    <div className="w-full bg-white dark:bg-violet-600  dark:border-violet-800">
+    <div className="w-full bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 transition-colors duration-300">
       <div className="flex justify-center lg:justify-start px-4">
         {tabs.map((tab) => {
           const isActive = activeTab === tab;
@@ -25,10 +25,10 @@ const ProfileTabs: React.FC<Props> = ({ activeTab, setActiveTab, isMyProfile }) 
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`
-                relative px-6 py-4 text-sm font-bold tracking-wide uppercase transition-colors duration-200
+                relative px-6 py-4 text-sm font-bold tracking-wide uppercase transition-colors duration-200 cursor-pointer
                 ${isActive 
-                  ? "text-violet-900 dark:text-white" 
-                  : "text-violet-400 hover:text-violet-600 dark:text-violet-500 dark:hover:text-violet-300"
+                  ? "text-cyan-600 dark:text-cyan-400" 
+                  : "text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
                 }
               `}
             >
@@ -37,7 +37,7 @@ const ProfileTabs: React.FC<Props> = ({ activeTab, setActiveTab, isMyProfile }) 
               {isActive && (
                 <motion.div
                   layoutId="activeTabUnderline"
-                  className="absolute bottom-0 left-0 right-0 h-[2px] bg-violet-900 dark:bg-white"
+                  className="absolute bottom-0 left-0 right-0 h-[2px] bg-cyan-600 dark:bg-cyan-400"
                   transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 />
               )}

@@ -22,7 +22,7 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
 
   useEffect(() => {
     if (profileId) fetchProfile(profileId);
-    console.log("FETCHING PROFILE:", profileId);
+    console.log("FETCHING PROFILE:", profileId); // رجعت الـ log
   }, [profileId, fetchProfile]);
 
   const baseUrl = "https://rahhal-api.runasp.net";
@@ -64,7 +64,7 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-32 h-32 md:w-36 md:h-36 rounded-4xl overflow-hidden shadow-xl ring-4 ring-white dark:ring-zinc-800"
+            className="w-32 h-32 md:w-36 md:h-36 rounded-4xl overflow-hidden shadow-xl ring-4 ring-white dark:ring-slate-800"
           >
             {image ? (
               <img
@@ -73,7 +73,7 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-linear-to-br from-violet-500 to-blue-600 flex items-center justify-center text-white text-4xl font-bold">
+              <div className="w-full h-full bg-linear-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white text-4xl font-bold">
                 {firstLetter}
               </div>
             )}
@@ -82,7 +82,7 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
           {isMyProfile && (
             <button
               onClick={() => setIsDrawerOpen(true)}
-              className="absolute -bottom-1 -right-1 p-2.5 bg-white dark:bg-zinc-800 rounded-xl shadow-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-gray-300 hover:text-violet-600 transition-colors"
+              className="absolute -bottom-1 -right-1 p-2.5 bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-100 dark:border-slate-700 text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors cursor-pointer"
             >
               <IoMdSettings size={18} />
             </button>
@@ -91,42 +91,42 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
 
         {/* Name & Username */}
         <div className="space-y-1 mb-4">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">
             {profile.fullName}
           </h1>
-          <p className="text-violet-600 dark:text-violet-400 font-medium text-sm">
+          <p className="text-cyan-600 dark:text-cyan-400 font-medium text-sm">
             @{profile.userName}
           </p>
         </div>
 
         {/* Bio */}
-        <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-6 px-4 lg:px-0">
+        <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6 px-4 lg:px-0">
           {profile.bio ||
             "Passionate traveler exploring the world one city at a time."}
         </p>
 
         {/* Meta Stats (Location/Users) */}
-        <div className="flex lg:flex-col gap-3 w-full mb-6 justify-center lg:justify-start   lg:items-start">
+        <div className="flex lg:flex-col gap-3 w-full mb-6 justify-center lg:justify-start lg:items-start">
           {profile.location && (
             <div className="flex items-center gap-3 px-1">
-              <div className="p-2 bg-gray-50 dark:bg-zinc-800 rounded-lg">
+              <div className="p-2 bg-cyan-50 dark:bg-slate-800 rounded-lg">
                 <HiOutlineLocationMarker
-                  className="text-violet-500"
+                  className="text-cyan-500"
                   size={18}
                 />
               </div>
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                 {profile.location}
               </span>
             </div>
           )}
           {profile.travelPersonality !== null && (
             <div className="flex items-center gap-3 px-1">
-              <div className="p-2 bg-gray-50 dark:bg-zinc-800 rounded-lg">
-                <HiOutlineMap className="text-violet-500" size={18} />{" "}
+              <div className="p-2 bg-cyan-50 dark:bg-slate-800 rounded-lg">
+                <HiOutlineMap className="text-cyan-500" size={18} />{" "}
               </div>
 
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                 {
                   TravelPersonalityLabel[
                     Number(
@@ -146,7 +146,7 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
             <motion.button
               onClick={handleSendMessage}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center justify-center gap-2 w-full py-3 bg-zinc-900 dark:bg-white dark:text-zinc-900 text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition-all"
+              className="flex items-center justify-center gap-2 w-full py-3 bg-slate-900 dark:bg-cyan-600 text-white dark:text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition-all cursor-pointer"
             >
               <IoMdMail size={20} />
               <span>Message</span>
