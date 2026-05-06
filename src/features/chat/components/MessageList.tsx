@@ -27,7 +27,7 @@ function MessageList({
 
   const isFirstLoadRef = useRef(true);
   const lastMessageIdRef = useRef<string | undefined>(undefined);
-  const firstMessageIdRef = useRef<string | undefined>(undefined); // ده الـ Ref الجديد
+  const firstMessageIdRef = useRef<string | undefined>(undefined); 
 
   const getMessageDateLabel = function (dateString: string) {
     const date = new Date(dateString);

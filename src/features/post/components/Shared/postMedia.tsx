@@ -4,25 +4,26 @@ import type { EditMedia } from "../services/editPost";
 type Props = {
   media: EditMedia[];
   setMedia: React.Dispatch<React.SetStateAction<EditMedia[]>>;
-  fileRef: React.RefObject<HTMLInputElement | null>;
+  fileRef: React.RefObject<HTMLInputElement>;
 };
 
 export default function PostMedia({ media, setMedia, fileRef }: Props) {
   const uploadFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const files = e.target.files;
-  if (!files) return;
+    const files = e.target.files;
 
-  const newMedia: EditMedia[] = Array.from(files).map((file) => ({
-    mediaId: crypto.randomUUID(),
-    file,
-    preview: URL.createObjectURL(file),
-    isNew: true,
-  }));
+    if (!files) return;
 
-  setMedia((prev) => [...prev, ...newMedia]);
+    const newMedia: EditMedia[] = Array.from(files).map((file) => ({
+      mediaId: crypto.randomUUID(),
+      file,
+      preview: URL.createObjectURL(file),
+      isNew: true,
+    }));
 
-  e.target.value = "";
-};
+    setMedia((prev) => [...prev, ...newMedia]);
+
+    e.target.value = "";
+  };
 
   const removeMedia = (mediaId: string) => {
     setMedia((prev) => {
@@ -60,7 +61,7 @@ export default function PostMedia({ media, setMedia, fileRef }: Props) {
           {media.map((m) => (
             <div
               key={m.mediaId}
-              className="relative w-36 h-28 flex-shrink-0 rounded-xl overflow-hidden"
+              className="relative w-36 h-28 shrink-0 rounded-xl overflow-hidden"
             >
               {typeof m.file !== "string" && m.file.type.startsWith("video") ? (
                 <video
