@@ -322,9 +322,7 @@ const AiPlanner = () => {
 
     // 3. Sync the 'user_days' state and enforce the 5-day limit
     if (form.user_days > 5) {
-      toast.warning(
-        "Our AI planner is currently limited to 5 days. We'll generate the first 5 days of your trip!",
-      );
+      return toast.warning("Our AI planner is currently limited to 5 days.");
     }
 
     // 4. Preference & Interest Checks
@@ -740,7 +738,7 @@ const AiPlanner = () => {
                       </span>
                     )}
                     <span className="flex items-center gap-1 text-[10px] text-slate-500 font-bold uppercase italic">
-                      Minimum required: {minimumBudget} EGP
+                      Minimum required: {minimumBudget}
                     </span>
                   </div>
                 </div>
