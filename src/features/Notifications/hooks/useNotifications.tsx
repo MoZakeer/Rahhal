@@ -327,6 +327,7 @@ export const useNotifications = (hasToken: boolean) => {
     );
 
     if (!res.ok) return;
+
     setNotifications([]);
     setUnreadCount?.(0);
 

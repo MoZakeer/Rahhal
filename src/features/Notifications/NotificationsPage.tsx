@@ -4,6 +4,8 @@ import { useNotifications } from "./hooks/useNotifications";
 import type { NotificationData } from "./hooks/useNotifications";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { usePageTitle } from "@/hooks/usePageTitle";
+import { useFavicon } from "@/hooks/useFavicon";
 
 export function useNow(interval = 60000) {
   const [now, setNow] = useState(Date.now());
@@ -42,6 +44,9 @@ export function formatTimeAgo(dateString: string, now: number) {
 }
 
 export default function NotificationsPage() {
+  usePageTitle("Notifications");
+  useFavicon("/notification.png");
+
   const now = useNow();
   const navigate = useNavigate();
   const DEFAULT_AVATAR = "https://www.gravatar.com/avatar/?d=mp&f=y";

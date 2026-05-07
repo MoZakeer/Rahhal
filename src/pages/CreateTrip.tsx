@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { usePageTitle } from "@/hooks/usePageTitle";
-
+import { useFavicon } from "@/hooks/useFavicon";
 const genderOptions = [
    { id: 0, name: "Any / Mixed" },
    { id: 1, name: "Male Only" },
@@ -25,6 +25,7 @@ const ageGroupOptions = [
 
 const CreateTrip = () => {
    usePageTitle("Plan your next adventure");
+   useFavicon("/add.png");
    const [token] = useLocalStorage<string>("token", "");
    const navigate = useNavigate();
    const [isLoadingPage, setIsLoadingPage] = useState(true);

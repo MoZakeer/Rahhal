@@ -3,6 +3,8 @@ import { useCommentDetails } from "../hooks/useCommentDetails";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useFavicon } from "@/hooks/useFavicon";
+
 
 interface Props {
   id: string;
@@ -10,6 +12,7 @@ interface Props {
 
 const ReportedComment: React.FC<Props> = ({ id }) => {
   usePageTitle("Reported Comment Details");
+  useFavicon("/problem-report.png");
   const { data, isLoading, isError } = useCommentDetails(id);
   const BASE_URL = "https://rahhal-api.runasp.net";
   const DEFAULT_AVATAR = "https://www.gravatar.com/avatar/?d=mp&f=y";

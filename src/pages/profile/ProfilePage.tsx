@@ -8,9 +8,11 @@ import SavedPosts from "../../features/profile/components/SavedPosts";
 
 import type { ProfileTab } from "../../features/profile/types/profile.types";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useFavicon } from "@/hooks/useFavicon";
 
 const ProfilePage: React.FC = () => {
   usePageTitle("Profile");
+  useFavicon("/user.png");
   const { profileId } = useParams<{ profileId: string }>();
 
   // Auth logic
