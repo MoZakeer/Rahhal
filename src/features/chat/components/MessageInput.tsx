@@ -54,7 +54,7 @@ function MessageInput({ conversationId }: { conversationId: string }) {
   };
 
   return (
-    <div className="bg-gray-50 px-3 py-4 sm:pt-6 sm:pb-8 sm:px-15 relative flex flex-col">
+    <div className="bg-gray-50 px-3 py-4 sm:pt-6 sm:pb-8 lg:px-15 relative flex flex-col">
       <ImagePreviewArea files={attachments} onRemove={handleRemoveFile} />
 
       <form
@@ -83,6 +83,7 @@ function MessageInput({ conversationId }: { conversationId: string }) {
           value={message}
           onChange={setMessage}
           onEnter={handleSubmit}
+          onPasteFiles={handleAddFiles}
         />
 
         <button

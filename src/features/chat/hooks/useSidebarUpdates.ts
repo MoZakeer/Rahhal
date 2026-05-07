@@ -10,6 +10,7 @@ export type UpdateSidebarData = {
   lastMessageContent: string;
   lastMessageDate: string;
   lastMessageSender: string;
+  isLastMessageFullySeen: boolean;
   unreadCount: number;
   messageType: number;
 };
@@ -94,13 +95,18 @@ export const useSidebarUpdates = (connection: HubConnection | null) => {
         };
       });
     };
+    const handleLastMessageSeen = function (data: UpdateSidebarData) {
+      console.log(data);
+    };
     connection.on("UpdateSidebar", handleUpdateSidebar);
     connection.on("UpdateUnreadCount", handleUpdateUnreadCount);
     connection.on("NewChatCreated", handleNewChat);
+    connection.on("UpdateSeenMark", handleLastMessageSeen);
     return () => {
       connection.off("UpdateSidebar", handleUpdateSidebar);
       connection.off("UpdateUnreadCount", handleUpdateUnreadCount);
       connection.off("NewChatCreated", handleNewChat);
+      connection.off("UpdateSeenMark", handleLastMessageSeen);
     };
   }, [connection, queryClient, activeChatId]);
 };

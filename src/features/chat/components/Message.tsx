@@ -1,4 +1,4 @@
-import { IoCheckmarkDoneOutline } from "react-icons/io5";
+import { IoCheckmarkDoneSharp } from "react-icons/io5";
 import type { Attachment } from "../types/attachment.types";
 import MessageAttachments from "./MessageAttachments";
 import { HiOutlineChevronDown, HiTrash } from "react-icons/hi2";
@@ -36,7 +36,9 @@ function Message({
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
+
   const menuRef = useRef<HTMLDivElement | null>(null);
+
   const { isPending, deleteMessage } = useDeleteMessage();
 
   const {
@@ -68,7 +70,7 @@ function Message({
     <li className={`flex w-full ${isSend ? "justify-start" : "justify-end"}`}>
       <div
         className={`
-          relative flex flex-col 
+          relative flex flex-col
           px-3 pt-2 p-1
           shadow-md max-w-[75%] min-w-20 group
           ${
@@ -89,16 +91,16 @@ function Message({
         )}
 
         <HiOutlineChevronDown
-          className={`
-    absolute top-1 right-1
-    opacity-0 
-    group-hover:opacity-100 
-    transition-all 
-    duration-200 
-    w-5 h-5 
-    cursor-pointer 
-    p-1
-  `}
+          className="
+            absolute top-1 right-1
+            opacity-0
+            group-hover:opacity-100
+            transition-all
+            duration-200
+            w-5 h-5
+            cursor-pointer
+            p-1
+          "
           onClick={(e) => {
             e.stopPropagation();
             setIsMenuOpen((prev) => !prev);
@@ -112,10 +114,10 @@ function Message({
             className={`
               absolute top-8
               ${isSend ? "left-2" : "right-2"}
-              w-40 
-              bg-white dark:bg-slate-800 
-              rounded-xl shadow-lg 
-              ring-1 ring-black/5 dark:ring-white/10 
+              w-40
+              bg-white dark:bg-slate-800
+              rounded-xl shadow-lg
+              ring-1 ring-black/5 dark:ring-white/10
               z-50
               border border-transparent dark:border-slate-700
               animate-fadeIn
@@ -127,16 +129,16 @@ function Message({
                 border-l border-t border-black/5 dark:border-white/10
                 ${isSend ? "left-4" : "right-4"}
               `}
-            ></div>
+            />
 
             {!isSend && (
               <>
                 <button
                   className="
-                    flex items-center gap-2 w-full text-left 
-                    px-4 py-2 text-sm 
-                    text-red-500 dark:text-red-400 
-                    hover:bg-red-50 dark:hover:bg-red-500/10 
+                    flex items-center gap-2 w-full text-left
+                    px-4 py-2 text-sm
+                    text-red-500 dark:text-red-400
+                    hover:bg-red-50 dark:hover:bg-red-500/10
                     transition-colors
                   "
                   onClick={() => {
@@ -151,19 +153,21 @@ function Message({
                 <div className="h-px bg-gray-100 dark:bg-slate-700 mx-2" />
               </>
             )}
+
             {isSend && (
               <button
                 disabled={isPending}
                 className="
-                flex items-center gap-2 w-full text-left 
-                px-4 py-2 text-sm 
-                text-red-600 
-                hover:bg-red-50 dark:hover:bg-red-500/10 
-                transition-colors
+                  flex items-center gap-2 w-full text-left
+                  px-4 py-2 text-sm
+                  text-red-600
+                  hover:bg-red-50 dark:hover:bg-red-500/10
+                  transition-colors
                 "
                 onClick={handleDelete}
               >
-                <HiTrash className="w-4 h-4" /> Delete
+                <HiTrash className="w-4 h-4" />
+                Delete
               </button>
             )}
           </div>
@@ -171,27 +175,51 @@ function Message({
 
         <MessageAttachments attachments={attachments} isSend={isSend} />
 
-        <span className="text-xs leading-relaxed wrap-break-word">
-          {typeof children === "string"
-            ? parseMessageContent(children)
-            : children}
+        {!!children && (
+          <span className="text-xs leading-relaxed break-words">
+            {typeof children === "string"
+              ? parseMessageContent(children)
+              : children}
 
-          <span
+            <span
+              className={`
+                inline-flex items-center gap-1 ml-2 whitespace-nowrap align-bottom
+                ${isSend ? "text-primary-200" : "text-gray-400"}
+              `}
+            >
+              <span className="text-[10px]">{time}</span>
+
+              {isSend && (
+                <IoCheckmarkDoneSharp
+                  size={14}
+                  className={`${isSeen ? "text-primary-400" : "text-gray-400"}`}
+                />
+              )}
+            </span>
+          </span>
+        )}
+
+        {!children && (
+          <div
             className={`
-              inline-flex items-center gap-1 ml-2 whitespace-nowrap align-bottom
-              ${isSend ? "text-primary-200" : "text-gray-400"}
+              flex items-center gap-1 mt-1
+              ${
+                isSend
+                  ? "justify-end text-primary-200"
+                  : "justify-end text-gray-400"
+              }
             `}
           >
             <span className="text-[10px]">{time}</span>
 
             {isSend && (
-              <IoCheckmarkDoneOutline
+              <IoCheckmarkDoneSharp
                 size={14}
                 className={`${isSeen ? "text-primary-400" : "text-gray-400"}`}
               />
             )}
-          </span>
-        </span>
+          </div>
+        )}
       </div>
 
       {isReportOpen && (

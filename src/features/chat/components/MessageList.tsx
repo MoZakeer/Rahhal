@@ -139,7 +139,7 @@ function MessageList({
           There are no messages yet… start the conversation!
         </div>
       ) : (
-        <ul className="flex flex-col gap-5 px-3 py-4 sm:py-6 sm:px-10">
+        <ul className="flex flex-col gap-5 px-3 py-4 lg:py-6 lg:px-10">
           {sortedMessages.map((message: TMessage, index) => {
             const currentDate = getMessageDateLabel(message.createdDate);
             const prevMessage = sortedMessages[index - 1];

@@ -24,7 +24,6 @@ export const useChatWindowUpdates = (
     }
 
     const handleReceiveMessage = (newMessage: Message) => {
-      console.log(newMessage);
       queryClient.setQueryData<InfiniteData<ChatResponse>>(
         ["chat", conversationId],
         (oldData) => {

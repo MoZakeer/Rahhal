@@ -6,6 +6,7 @@ import {
   conversationImage,
   formatLastMessageDate,
 } from "../../../utils/helper";
+import { IoCheckmarkDoneSharp } from "react-icons/io5";
 
 type Props = {
   chat: ChatType;
@@ -24,6 +25,7 @@ function ChatItem({ chat }: Props) {
     lastMessageType,
     lastMessageDate,
     lastMessageSender,
+    isLastMessageFullySeen,
   } = chat;
 
   return (
@@ -52,18 +54,31 @@ function ChatItem({ chat }: Props) {
               {isGroup ? groupTitle : otherUserName}
             </h4>
 
-            <div className="whitespace-nowrap overflow-hidden text-ellipsis text-sm text-gray-500 w-64 sm:w-56">
-              {isGroup && (
-                <span className="font-medium text-gray-600">
-                  {lastMessageSender}:{" "}
+            <div className="whitespace-nowrap overflow-hidden text-ellipsis text-sm text-gray-500 w-64 sm:w-56 flex">
+              {lastMessageSender === "You" && (
+                <IoCheckmarkDoneSharp
+                  size={19}
+                  className={`inline mr-1 mb-0.5 ${
+                    isLastMessageFullySeen
+                      ? "text-primary-600"
+                      : "text-gray-400"
+                  }`}
+                />
+              )}
+              {isGroup && lastMessageType && (
+                <span className="font-medium text-gray-600 mr-1">
+                  {lastMessageSender}:
                 </span>
               )}
+
               {lastMessageType !== 2 ? (
                 lastMessageContent
               ) : (
-                <div className="flex items-center gap-1 font-medium">
-                  <HiOutlinePhoto className="text-gray-900" />
-                  <span className="text-gray-700">Photo</span>
+                <div className="ml-.5 flex items-center gap-1 font-medium">
+                  <HiOutlinePhoto className="text-gray-900" size={16} />
+                  <span className=" text-gray-700 text-[14px] font-medium">
+                    Photo
+                  </span>
                 </div>
               )}
             </div>
@@ -71,9 +86,11 @@ function ChatItem({ chat }: Props) {
 
           {/* Date + Unread */}
           <div className="flex flex-col items-end justify-start gap-1 min-w-fit">
-            <span className="text-xs text-gray-500 font-medium whitespace-nowrap">
-              {formatLastMessageDate(lastMessageDate)}
-            </span>
+            {lastMessageDate && (
+              <span className="text-xs text-gray-500 font-medium whitespace-nowrap">
+                {formatLastMessageDate(lastMessageDate)}
+              </span>
+            )}
 
             <div className="h-5 flex items-center justify-center">
               {unreadMessagesCount > 0 && (

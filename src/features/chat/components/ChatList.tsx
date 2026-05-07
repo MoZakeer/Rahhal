@@ -36,7 +36,6 @@ function ChatList() {
       if (activeTab === "private") return !chat.isGroup;
       if (activeTab === "group") return chat.isGroup;
     });
-
   return (
     <div className="w-full h-full flex flex-col overflow-hidden max-h-screen bg-gray-0">
       <div className="px-2 sm:px-4 pt-8 sm:pt-6 pb-4 flex flex-col gap-6 shrink-0">

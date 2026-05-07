@@ -5,9 +5,16 @@ type Props = {
   onChange: (value: string) => void;
   onEnter?: () => void;
   placeholder?: string;
+  onPasteFiles?: (files: File[]) => void;
 };
 
-function ChatTextarea({ value, onChange, onEnter, placeholder }: Props) {
+function ChatTextarea({
+  value,
+  onChange,
+  onEnter,
+  placeholder,
+  onPasteFiles,
+}: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -28,18 +35,30 @@ function ChatTextarea({ value, onChange, onEnter, placeholder }: Props) {
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      if (onEnter && value.trim()) {
+      if (onEnter ) {
         onEnter();
       }
     }
   };
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = Array.from(e.clipboardData.items);
 
+    const imageFiles = items
+      .filter((item) => item.type.startsWith("image/"))
+      .map((item) => item.getAsFile())
+      .filter((file): file is File => file !== null);
+
+    if (imageFiles.length > 0) {
+      onPasteFiles?.(imageFiles);
+    }
+  };
   return (
     <textarea
       ref={textareaRef}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       onKeyDown={handleKeyDown}
+      onPaste={handlePaste}
       rows={1}
       placeholder={placeholder ?? "Type a message..."}
       className={`

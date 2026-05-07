@@ -10,4 +10,6 @@ export type ChatType = {
   otherUserName: string;
   otherUserProfilePicture: string;
   lastMessageType: number;
+  isLastMessageFullySeen: boolean;
+  messageType:number;
 };
