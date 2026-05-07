@@ -309,6 +309,32 @@ export const useNotifications = (hasToken: boolean) => {
     }
   };
 
+  // dismiss all motifications 
+  const dismissAllNotifications = async () => {
+  if (!token) return;
+
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/NotificationManagment/DeleteAll`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      }
+    );
+
+    if (!res.ok) return;
+    setNotifications([]);
+    setUnreadCount?.(0);
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
   // DELETE
   const deleteNotification = async (id: string) => {
     if (!token) return;
@@ -344,6 +370,7 @@ export const useNotifications = (hasToken: boolean) => {
     markAsDelivered,
     markAllAsDelivered,
     deleteNotification,
+    dismissAllNotifications,
     refetch: () => {
       fetchNotifications(1, false);
       fetchUnreadCount();
