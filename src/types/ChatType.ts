@@ -3,6 +3,7 @@ export type ChatType = {
   isGroup: boolean;
   lastMessageContent: string;
   lastMessageDate: string;
+  lastMessageSender: string;
   unreadMessagesCount: number;
   groupTitle: string;
   conversationPicture: string;

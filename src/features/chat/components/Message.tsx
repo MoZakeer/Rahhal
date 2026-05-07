@@ -9,6 +9,7 @@ import type { Message as TMessage } from "../types/message.types";
 import { useUser } from "@/context/UserContext";
 import { parseMessageContent } from "@/utils/helper";
 import { useDeleteMessage } from "../hooks/useDeleteMessage";
+import { Link } from "react-router-dom";
 
 type Props = {
   type: "send" | "receive";
@@ -79,7 +80,11 @@ function Message({
       >
         {!isSend && name && isGroup && (
           <div className="flex items-center w-full">
-            <span className="text-xs font-medium text-primary-600">{name}</span>
+            <Link to={`/profile/${message.senderProfileId}`}>
+              <span className="text-xs font-medium text-primary-600 cursor-pointer hover:text-primary-700">
+                {name}
+              </span>
+            </Link>
           </div>
         )}
 
