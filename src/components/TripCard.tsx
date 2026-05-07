@@ -36,26 +36,31 @@ interface TripCardProps {
 }
 
 const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
-  const queryClient = useQueryClient(); // 3. تهيئة الكلاينت
+  const queryClient = useQueryClient();
   const isMyTripsPage = location.pathname === "/my-trips";
   const avatarLetter = trip.createdBy
     ? trip.createdBy.charAt(0).toUpperCase()
     : "U";
 
-  const hasValidImage = Boolean(
-    trip.imageUrl &&
-    trip.imageUrl !== "" &&
-    trip.imageUrl !== "string" &&
-    trip.imageUrl.startsWith("http"),
-  );
+  const BASE_URL = "https://rahhal-api.runasp.net";
+
+  const getFullImageUrl = (path?: string | null) => {
+    if (!path || path === "" || path === "string") return null;
+    if (path.startsWith("http")) return path;
+
+    const cleanPath = path.startsWith("/") ? path : `/${path}`;
+    const finalPath = cleanPath.replace("/Uploade/", "/upload/");
+
+    return `${BASE_URL}${finalPath}`;
+  };
+
+  const formattedImageUrl = getFullImageUrl(trip.imageUrl);
 
   const imageSeed = encodeURIComponent(
     trip.destination || trip.name || trip.id,
   );
 
-  const displayImage = hasValidImage
-    ? (trip.imageUrl ?? `https://picsum.photos/seed/${imageSeed}/800/600`)
-    : `https://picsum.photos/seed/${imageSeed}/800/600`;
+  const displayImage = formattedImageUrl || `https://picsum.photos/seed/${imageSeed}/800/600`;
 
   let prefetchTimeout: ReturnType<typeof setTimeout>;
 
@@ -101,16 +106,14 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
             {isMyTripsPage && (
               <div
                 className={`flex items-center gap-1.5 max-w-20 rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm backdrop-blur-md border
-      ${
-        trip.isPublic
-          ? "bg-blue-500/10 text-blue-700 border-blue-200"
-          : "bg-rose-500/10 text-rose-700 border-rose-200"
-      }`}
+      ${trip.isPublic
+                    ? "bg-blue-500/10 text-blue-700 border-blue-200"
+                    : "bg-rose-500/10 text-rose-700 border-rose-200"
+                  }`}
               >
                 <div
-                  className={`h-2 w-2 rounded-full ${
-                    trip.isPublic ? "bg-blue-500" : "bg-rose-500"
-                  }`}
+                  className={`h-2 w-2 rounded-full ${trip.isPublic ? "bg-blue-500" : "bg-rose-500"
+                    }`}
                 />
                 <span>{trip.isPublic ? "Public" : "Private"}</span>
               </div>
@@ -135,11 +138,10 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
             }}
           >
             <Heart
-              className={`h-5 w-5 transition-colors duration-300 ${
-                trip.isSaved
+              className={`h-5 w-5 transition-colors duration-300 ${trip.isSaved
                   ? "fill-red-500 text-red-500 dark:fill-red-600 dark:text-red-600"
                   : "text-slate-400"
-              }`}
+                }`}
             />
           </Button>
 
@@ -195,9 +197,9 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
                     <Calendar className="h-4 w-4 text-blue-400 dark:text-blue-700" />
                     {trip.startDate
                       ? new Date(trip.startDate).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })
+                        month: "short",
+                        day: "numeric",
+                      })
                       : "TBD"}
                   </span>
                   <span className="flex items-center gap-1.5">

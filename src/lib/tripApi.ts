@@ -481,3 +481,27 @@ export const mapPendingToJoinRequest = (p: ApiPendingRequest): JoinRequest => {
     status: "pending",
   };
 };
+
+export const updateTripImage = async (tripId: string, imageFile: File): Promise<string> => {
+  const formData = new FormData();
+  formData.append('TripId', tripId);
+  formData.append('ImageFile', imageFile);
+
+  const token = localStorage.getItem('token'); 
+
+  const response = await fetch('https://rahhal-api.runasp.net/TripManagement/UpdateTripImage', {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    },
+    body: formData,
+  });
+
+  const result = await response.json();
+
+  if (!response.ok || !result.isSuccess) {
+    throw new Error(result.message || 'Failed to update trip image');
+  }
+
+  return result.data.imageUrl;
+};

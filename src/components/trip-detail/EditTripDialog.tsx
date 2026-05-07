@@ -118,12 +118,17 @@ const EditTripDialog = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full gap-2">
-          <Pencil className="h-4 w-4" />
-          Edit Trip
+        <Button
+          variant="ghost"
+          className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border lg:border-gray-100"
+          title="Edit Trip"
+        >
+          <Pencil className="h-5 w-5 lg:h-4 lg:w-4" />
+          <span className="hidden lg:inline">Edit Trip</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
+
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="font-display">Edit Trip</DialogTitle>
           <DialogDescription>Update your trip details and save.</DialogDescription>

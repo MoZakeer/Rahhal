@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   ArrowLeft,
   Calendar,
@@ -18,6 +18,7 @@ import {
   Clock,
   Ticket,
   ExternalLink,
+  Camera,
 } from "lucide-react";
 import { LayoutGrid, Bed, Utensils } from "lucide-react";
 
@@ -68,8 +69,10 @@ import {
 } from "@/lib/tripApi";
 import { ApiError, getUserId } from "@/lib/api";
 import type { JoinRequest, JoinRequestStatus } from "@/types/trip";
+import { updateTripImage } from "@/lib/tripApi";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useFavicon } from "@/hooks/useFavicon";
 
 interface SafeImageProps {
   src?: string;
@@ -121,17 +124,15 @@ const TripDetail = () => {
 
   const [activeTab, setActiveTab] = useState<TripDetailsFilter>("all");
 
-  // 2. استخدام React Query لجلب الداتا بدل الـ useEffect
-  const { 
-    data: apiTrip, 
-    isLoading: loading, 
-    error: queryError 
+  const {
+    data: apiTrip,
+    isLoading: loading,
+    error: queryError
   } = useQuery({
-    // المفتاح هنا بيعتمد على الـ id والـ tab الحالي
-    queryKey: ['tripDetails', id, activeTab], 
+    queryKey: ['tripDetails', id, activeTab],
     queryFn: () => getTripById(id!, activeTab),
-    enabled: !!id, // ميعملش ريكويست لو مفيش ID
-    staleTime: 1000 * 60 * 2, // الكاش بيعيش دقيقتين
+    enabled: !!id,
+    staleTime: 1000 * 60 * 2,
   });
 
   const error = queryError instanceof ApiError ? queryError.message : queryError?.message || null;
@@ -147,7 +148,6 @@ const TripDetail = () => {
   const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
   const [requestsLoading, setRequestsLoading] = useState(false);
 
-  // تحديث حالة الزرار المفضل والرؤية أول ما الداتا تيجي
   useEffect(() => {
     if (apiTrip) {
       setIsPublic(apiTrip.isPublic ?? true);
@@ -161,6 +161,7 @@ const TripDetail = () => {
     apiTrip && currentUserId && apiTrip.profileId === currentUserId,
   );
   usePageTitle(trip?.name || "Trip Detail");
+  console.log(trip);
 
   const loadPendingRequests = useCallback(async () => {
     if (!id) return;
@@ -177,6 +178,71 @@ const TripDetail = () => {
     }
   }, [id]);
 
+
+  const [isNavVisible, setIsNavVisible] = useState(true);
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY < 50) {
+        setIsNavVisible(true);
+      }
+      else if (currentScrollY > lastScrollY) {
+        setIsNavVisible(false);
+      }
+      else {
+        setIsNavVisible(true);
+      }
+
+      lastScrollY = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const uploadImageMutation = useMutation({
+    mutationFn: (file: File) => updateTripImage(trip!.id, file),
+    onSuccess: () => {
+      toast.success("Trip image updated successfully");
+      queryClient.invalidateQueries({ queryKey: ['tripDetails', id] });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update image");
+    }
+  });
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size should be less than 5MB");
+        return;
+      }
+      uploadImageMutation.mutate(file);
+    }
+  };
+
+  const BASE_URL = "https://rahhal-api.runasp.net";
+
+  const getFullImageUrl = (path: string) => {
+    if (!path) return "";
+
+    if (path.startsWith("http")) return path;
+
+    const cleanPath = path.startsWith("/") ? path : `/${path}`;
+
+    return `${BASE_URL}${cleanPath}`;
+  };
+
+  useFavicon(trip?.image ? getFullImageUrl(trip.image) : undefined);
+  
   if (loading) {
     return (
       <div className="container flex min-h-[60vh] flex-col items-center justify-center gap-3">
@@ -273,21 +339,28 @@ const TripDetail = () => {
   return (
     <div className="min-h-screen pb-12">
       {/* Hero image */}
-      <div className="relative h-[300px] md:h-[400px]">
+      <div className="relative h-[300px] md:h-[400px] group/hero">
         {trip.image ? (
           <img
-            src={trip.image}
+            src={getFullImageUrl(trip.image)}
             alt={trip.name}
-            className="h-full w-full object-cover"
+            className={`h-full w-full object-cover transition-opacity ${uploadImageMutation.isPending ? 'opacity-50' : 'opacity-100'}`}
           />
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-primary/30 to-secondary/30" />
         )}
+
+        {uploadImageMutation.isPending && (
+          <div className="absolute inset-0 flex items-center justify-center z-20">
+            <Loader2 className="h-10 w-10 animate-spin text-white drop-shadow-md" />
+          </div>
+        )}
+
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
 
-        <div className="absolute left-4 top-4">
+        <div className="absolute left-4 top-4 z-10">
           <Button
-            onClick={() => navigate(-1)} 
+            onClick={() => navigate(-1)}
             variant="ghost"
             size="icon"
             className="rounded-full bg-card/80 backdrop-blur-sm hover:bg-card"
@@ -296,6 +369,27 @@ const TripDetail = () => {
           </Button>
         </div>
 
+        {isAdmin && (
+          <div className="absolute right-4 bottom-4 z-10">
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleImageSelect}
+              disabled={uploadImageMutation.isPending}
+            />
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              variant="ghost"
+              size="sm"
+              className="gap-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:bg-white/30 hover:scale-105 transition-all duration-300 disabled:opacity-50"
+            >
+              <Camera className="h-4 w-4 drop-shadow-md" />
+              <span className="hidden sm:inline font-medium drop-shadow-md">Change Cover</span>
+            </Button>
+          </div>
+        )}
         <div className="absolute bottom-6 left-0 right-0 px-4">
           <div className="container">
             <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -332,7 +426,7 @@ const TripDetail = () => {
         </div>
       </div>
 
-      <div className="container mt-6 px-6">
+      <div className="container mt-2 px-6">
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Main content */}
           <div className="space-y-6 lg:col-span-2 min-w-0">
@@ -607,188 +701,255 @@ const TripDetail = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-4">
-            <div className="rounded-lg borderborder-gray-200/50 bg-card p-5 shadow-card">
-              <h3 className="font-display font-semibold">Trip Details</h3>
-              <div className="mt-4 space-y-3">
-                <div className="flex items-center gap-3 text-sm">
-                  <Calendar className="h-4 w-4 text-primary" />
+          <div className="space-y-4 md:sticky md:top-5 h-fit">
+            {/* 1. Trip Details / Floating Top Summary Bar */}
+            <div className={`
+  group duration-500 ease-in-out transition-all will-change-transform
+  max-lg:fixed max-lg:top-4 max-lg:inset-x-0 max-lg:z-50 max-lg:mx-auto max-lg:w-[92%] max-lg:max-w-md
+  max-lg:animate-in max-lg:fade-in max-lg:zoom-in-95 
+  max-lg:rounded-full max-lg:border max-lg:border-white/20 max-lg:bg-background/70 max-lg:p-2.5 max-lg:px-5 max-lg:backdrop-blur-xl max-lg:shadow-[0_8px_30px_rgb(0,0,0,0.12)]
+  lg:relative lg:rounded-lg lg:border lg:border-gray-200/50 lg:bg-card lg:p-5 lg:shadow-card lg:mt-[2px]
+  ${isNavVisible ? "max-lg:translate-y-16" : "max-lg:translate-y-0"}
+`}>
+              <h3 className="hidden font-display font-semibold lg:block">Trip Details</h3>
+
+              <div className="flex flex-row items-center justify-between gap-2 overflow-x-auto scrollbar-hide lg:mt-4 lg:flex-col lg:items-start lg:space-y-3 lg:overflow-visible">
+
+                {/* Date */}
+                <div className="flex shrink-0 items-center gap-2 lg:gap-3 text-sm">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 lg:h-auto lg:w-auto lg:bg-transparent lg:p-0">
+                    <Calendar className="h-4 w-4 text-primary" />
+                  </div>
                   <div>
-                    <p className="font-medium">
+                    <p className="hidden font-medium lg:block">
                       {new Date(trip.startDate).toLocaleDateString("en-US", {
                         month: "long",
                         day: "numeric",
                         year: "numeric",
                       })}
                     </p>
-                    <p className="text-muted-foreground">{daysDiff} days</p>
+                    <p className="font-medium lg:hidden">
+                      {new Date(trip.startDate).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </p>
+                    <p className="text-xs text-muted-foreground lg:text-sm">{daysDiff} days</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <Users className="h-4 w-4 text-primary" />
-                  <p className="font-medium">{trip.travelers} Travelers</p>
-                </div>
-                {trip.budget && (
-                  <div className="flex items-center gap-3 text-sm">
-                    <DollarSign className="h-4 w-4 text-primary" />
-                    <p className="font-medium">{trip.budget}</p>
-                  </div>
-                )}
-              </div>
 
-              <div className="mt-4 flex items-center gap-2 rounded-lg bg-muted p-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                  {trip.createdByAvatar}
+                <Separator orientation="vertical" className="h-8 bg-foreground/10 lg:hidden" />
+
+                {/* Travelers */}
+                <div className="flex shrink-0 items-center gap-2 lg:gap-3 text-sm">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 lg:h-auto lg:w-auto lg:bg-transparent lg:p-0">
+                    <Users className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{trip.travelers} <span className="hidden lg:inline">Travelers</span></p>
+                    <p className="text-xs text-muted-foreground lg:hidden">People</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium">{trip.createdBy}</p>
-                  <p className="text-xs text-muted-foreground">Trip Creator</p>
+
+                {/* Budget */}
+                {trip.budget && (
+                  <>
+                    <Separator orientation="vertical" className="h-8 bg-foreground/10 lg:hidden" />
+                    <div className="flex shrink-0 items-center gap-2 lg:gap-3 text-sm">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 lg:h-auto lg:w-auto lg:bg-transparent lg:p-0">
+                        <DollarSign className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{trip.budget}</p>
+                        <p className="text-xs text-muted-foreground lg:hidden">Budget</p>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <Separator orientation="vertical" className="h-8 bg-foreground/10 lg:hidden" />
+
+                {/* Creator */}
+                <div
+                  onClick={() => navigate(`/profile/${apiTrip?.profileId}`)}
+                  role="button"
+                  className="flex shrink-0 items-center gap-2 cursor-pointer transition-colors lg:hover:bg-muted/80 lg:mt-4 lg:w-full lg:rounded-lg lg:bg-muted lg:p-3"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-sm transition-transform hover:scale-105">
+                    {trip.createdByAvatar}
+                  </div>
+                  <div className="hidden lg:block">
+                    <p className="text-sm font-medium hover:underline">{trip.createdBy}</p>
+                    <p className="text-xs text-muted-foreground">Trip Creator</p>
+                  </div>
                 </div>
+
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="space-y-3 rounded-lg border border-gray-200/50 bg-card p-5 shadow-card">
-              <h3 className="font-display font-semibold">Actions</h3>
+            {/* Actions / Floating Bottom Bar */}
+            <div className={`
+  group duration-500 ease-in-out transition-all will-change-transform
+  max-lg:fixed max-lg:bottom-6 max-lg:inset-x-0 max-lg:z-50 max-lg:mx-auto max-lg:w-fit max-lg:max-w-[95%]
+  max-lg:flex max-lg:flex-row max-lg:items-center max-lg:justify-center max-lg:gap-2 
+  max-lg:rounded-full max-lg:border max-lg:border-white/20 max-lg:bg-background/80 max-lg:p-2 max-lg:px-4 max-lg:backdrop-blur-xl max-lg:shadow-[0_8px_30px_rgb(0,0,0,0.12)]
+  lg:relative lg:space-y-3 lg:rounded-lg lg:border lg:border-gray-200/50 lg:bg-card lg:p-5 lg:shadow-card
+  ${isNavVisible ? "max-lg:translate-y-0 max-lg:opacity-100" : "max-lg:translate-y-32 max-lg:opacity-0 max-lg:pointer-events-none"}
+`}>
 
-              {trip && apiTrip && !isAdmin && (
-                <JoinTripDialog
-                  tripId={trip.id}
-                  tripName={trip.name}
-                  userStatus={apiTrip?.userJoinStatus}
-                />
-              )}
+              <h3 className="hidden font-display font-semibold lg:block">Actions</h3>
 
-              {isAdmin && (
-                <EditTripDialog
-                  trip={trip}
-                  destinationId={apiTrip.destinationId}
-                  countryId={apiTrip.countryId}
-                  travelPreferencesId={
-                    apiTrip.travelPreferences?.map((p) => p.id) ?? []
-                  }
-                  gender={apiTrip.gender}
-                  ageGroup={apiTrip.ageGroup}
-                  status={apiTrip.status}
-                  // 3. لما التعديل يخلص، بنقول للـ React Query يـ Invalidate الكاش عشان يطلب الداتا الجديدة
-                  onSaved={() => queryClient.invalidateQueries({ queryKey: ['tripDetails', id] })}
-                />
-              )}
+              <div className="flex w-full max-lg:flex-row max-lg:items-center max-lg:justify-center max-lg:gap-2 lg:flex-col lg:gap-[6px]">
 
-              <Button
-                variant={isFav ? "default" : "outline"}
-                className="w-full gap-2"
-                onClick={handleSaveTrip}
-                disabled={savingFav}
-              >
-                {savingFav ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Bookmark
-                    className={`h-4 w-4 ${isFav ? "fill-current" : ""}`}
-                  />
+                {trip && apiTrip && !isAdmin && (
+                  <div className="max-lg:shrink-0">
+                    <JoinTripDialog
+                      tripId={trip.id}
+                      tripName={trip.name}
+                      userStatus={apiTrip?.userJoinStatus}
+                    />
+                  </div>
                 )}
-                {isFav ? "Saved" : "Save Trip"}
-              </Button>
 
-              {isAdmin && (
+                {isAdmin && (
+                  <div className="max-lg:shrink-0">
+                    <EditTripDialog
+                      trip={trip}
+                      destinationId={apiTrip.destinationId}
+                      countryId={apiTrip.countryId}
+                      travelPreferencesId={
+                        apiTrip.travelPreferences?.map((p) => p.id) ?? []
+                      }
+                      gender={apiTrip.gender}
+                      ageGroup={apiTrip.ageGroup}
+                      status={apiTrip.status}
+                      onSaved={() => queryClient.invalidateQueries({ queryKey: ['tripDetails', id] })}
+                    />
+                  </div>
+                )}
+
                 <Button
-                  variant="outline"
-                  className="w-full gap-2"
-                  onClick={handleChangeVision}
-                  disabled={changingVision}
+                  variant={isFav ? "default" : "ghost"}
+                  className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border lg:border-gray-100"
+                  onClick={handleSaveTrip}
+                  disabled={savingFav}
+                  title={isFav ? "Saved" : "Save Trip"}
                 >
-                  {changingVision ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : isPublic ? (
-                    <Lock className="h-4 w-4" />
+                  {savingFav ? (
+                    <Loader2 className="h-5 w-5 animate-spin lg:h-4 lg:w-4" />
                   ) : (
-                    <Globe className="h-4 w-4" />
+                    <Bookmark
+                      className={`h-5 w-5 lg:h-4 lg:w-4 ${isFav ? "fill-current text-primary" : ""}`}
+                    />
                   )}
-                  Make {isPublic ? "Private" : "Public"}
+                  <span className="hidden lg:inline">{isFav ? "Saved" : "Save Trip"}</span>
                 </Button>
-              )}
 
-              <Button
-                variant="outline"
-                className="w-full gap-2"
-                onClick={handleShare}
-              >
-                <Share2 className="h-4 w-4" />
-                Share Trip
-              </Button>
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border lg:border-gray-100"
+                    onClick={handleChangeVision}
+                    disabled={changingVision}
+                    title={isPublic ? "Make Private" : "Make Public"}
+                  >
+                    {changingVision ? (
+                      <Loader2 className="h-5 w-5 animate-spin lg:h-4 lg:w-4" />
+                    ) : isPublic ? (
+                      <Lock className="h-5 w-5 lg:h-4 lg:w-4" />
+                    ) : (
+                      <Globe className="h-5 w-5 lg:h-4 lg:w-4" />
+                    )}
+                    <span className="hidden lg:inline">Make {isPublic ? "Private" : "Public"}</span>
+                  </Button>
+                )}
 
-              {isAdmin && (
-                <Dialog onOpenChange={(o) => o && loadPendingRequests()}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" className="w-full gap-2">
-                      <UserCheck className="h-4 w-4" />
-                      Join Requests
-                      {pendingCount > 0 && (
-                        <Badge className="ml-auto border-0 bg-secondary text-secondary-foreground">
-                          {pendingCount}
-                        </Badge>
-                      )}
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle className="font-display">
-                        Join Requests
-                      </DialogTitle>
-                      <DialogDescription>
-                        Review and respond to travelers who want to join this
-                        trip.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="mt-2">
-                      <JoinRequestsSection
-                        requests={joinRequests}
-                        loading={requestsLoading}
-                        onStatusChange={handleRequestStatusChange}
-                        hideHeader
-                      />
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              )}
+                <Button
+                  variant="ghost"
+                  className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border lg:border-gray-100"
+                  onClick={handleShare}
+                  title="Share Trip"
+                >
+                  <Share2 className="h-5 w-5 lg:h-4 lg:w-4" />
+                  <span className="hidden lg:inline">Share Trip</span>
+                </Button>
 
-              {isAdmin && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      className="w-full gap-2"
-                      disabled={deleting}
-                    >
-                      {deleting ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                      Delete Trip
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete this trip?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. The trip and all its
-                        details will be permanently removed.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleDelete}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                {isAdmin && (
+                  <Dialog onOpenChange={(o) => o && loadPendingRequests()}>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="w-full gap-2 relative max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border lg:border-gray-100"
+                        title="Join Requests"
                       >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )}
+                        <UserCheck className="h-5 w-5 lg:h-4 lg:w-4" />
+                        <span className="hidden lg:inline">Join Requests</span>
+                        {pendingCount > 0 && (
+                          <Badge className="absolute max-lg:top-1 max-lg:right-1 lg:ml-auto border-0 bg-secondary text-secondary-foreground max-lg:h-4 max-lg:w-4 max-lg:p-0 max-lg:flex max-lg:items-center max-lg:justify-center max-lg:text-[10px]">
+                            {pendingCount}
+                          </Badge>
+                        )}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle className="font-display">
+                          Join Requests
+                        </DialogTitle>
+                        <DialogDescription>
+                          Review and respond to travelers who want to join this trip.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="mt-2">
+                        <JoinRequestsSection
+                          requests={joinRequests}
+                          loading={requestsLoading}
+                          onStatusChange={handleRequestStatusChange}
+                          hideHeader
+                        />
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
+
+                {isAdmin && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border lg:border-gray-100 lg:bg-destructive lg:text-destructive-foreground lg:hover:bg-destructive/90 text-destructive hover:bg-destructive/10"
+                        disabled={deleting}
+                        title="Delete Trip"
+                      >
+                        {deleting ? (
+                          <Loader2 className="h-5 w-5 animate-spin lg:h-4 lg:w-4" />
+                        ) : (
+                          <Trash2 className="h-5 w-5 lg:h-4 lg:w-4" />
+                        )}
+                        <span className="hidden lg:inline">Delete Trip</span>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete this trip?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. The trip and all its
+                          details will be permanently removed.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDelete}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
             </div>
           </div>
         </div>
