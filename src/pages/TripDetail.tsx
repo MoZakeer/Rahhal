@@ -82,7 +82,9 @@ interface SafeImageProps {
 }
 
 const SafeImage = ({ src, alt, className, category }: SafeImageProps) => {
-  const initialSrc = src?.startsWith("http://") ? src.replace("http://", "https://") : src;
+  const initialSrc = src?.startsWith("http://")
+    ? src.replace("http://", "https://")
+    : src;
 
   const [imgSrc, setImgSrc] = useState(initialSrc);
   const [hasError, setHasError] = useState(!initialSrc);
@@ -91,9 +93,17 @@ const SafeImage = ({ src, alt, className, category }: SafeImageProps) => {
     const categoryLower = cat?.toLowerCase() || "";
     if (categoryLower.includes("beach") || categoryLower.includes("sea"))
       return "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=500&q=80";
-    if (categoryLower.includes("restaurant") || categoryLower.includes("food") || categoryLower.includes("cafe"))
+    if (
+      categoryLower.includes("restaurant") ||
+      categoryLower.includes("food") ||
+      categoryLower.includes("cafe")
+    )
       return "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500&q=80";
-    if (categoryLower.includes("historic") || categoryLower.includes("museum") || categoryLower.includes("temple"))
+    if (
+      categoryLower.includes("historic") ||
+      categoryLower.includes("museum") ||
+      categoryLower.includes("temple")
+    )
       return "https://images.unsplash.com/photo-1548013146-72479768bbaa?w=500&q=80";
     if (categoryLower.includes("hotel") || categoryLower.includes("resort"))
       return "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80";
@@ -127,15 +137,18 @@ const TripDetail = () => {
   const {
     data: apiTrip,
     isLoading: loading,
-    error: queryError
+    error: queryError,
   } = useQuery({
-    queryKey: ['tripDetails', id, activeTab],
+    queryKey: ["tripDetails", id, activeTab],
     queryFn: () => getTripById(id!, activeTab),
     enabled: !!id,
     staleTime: 1000 * 60 * 2,
   });
 
-  const error = queryError instanceof ApiError ? queryError.message : queryError?.message || null;
+  const error =
+    queryError instanceof ApiError
+      ? queryError.message
+      : queryError?.message || null;
 
   // Local states for optimistic UI updates
   const [isFav, setIsFav] = useState(false);
@@ -178,7 +191,6 @@ const TripDetail = () => {
     }
   }, [id]);
 
-
   const [isNavVisible, setIsNavVisible] = useState(true);
 
   useEffect(() => {
@@ -189,11 +201,9 @@ const TripDetail = () => {
 
       if (currentScrollY < 50) {
         setIsNavVisible(true);
-      }
-      else if (currentScrollY > lastScrollY) {
+      } else if (currentScrollY > lastScrollY) {
         setIsNavVisible(false);
-      }
-      else {
+      } else {
         setIsNavVisible(true);
       }
 
@@ -204,18 +214,17 @@ const TripDetail = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const uploadImageMutation = useMutation({
     mutationFn: (file: File) => updateTripImage(trip!.id, file),
     onSuccess: () => {
       toast.success("Trip image updated successfully");
-      queryClient.invalidateQueries({ queryKey: ['tripDetails', id] });
+      queryClient.invalidateQueries({ queryKey: ["tripDetails", id] });
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to update image");
-    }
+    },
   });
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -241,8 +250,8 @@ const TripDetail = () => {
     return `${BASE_URL}${cleanPath}`;
   };
 
-  useFavicon(trip?.image ? getFullImageUrl(trip.image) : undefined);
-  
+  useFavicon(trip?.image ? getFullImageUrl(trip.image) : "");
+
   if (loading) {
     return (
       <div className="container flex min-h-[60vh] flex-col items-center justify-center gap-3">
@@ -267,13 +276,13 @@ const TripDetail = () => {
     1,
     Math.ceil(
       (new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) /
-      (1000 * 60 * 60 * 24),
+        (1000 * 60 * 60 * 24),
     ),
   );
 
   const handleShare = () => {
     const url = window.location.href;
-    navigator.clipboard?.writeText(url).catch(() => { });
+    navigator.clipboard?.writeText(url).catch(() => {});
     toast.success("Trip link copied to clipboard");
   };
 
@@ -344,7 +353,7 @@ const TripDetail = () => {
           <img
             src={getFullImageUrl(trip.image)}
             alt={trip.name}
-            className={`h-full w-full object-cover transition-opacity ${uploadImageMutation.isPending ? 'opacity-50' : 'opacity-100'}`}
+            className={`h-full w-full object-cover transition-opacity ${uploadImageMutation.isPending ? "opacity-50" : "opacity-100"}`}
           />
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-primary/30 to-secondary/30" />
@@ -386,7 +395,9 @@ const TripDetail = () => {
               className="gap-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:bg-white/30 hover:scale-105 transition-all duration-300 disabled:opacity-50"
             >
               <Camera className="h-4 w-4 drop-shadow-md" />
-              <span className="hidden sm:inline font-medium drop-shadow-md">Change Cover</span>
+              <span className="hidden sm:inline font-medium drop-shadow-md">
+                Change Cover
+              </span>
             </Button>
           </div>
         )}
@@ -525,7 +536,7 @@ const TripDetail = () => {
 
                                 {stop?.recommendations &&
                                   (stop?.recommendations as any[]).length >
-                                  0 && (
+                                    0 && (
                                     <div className="mt-4 pt-4 border-t border-gray-200/50">
                                       <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
                                         Nearby Places
@@ -590,9 +601,9 @@ const TripDetail = () => {
             )}
 
             {!trip.isAiGenerated &&
-              (trip.attractions?.length ||
-                trip.hotels?.length ||
-                trip.restaurants?.length) ? (
+            (trip.attractions?.length ||
+              trip.hotels?.length ||
+              trip.restaurants?.length) ? (
               <>
                 <div>
                   <h2 className="font-display text-xl font-semibold">
@@ -703,18 +714,21 @@ const TripDetail = () => {
           {/* Sidebar */}
           <div className="space-y-4 md:sticky md:top-5 h-fit">
             {/* 1. Trip Details / Floating Top Summary Bar */}
-            <div className={`
+            <div
+              className={`
   group duration-500 ease-in-out transition-all will-change-transform
   max-lg:fixed max-lg:top-4 max-lg:inset-x-0 max-lg:z-50 max-lg:mx-auto max-lg:w-[92%] max-lg:max-w-md
   max-lg:animate-in max-lg:fade-in max-lg:zoom-in-95 
   max-lg:rounded-full max-lg:border max-lg:border-white/20 max-lg:bg-background/70 max-lg:p-2.5 max-lg:px-5 max-lg:backdrop-blur-xl max-lg:shadow-[0_8px_30px_rgb(0,0,0,0.12)]
   lg:relative lg:rounded-lg lg:border lg:border-gray-200/50 lg:bg-card lg:p-5 lg:shadow-card lg:mt-[2px]
   ${isNavVisible ? "max-lg:translate-y-16" : "max-lg:translate-y-0"}
-`}>
-              <h3 className="hidden font-display font-semibold lg:block">Trip Details</h3>
+`}
+            >
+              <h3 className="hidden font-display font-semibold lg:block">
+                Trip Details
+              </h3>
 
               <div className="flex flex-row items-center justify-between gap-2 overflow-x-auto scrollbar-hide lg:mt-4 lg:flex-col lg:items-start lg:space-y-3 lg:overflow-visible">
-
                 {/* Date */}
                 <div className="flex shrink-0 items-center gap-2 lg:gap-3 text-sm">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 lg:h-auto lg:w-auto lg:bg-transparent lg:p-0">
@@ -734,11 +748,16 @@ const TripDetail = () => {
                         day: "numeric",
                       })}
                     </p>
-                    <p className="text-xs text-muted-foreground lg:text-sm">{daysDiff} days</p>
+                    <p className="text-xs text-muted-foreground lg:text-sm">
+                      {daysDiff} days
+                    </p>
                   </div>
                 </div>
 
-                <Separator orientation="vertical" className="h-8 bg-foreground/10 lg:hidden" />
+                <Separator
+                  orientation="vertical"
+                  className="h-8 bg-foreground/10 lg:hidden"
+                />
 
                 {/* Travelers */}
                 <div className="flex shrink-0 items-center gap-2 lg:gap-3 text-sm">
@@ -746,28 +765,41 @@ const TripDetail = () => {
                     <Users className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium">{trip.travelers} <span className="hidden lg:inline">Travelers</span></p>
-                    <p className="text-xs text-muted-foreground lg:hidden">People</p>
+                    <p className="font-medium">
+                      {trip.travelers}{" "}
+                      <span className="hidden lg:inline">Travelers</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground lg:hidden">
+                      People
+                    </p>
                   </div>
                 </div>
 
                 {/* Budget */}
                 {trip.budget && (
                   <>
-                    <Separator orientation="vertical" className="h-8 bg-foreground/10 lg:hidden" />
+                    <Separator
+                      orientation="vertical"
+                      className="h-8 bg-foreground/10 lg:hidden"
+                    />
                     <div className="flex shrink-0 items-center gap-2 lg:gap-3 text-sm">
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 lg:h-auto lg:w-auto lg:bg-transparent lg:p-0">
                         <DollarSign className="h-4 w-4 text-primary" />
                       </div>
                       <div>
                         <p className="font-medium">{trip.budget}</p>
-                        <p className="text-xs text-muted-foreground lg:hidden">Budget</p>
+                        <p className="text-xs text-muted-foreground lg:hidden">
+                          Budget
+                        </p>
                       </div>
                     </div>
                   </>
                 )}
 
-                <Separator orientation="vertical" className="h-8 bg-foreground/10 lg:hidden" />
+                <Separator
+                  orientation="vertical"
+                  className="h-8 bg-foreground/10 lg:hidden"
+                />
 
                 {/* Creator */}
                 <div
@@ -779,28 +811,33 @@ const TripDetail = () => {
                     {trip.createdByAvatar}
                   </div>
                   <div className="hidden lg:block">
-                    <p className="text-sm font-medium hover:underline">{trip.createdBy}</p>
-                    <p className="text-xs text-muted-foreground">Trip Creator</p>
+                    <p className="text-sm font-medium hover:underline">
+                      {trip.createdBy}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Trip Creator
+                    </p>
                   </div>
                 </div>
-
               </div>
             </div>
 
             {/* Actions / Floating Bottom Bar */}
-            <div className={`
+            <div
+              className={`
   group duration-500 ease-in-out transition-all will-change-transform
   max-lg:fixed max-lg:bottom-6 max-lg:inset-x-0 max-lg:z-50 max-lg:mx-auto max-lg:w-fit max-lg:max-w-[95%]
   max-lg:flex max-lg:flex-row max-lg:items-center max-lg:justify-center max-lg:gap-2 
   max-lg:rounded-full max-lg:border max-lg:border-white/20 max-lg:bg-background/80 max-lg:p-2 max-lg:px-4 max-lg:backdrop-blur-xl max-lg:shadow-[0_8px_30px_rgb(0,0,0,0.12)]
   lg:relative lg:space-y-3 lg:rounded-lg lg:border lg:border-gray-200/50 lg:bg-card lg:p-5 lg:shadow-card
   ${isNavVisible ? "max-lg:translate-y-0 max-lg:opacity-100" : "max-lg:translate-y-32 max-lg:opacity-0 max-lg:pointer-events-none"}
-`}>
-
-              <h3 className="hidden font-display font-semibold lg:block">Actions</h3>
+`}
+            >
+              <h3 className="hidden font-display font-semibold lg:block">
+                Actions
+              </h3>
 
               <div className="flex w-full max-lg:flex-row max-lg:items-center max-lg:justify-center max-lg:gap-2 lg:flex-col lg:gap-[6px]">
-
                 {trip && apiTrip && !isAdmin && (
                   <div className="max-lg:shrink-0">
                     <JoinTripDialog
@@ -823,7 +860,11 @@ const TripDetail = () => {
                       gender={apiTrip.gender}
                       ageGroup={apiTrip.ageGroup}
                       status={apiTrip.status}
-                      onSaved={() => queryClient.invalidateQueries({ queryKey: ['tripDetails', id] })}
+                      onSaved={() =>
+                        queryClient.invalidateQueries({
+                          queryKey: ["tripDetails", id],
+                        })
+                      }
                     />
                   </div>
                 )}
@@ -842,7 +883,9 @@ const TripDetail = () => {
                       className={`h-5 w-5 lg:h-4 lg:w-4 ${isFav ? "fill-current text-primary" : ""}`}
                     />
                   )}
-                  <span className="hidden lg:inline">{isFav ? "Saved" : "Save Trip"}</span>
+                  <span className="hidden lg:inline">
+                    {isFav ? "Saved" : "Save Trip"}
+                  </span>
                 </Button>
 
                 {isAdmin && (
@@ -860,7 +903,9 @@ const TripDetail = () => {
                     ) : (
                       <Globe className="h-5 w-5 lg:h-4 lg:w-4" />
                     )}
-                    <span className="hidden lg:inline">Make {isPublic ? "Private" : "Public"}</span>
+                    <span className="hidden lg:inline">
+                      Make {isPublic ? "Private" : "Public"}
+                    </span>
                   </Button>
                 )}
 
@@ -897,7 +942,8 @@ const TripDetail = () => {
                           Join Requests
                         </DialogTitle>
                         <DialogDescription>
-                          Review and respond to travelers who want to join this trip.
+                          Review and respond to travelers who want to join this
+                          trip.
                         </DialogDescription>
                       </DialogHeader>
                       <div className="mt-2">
