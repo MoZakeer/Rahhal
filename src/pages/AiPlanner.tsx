@@ -146,7 +146,40 @@ interface Place {
   List_of_recommendations?: Recommendation[];
 }
 type ActivityLevel = "Relaxed" | "Moderate" | "Active";
+const BEACH_GOVERNORATES = [
+  "Red Sea",
+  "South Sinai",
+  "Marsa Matruh",
+  "Alexandria",
+];
 
+const ACTIVITY_MULTIPLIERS: Record<ActivityLevel, number> = {
+  Relaxed: 2,
+  Moderate: 3,
+  Active: 4,
+};
+
+const BASE_RATE = 12;
+
+const calculateMinimumBudget = (
+  days: number,
+  activityLevel: ActivityLevel,
+  governorate: string,
+) => {
+  const activityMultiplier = ACTIVITY_MULTIPLIERS[activityLevel];
+
+  let minimum = activityMultiplier * days * BASE_RATE;
+
+  const isBeachGovernorate = BEACH_GOVERNORATES.some(
+    (g) => g.toLowerCase() === governorate.toLowerCase(),
+  );
+
+  if (isBeachGovernorate) {
+    minimum = Math.ceil(minimum * 1.4);
+  }
+
+  return minimum;
+};
 const AiPlanner = () => {
   usePageTitle("AI Trip Planner");
   usePageInView();
@@ -267,16 +300,22 @@ const AiPlanner = () => {
     date.setDate(date.getDate() + (days - 1)); // -1 because day 1 is the start date
     return date.toISOString().split("T")[0];
   };
+  const minimumBudget = calculateMinimumBudget(
+    form.user_days,
+    form.activity_level,
+    form.user_governorate,
+  );
   const handleGenerate = async () => {
     // 1. Basic Field Checks
     if (!form.destinationId) return toast.error("Please select a destination");
     if (!form.user_start_date) return toast.error("Please select a start date");
     if (form.numberOfTravelers < 1)
       return toast.error("At least 1 traveler required");
-    if (form.user_budget < 100)
+    if (form.user_budget < minimumBudget) {
       return toast.error(
-        "Budget must be at least $100 to generate an itinerary.",
+        `Minimum budget for this trip is ${minimumBudget} EGP`,
       );
+    }
     if (!form.countryId)
       return toast.error("Please select a departure country");
     // 2. Date Logic & Capping
@@ -700,6 +739,9 @@ const AiPlanner = () => {
                         <AlertCircle className="w-3 h-3" /> Required
                       </span>
                     )}
+                    <span className="flex items-center gap-1 text-[10px] text-slate-500 font-bold uppercase italic">
+                      Minimum required: {minimumBudget} EGP
+                    </span>
                   </div>
                 </div>
               </CardContent>
