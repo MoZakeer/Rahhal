@@ -9,6 +9,7 @@ export type UpdateSidebarData = {
   conversationId: string;
   lastMessageContent: string;
   lastMessageDate: string;
+  lastMessageSender: string;
   unreadCount: number;
   messageType: number;
 };
@@ -42,6 +43,7 @@ export const useSidebarUpdates = (connection: HubConnection | null) => {
               lastMessageDate: data.lastMessageDate,
               unreadMessagesCount: isChatOpenNow ? 0 : data.unreadCount,
               lastMessageType: data.messageType,
+              lastMessageSender: data.lastMessageSender,
             };
 
             chats.splice(index, 1);
