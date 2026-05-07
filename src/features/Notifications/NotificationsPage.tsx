@@ -55,6 +55,7 @@ export default function NotificationsPage() {
     markAllAsRead,
     markAllAsDelivered,
     deleteNotification,
+    dismissAllNotifications,
   } = useNotifications(true);
 
   const isEmpty = !loading && notifications.length === 0;
@@ -92,9 +93,9 @@ export default function NotificationsPage() {
     if (postTypes.includes(n.notificationType)) {
       navigate(`/post/${n.typeId}`);
     } else if (n.notificationType === "MakeFollow") {
-      navigate(`/profile/${n.typeId}`); 
+      navigate(`/profile/${n.typeId}`);
     } else if (tripTypes.includes(n.notificationType)) {
-      navigate(`/trip/${n.typeId}`); 
+      navigate(`/trip/${n.typeId}`);
     }
   };
 
@@ -123,18 +124,29 @@ export default function NotificationsPage() {
     >
       <div className="max-w-4xl mx-auto">
 
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col gap-3 mb-8 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-slate-100">
             Notifications
           </h1>
 
           {!isEmpty && (
-            <button
-              onClick={markAllAsDelivered}
-              className="text-sm text-gray-600 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200 transition"
-            >
-              Mark all as read
-            </button>
+            <div className="flex items-center gap-3 self-start sm:self-auto">
+              <button
+                onClick={markAllAsDelivered}
+                className="text-sm text-gray-600 dark:text-slate-300 hover:text-gray-800 dark:hover:text-white transition"
+              >
+                Mark all as read
+              </button>
+
+              <div className="hidden sm:block h-4 w-px bg-gray-400 dark:bg-white/20" />
+
+              <button
+                onClick={dismissAllNotifications}
+                className="text-sm text-red-400 hover:text-red-300 transition"
+              >
+                Dismiss all
+              </button>
+            </div>
           )}
         </div>
 
