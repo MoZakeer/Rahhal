@@ -3,7 +3,7 @@ import { useUserDetails } from "../hooks/useUserDetails";
 import { useUserProfile } from "../hooks/useUserProfile";
 import { normalizeMediaUrl } from "../../../features/post/components/services/posts.api";
 import { usePageTitle } from "@/hooks/usePageTitle";
-
+import { useFavicon } from "@/hooks/useFavicon";
 interface Props {
   id: string;
 }
@@ -21,7 +21,7 @@ interface ReportItem {
 
 export default function UserReportsCard({ id }: Props) {
   usePageTitle("Reported User Details");
-
+  useFavicon("/problem-report.png");
   const { data: reportsData } = useUserDetails(id);
   const { data: profileData } = useUserProfile(id);
 
