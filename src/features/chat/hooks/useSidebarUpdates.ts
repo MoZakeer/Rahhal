@@ -24,7 +24,7 @@ export const useSidebarUpdates = (connection: HubConnection | null) => {
   useEffect(() => {
     if (!connection) return;
 
-    const handleUpdateSidebar = (data: UpdateSidebarData) => {
+    const handleUpdateSidebar = function (data: UpdateSidebarData) {
       console.log(data);
       queryClient.setQueryData<{ data: ChatType[] }>(
         ["all-chats"],
@@ -99,17 +99,46 @@ export const useSidebarUpdates = (connection: HubConnection | null) => {
     const handleLastMessageSeen = function (data: UpdateSidebarData) {
       console.log(data);
     };
+    const handleDeleteSidebarMessage = function (data: UpdateSidebarData) {
+      queryClient.setQueryData<{ data: ChatType[] }>(
+        ["all-chats"],
+        (oldData) => {
+          if (!oldData?.data) return oldData;
+
+          const chats = [...oldData.data];
+          const index = chats.findIndex(
+            (c) => c.conversationId === data.conversationId,
+          );
+
+          if (index > -1) {
+            const isChatOpenNow = data.conversationId === activeChatId;
+
+            const updatedChat: ChatType = {
+              ...chats[index],
+              lastMessageContent: data.lastMessageContent,
+              lastMessageDate: data.lastMessageDate,
+              unreadMessagesCount: isChatOpenNow ? 0 : data.unreadCount,
+              lastMessageType: data.messageType,
+              lastMessageSender: data.lastMessageSender,
+            };
+
+            chats[index] = updatedChat;
+          }
+          return { ...oldData, data: chats };
+        },
+      );
+    };
     connection.on("UpdateSidebar", handleUpdateSidebar);
     connection.on("UpdateUnreadCount", handleUpdateUnreadCount);
     connection.on("NewChatCreated", handleNewChat);
     connection.on("UpdateSeenMark", handleLastMessageSeen);
-    connection.on("DeleteLastMessage", handleUpdateSidebar);
+    connection.on("DeleteLastMessage", handleDeleteSidebarMessage);
     return () => {
       connection.off("UpdateSidebar", handleUpdateSidebar);
       connection.off("UpdateUnreadCount", handleUpdateUnreadCount);
       connection.off("NewChatCreated", handleNewChat);
       connection.off("UpdateSeenMark", handleLastMessageSeen);
-      connection.off("DeleteLastMessage", handleUpdateSidebar);
+      connection.off("DeleteLastMessage", handleDeleteSidebarMessage);
     };
   }, [connection, queryClient, activeChatId]);
 };
