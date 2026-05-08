@@ -1,6 +1,6 @@
 export interface Post {
   postId: string;
-  savedPostId:   null | undefined;
+  savedPostId: null | undefined;
   id: string;
   authorUsername: string;
   authorProfilePicture: string;
@@ -10,7 +10,7 @@ export interface Post {
   profileUrl: string;
   description: string;
   mediaUrLs: PostMediaItem[];
-createdDate?: string;
+  createdDate?: string;
   likes?: number;
   comments?: number;
   isLiked: boolean;
@@ -19,7 +19,7 @@ createdDate?: string;
 }
 export interface PostDetails {
   postId: string;
-  savedPostId:   null | undefined;
+  savedPostId: null | undefined;
   id: string;
   authorUsername: string;
   authorProfilePicture: string;
@@ -29,7 +29,7 @@ export interface PostDetails {
   profileURL: string;
   description: string;
   media_URLs: PostMediaItem[];
-createdDate?: string;
+  createdDate?: string;
   likes?: number;
   comments?: number;
   isLiked: boolean;
@@ -45,6 +45,7 @@ export interface PostDetailsResponse {
 export interface PostMediaItem {
   id: string;
   url: string;
+  type?: "image" | "video";
 }
 export interface PostsResponse {
   data: {

@@ -23,6 +23,7 @@ import {
   GlobeIcon,
   MessageCircle,
   Share2,
+  Play,
 } from "lucide-react";
 import { Bookmark } from "lucide-react";
 import { HeartIcon } from "@heroicons/react/24/outline";
@@ -236,9 +237,14 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
 
   const startX = useRef<number | null>(null);
   const isDragging = useRef(false);
+  const currentMedia = media[current];
 
   if (!media.length) return null;
+  const isVideo = (item: PostMediaItem) => {
+    if (item.type) return item.type === "video";
 
+    return /\.(mp4|webm|ogg|mov)$/i.test(item.url);
+  };
   const next = () => {
     setCurrent((prev) => (prev + 1) % media.length);
   };
@@ -277,12 +283,21 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
             <ChevronLeft size={32} />
           </button>
         )}
-        <img
-          onClick={() => setIsPreviewOpen(true)}
-          src={normalizeMediaUrl(media[current].url)}
-          className="w-full h-full object-cover transition-transform duration-300"
-          draggable={false}
-        />
+        {isVideo(currentMedia) ? (
+          <video
+            onClick={() => setIsPreviewOpen(true)}
+            src={normalizeMediaUrl(currentMedia.url)}
+            className="w-full h-full object-cover"
+            controls
+          />
+        ) : (
+          <img
+            onClick={() => setIsPreviewOpen(true)}
+            src={normalizeMediaUrl(currentMedia.url)}
+            className="w-full h-full object-cover transition-transform duration-300"
+            draggable={false}
+          />
+        )}
         {media.length > 1 && current !== media.length - 1 && (
           <button
             className="absolute opacity-0 group-hover:opacity-100 right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
@@ -319,11 +334,25 @@ transition-all duration-300"
                   : "opacity-60 hover:opacity-100"
               }`}
             >
-              <img
-                src={normalizeMediaUrl(m.url)}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
+              {isVideo(m) ? (
+                <>
+                  <video
+                    src={normalizeMediaUrl(m.url)}
+                    className="w-full h-full object-cover"
+                    muted
+                  />
+
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                    <Play size={24} className="text-white fill-white" />
+                  </div>
+                </>
+              ) : (
+                <img
+                  src={normalizeMediaUrl(m.url)}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              )}
             </div>
           ))}
         </div>
@@ -353,10 +382,19 @@ transition-all duration-300"
               </button>
             )}
 
-            <img
-              src={normalizeMediaUrl(media[current].url)}
-              className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
-            />
+            {isVideo(currentMedia) ? (
+              <video
+                src={normalizeMediaUrl(currentMedia.url)}
+                className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
+                controls
+                autoPlay
+              />
+            ) : (
+              <img
+                src={normalizeMediaUrl(currentMedia.url)}
+                className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
+              />
+            )}
             {media.length > 1 && (
               <button
                 className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
