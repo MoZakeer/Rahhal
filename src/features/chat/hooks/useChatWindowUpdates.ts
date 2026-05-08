@@ -23,7 +23,7 @@ export const useChatWindowUpdates = (
       });
     }
 
-    const handleReceiveMessage = (newMessage: Message) => {
+    const handleReceiveMessage = function (newMessage: Message) {
       queryClient.setQueryData<InfiniteData<ChatResponse>>(
         ["chat", conversationId],
         (oldData) => {
@@ -63,10 +63,10 @@ export const useChatWindowUpdates = (
       }
     };
 
-    const handleMessageSeen = (data: {
+    const handleMessageSeen = function (data: {
       conversationId: string;
       messageId: string;
-    }) => {
+    }) {
       if (data.conversationId !== conversationId) return;
 
       queryClient.setQueryData<InfiniteData<ChatResponse>>(
@@ -95,13 +95,43 @@ export const useChatWindowUpdates = (
         },
       );
     };
+    const handleDeleteMessage = function (data: {
+      conversationId: string;
+      messageId: string;
+    }) {
+      if (data.conversationId !== conversationId) return;
 
+      queryClient.setQueryData<InfiniteData<ChatResponse>>(
+        ["chat", conversationId],
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: {
+                ...page.data,
+                messages: {
+                  ...page.data.messages,
+                  items: page.data.messages.items.filter(
+                    (msg: Message) => msg.messageId !== data.messageId,
+                  ),
+                },
+              },
+            })),
+          };
+        },
+      );
+    };
     connection.on("ReceiveMessage", handleReceiveMessage);
     connection.on("MessageFullySeen", handleMessageSeen);
+    connection.on("MessageDeleted", handleDeleteMessage);
 
     return () => {
       connection.off("ReceiveMessage", handleReceiveMessage);
       connection.off("MessageFullySeen", handleMessageSeen);
+      connection.off("MessageDeleted", handleDeleteMessage);
       connection.invoke("LeaveConversation", conversationId).catch(() => {});
     };
   }, [connection, conversationId, userId, queryClient]);

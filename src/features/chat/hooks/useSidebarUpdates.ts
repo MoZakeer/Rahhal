@@ -25,6 +25,7 @@ export const useSidebarUpdates = (connection: HubConnection | null) => {
     if (!connection) return;
 
     const handleUpdateSidebar = (data: UpdateSidebarData) => {
+      console.log(data);
       queryClient.setQueryData<{ data: ChatType[] }>(
         ["all-chats"],
         (oldData) => {
@@ -55,10 +56,10 @@ export const useSidebarUpdates = (connection: HubConnection | null) => {
       );
     };
 
-    const handleUpdateUnreadCount = (data: {
+    const handleUpdateUnreadCount = function (data: {
       conversationId: string;
       unreadCount: number;
-    }) => {
+    }) {
       queryClient.setQueryData<{ data: ChatType[] }>(
         ["all-chats"],
         (oldData) => {
@@ -102,11 +103,13 @@ export const useSidebarUpdates = (connection: HubConnection | null) => {
     connection.on("UpdateUnreadCount", handleUpdateUnreadCount);
     connection.on("NewChatCreated", handleNewChat);
     connection.on("UpdateSeenMark", handleLastMessageSeen);
+    connection.on("DeleteLastMessage", handleUpdateSidebar);
     return () => {
       connection.off("UpdateSidebar", handleUpdateSidebar);
       connection.off("UpdateUnreadCount", handleUpdateUnreadCount);
       connection.off("NewChatCreated", handleNewChat);
       connection.off("UpdateSeenMark", handleLastMessageSeen);
+      connection.off("DeleteLastMessage", handleUpdateSidebar);
     };
   }, [connection, queryClient, activeChatId]);
 };
