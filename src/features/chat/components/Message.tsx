@@ -71,7 +71,7 @@ function Message({
       <div
         className={`
           relative flex flex-col
-          px-3 pt-2 p-1
+          px-3 pt-2 pb-1.5
           shadow-md max-w-[75%] min-w-20 group
           ${
             !isSend
@@ -81,7 +81,7 @@ function Message({
         `}
       >
         {!isSend && name && isGroup && (
-          <div className="flex items-center w-full">
+          <div className="flex items-center w-full mb-1">
             <Link to={`/profile/${message.senderProfileId}`}>
               <span className="text-xs font-medium text-primary-600 cursor-pointer hover:text-primary-700">
                 {name}
@@ -176,63 +176,54 @@ function Message({
         <MessageAttachments attachments={attachments} isSend={isSend} />
 
         {!!children && (
-          <span className="text-xs leading-relaxed break-words">
+          <div
+            dir="auto"
+            className="
+              text-xs
+              leading-relaxed
+              wrap-break-word
+              whitespace-pre-wrap
+              pr-14
+              mr-2
+            "
+          >
             {typeof children === "string"
               ? parseMessageContent(children)
               : children}
-
-            <span
-              className={`
-                inline-flex items-center gap-1 ml-2 whitespace-nowrap align-bottom
-                ${isSend ? "text-primary-200" : "text-gray-400"}
-              `}
-            >
-              <span className="text-[10px]">{time}</span>
-
-              {isSend && (
-                <IoCheckmarkDoneSharp
-                  size={14}
-                  className={`${isSeen ? "text-primary-400" : "text-gray-400"}`}
-                />
-              )}
-            </span>
-          </span>
+          </div>
         )}
 
-        {!children && (
-          <div
-            className={`
-              flex items-center gap-1 mt-1
-              ${
-                isSend
-                  ? "justify-end text-primary-200"
-                  : "justify-end text-gray-400"
-              }
-            `}
-          >
-            <span className="text-[10px]">{time}</span>
+        <div
+          dir="ltr"
+          className={`
+            absolute bottom-1 right-2 
+            flex items-center gap-1
+            text-[10px] select-none
+            ${isSend ? "text-primary-200" : "text-gray-400"}
+          `}
+        >
+          <span>{time}</span>
 
-            {isSend && (
-              <IoCheckmarkDoneSharp
-                size={14}
-                className={`${isSeen ? "text-primary-400" : "text-gray-400"}`}
-              />
-            )}
+          {isSend && (
+            <IoCheckmarkDoneSharp
+              size={14}
+              className={`${isSeen ? "text-primary-400" : "text-gray-400"}`}
+            />
+          )}
+        </div>
+
+        {isReportOpen && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <ReportModal
+              entityType="user"
+              entityId={message.senderProfileId}
+              reporterId={reporterId}
+              messageId={message.messageId}
+              onClose={() => setIsReportOpen(false)}
+            />
           </div>
         )}
       </div>
-
-      {isReportOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <ReportModal
-            entityType="user"
-            entityId={message.senderProfileId}
-            reporterId={reporterId}
-            messageId={message.messageId}
-            onClose={() => setIsReportOpen(false)}
-          />
-        </div>
-      )}
     </li>
   );
 }

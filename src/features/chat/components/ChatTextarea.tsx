@@ -54,6 +54,7 @@ function ChatTextarea({
   };
   return (
     <textarea
+    dir="auto"
       ref={textareaRef}
       value={value}
       onChange={(e) => onChange(e.target.value)}

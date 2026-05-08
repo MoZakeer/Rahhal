@@ -72,7 +72,9 @@ function ChatItem({ chat }: Props) {
               )}
 
               {lastMessageType !== 2 ? (
-                lastMessageContent
+               <span dir="auto">
+                {lastMessageContent}
+               </span> 
               ) : (
                 <div className="ml-.5 flex items-center gap-1 font-medium">
                   <HiOutlinePhoto className="text-gray-900" size={16} />
