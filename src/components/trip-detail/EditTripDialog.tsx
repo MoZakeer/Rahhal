@@ -120,7 +120,7 @@ const EditTripDialog = ({
       <DialogTrigger asChild>
         <Button
           variant="ghost"
-          className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border lg:border-gray-100"
+          className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border max-lg:bg-transparent lg:justify-start lg:border lg:border-blue-100 lg:bg-blue-50/50 hover:lg:bg-blue-50 hover:text-blue-700"
           title="Edit Trip"
         >
           <Pencil className="h-5 w-5 lg:h-4 lg:w-4" />
