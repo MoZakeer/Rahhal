@@ -67,17 +67,29 @@ const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
   const avatarLetter = trip.createdBy
     ? trip.createdBy.charAt(0).toUpperCase()
     : "U";
+  const BASE_URL = "https://rahhal-api.runasp.net";
   const imageSeed = encodeURIComponent(
     trip.destination || trip.name || trip.id,
   );
-  const hasValidImage = Boolean(
-    trip.imageUrl &&
-    trip.imageUrl !== "string" &&
-    trip.imageUrl.startsWith("http"),
-  );
-  const displayImage = hasValidImage
-    ? trip.imageUrl
-    : `https://picsum.photos/seed/${imageSeed}/800/600`;
+
+  const getDisplayImage = () => {
+    const path = trip.imageUrl;
+
+    if (!path || path === "" || path === "string") {
+      return `https://picsum.photos/seed/${imageSeed}/800/600`;
+    }
+
+    if (path.startsWith("http")) {
+      return path;
+    }
+
+    const cleanPath = path.startsWith("/") ? path : `/${path}`;
+    const finalPath = cleanPath.replace("/Uploade/", "/upload/");
+
+    return `${BASE_URL}${finalPath}`;
+  };
+
+  const displayImage = getDisplayImage();
   const formattedMatch = Math.round(trip.matchPercentage || 0);
   const matchStyle = getMatchStyles(formattedMatch);
 
@@ -152,10 +164,10 @@ const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
               <Calendar className="h-4 w-4 text-slate-400" />
               {trip.startDate
                 ? new Date(trip.startDate).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })
                 : "TBD"}
             </span>
             <span className="flex items-center gap-1.5">

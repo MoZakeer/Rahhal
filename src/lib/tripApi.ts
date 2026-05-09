@@ -88,6 +88,7 @@ export interface ApiTrip {
   tripAgeGroup: string;
   profileId: string;
   profileUserName: string;
+  profilePicture?: string | null;
   destinationId: string;
   destinationName: string;
   countryId: string;

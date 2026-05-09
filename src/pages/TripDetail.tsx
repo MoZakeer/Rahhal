@@ -46,6 +46,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { MessageCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // Components
 import AttractionsSection from "@/components/trip-detail/AttractionsSection";
@@ -252,6 +254,21 @@ const TripDetail = () => {
 
   useFavicon(trip?.image ? getFullImageUrl(trip.image) : "");
 
+
+  const creatorImage = getFullImageUrl(apiTrip?.profilePicture);
+
+  <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 border border-primary/20 text-sm font-bold text-primary shadow-sm">
+    {creatorImage ? (
+      <img
+        src={creatorImage}
+        alt={apiTrip?.profileUserName}
+        className="h-full w-full object-cover"
+      />
+    ) : (
+      <span className="uppercase">{apiTrip?.profileUserName?.charAt(0) || "U"}</span>
+    )}
+  </div>
+
   if (loading) {
     return (
       <div className="container flex min-h-[60vh] flex-col items-center justify-center gap-3">
@@ -276,13 +293,13 @@ const TripDetail = () => {
     1,
     Math.ceil(
       (new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) /
-        (1000 * 60 * 60 * 24),
+      (1000 * 60 * 60 * 24),
     ),
   );
 
   const handleShare = () => {
     const url = window.location.href;
-    navigator.clipboard?.writeText(url).catch(() => {});
+    navigator.clipboard?.writeText(url).catch(() => { });
     toast.success("Trip link copied to clipboard");
   };
 
@@ -483,11 +500,11 @@ const TripDetail = () => {
                           >
                             <div className="flex flex-col md:flex-row">
                               {stop.image && (
-                                <div className="overflow-hidden rounded-md">
+                                <div className="overflow-hidden md:w-[320px] md:h-full shrink-0">
                                   <SafeImage
                                     src={stop.image}
                                     category={stop.category}
-                                    className="h-20 w-full object-cover bg-muted transition-transform duration-300 md:group-hover:scale-110"
+                                    className="h-48 w-full md:h-full md:min-h-[220px] object-cover bg-muted transition-transform duration-300 md:group-hover:scale-110"
                                   />
                                 </div>
                               )}
@@ -536,7 +553,7 @@ const TripDetail = () => {
 
                                 {stop?.recommendations &&
                                   (stop?.recommendations as any[]).length >
-                                    0 && (
+                                  0 && (
                                     <div className="mt-4 pt-4 border-t border-gray-200/50">
                                       <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
                                         Nearby Places
@@ -601,9 +618,9 @@ const TripDetail = () => {
             )}
 
             {!trip.isAiGenerated &&
-            (trip.attractions?.length ||
-              trip.hotels?.length ||
-              trip.restaurants?.length) ? (
+              (trip.attractions?.length ||
+                trip.hotels?.length ||
+                trip.restaurants?.length) ? (
               <>
                 <div>
                   <h2 className="font-display text-xl font-semibold">
@@ -728,7 +745,7 @@ const TripDetail = () => {
                 Trip Details
               </h3>
 
-              <div className="flex flex-row items-center justify-between gap-2 overflow-x-auto scrollbar-hide lg:mt-4 lg:flex-col lg:items-start lg:space-y-3 lg:overflow-visible">
+              <div className="flex flex-row items-center justify-between gap-2 overflow-x-auto scrollbar-hide lg:mt-[3px] lg:flex-col lg:items-start lg:space-y-3 lg:overflow-visible">
                 {/* Date */}
                 <div className="flex shrink-0 items-center gap-2 lg:gap-3 text-sm">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 lg:h-auto lg:w-auto lg:bg-transparent lg:p-0">
@@ -805,18 +822,25 @@ const TripDetail = () => {
                 <div
                   onClick={() => navigate(`/profile/${apiTrip?.profileId}`)}
                   role="button"
-                  className="flex shrink-0 items-center gap-2 cursor-pointer transition-colors lg:hover:bg-muted/80 lg:mt-4 lg:w-full lg:rounded-lg lg:bg-muted lg:p-3"
+                  className="flex shrink-0 items-center gap-2 cursor-pointer transition-colors lg:hover:bg-muted/80 lg:mt-[1px] lg:w-full lg:rounded-lg lg:bg-muted lg:p-[6px] lg:group-hover/hero:bg-muted/80"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-sm transition-transform hover:scale-105">
-                    {trip.createdByAvatar}
+                  <div className="flex h-8 w-8 overflow-hidden items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-sm transition-transform hover:scale-105">
+                    {creatorImage ? (
+                      <img
+                        src={creatorImage}
+                        alt={trip.createdBy || apiTrip?.profileUserName}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span>{trip.createdByAvatar || apiTrip?.profileUserName?.charAt(0) || "U"}</span>
+                    )}
                   </div>
+
                   <div className="hidden lg:block">
                     <p className="text-sm font-medium hover:underline">
-                      {trip.createdBy}
+                      {trip.createdBy || apiTrip?.profileUserName}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      Trip Creator
-                    </p>
+                    <p className="text-xs text-muted-foreground">Trip Creator</p>
                   </div>
                 </div>
               </div>
@@ -887,6 +911,23 @@ const TripDetail = () => {
                     {isFav ? "Saved" : "Save Trip"}
                   </span>
                 </Button>
+
+                {apiTrip?.conversationId && (apiTrip?.userJoinStatus === 1 || isAdmin) && (
+                  <Link
+                    to={`/chat/${apiTrip.conversationId}`}
+                    className="w-full max-lg:w-auto max-lg:shrink-0"
+                  >
+                    <Button
+                      variant="ghost"
+                      className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border lg:border-blue-200 lg:bg-blue-50/50 hover:lg:bg-blue-50 text-blue-600 hover:text-blue-700"
+                      title="Trip Chat"
+                    >
+                      <MessageCircle className="h-5 w-5 lg:h-4 lg:w-4" />
+                      <span className="hidden lg:inline font-medium">Trip Chat</span>
+                    </Button>
+                  </Link>
+                )}
+                {/* ------------------------------------------------ */}
 
                 {isAdmin && (
                   <Button

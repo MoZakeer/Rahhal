@@ -20,6 +20,7 @@ export interface ApiTrip {
   numberOfUser: number;
   imageUrl: string | null;
   createdBy: string;
+  profilePicture?: string | null;
   status: number;
   tripStatus: string;
   travelPreference?: { id: string; name: string }[];
@@ -55,6 +56,8 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
   };
 
   const formattedImageUrl = getFullImageUrl(trip.imageUrl);
+  const creatorImage = getFullImageUrl(trip.profilePicture);
+
 
   const imageSeed = encodeURIComponent(
     trip.destination || trip.name || trip.id,
@@ -139,8 +142,8 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
           >
             <Heart
               className={`h-5 w-5 transition-colors duration-300 ${trip.isSaved
-                  ? "fill-red-500 text-red-500 dark:fill-red-600 dark:text-red-600"
-                  : "text-slate-400"
+                ? "fill-red-500 text-red-500 dark:fill-red-600 dark:text-red-600"
+                : "text-slate-400"
                 }`}
             />
           </Button>
@@ -213,8 +216,16 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
                   <span className="text-[11px] md:text-xs font-medium text-slate-500 dark:text-slate-300 hidden sm:block">
                     {trip.createdBy || "Unknown"}
                   </span>
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 dark:bg-slate-500 text-xs font-bold text-blue-700 dark:text-blue-800 border border-blue-100 dark:border-slate-500">
-                    {avatarLetter}
+                  <div className="flex h-7 w-7 shrink-0 overflow-hidden items-center justify-center rounded-full bg-blue-50 dark:bg-slate-500 text-xs font-bold text-blue-700 dark:text-blue-800 border border-blue-100 dark:border-slate-500">
+                    {creatorImage ? (
+                      <img
+                        src={creatorImage}
+                        alt={trip.createdBy || "Creator"}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      avatarLetter
+                    )}
                   </div>
                 </div>
               </div>

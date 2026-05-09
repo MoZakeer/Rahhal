@@ -206,7 +206,7 @@ const TripMatching = () => {
       if (pageNumber === 1 || !currentCriteria) return;
       setIsFetchingMore(true);
       try {
-        let token = localStorage.getItem("token")?.replace(/^"(.*)"$/, '$1') || "";
+        const token = localStorage.getItem("token")?.replace(/^"(.*)"$/, '$1') || "";
         const url = buildUrl(currentCriteria, pageNumber);
         const res = await fetch(url, {
           method: "GET",
