@@ -55,7 +55,7 @@ function ChatItem({ chat }: Props) {
             </h4>
 
             <div className="whitespace-nowrap overflow-hidden text-ellipsis text-sm text-gray-500 w-64 sm:w-56 flex">
-              {lastMessageSender === "You" && (
+              {/* {lastMessageSender === "You" && (
                 <IoCheckmarkDoneSharp
                   size={19}
                   className={`inline mr-1 mb-0.5 ${
@@ -64,7 +64,7 @@ function ChatItem({ chat }: Props) {
                       : "text-gray-400"
                   }`}
                 />
-              )}
+              )} */}
               {isGroup && lastMessageType && (
                 <span className="font-medium text-gray-600 mr-1">
                   {lastMessageSender}:
