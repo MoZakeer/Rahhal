@@ -915,15 +915,15 @@ const TripDetail = () => {
                 {apiTrip?.conversationId && (apiTrip?.userJoinStatus === 1 || isAdmin) && (
                   <Link
                     to={`/chat/${apiTrip.conversationId}`}
-                    className="w-full max-lg:w-auto max-lg:shrink-0"
+                    className="w-full max-lg:shrink-0"
                   >
                     <Button
                       variant="ghost"
-                      className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border lg:border-blue-200 lg:bg-blue-50/50 hover:lg:bg-blue-50 text-blue-600 hover:text-blue-700"
+                      className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border lg:border-gray-100"
                       title="Trip Chat"
                     >
                       <MessageCircle className="h-5 w-5 lg:h-4 lg:w-4" />
-                      <span className="hidden lg:inline font-medium">Trip Chat</span>
+                      <span className="hidden lg:inline">Trip Chat</span>
                     </Button>
                   </Link>
                 )}
