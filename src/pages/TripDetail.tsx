@@ -254,8 +254,7 @@ const TripDetail = () => {
 
   useFavicon(trip?.image ? getFullImageUrl(trip.image) : "");
 
-
-  const creatorImage = getFullImageUrl(apiTrip?.profilePicture);
+  const creatorImage = getFullImageUrl(apiTrip?.profilePicture || "");
 
   <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 border border-primary/20 text-sm font-bold text-primary shadow-sm">
     {creatorImage ? (
@@ -265,9 +264,11 @@ const TripDetail = () => {
         className="h-full w-full object-cover"
       />
     ) : (
-      <span className="uppercase">{apiTrip?.profileUserName?.charAt(0) || "U"}</span>
+      <span className="uppercase">
+        {apiTrip?.profileUserName?.charAt(0) || "U"}
+      </span>
     )}
-  </div>
+  </div>;
 
   if (loading) {
     return (
@@ -293,13 +294,13 @@ const TripDetail = () => {
     1,
     Math.ceil(
       (new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) /
-      (1000 * 60 * 60 * 24),
+        (1000 * 60 * 60 * 24),
     ),
   );
 
   const handleShare = () => {
     const url = window.location.href;
-    navigator.clipboard?.writeText(url).catch(() => { });
+    navigator.clipboard?.writeText(url).catch(() => {});
     toast.success("Trip link copied to clipboard");
   };
 
@@ -553,7 +554,7 @@ const TripDetail = () => {
 
                                 {stop?.recommendations &&
                                   (stop?.recommendations as any[]).length >
-                                  0 && (
+                                    0 && (
                                     <div className="mt-4 pt-4 border-t border-gray-200/50">
                                       <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
                                         Nearby Places
@@ -618,9 +619,9 @@ const TripDetail = () => {
             )}
 
             {!trip.isAiGenerated &&
-              (trip.attractions?.length ||
-                trip.hotels?.length ||
-                trip.restaurants?.length) ? (
+            (trip.attractions?.length ||
+              trip.hotels?.length ||
+              trip.restaurants?.length) ? (
               <>
                 <div>
                   <h2 className="font-display text-xl font-semibold">
@@ -832,7 +833,11 @@ const TripDetail = () => {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <span>{trip.createdByAvatar || apiTrip?.profileUserName?.charAt(0) || "U"}</span>
+                      <span>
+                        {trip.createdByAvatar ||
+                          apiTrip?.profileUserName?.charAt(0) ||
+                          "U"}
+                      </span>
                     )}
                   </div>
 
@@ -840,7 +845,9 @@ const TripDetail = () => {
                     <p className="text-sm font-medium hover:underline">
                       {trip.createdBy || apiTrip?.profileUserName}
                     </p>
-                    <p className="text-xs text-muted-foreground">Trip Creator</p>
+                    <p className="text-xs text-muted-foreground">
+                      Trip Creator
+                    </p>
                   </div>
                 </div>
               </div>
@@ -912,21 +919,24 @@ const TripDetail = () => {
                   </span>
                 </Button>
 
-                {apiTrip?.conversationId && (apiTrip?.userJoinStatus === 1 || isAdmin) && (
-                  <Link
-                    to={`/chat/${apiTrip.conversationId}`}
-                    className="w-full max-lg:w-auto max-lg:shrink-0"
-                  >
-                    <Button
-                      variant="ghost"
-                      className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border lg:border-blue-100 lg:bg-blue-50/50 hover:lg:bg-blue-50 hover:text-blue-700"
-                      title="Trip Chat"
+                {apiTrip?.conversationId &&
+                  (apiTrip?.userJoinStatus === 1 || isAdmin) && (
+                    <Link
+                      to={`/chat/${apiTrip.conversationId}`}
+                      className="w-full max-lg:w-auto max-lg:shrink-0"
                     >
-                      <MessageCircle className="h-5 w-5 lg:h-4 lg:w-4" />
-                      <span className="hidden lg:inline font-medium">Trip Chat</span>
-                    </Button>
-                  </Link>
-                )}
+                      <Button
+                        variant="ghost"
+                        className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border lg:border-blue-100 lg:bg-blue-50/50 hover:lg:bg-blue-50 hover:text-blue-700"
+                        title="Trip Chat"
+                      >
+                        <MessageCircle className="h-5 w-5 lg:h-4 lg:w-4" />
+                        <span className="hidden lg:inline font-medium">
+                          Trip Chat
+                        </span>
+                      </Button>
+                    </Link>
+                  )}
                 {/* ------------------------------------------------ */}
 
                 {isAdmin && (
