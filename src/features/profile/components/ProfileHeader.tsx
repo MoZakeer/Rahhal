@@ -73,7 +73,7 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-linear-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white text-4xl font-bold">
+              <div className="w-full h-full bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-4xl font-bold">
                 {firstLetter}
               </div>
             )}
@@ -82,7 +82,7 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
           {isMyProfile && (
             <button
               onClick={() => setIsDrawerOpen(true)}
-              className="absolute -bottom-1 -right-1 p-2.5 bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-100 dark:border-slate-700 text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors cursor-pointer"
+              className="absolute -bottom-1 -right-1 p-2.5 bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-100 dark:border-slate-700 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
             >
               <IoMdSettings size={18} />
             </button>
@@ -94,7 +94,7 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">
             {profile.fullName}
           </h1>
-          <p className="text-cyan-600 dark:text-cyan-400 font-medium text-sm">
+          <p className="text-blue-600 dark:text-blue-400 font-medium text-sm">
             @{profile.userName}
           </p>
         </div>
@@ -109,9 +109,9 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
         <div className="flex lg:flex-col gap-3 w-full mb-6 justify-center lg:justify-start lg:items-start">
           {profile.location && (
             <div className="flex items-center gap-3 px-1">
-              <div className="p-2 bg-cyan-50 dark:bg-slate-800 rounded-lg">
+              <div className="p-2 bg-blue-50 dark:bg-slate-800 rounded-lg">
                 <HiOutlineLocationMarker
-                  className="text-cyan-500"
+                  className="text-blue-500"
                   size={18}
                 />
               </div>
@@ -122,8 +122,8 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
           )}
           {profile.travelPersonality !== null && (
             <div className="flex items-center gap-3 px-1">
-              <div className="p-2 bg-cyan-50 dark:bg-slate-800 rounded-lg">
-                <HiOutlineMap className="text-cyan-500" size={18} />{" "}
+              <div className="p-2 bg-blue-50 dark:bg-slate-800 rounded-lg">
+                <HiOutlineMap className="text-blue-500" size={18} />{" "}
               </div>
 
               <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -146,7 +146,7 @@ const ProfileHeader: React.FC<Props> = ({ profileId, isMyProfile }) => {
             <motion.button
               onClick={handleSendMessage}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center justify-center gap-2 w-full py-3 bg-slate-900 dark:bg-cyan-600 text-white dark:text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition-all cursor-pointer"
+              className="flex items-center justify-center gap-2 w-full py-3 bg-slate-900 dark:bg-blue-600 text-white dark:text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition-all cursor-pointer"
             >
               <IoMdMail size={20} />
               <span>Message</span>

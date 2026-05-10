@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Heart, MessageCircle, Bookmark, ExternalLink } from "lucide-react";
+import { Heart, MessageCircle, Bookmark } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Post } from "../../../types/post";
 import { normalizeMediaUrl } from "../../post/components/services/posts.api";
@@ -15,48 +15,51 @@ const ProfilePostCard = ({ post }: Props) => {
   const likeMutation = useLikePost();
   const saveMutation = useSavePost();
 
-  
   const [isLiked, setIsLiked] = useState(post.isLiked ?? false);
   const [likesCount, setLikesCount] = useState(post.likes ?? 0);
   const [isSaved, setIsSaved] = useState(post.isSaved ?? false);
 
- 
   useEffect(() => {
     setIsLiked(post.isLiked ?? false);
     setLikesCount(post.likes ?? 0);
     setIsSaved(post.isSaved ?? false);
   }, [post.isLiked, post.likes, post.isSaved]);
 
-  const firstImage =
-    post.mediaUrLs && post.mediaUrLs.length > 0
-      ? normalizeMediaUrl(post.mediaUrLs[0].url)
-      : null;
+  const firstMedia =
+    post.mediaUrLs && post.mediaUrLs.length > 0 ? post.mediaUrLs[0] : null;
+
+  const firstMediaUrl = firstMedia ? normalizeMediaUrl(firstMedia.url) : null;
+
+  const isVideo = (item: (typeof post.mediaUrLs)[0]) => {
+    if (item.type) return item.type === "video";
+
+    return /\.(mp4|webm|ogg|mov)$/i.test(item.url);
+  };
 
   const shortDescription =
     post.description?.length > 50
       ? post.description.slice(0, 50) + "..."
       : post.description;
 
- 
   function handleLike(e: React.MouseEvent) {
     e.stopPropagation();
 
-  
     const nextLikedState = !isLiked;
     setIsLiked(nextLikedState);
-    setLikesCount((prev) => (nextLikedState ? prev + 1 : Math.max(0, prev - 1)));
+    setLikesCount((prev) =>
+      nextLikedState ? prev + 1 : Math.max(0, prev - 1),
+    );
 
-  
     likeMutation.mutate(post.id, {
       onError: () => {
-     
         setIsLiked(!nextLikedState);
-        setLikesCount((prev) => (nextLikedState ? Math.max(0, prev - 1) : prev + 1));
+        setLikesCount((prev) =>
+          nextLikedState ? Math.max(0, prev - 1) : prev + 1,
+        );
       },
     });
   }
 
- 
   function handleSave(e: React.MouseEvent) {
     e.stopPropagation();
 
@@ -65,7 +68,6 @@ const ProfilePostCard = ({ post }: Props) => {
 
     saveMutation.mutate(post.id, {
       onError: () => {
-       
         setIsSaved(!nextSavedState);
       },
     });
@@ -82,24 +84,38 @@ const ProfilePostCard = ({ post }: Props) => {
     >
       {/* Media Section */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 dark:bg-slate-800">
-        {firstImage ? (
-          <img
-            src={firstImage}
-            alt={post.description}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-          />
+        {firstMediaUrl ? (
+          isVideo(firstMedia!) ? (
+            <video
+              src={firstMediaUrl}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              muted
+              playsInline
+              preload="metadata"
+              autoPlay
+              loop
+            />
+          ) : (
+            <img
+              src={firstMediaUrl}
+              alt={post.description}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+          )
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">
-            <ExternalLink size={24} strokeWidth={1.5} />
+          <div className="w-full h-full flex items-center justify-center p-6 bg-slate-100 dark:bg-slate-950">
+            <p className="text-center text-base text-gray-800 dark:text-gray-600 line-clamp-5 leading-relaxed font-semibold">
+              “{shortDescription}”
+            </p>
           </div>
         )}
 
         {/* Hover Overlay (Stats) */}
         <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-6 text-white backdrop-blur-[2px]">
           <div className="flex items-center gap-1.5 font-bold">
-            <Heart 
-              size={20} 
-              className={isLiked ? "text-red-500 fill-red-500" : "fill-white"} 
+            <Heart
+              size={20}
+              className={isLiked ? "text-blue-500 fill-blue-500" : "fill-white"}
             />
             <span>{likesCount}</span>
           </div>
@@ -119,7 +135,7 @@ const ProfilePostCard = ({ post }: Props) => {
               size={18}
               className={
                 isLiked
-                  ? "text-red-500 fill-red-500"
+                  ? "text-blue-500 fill-blue-500"
                   : "text-gray-700 dark:text-gray-300"
               }
             />
@@ -132,7 +148,7 @@ const ProfilePostCard = ({ post }: Props) => {
               size={18}
               className={
                 isSaved
-                  ? "text-cyan-600 fill-cyan-600"
+                  ? "text-blue-500 fill-blue-500"
                   : "text-gray-700 dark:text-gray-300"
               }
             />
@@ -143,12 +159,12 @@ const ProfilePostCard = ({ post }: Props) => {
       {/* Content Section */}
       <div className="p-4 bg-white dark:bg-slate-900">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-cyan-600 uppercase tracking-wider">
+          <span className="text-xs font-bold text-blue-500 uppercase tracking-wider">
             {post.authorUsername || post.userName || "User"}
           </span>
         </div>
 
-        {shortDescription && (
+        {post.mediaUrLs.length > 0 && shortDescription && (
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1.5 line-clamp-2 leading-relaxed font-medium">
             {shortDescription}
           </p>

@@ -27,7 +27,7 @@ const ProfileTabs: React.FC<Props> = ({ activeTab, setActiveTab, isMyProfile }) 
               className={`
                 relative px-6 py-4 text-sm font-bold tracking-wide uppercase transition-colors duration-200 cursor-pointer
                 ${isActive 
-                  ? "text-cyan-600 dark:text-cyan-400" 
+                  ? "text-blue-600 dark:text-blue-400" 
                   : "text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
                 }
               `}
@@ -37,7 +37,7 @@ const ProfileTabs: React.FC<Props> = ({ activeTab, setActiveTab, isMyProfile }) 
               {isActive && (
                 <motion.div
                   layoutId="activeTabUnderline"
-                  className="absolute bottom-0 left-0 right-0 h-[2px] bg-cyan-600 dark:bg-cyan-400"
+                  className="absolute bottom-0 left-0 right-0 h-[2px] bg-blue-600 dark:bg-blue-400"
                   transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 />
               )}
