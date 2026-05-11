@@ -197,7 +197,6 @@ const TripDetail = () => {
 
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [isDocked, setIsDocked] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
