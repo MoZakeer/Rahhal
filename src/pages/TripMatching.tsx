@@ -586,7 +586,7 @@ const TripMatching = () => {
                       {/* Pin Bubble */}
                       <div className={`relative flex items-center justify-center transition-all duration-300 ${isSelected ? 'scale-110' : ''}`}>
                         <MapPin className={`h-10 w-10 drop-shadow-md transition-colors duration-300 ${isSelected ? 'text-primary fill-primary/30' : 'text-slate-500 fill-slate-200 group-hover:text-primary group-hover:fill-primary/20'}`} />
-                        <div className="absolute top-2 w-full text-center text-[9px] font-bold text-white">
+                        <div className="absolute top-2 w-full text-center text-[9px] font-bold text-gray-700">
                           {Math.round(trip.matchPercentage)}%
                         </div>
                       </div>
