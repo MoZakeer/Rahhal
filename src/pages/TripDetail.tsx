@@ -767,118 +767,127 @@ const TripDetail = () => {
           <div className="space-y-4 md:sticky md:top-5 h-fit">
             {/* 1. Trip Details / Floating Top Summary Bar */}
             <motion.div
-              drag={isDocked ? "y" : false}
-              dragConstraints={{ top: -200, bottom: 300 }}
-              dragElastic={0.1}
-              dragMomentum={false}
-              className={`
-    group duration-500 ease-in-out transition-all will-change-transform z-50 mb-[2px]
-    
-    ${!isDocked
-                  ? `max-lg:fixed max-lg:top-4 max-lg:inset-x-0 max-lg:mx-auto max-lg:w-[92%] max-lg:max-w-md max-lg:flex-row max-lg:rounded-full max-lg:border max-lg:border-white/20 max-lg:bg-background/80 max-lg:p-2.5 max-lg:px-5 max-lg:backdrop-blur-xl max-lg:shadow-2xl lg:relative lg:rounded-lg lg:border lg:border-gray-200/50 lg:bg-card lg:p-5 lg:w-full lg:shadow-card lg:mt-[2px] ${isNavVisible ? "max-lg:translate-y-16" : "max-lg:translate-y-0"}`
-                  : ""}
+    // السحب (Drag) شغال بس في الوضع الرأسي (y)
+    drag={isDocked ? "y" : false}
+    dragConstraints={{ top: -200, bottom: 300 }}
+    dragElastic={0.1}
+    dragMomentum={false}
+    className={`
+      group duration-500 ease-in-out transition-all will-change-transform z-50 mb-[2px]
       
-    /* الوضع الرأسي (Docked) للموبايل */
-    ${isDocked
-                  ? "max-lg:fixed max-lg:right-3 max-lg:top-1/4 max-lg:w-auto max-lg:flex-col max-lg:rounded-full max-lg:border max-lg:border-white/20 max-lg:bg-background/90 max-lg:p-3 max-lg:backdrop-blur-xl max-lg:shadow-2xl lg:relative lg:rounded-lg lg:border lg:border-gray-200/50 lg:bg-card lg:p-5 lg:w-full lg:shadow-card lg:mt-[2px]"
-                  : ""}
-  `}
-            >
-              <h3 className={`font-display font-semibold mb-3 ${isDocked ? "max-lg:hidden" : "hidden lg:block"}`}>
-                Trip Details
-              </h3>
+      /* --- 1. الوضع الأفقي (الموبايل والديسكتوب) --- */
+      ${!isDocked 
+        ? `max-lg:fixed max-lg:top-4 max-lg:inset-x-0 max-lg:mx-auto 
+           max-lg:w-[96%] max-lg:max-w-md /* 👈 المساحة 96% لراحة أكبر */
+           max-lg:flex-row max-lg:rounded-full max-lg:border max-lg:border-white/20 
+           max-lg:bg-background/80 max-lg:p-2 max-lg:px-3 /* 👈 تقليل الـ Padding الداخلي */
+           max-lg:backdrop-blur-xl max-lg:shadow-2xl 
+           lg:relative lg:rounded-lg lg:border lg:border-gray-200/50 lg:bg-card lg:p-5 lg:w-full lg:shadow-card lg:mt-[2px] 
+           ${isNavVisible ? "max-lg:translate-y-16" : "max-lg:translate-y-0"}` 
+        : ""}
+        
+      /* --- 2. الوضع الرأسي (Docked) للموبايل --- */
+      ${isDocked 
+        ? "max-lg:fixed max-lg:right-3 max-lg:top-1/4 max-lg:w-auto max-lg:flex-col max-lg:rounded-full max-lg:border max-lg:border-white/20 max-lg:bg-background/90 max-lg:p-3 max-lg:backdrop-blur-xl max-lg:shadow-2xl lg:relative lg:rounded-lg lg:border lg:border-gray-200/50 lg:bg-card lg:p-5 lg:w-full lg:shadow-card lg:mt-[2px]" 
+        : ""}
+    `}
+  >
+    {/* العنوان (يظهر في الديسكتوب فقط) */}
+    <h3 className={`font-display font-semibold mb-3 ${isDocked ? "max-lg:hidden" : "hidden lg:block"}`}>
+      Trip Details
+    </h3>
 
-              <div className={`flex transition-all duration-300
-    ${isDocked ? "max-lg:flex-col max-lg:space-y-4 max-lg:items-center" : "flex-row items-center justify-between w-full"}
-    lg:flex-col lg:space-y-4 lg:items-start lg:mt-[3px]
-  `}>
+    <div className={`flex transition-all duration-300
+      ${isDocked 
+        ? "max-lg:flex-col max-lg:space-y-4 max-lg:items-center" 
+        : "flex-row items-center justify-between w-full gap-1" /* 👈 gap-1 لتقليل الزحمة */}
+      lg:flex-col lg:space-y-4 lg:items-start lg:mt-[3px]
+    `}>
+      
+      {/* --- Date --- */}
+      <div className={`flex shrink-0 items-center gap-1.5 lg:gap-3 text-sm ${isDocked ? "max-lg:flex-col max-lg:gap-0.5" : ""}`}>
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 lg:h-auto lg:w-auto lg:bg-transparent lg:p-0">
+          <Calendar className="h-4 w-4 text-primary" />
+        </div>
+        <div className={`text-center ${isDocked ? "max-lg:text-[10px] max-lg:leading-none max-lg:text-foreground" : ""}`}>
+          <span className={`hidden font-bold ${isDocked ? "max-lg:block" : ""}`}>{daysDiff}d</span>
+          <div className={`${isDocked ? "max-lg:hidden" : ""}`}>
+            <p className="hidden font-medium lg:block">
+              {new Date(trip.startDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+            </p>
+            <p className="font-medium lg:hidden">
+              {new Date(trip.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+            </p>
+            <p className="text-xs text-muted-foreground lg:text-sm">{daysDiff} days</p>
+          </div>
+        </div>
+      </div>
 
-                {/* --- Date --- */}
-                <div className={`flex shrink-0 items-center gap-2 lg:gap-3 text-sm ${isDocked ? "max-lg:flex-col max-lg:gap-0.5" : ""}`}>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 lg:h-auto lg:w-auto lg:bg-transparent lg:p-0">
-                    <Calendar className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className={`text-center ${isDocked ? "max-lg:text-[10px] max-lg:leading-none max-lg:text-foreground" : ""}`}>
-                    <span className={`hidden font-bold ${isDocked ? "max-lg:block" : ""}`}>{daysDiff}d</span>
+      <Separator orientation="vertical" className={`bg-foreground/10 ${isDocked ? "max-lg:hidden" : "h-6 lg:hidden"}`} />
 
-                    <div className={`${isDocked ? "max-lg:hidden" : ""}`}>
-                      <p className="hidden font-medium lg:block">
-                        {new Date(trip.startDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-                      </p>
-                      <p className="font-medium lg:hidden">
-                        {new Date(trip.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                      </p>
-                      <p className="text-xs text-muted-foreground lg:text-sm">{daysDiff} days</p>
-                    </div>
-                  </div>
-                </div>
+      {/* --- Travelers --- */}
+      <div className={`flex shrink-0 items-center gap-1.5 lg:gap-3 text-sm ${isDocked ? "max-lg:flex-col max-lg:gap-0.5" : ""}`}>
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 lg:h-auto lg:w-auto lg:bg-transparent lg:p-0">
+          <Users className="h-4 w-4 text-primary" />
+        </div>
+        <div className={`text-center ${isDocked ? "max-lg:text-[10px] max-lg:leading-none max-lg:text-foreground" : ""}`}>
+          <span className="font-medium max-lg:font-bold">{trip.travelers}</span> 
+          <span className={`hidden lg:inline ${isDocked ? "max-lg:hidden" : ""}`}> Travelers</span>
+          <p className={`text-xs text-muted-foreground lg:hidden ${isDocked ? "max-lg:hidden" : ""}`}>People</p>
+        </div>
+      </div>
 
-                <Separator orientation="vertical" className={`bg-foreground/10 ${isDocked ? "max-lg:hidden" : "h-8 lg:hidden"}`} />
+      {/* --- Budget --- */}
+      {trip.budget && (
+        <>
+          <Separator orientation="vertical" className={`bg-foreground/10 ${isDocked ? "max-lg:hidden" : "h-6 lg:hidden"}`} />
+          <div className={`flex shrink-0 items-center gap-1.5 lg:gap-3 text-sm ${isDocked ? "max-lg:flex-col max-lg:gap-0.5" : ""}`}>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 lg:h-auto lg:w-auto lg:bg-transparent lg:p-0">
+              <DollarSign className="h-4 w-4 text-primary" />
+            </div>
+            <div className={`text-center ${isDocked ? "max-lg:text-[10px] max-lg:leading-none max-lg:text-foreground" : ""}`}>
+              <p className="font-medium max-lg:font-bold truncate max-w-[45px] lg:max-w-none">{trip.budget}</p>
+              <p className={`text-xs text-muted-foreground lg:hidden ${isDocked ? "max-lg:hidden" : ""}`}>Budget</p>
+            </div>
+          </div>
+        </>
+      )}
 
-                {/* --- Travelers --- */}
-                <div className={`flex shrink-0 items-center gap-2 lg:gap-3 text-sm ${isDocked ? "max-lg:flex-col max-lg:gap-0.5" : ""}`}>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 lg:h-auto lg:w-auto lg:bg-transparent lg:p-0">
-                    <Users className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className={`text-center ${isDocked ? "max-lg:text-[10px] max-lg:leading-none max-lg:text-foreground" : ""}`}>
-                    <span className="font-medium max-lg:font-bold">{trip.travelers}</span>
-                    <span className={`hidden lg:inline ${isDocked ? "max-lg:hidden" : ""}`}> Travelers</span>
-                    <p className={`text-xs text-muted-foreground lg:hidden ${isDocked ? "max-lg:hidden" : ""}`}>
-                      People
-                    </p>
-                  </div>
-                </div>
+      <Separator orientation="vertical" className={`bg-foreground/10 ${isDocked ? "max-lg:hidden" : "h-6 lg:hidden"}`} />
 
-                {/* --- Budget --- */}
-                {trip.budget && (
-                  <>
-                    <Separator orientation="vertical" className={`bg-foreground/10 ${isDocked ? "max-lg:hidden" : "h-8 lg:hidden"}`} />
-                    <div className={`flex shrink-0 items-center gap-2 lg:gap-3 text-sm ${isDocked ? "max-lg:flex-col max-lg:gap-0.5" : ""}`}>
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 lg:h-auto lg:w-auto lg:bg-transparent lg:p-0">
-                        <DollarSign className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className={`text-center ${isDocked ? "max-lg:text-[10px] max-lg:leading-none max-lg:text-foreground" : ""}`}>
-                        <p className="font-medium max-lg:font-bold truncate max-w-[40px] lg:max-w-none">{trip.budget}</p>
-                        <p className={`text-xs text-muted-foreground lg:hidden ${isDocked ? "max-lg:hidden" : ""}`}>Budget</p>
-                      </div>
-                    </div>
-                  </>
-                )}
+      {/* --- Creator --- */}
+      <div
+        onClick={() => navigate(`/profile/${apiTrip?.profileId}`)}
+        className={`flex shrink-0 items-center gap-1.5 cursor-pointer transition-colors lg:hover:bg-muted/80 lg:w-full lg:rounded-lg lg:bg-muted lg:p-[6px] ${isDocked ? "max-lg:justify-center" : ""}`}
+      >
+        <div className="flex h-7 w-7 lg:h-8 lg:w-8 overflow-hidden items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-sm">
+          {creatorImage ? (
+            <img src={creatorImage} alt="Creator" className="h-full w-full object-cover" />
+          ) : (
+            <span>{trip.createdByAvatar || apiTrip?.profileUserName?.charAt(0) || "U"}</span>
+          )}
+        </div>
+        <div className={isDocked ? "max-lg:hidden" : "hidden lg:block"}>
+          <p className="text-[13px] font-medium hover:underline lg:text-sm">
+            {trip.createdBy || apiTrip?.profileUserName}
+          </p>
+          <p className="text-[10px] text-muted-foreground lg:text-xs">Trip Creator</p>
+        </div>
+      </div>
 
-                <Separator orientation="vertical" className={`bg-foreground/10 ${isDocked ? "max-lg:hidden" : "h-8 lg:hidden"}`} />
+      {/* --- Toggle Button --- */}
+      <div className={`lg:hidden shrink-0 flex items-center justify-center ${isDocked ? "mt-2" : "ml-0.5"}`}>
+        <button
+          onClick={() => setIsDocked(!isDocked)}
+          className={`flex h-8 w-8 items-center justify-center rounded-full transition-transform active:scale-90 shadow-sm
+            ${isDocked ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
+        >
+          {isDocked ? <AlignVerticalSpaceAround className="h-4 w-4" /> : <PanelRight className="h-4 w-4" />}
+        </button>
+      </div>
 
-                {/* --- Creator --- */}
-                <div
-                  onClick={() => navigate(`/profile/${apiTrip?.profileId}`)}
-                  className={`flex shrink-0 items-center gap-2 cursor-pointer transition-colors lg:hover:bg-muted/80 lg:w-full lg:rounded-lg lg:bg-muted lg:p-[6px] ${isDocked ? "max-lg:justify-center" : ""}`}
-                >
-                  <div className="flex h-8 w-8 overflow-hidden items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-sm">
-                    {creatorImage ? (
-                      <img src={creatorImage} alt="Creator" className="h-full w-full object-cover" />
-                    ) : (
-                      <span>{trip.createdByAvatar || apiTrip?.profileUserName?.charAt(0) || "U"}</span>
-                    )}
-                  </div>
-                  <div className={isDocked ? "max-lg:hidden" : "hidden lg:block"}>
-                    <p className="text-sm font-medium hover:underline">
-                      {trip.createdBy || apiTrip?.profileUserName}
-                    </p>
-                    <p className="text-xs text-muted-foreground">Trip Creator</p>
-                  </div>
-                </div>
-
-                <div className={`lg:hidden shrink-0 flex items-center justify-center ${isDocked ? "mt-2" : "ml-1"}`}>
-                  <button
-                    onClick={() => setIsDocked(!isDocked)}
-                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-transform active:scale-95 shadow-sm
-          ${isDocked ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
-                  >
-                    {isDocked ? <AlignVerticalSpaceAround className="h-4 w-4" /> : <PanelRight className="h-4 w-4" />}
-                  </button>
-                </div>
-
-              </div>
-            </motion.div>
+    </div>
+  </motion.div>
 
             {/* Actions / Floating Bottom Bar */}
             <div
