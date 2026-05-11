@@ -8,7 +8,9 @@ import {
   Search,
   Calendar,
   Sparkles,
-  MapPin
+  MapPin,
+  Check,
+  ChevronsUpDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,8 +23,6 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-
-import { Check, ChevronsUpDown } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
@@ -42,7 +42,7 @@ interface MatchSourceSelectorProps {
   onMatch: (criteria: MatchCriteria) => void;
   isMatching: boolean;
   initialData?: MatchCriteria | null;
-  destinations: any[]
+  destinations: any[];
 }
 
 const genderOptions = [
@@ -66,7 +66,6 @@ const MatchSourceSelector = ({
 }: MatchSourceSelectorProps) => {
   const [mode, setMode] = useState<"trip" | "custom">("custom");
 
-  // const [destinations, setDestinations] = useState<any[]>([]);
   const [preferences, setPreferences] = useState<any[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
 
@@ -88,6 +87,14 @@ const MatchSourceSelector = ({
   const [endDate, setEndDate] = useState(initialData?.endDate || "");
 
   const [openDest, setOpenDest] = useState(false);
+
+  // Validation state
+  const [errors, setErrors] = useState<{
+    destination?: string;
+    travelers?: string;
+    budget?: string;
+    dates?: string;
+  }>({});
 
   useEffect(() => {
     if (initialData) {
@@ -249,12 +256,62 @@ const MatchSourceSelector = ({
         setSelectedPreferenceIds([]);
       }
 
+      setErrors({}); // مسح أي أخطاء سابقة عند عمل Auto-fill
       toast.success(`Data filled from "${trip.title || trip.name}"`);
       setMode("custom");
     }
   };
 
+  const clearError = (field: keyof typeof errors) => {
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
   const handleMatch = () => {
+    const newErrors: { destination?: string; travelers?: string; budget?: string; dates?: string } = {};
+    let isValid = true;
+    const errorFields: string[] = [];
+
+    // 1. Validate Destination
+    if (!destinationId || destinationId === "ANY") {
+      newErrors.destination = "Please select a destination";
+      errorFields.push("Destination");
+      isValid = false;
+    }
+
+    // 2. Validate Travelers
+    if (!travelers || parseInt(travelers) < 1) {
+      newErrors.travelers = "Required";
+      errorFields.push("Travelers");
+      isValid = false;
+    }
+
+    // 3. Validate Budget
+    if (!budget || parseFloat(budget) <= 0) {
+      newErrors.budget = "Required";
+      errorFields.push("Budget");
+      isValid = false;
+    }
+
+    // 4. Validate Dates
+    if (!startDate || !endDate) {
+      newErrors.dates = "Both dates are required";
+      errorFields.push("Dates");
+      isValid = false;
+    } else if (new Date(startDate) > new Date(endDate)) {
+      newErrors.dates = "Start date cannot be after end date";
+      errorFields.push("Valid Dates");
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+
+    if (!isValid) {
+      toast.error(`Please check the following: ${errorFields.join(", ")}`);
+      return;
+    }
+
     onMatch({
       destinationId: destinationId !== "ANY" ? destinationId : undefined,
       preferenceIds: selectedPreferenceIds,
@@ -299,7 +356,8 @@ const MatchSourceSelector = ({
         </button>
         <button
           onClick={() => setMode("trip")}
-          className={`relative z-10 flex flex-1 items-center justify-center gap-2 py-2.5 px-6 rounded-xl text-sm font-semibold transition-all duration-300 whitespace-nowrap ${mode === "trip" ? "text-slate-900" : "text-slate-500 hover:text-slate-700"}`}
+          className={`relative z-10 flex flex-1 items-center justify-center gap-2 py-2.5 px-6 rounded-xl text-sm font-semibold transition-all duration-300 whitespace-nowrap ${mode === "trip" ? "text-slate-900" : "text-slate-500 hover:text-slate-700"
+            }`}
         >
           <Briefcase className="h-4 w-4 shrink-0" />
           Auto-fill
@@ -387,9 +445,13 @@ const MatchSourceSelector = ({
                       variant="outline"
                       role="combobox"
                       aria-expanded={openDest}
-                      className={cn("w-full justify-start pl-11 text-left font-normal relative", inputClass)}
+                      className={cn(
+                        "w-full justify-start pl-11 text-left font-normal relative",
+                        inputClass,
+                        errors.destination ? "border-red-500 bg-red-50/50 focus:border-red-500 focus:ring-red-100/50" : ""
+                      )}
                     >
-                      <MapPin className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 z-10" />
+                      <MapPin className={cn("absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 z-10", errors.destination ? "text-red-400" : "text-slate-400")} />
                       {destinationId === "ANY"
                         ? "Anywhere"
                         : destinations.find((d) => d.id === destinationId)?.name || "Select City..."}
@@ -403,7 +465,7 @@ const MatchSourceSelector = ({
                       <CommandGroup className="max-h-[250px] overflow-y-auto">
                         <CommandItem
                           value="any"
-                          onSelect={() => { setDestinationId("ANY"); setOpenDest(false); }}
+                          onSelect={() => { setDestinationId("ANY"); setOpenDest(false); clearError("destination"); }}
                           className="flex items-center gap-2 cursor-pointer"
                         >
                           <Check className={cn("h-4 w-4", destinationId === "ANY" ? "opacity-100" : "opacity-0")} />
@@ -413,7 +475,7 @@ const MatchSourceSelector = ({
                           <CommandItem
                             key={d.id}
                             value={d.name}
-                            onSelect={() => { setDestinationId(d.id); setOpenDest(false); }}
+                            onSelect={() => { setDestinationId(d.id); setOpenDest(false); clearError("destination"); }}
                             className="flex items-center gap-2 cursor-pointer"
                           >
                             <Check className={cn("h-4 w-4", destinationId === d.id ? "opacity-100" : "opacity-0")} />
@@ -424,36 +486,39 @@ const MatchSourceSelector = ({
                     </Command>
                   </PopoverContent>
                 </Popover>
+                {errors.destination && <p className="text-red-500 text-xs mt-1.5 font-medium ml-1">{errors.destination}</p>}
               </div>
 
               <div>
                 <label className={labelClass}>Travelers</label>
                 <div className="relative">
-                  <Users className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <Users className={cn("absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2", errors.travelers ? "text-red-400" : "text-slate-400")} />
                   <Input
                     type="number"
                     placeholder="Any"
                     value={travelers}
-                    onChange={(e) => setTravelers(e.target.value)}
-                    className={`pl-11 ${inputClass}`}
+                    onChange={(e) => { setTravelers(e.target.value); clearError("travelers"); }}
+                    className={cn(`pl-11 ${inputClass}`, errors.travelers ? "border-red-500 bg-red-50/50 focus:border-red-500 focus:ring-red-100/50" : "")}
                     min={1}
                   />
                 </div>
+                {errors.travelers && <p className="text-red-500 text-xs mt-1.5 font-medium ml-1">{errors.travelers}</p>}
               </div>
 
               <div>
                 <label className={labelClass}>Budget ($)</label>
                 <div className="relative">
-                  <DollarSign className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <DollarSign className={cn("absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2", errors.budget ? "text-red-400" : "text-slate-400")} />
                   <Input
                     type="number"
                     placeholder="e.g. 1500"
                     value={budget}
-                    onChange={(e) => setBudget(e.target.value)}
-                    className={`pl-11 ${inputClass}`}
+                    onChange={(e) => { setBudget(e.target.value); clearError("budget"); }}
+                    className={cn(`pl-11 ${inputClass}`, errors.budget ? "border-red-500 bg-red-50/50 focus:border-red-500 focus:ring-red-100/50" : "")}
                     min={0}
                   />
                 </div>
+                {errors.budget && <p className="text-red-500 text-xs mt-1.5 font-medium ml-1">{errors.budget}</p>}
               </div>
             </div>
 
@@ -493,27 +558,29 @@ const MatchSourceSelector = ({
               <div>
                 <label className={labelClass}>Start Date</label>
                 <div className="relative">
-                  <Calendar className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <Calendar className={cn("absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2", errors.dates ? "text-red-400" : "text-slate-400")} />
                   <Input
                     type="date"
                     value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className={`pl-11 ${inputClass}`}
+                    onChange={(e) => { setStartDate(e.target.value); clearError("dates"); }}
+                    className={cn(`pl-11 ${inputClass}`, errors.dates ? "border-red-500 bg-red-50/50 focus:border-red-500 focus:ring-red-100/50" : "")}
                   />
                 </div>
               </div>
               <div>
                 <label className={labelClass}>End Date</label>
                 <div className="relative">
-                  <Calendar className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <Calendar className={cn("absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2", errors.dates ? "text-red-400" : "text-slate-400")} />
                   <Input
                     type="date"
                     value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className={`pl-11 ${inputClass}`}
+                    min={startDate}
+                    onChange={(e) => { setEndDate(e.target.value); clearError("dates"); }}
+                    className={cn(`pl-11 ${inputClass}`, errors.dates ? "border-red-500 bg-red-50/50 focus:border-red-500 focus:ring-red-100/50" : "")}
                   />
                 </div>
               </div>
+              {errors.dates && <p className="text-red-500 text-xs font-medium ml-1 sm:col-span-2 -mt-2">{errors.dates}</p>}
             </div>
 
             {/* Preferences (Pills) */}
@@ -532,8 +599,8 @@ const MatchSourceSelector = ({
                       key={pref.id}
                       onClick={() => togglePreference(pref.id)}
                       className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 border ${isSelected
-                        ? "bg-slate-900 text-white border-slate-900 shadow-md scale-[1.02]"
-                        : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                          ? "bg-slate-900 text-white border-slate-900 shadow-md scale-[1.02]"
+                          : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
                         }`}
                     >
                       {pref.name}
