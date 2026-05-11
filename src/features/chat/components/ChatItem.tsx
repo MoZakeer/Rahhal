@@ -6,7 +6,6 @@ import {
   conversationImage,
   formatLastMessageDate,
 } from "../../../utils/helper";
-// import { IoCheckmarkDoneSharp } from "react-icons/io5";
 
 type Props = {
   chat: ChatType;
@@ -25,7 +24,6 @@ function ChatItem({ chat }: Props) {
     lastMessageType,
     lastMessageDate,
     lastMessageSender,
-    // isLastMessageFullySeen,
   } = chat;
 
   return (

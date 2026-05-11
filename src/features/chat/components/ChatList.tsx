@@ -85,5 +85,4 @@ function ChatList() {
     </div>
   );
 }
-
 export default ChatList;

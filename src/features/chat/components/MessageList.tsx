@@ -1,9 +1,10 @@
-import { useEffect, useRef, useLayoutEffect, useMemo } from "react";
+import { useEffect, useRef, useLayoutEffect, useMemo, useState } from "react";
 import Message from "./Message";
 import type { Message as TMessage } from "../types/message.types";
 import { formatDate } from "../../../utils/helper";
 import { useUser } from "../../../context/UserContext";
-import MessagePaginationSkeleton from "./MessagePaginationSkeleton";
+// 1. Import the correct thin chevron icon
+import { BsChevronDown } from "react-icons/bs";
 
 interface MessageListProps {
   messages: TMessage[];
@@ -27,7 +28,9 @@ function MessageList({
 
   const isFirstLoadRef = useRef(true);
   const lastMessageIdRef = useRef<string | undefined>(undefined);
-  const firstMessageIdRef = useRef<string | undefined>(undefined); 
+  const firstMessageIdRef = useRef<string | undefined>(undefined);
+
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
   const getMessageDateLabel = function (dateString: string) {
     const date = new Date(dateString);
@@ -66,7 +69,7 @@ function MessageList({
       {
         rootMargin: "20px",
         threshold: 0,
-      }
+      },
     );
 
     if (observerTarget.current) {
@@ -76,12 +79,11 @@ function MessageList({
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // رتبنا الرسايل هنا وحفظناها بـ useMemo عشان متتأثرش بالريندر العشوائي
   const sortedMessages = useMemo(() => {
     if (!messages) return [];
     return [...messages].sort(
       (a, b) =>
-        new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime()
+        new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime(),
     );
   }, [messages]);
 
@@ -94,7 +96,6 @@ function MessageList({
     const currentFirstMessage = sortedMessages[0];
     const currentLastMessage = sortedMessages[sortedMessages.length - 1];
 
-    // 1. أول مرة الشات يفتح (بينزل لآخر رسالة تحت)
     if (isFirstLoadRef.current) {
       messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
       isFirstLoadRef.current = false;
@@ -103,7 +104,6 @@ function MessageList({
       return;
     }
 
-    // 2. فيه رسالة جديدة اتبعتت أو استقبلتها (بينزل لتحت)
     if (lastMessageIdRef.current !== currentLastMessage.messageId) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       lastMessageIdRef.current = currentLastMessage.messageId;
@@ -111,13 +111,12 @@ function MessageList({
       return;
     }
 
-    // 3. بنعمل سكرول لفوق وجبنا رسايل قديمة (السحر هنا)
     if (
       firstMessageIdRef.current &&
       firstMessageIdRef.current !== currentFirstMessage.messageId
     ) {
       const oldFirstMessageElement = document.getElementById(
-        `msg-${firstMessageIdRef.current}`
+        `msg-${firstMessageIdRef.current}`,
       );
 
       if (oldFirstMessageElement) {
@@ -128,18 +127,35 @@ function MessageList({
     }
   }, [messages, sortedMessages]);
 
-  return (
-    <div ref={scrollContainerRef} className="flex-1 overflow-y-auto no-scrollbar relative">
-      <div ref={observerTarget} className="w-full h-1" />
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
 
-      {isFetchingNextPage && <MessagePaginationSkeleton />}
+    const { scrollTop, scrollHeight, clientHeight } =
+      scrollContainerRef.current;
+
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+    // Keep 150px as threshold, or adjust to be more precise for mobile if needed
+    setShowScrollButton(distanceFromBottom > 150);
+  };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  return (
+    <div
+      ref={scrollContainerRef}
+      onScroll={handleScroll}
+      className="flex-1 overflow-y-auto no-scrollbar relative"
+    >
+      <div ref={observerTarget} className="w-full h-1" />
 
       {sortedMessages?.length === 0 ? (
         <div className="h-full flex justify-center items-center text-gray-500">
           There are no messages yet… start the conversation!
         </div>
       ) : (
-        <ul className="flex flex-col gap-5 px-3 py-4 lg:py-6 lg:px-10">
+        <ul className="flex flex-col gap-5 px-3 py-4 lg:py-6 lg:pr-18 lg:pl-12">
           {sortedMessages.map((message: TMessage, index) => {
             const currentDate = getMessageDateLabel(message.createdDate);
             const prevMessage = sortedMessages[index - 1];
@@ -149,7 +165,10 @@ function MessageList({
             const showDateHeader = currentDate !== prevDate;
 
             return (
-              <div key={`${message.messageId}-${index}`} id={`msg-${message.messageId}`}>
+              <div
+                key={`${message.messageId}-${index}`}
+                id={`msg-${message.messageId}`}
+              >
                 {showDateHeader && (
                   <div className="flex justify-center my-3">
                     <div className="flex justify-center my-4">
@@ -180,6 +199,20 @@ function MessageList({
           })}
           <div ref={messagesEndRef} />
         </ul>
+      )}
+
+      {/* 2. Scroll to Bottom Button with updated style and icon */}
+      {showScrollButton && (
+        <button
+          onClick={scrollToBottom}
+          // Correct styling: circular, dark charcoal, grey icon, shadow-md.
+          // Positioning remains logical: sticky bottom center on mobile, fixed corner on desktop
+          className="sticky bottom-6 right-2   md:fixed md:bottom-24 md:right-4 md:translate-x-0 z-50  bg-primary-600 text-white rounded-full shadow-md backdrop-blur-sm hover:bg-primary-700 transition-all focus:outline-none focus:ring-2  flex items-center justify-center  px-2 py-2"
+          aria-label="Scroll to bottom"
+        >
+          {/* Use the specific thin chevron icon */}
+          <BsChevronDown className="h-7 w-7" />
+        </button>
       )}
     </div>
   );

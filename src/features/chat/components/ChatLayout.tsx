@@ -1,20 +1,16 @@
 import { Outlet, useMatch } from "react-router-dom";
 import ChatList from "./ChatList";
-import { useSidebarUpdates } from "../hooks/useSidebarUpdates";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { useRealtime } from "@/context/RealtimeContext";
 import { useFavicon } from "@/hooks/useFavicon";
+import { useSidebarUpdates } from "../hooks/useSidebarUpdates";
 
 function ChatLayout() {
   const inChat = useMatch("/chat/:conversationId/*");
 
-  const { chatConnection } = useRealtime();
-
   usePageTitle("Chatting");
   useFavicon("/bubble-chat.png");
 
-  useSidebarUpdates(chatConnection);
-
+  useSidebarUpdates();
   return (
     <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[420px_1fr]">
       <aside
@@ -30,7 +26,7 @@ function ChatLayout() {
           !inChat ? "hidden md:flex" : "flex"
         }`}
       >
-        <Outlet context={{ chatConnection }} />
+        <Outlet />
       </main>
     </div>
   );

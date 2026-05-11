@@ -54,7 +54,7 @@ function MessageInput({ conversationId }: { conversationId: string }) {
   };
 
   return (
-    <div className="bg-gray-50 px-3 py-4 sm:pt-6 sm:pb-8 lg:px-15 relative flex flex-col">
+    <div className="bg-gray-50 px-3 py-4 sm:pt-6 sm:pb-8  relative flex flex-col">
       <ImagePreviewArea files={attachments} onRemove={handleRemoveFile} />
 
       <form
@@ -89,9 +89,9 @@ function MessageInput({ conversationId }: { conversationId: string }) {
         <button
           disabled={isPending || (!message && !attachments.length)}
           type="submit"
-          className="bg-primary-600 px-2.5 py-2 rounded-full cursor-pointer transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:bg-primary-600"
+          className="bg-primary-600 px-2 py-2 rounded-full cursor-pointer transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:bg-primary-600"
         >
-          <LuSendHorizontal className="w-8 h-8 aspect-square text-primary-50" />
+          <LuSendHorizontal className="w-7 h-7 aspect-square text-primary-50" />
         </button>
       </form>
     </div>

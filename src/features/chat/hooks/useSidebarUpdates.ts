@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from "react";
 import { useParams } from "react-router";
-import { HubConnection } from "@microsoft/signalr";
 import { useQueryClient } from "@tanstack/react-query";
 import type { ChatType } from "../../../types/ChatType";
+import { useRealtime } from "@/context/RealtimeContext";
 
 export type UpdateSidebarData = {
   conversationId: string;
@@ -14,9 +14,9 @@ export type UpdateSidebarData = {
   unreadCount: number;
   messageType: number;
 };
-export const useSidebarUpdates = (connection: HubConnection | null) => {
+export const useSidebarUpdates = function () {
   const queryClient = useQueryClient();
-
+  const { chatConnection: connection } = useRealtime();
   const { conversationId: activeChatId } = useParams<{
     conversationId: string;
   }>();

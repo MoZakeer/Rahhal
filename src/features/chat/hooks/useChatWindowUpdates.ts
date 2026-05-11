@@ -1,16 +1,15 @@
 import { useEffect } from "react";
-import { HubConnection } from "@microsoft/signalr";
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import type { ChatResponse } from "../types/chat.types";
 import type { Message } from "../types/message.types";
+import { useRealtime } from "@/context/RealtimeContext";
 
 export const useChatWindowUpdates = (
-  connection: HubConnection | null,
   conversationId: string | undefined,
   userId: string | undefined,
 ) => {
   const queryClient = useQueryClient();
-
+  const { chatConnection: connection } = useRealtime();
   useEffect(() => {
     if (!connection || !conversationId) return;
 

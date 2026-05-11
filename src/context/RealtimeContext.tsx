@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-refresh/only-export-components */
 import {
   createContext,
@@ -40,10 +41,8 @@ export const RealtimeProvider = ({ children }: { children: ReactNode }) => {
       try {
         if (conn.state === "Disconnected") {
           await conn.start();
-          console.log(`${conn.baseUrl} connected`);
         }
       } catch (err) {
-        console.error("SignalR retry...", err);
         setTimeout(() => startConnection(conn), 2000);
       }
     };
@@ -69,13 +68,6 @@ export const RealtimeProvider = ({ children }: { children: ReactNode }) => {
       })
       .withAutomaticReconnect()
       .build();
-
-    // 🔥 optional: debug logs
-    presence.onreconnected(() => console.log("Presence reconnected"));
-    notification.onreconnected(() =>
-      console.log("Notification reconnected"),
-    );
-    chat.onreconnected(() => console.log("Chat reconnected"));
 
     const startConnections = async () => {
       // ⚠️ sequential start (مش Promise.all)

@@ -71,7 +71,7 @@ function Message({
       <div
         className={`
           relative flex flex-col
-          px-3 pt-2 pb-1.5
+          px-3 pt-0.5 pb-1.5
           shadow-md max-w-[75%] min-w-20 group
           ${
             !isSend
@@ -92,14 +92,18 @@ function Message({
 
         <HiOutlineChevronDown
           className="
-            absolute top-1 right-1
-            opacity-0
-            group-hover:opacity-100
-            transition-all
-            duration-200
-            w-5 h-5
-            cursor-pointer
-            p-1
+          absolute top-1 right-1
+          opacity-0
+          group-hover:opacity-100
+          transition-all
+          duration-200
+          text-3xl
+          cursor-pointer
+          z-100
+          pb-3
+          pl-2.5
+          text-gray-800
+          font-bold
           "
           onClick={(e) => {
             e.stopPropagation();

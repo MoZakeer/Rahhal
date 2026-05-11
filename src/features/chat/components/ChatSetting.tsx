@@ -7,6 +7,7 @@ import LeaveGroup from "./LeaveGroup";
 import { useChatDetails } from "../hooks/useChatDetails";
 import ChatSettingsSkeleton from "./ChatSettingSkeleton";
 import { conversationImage } from "../../../utils/helper";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 function ChatSettings() {
   const [open, setOpen] = useState(true);
@@ -30,6 +31,7 @@ function ChatSettings() {
       conversationPictureURL: settings?.conversationPictureURL,
     }),
   };
+  usePageTitle(settings?.title || "Chatting");
   return (
     <div
       className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm"
@@ -70,7 +72,9 @@ function ChatSettings() {
                   participants={settings.participants}
                   isAdmin={settings?.isCurrentUserAdmin}
                 />
-                <LeaveGroup />
+                {!settings?.isCurrentUserAdmin && (
+                  <LeaveGroup title={settings?.title} />
+                )}
               </>
             )}
           </div>
