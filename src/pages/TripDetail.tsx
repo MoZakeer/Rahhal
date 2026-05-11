@@ -294,13 +294,13 @@ const TripDetail = () => {
     1,
     Math.ceil(
       (new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) /
-        (1000 * 60 * 60 * 24),
+      (1000 * 60 * 60 * 24),
     ),
   );
 
   const handleShare = () => {
     const url = window.location.href;
-    navigator.clipboard?.writeText(url).catch(() => {});
+    navigator.clipboard?.writeText(url).catch(() => { });
     toast.success("Trip link copied to clipboard");
   };
 
@@ -366,94 +366,125 @@ const TripDetail = () => {
   return (
     <div className="min-h-screen pb-12">
       {/* Hero image */}
-      <div className="relative h-[300px] md:h-[400px] group/hero">
-        {trip.image ? (
-          <img
-            src={getFullImageUrl(trip.image)}
-            alt={trip.name}
-            className={`h-full w-full object-cover transition-opacity ${uploadImageMutation.isPending ? "opacity-50" : "opacity-100"}`}
-          />
-        ) : (
-          <div className="h-full w-full bg-gradient-to-br from-primary/30 to-secondary/30" />
-        )}
+      <Dialog>
+        <div className="relative h-[300px] md:h-[400px] group/hero overflow-hidden">
 
-        {uploadImageMutation.isPending && (
-          <div className="absolute inset-0 flex items-center justify-center z-20">
-            <Loader2 className="h-10 w-10 animate-spin text-white drop-shadow-md" />
-          </div>
-        )}
+          <DialogTrigger asChild>
+            <div className="absolute inset-0 w-full h-full cursor-zoom-in">
+              {trip.image ? (
+                <img
+                  src={getFullImageUrl(trip.image)}
+                  alt={trip.name}
+                  className={`h-full w-full object-cover transition-all duration-700 group-hover/hero:scale-105 ${uploadImageMutation.isPending ? "opacity-50" : "opacity-100"
+                    }`}
+                />
+              ) : (
+                <div className="h-full w-full bg-gradient-to-br from-primary/30 to-secondary/30" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
+            </div>
+          </DialogTrigger>
 
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
+          {uploadImageMutation.isPending && (
+            <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+              <Loader2 className="h-10 w-10 animate-spin text-white drop-shadow-md" />
+            </div>
+          )}
 
-        <div className="absolute left-4 top-4 z-10">
-          <Button
-            onClick={() => navigate(-1)}
-            variant="ghost"
-            size="icon"
-            className="rounded-full bg-card/80 backdrop-blur-sm hover:bg-card"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {isAdmin && (
-          <div className="absolute right-4 bottom-4 z-10">
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              ref={fileInputRef}
-              onChange={handleImageSelect}
-              disabled={uploadImageMutation.isPending}
-            />
+          <div className="absolute left-4 top-4 z-10">
             <Button
-              onClick={() => fileInputRef.current?.click()}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(-1);
+              }}
               variant="ghost"
-              size="sm"
-              className="gap-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:bg-white/30 hover:scale-105 transition-all duration-300 disabled:opacity-50"
+              size="icon"
+              className="rounded-full bg-card/80 backdrop-blur-sm hover:bg-card"
             >
-              <Camera className="h-4 w-4 drop-shadow-md" />
-              <span className="hidden sm:inline font-medium drop-shadow-md">
-                Change Cover
-              </span>
+              <ArrowLeft className="h-4 w-4" />
             </Button>
           </div>
-        )}
-        <div className="absolute bottom-6 left-0 right-0 px-4">
-          <div className="container">
-            <div className="mb-2 flex flex-wrap items-center gap-2">
-              {trip.isAiGenerated && (
-                <Badge className="gap-1 border-0 bg-secondary text-secondary-foreground">
-                  <Sparkles className="h-3 w-3" /> AI Generated
-                </Badge>
-              )}
-              <Badge className="gap-1 border-0 bg-card/80 text-card-foreground backdrop-blur-sm">
-                {isPublic ? (
-                  <Globe className="h-3 w-3" />
-                ) : (
-                  <Lock className="h-3 w-3" />
-                )}
-                {isPublic ? "Public" : "Private"}
-              </Badge>
-              {apiTrip.tripStatus && (
-                <Badge
-                  variant="outline"
-                  className="border-card/40 bg-card/60 text-card-foreground backdrop-blur-sm"
-                >
-                  {apiTrip.tripStatus}
-                </Badge>
-              )}
+          {isAdmin && (
+            <div className="absolute right-4 bottom-4 z-10">
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                ref={fileInputRef}
+                onChange={handleImageSelect}
+                disabled={uploadImageMutation.isPending}
+              />
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
+                variant="ghost"
+                size="sm"
+                className="gap-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:bg-white/30 hover:scale-105 transition-all duration-300 disabled:opacity-50"
+              >
+                <Camera className="h-4 w-4 drop-shadow-md" />
+                <span className="hidden sm:inline font-medium drop-shadow-md">
+                  Change Cover
+                </span>
+              </Button>
             </div>
-            <h1 className="font-display text-3xl font-bold text-primary-foreground md:text-4xl">
-              {trip.name}
-            </h1>
-            <div className="mt-2 flex items-center gap-2 text-primary-foreground/80">
-              <MapPin className="h-4 w-4" />
-              <span>{trip.destination}</span>
+          )}
+
+          <div className="absolute bottom-6 left-0 right-0 px-4 pointer-events-none">
+            <div className="container pointer-events-auto">
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                {trip.isAiGenerated && (
+                  <Badge className="gap-1 border-0 bg-secondary text-secondary-foreground">
+                    <Sparkles className="h-3 w-3" /> AI Generated
+                  </Badge>
+                )}
+                <Badge className="gap-1 border-0 bg-card/80 text-card-foreground backdrop-blur-sm">
+                  {isPublic ? (
+                    <Globe className="h-3 w-3" />
+                  ) : (
+                    <Lock className="h-3 w-3" />
+                  )}
+                  {isPublic ? "Public" : "Private"}
+                </Badge>
+                {apiTrip.tripStatus && (
+                  <Badge
+                    variant="outline"
+                    className="border-card/40 bg-card/60 text-card-foreground backdrop-blur-sm"
+                  >
+                    {apiTrip.tripStatus}
+                  </Badge>
+                )}
+              </div>
+              <h1 className="font-display text-3xl font-bold text-primary-foreground md:text-4xl">
+                {trip.name}
+              </h1>
+              <div className="mt-2 flex items-center gap-2 text-primary-foreground/80">
+                <MapPin className="h-4 w-4" />
+                <span>{trip.destination}</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+
+        {trip.image && (
+          <DialogContent
+            className="max-w-5xl bg-transparent border-none shadow-none p-0 flex items-center justify-center [&>button]:fixed [&>button]:top-6 [&>button]:right-6 [&>button]:z-[100] [&>button]:text-white [&>button]:bg-black/50 hover:[&>button]:bg-black/80 [&>button]:p-3 [&>button]:rounded-full [&>button]:backdrop-blur-sm [&>button]:border [&>button]:border-white/20 [&_svg]:h-6 [&_svg]:w-6"
+          >
+            <DialogTitle className="sr-only">Trip Cover Image</DialogTitle>
+            <div
+              className="relative w-full flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={getFullImageUrl(trip.image)}
+                alt={trip.name}
+                className="max-h-[90vh] w-auto max-w-full rounded-md object-contain shadow-2xl"
+              />
+            </div>
+          </DialogContent>
+        )}
+      </Dialog>
 
       <div className="container mt-2 px-6">
         <div className="grid gap-8 lg:grid-cols-3">
@@ -554,7 +585,7 @@ const TripDetail = () => {
 
                                 {stop?.recommendations &&
                                   (stop?.recommendations as any[]).length >
-                                    0 && (
+                                  0 && (
                                     <div className="mt-4 pt-4 border-t border-gray-200/50">
                                       <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
                                         Nearby Places
@@ -619,9 +650,9 @@ const TripDetail = () => {
             )}
 
             {!trip.isAiGenerated &&
-            (trip.attractions?.length ||
-              trip.hotels?.length ||
-              trip.restaurants?.length) ? (
+              (trip.attractions?.length ||
+                trip.hotels?.length ||
+                trip.restaurants?.length) ? (
               <>
                 <div>
                   <h2 className="font-display text-xl font-semibold">
@@ -901,7 +932,7 @@ const TripDetail = () => {
                 )}
 
                 <Button
-                  variant={isFav ? "default" : "ghost"}
+                  variant={isFav ? "ghost" : "ghost"}
                   className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border lg:border-blue-100 lg:bg-blue-50/50 hover:lg:bg-blue-50 hover:text-blue-700"
                   onClick={handleSaveTrip}
                   disabled={savingFav}
