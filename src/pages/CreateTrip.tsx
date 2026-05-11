@@ -26,16 +26,16 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { useFavicon } from "@/hooks/useFavicon";
 
 const genderOptions = [
-  { id: 0, name: "Any / Mixed" },
-  { id: 1, name: "Male Only" },
-  { id: 2, name: "Female Only" },
+  { id: 0, name: "Male" },
+  { id: 1, name: "Female" },
+  { id: 2, name: "Other" },
 ];
 
 const ageGroupOptions = [
-  { id: 0, name: "All Ages" },
-  { id: 1, name: "Youth (18-25)" },
-  { id: 2, name: "Adults (26-40)" },
-  { id: 3, name: "Seniors (40+)" },
+  { id: 1, name: "Kid" },
+  { id: 2, name: "Young" },
+  { id: 3, name: "Middle Age" },
+  { id: 4, name: "Old" },
 ];
 
 type Country = {
