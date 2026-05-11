@@ -8,6 +8,9 @@ interface Props {
 
 export const PostReportCard = ({ report }: Props) => {
   const mediaList = report.mediaUrLs ?? [];
+  const isVideo = (url: string) => {
+    return /\.(mp4|webm|ogg|mov)$/i.test(url);
+  };
   const navigate = useNavigate();
 
   return (
@@ -49,11 +52,28 @@ export const PostReportCard = ({ report }: Props) => {
                   key={m.id}
                   className="relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition opacity-80 hover:opacity-100"
                 >
-                  <img
-                    src={normalizeMediaUrl(m.url)}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
+                  {isVideo(m.url) ? (
+                    <div className="relative w-full h-full">
+                      <video
+                        src={normalizeMediaUrl(m.url)}
+                        className="w-full h-full object-cover"
+                        muted
+                        playsInline
+                        preload="metadata"
+                      />
+
+                      {/* Video badge */}
+                      <div className="absolute top-1 right-1 bg-black/60 text-white rounded-full px-1.5 py-0.5 text-[10px]">
+                        ▶
+                      </div>
+                    </div>
+                  ) : (
+                    <img
+                      src={normalizeMediaUrl(m.url)}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  )}
                 </div>
               ))}
             </div>

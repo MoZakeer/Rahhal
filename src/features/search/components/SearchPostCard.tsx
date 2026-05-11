@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { normalizeMediaUrl } from "@/features/post/components/services/posts.api";
+import { Play } from "lucide-react";
 type PostPreview = {
   postId: string;
   description: string;
@@ -12,7 +13,12 @@ type PostPreview = {
 export default function PostPreviewCard({ post }: { post: PostPreview }) {
   const navigate = useNavigate();
 
-  const image = post.mediaUrls?.[0];
+  const media = post.mediaUrls?.[0];
+  const isVideo = (url?: string) => {
+    if (!url) return false;
+
+    return /\.(mp4|webm|ogg|mov)$/i.test(url);
+  };
 
   function formatTime(date: string) {
     const now = new Date();
@@ -32,12 +38,28 @@ export default function PostPreviewCard({ post }: { post: PostPreview }) {
       className="group relative cursor-pointer rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
     >
       {/* MEDIA */}
-      {image ? (
+      {media ? (
         <div className="relative">
-          <img
-            src={normalizeMediaUrl(image)}
-            className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
-          />
+          {isVideo(media) ? (
+            <div className="relative">
+              <video
+                src={normalizeMediaUrl(media)}
+                className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+                muted
+                playsInline
+                preload="metadata"
+              />
+
+              <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white p-2 rounded-full">
+                <Play className="w-4 h-4 fill-white" />
+              </div>
+            </div>
+          ) : (
+            <img
+              src={normalizeMediaUrl(media)}
+              className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          )}
 
           {/* Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />

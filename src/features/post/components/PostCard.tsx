@@ -31,6 +31,7 @@ import ConfirmModal from "../../ReportDetals/components/confirmModal";
 import { LikesList } from "./LikesList";
 import EditPostModal from "../components/EditPostModal";
 import type { PostDetails } from "../../../types/post";
+
 export function PostHeader({
   id,
   userName,
@@ -201,6 +202,30 @@ export function PostHeader({
 }
 
 export function PostMedia({ media }: { media: PostMediaItem[] }) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      {
+        threshold: 0.5,
+      },
+    );
+
+    observer.observe(video);
+
+    return () => observer.disconnect();
+  }, []);
   const [current, setCurrent] = useState(0);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
@@ -254,10 +279,12 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
         )}
         {isVideo(currentMedia) ? (
           <video
+            ref={videoRef}
             onClick={() => setIsPreviewOpen(true)}
             src={normalizeMediaUrl(currentMedia.url)}
             className="w-full h-full object-cover"
             controls
+            playsInline
           />
         ) : (
           <img

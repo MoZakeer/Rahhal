@@ -175,14 +175,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
     fetchUnreadCount();
   }, [token]);
   useNavbar(setUnreadMessages);
-  // const handleLogout = () => {
-  //   localStorage.removeItem("token");
-  //   localStorage.removeItem("auth");
-  //   localStorage.removeItem("user");
-  //   setHasToken(false);
-  //   setMobileOpen(false);
-  //   navigate("/landing-page");
-  // };
+
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -206,9 +199,8 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
   const travelLabel = activeTravelItem?.label ?? "Trips";
   return (
     <header
-      className={`fixed top-0 z-40  w-full  bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${
-        isNavVisible ? "translate-y-0" : "-translate-y-full"
-      }`}
+      className={`fixed top-0 z-40  w-full  bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${isNavVisible ? "translate-y-0" : "-translate-y-full"
+        }`}
     >
       <div className="mx-auto  flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo Section */}
@@ -242,11 +234,10 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
             <Link
               key={path}
               to={path}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-                isActivePath(path)
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${isActivePath(path)
                   ? "text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/30"
                   : "text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-              }`}
+                }`}
             >
               <Icon className="h-5 w-5" />
               <span>{label}</span>
@@ -260,28 +251,25 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
             onMouseLeave={handleMouseLeave}
           >
             <button
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-                isTravelActive
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${isTravelActive
                   ? "text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/30"
                   : "text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-              }`}
+                }`}
             >
               <TravelIcon className="h-5 w-5" />
               <span>{travelLabel}</span>
               <ChevronDown
-                className={`h-3.5 w-3.5 transition-transform duration-200 ${
-                  dropdownOpen ? "rotate-180" : ""
-                }`}
+                className={`h-3.5 w-3.5 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""
+                  }`}
               />
             </button>
 
             {/* Dropdown */}
             <div
-              className={`absolute top-full left-1/2 -translate-x-1/2 mt-1.5 w-48 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/60 dark:shadow-slate-950/60 overflow-hidden transition-all duration-200 z-50 ${
-                dropdownOpen
+              className={`absolute top-full left-1/2 -translate-x-1/2 mt-1.5 w-48 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/60 dark:shadow-slate-950/60 overflow-hidden transition-all duration-200 z-50 ${dropdownOpen
                   ? "opacity-100 translate-y-0 pointer-events-auto"
                   : "opacity-0 -translate-y-1 pointer-events-none"
-              }`}
+                }`}
             >
               {/* small arrow pointer */}
               <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 bg-white dark:bg-slate-900 border-l border-t border-slate-200 dark:border-slate-700" />
@@ -292,11 +280,10 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                     key={path}
                     to={path}
                     onClick={() => setDropdownOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
-                      isActivePath(path)
+                    className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-all ${isActivePath(path)
                         ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30"
                         : "text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60"
-                    }`}
+                      }`}
                   >
                     <Icon className="h-4 w-4 shrink-0" />
                     {label}
@@ -309,23 +296,11 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
             <Link
               key={path}
               to={path}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-                isActivePath(path)
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${isActivePath(path)
                   ? "text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/30"
                   : "text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-              }`}
+                }`}
             >
-              {/* <Icon className="h-5 w-5" />
-              {label === "Messages" ? (
-                <span>
-                  {label}{" "}
-                  {unreadMessages && unreadMessages > 0
-                    ? `(${unreadMessages})`
-                    : ""}
-                </span>
-              ) : (
-                <span>{label}</span>
-              )} */}
               <div className="relative">
                 <Icon className="h-5 w-5" />
                 {unreadMessages && unreadMessages > 0 ? (
@@ -349,19 +324,23 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
         </nav>
 
         {/* Right Section: Actions & Profile */}
-        <div className="flex items-center gap-2 ml-auto lg:gap-3">
+        <div className="flex items-center gap-2 ml-auto lg:gap-3 relative">
+
           {hasToken ? (
             <>
               {(isAllowedPage || isFeedPage) && (
-                <div className={isFeedPage ? "lg:hidden" : ""}>
+                <div className={isFeedPage ? "lg:hidden relative" : "relative"}>
+
                   <AnimatedSearch />
                 </div>
               )}
+
+              {/* Bell Button */}
               <button
                 onClick={handleClick}
-                className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 "
+                className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
               >
-                <Bell className="h-5 w-5 dark:text-blue-400 text-slate-500 " />
+                <Bell className="h-5 w-5 dark:text-blue-400 text-slate-500" />
 
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-[10px] text-white px-1">
@@ -369,10 +348,13 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                   </span>
                 )}
               </button>
+
               <div className="hidden lg:block h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
+
               {/* User Account Popover */}
               <Popover className="relative hidden lg:block">
                 <Popover.Button className="flex items-center gap-2 p-1 pr-3 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-all outline-none border border-transparent hover:border-slate-100 dark:hover:border-slate-700 group">
+
                   {profile?.profilePicture ? (
                     <img
                       src={`${API_BASE_URL}${profile.profilePicture}?t=${new Date().getTime()}`}
@@ -380,7 +362,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                       alt="user"
                     />
                   ) : (
-                    <div className="h-9 w-9 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700 bg-linear-to-br  to-blue-500 from-blue-900">
+                    <div className="h-9 w-9 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700 bg-linear-to-br to-blue-500 from-blue-900">
                       <span className="text-xs font-black text-white uppercase">
                         {profile?.fullName?.charAt(0) ||
                           profile?.userName?.charAt(0) ||
@@ -388,9 +370,11 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                       </span>
                     </div>
                   )}
+
                   <p className="text-sm font-bold text-blue-600 dark:text-blue-400">
                     {profile?.userName || "User"}
                   </p>
+
                   <ChevronDown className="h-4 w-4 text-slate-400 dark:text-slate-500 group-ui-open:rotate-180 transition-transform" />
                 </Popover.Button>
 
@@ -402,21 +386,21 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                   leaveFrom="scale-100 opacity-100"
                   leaveTo="scale-95 opacity-0"
                 >
-                  <Popover.Panel className="absolute right-0 mt-3 w-56 origin-top-right rounded-2xl bg-white dark:bg-slate-800 p-2 shadow-2xl ring-1 ring-black/5 dark:ring-white/5 outline-none">
+                  <Popover.Panel className="absolute right-0 mt-3 w-56 origin-top-right rounded-2xl bg-white dark:bg-slate-800 p-2 shadow-2xl ring-1 ring-black/5 dark:ring-white/5 outline-none z-50">
+
                     <div className="space-y-0.5">
                       {role === "SuperAdmin" && (
                         <Link
                           to="/admin/reports/users"
                           className="group relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold 
-               bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900
-               text-slate-600 dark:text-slate-300 
-               hover:text-blue-600 dark:hover:text-white
-               border border-slate-200 dark:border-slate-700
-               hover:border-blue-200 dark:hover:border-blue-500/50
-               shadow-sm hover:shadow-blue-500/10
-               transition-all duration-300 ease-out"
+                  bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900
+                  text-slate-600 dark:text-slate-300 
+                  hover:text-blue-600 dark:hover:text-white
+                  border border-slate-200 dark:border-slate-700
+                  hover:border-blue-200 dark:hover:border-blue-500/50
+                  shadow-sm hover:shadow-blue-500/10
+                  transition-all duration-300 ease-out"
                         >
-                          {/* Subtle Inner Glow on Hover */}
                           <div className="absolute inset-0 rounded-2xl bg-blue-500/0 group-hover:bg-blue-500/[0.03] transition-colors" />
 
                           <div className="relative flex items-center justify-center h-8 w-8 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
@@ -425,21 +409,24 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
 
                           <span className="relative">Admin Panel</span>
 
-                          {/* Small "Live" Indicator or Badge */}
-                          <div className="ml-auto h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+                          <div className="ml-auto h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
                         </Link>
                       )}
+
                       <Link
                         to={`/profile/${profileId}`}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                       >
                         <User className="h-4 w-4" /> My Profile
                       </Link>
+
                       <ThemeToggleButton />
-                      <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
+
+                      <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                         <Languages className="h-4 w-4" /> Arabic Language
                       </button>
                     </div>
+
                     <div className="mt-1 pt-1 border-t border-slate-50 dark:border-slate-700">
                       <button
                         onClick={onLogoutClick}
@@ -448,6 +435,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                         <LogOut className="h-4 w-4" /> Logout
                       </button>
                     </div>
+
                   </Popover.Panel>
                 </Transition>
               </Popover>
@@ -460,6 +448,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
               >
                 Sign In
               </Link>
+
               <Link
                 to="/sign-up"
                 className="rounded-xl bg-blue-600 dark:bg-blue-500 px-5 py-2 text-sm font-bold text-white shadow-lg"
@@ -469,8 +458,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
             </div>
           )}
 
-          {/* Mobile Menu Toggle */}
-
+          {/* Mobile Menu */}
           <button
             onClick={() => setMobileOpen(true)}
             className="lg:hidden p-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -573,11 +561,10 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                     key={path}
                     to={path}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${
-                      isActivePath(path)
+                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${isActivePath(path)
                         ? "bg-blue-50 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400"
                         : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                    }`}
+                      }`}
                   >
                     <Icon className="h-6 w-6" /> {label}
                   </Link>
@@ -590,11 +577,10 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                     key={path}
                     to={path}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${
-                      isActivePath(path)
+                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${isActivePath(path)
                         ? "bg-blue-50 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400"
                         : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                    }`}
+                      }`}
                   >
                     <Icon className="h-6 w-6" /> {label}
                   </Link>
@@ -605,11 +591,10 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                   key={path}
                   to={path}
                   onClick={() => setMobileOpen(false)}
-                  className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${
-                    isActivePath(path)
+                  className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${isActivePath(path)
                       ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30"
                       : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60"
-                  }`}
+                    }`}
                 >
                   <Icon className="h-6 w-6 " />
                   {label}
