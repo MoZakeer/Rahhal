@@ -4,6 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useProfileStore } from "../../features/profile/store/profile.store";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 interface ChangePasswordRequest {
   oldPassword: string;
@@ -22,7 +23,7 @@ export default function ChangePasswordPage() {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+  usePageTitle("Change Password");
   const onSubmitPassword = async (data: ChangePasswordRequest) => {
     if (data.newPassword !== data.confirmPassword) {
       alert("Passwords do not match!");
