@@ -187,17 +187,7 @@ export const en = {
       joined: "Joined",
       pending: "Pending",
       join: "Join",
-      dataFilled: "Data filled from \"{{name}}\"",
-      errDestination: "Please select a destination",
-      errRequired: "Required",
-      errBothDates: "Both dates are required",
-      errDateOrder: "Start date cannot be after end date",
-      checkFollowing: "Please check the following",
-      fieldDestination: "Destination",
-      fieldTravelers: "Travelers",
-      fieldBudget: "Budget",
-      fieldDates: "Dates",
-      fieldValidDates: "Valid Dates",
+
    },
 
 };

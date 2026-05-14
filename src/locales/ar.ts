@@ -187,17 +187,6 @@ export const ar = {
       joined: "تم الانضمام",
       pending: "قيد الانتظار",
       join: "انضمام",
-      dataFilled: "تم ملء البيانات من \"{{name}}\"",
-      errDestination: "يرجى اختيار وجهة",
-      errRequired: "مطلوب",
-      errBothDates: "كلا التاريخين مطلوبين",
-      errDateOrder: "تاريخ البدء لا يمكن أن يكون بعد تاريخ الانتهاء",
-      checkFollowing: "يرجى التحقق من الحقول التالية",
-      fieldDestination: "الوجهة",
-      fieldTravelers: "عدد المسافرين",
-      fieldBudget: "الميزانية",
-      fieldDates: "التواريخ",
-      fieldValidDates: "صحة التواريخ",
    },
 
 };
