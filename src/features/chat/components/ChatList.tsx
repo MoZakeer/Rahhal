@@ -47,7 +47,7 @@ function ChatList() {
             <HiOutlineChevronLeft className="w-6 h-6" />
           </button>
 
-          <h1 className="text-2xl font-semibold text-gray-800">
+          <h1 className="text-xl md:text-2xl font-semibold text-gray-800 ">
             Select a chat to get started
           </h1>
         </div>
