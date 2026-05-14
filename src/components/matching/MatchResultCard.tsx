@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "@/context/LanguageContext";
 
 export interface ApiMatchTrip {
   id: string;
@@ -43,27 +44,29 @@ interface MatchResultCardProps {
 const getMatchStyles = (pct: number) => {
   if (pct >= 80)
     return {
-      text: "text-primary",
-      bg: "bg-primary/10",
-      ring: "ring-primary/20",
-      progress: "bg-primary",
+      text: "text-primary dark:text-primary-foreground font-black",
+      bg: "bg-primary/10 dark:bg-primary/20 backdrop-blur-sm",
+      ring: "ring-primary/20 dark:ring-primary/40",
+      progress: "bg-primary dark:shadow-[0_0_10px_rgba(var(--primary),0.5)]",
     };
+    
   if (pct >= 60)
     return {
-      text: "text-primary/80",
-      bg: "bg-primary/5",
-      ring: "ring-primary/10",
-      progress: "bg-primary/80",
+      text: "text-primary/80 dark:text-primary/90",
+      bg: "bg-primary/5 dark:bg-primary/10",
+      ring: "ring-primary/10 dark:ring-primary/20",
+      progress: "bg-primary/80 dark:bg-primary/70",
     };
+    
   return {
-    text: "text-slate-500",
-    bg: "bg-slate-50",
-    ring: "ring-slate-100",
-    progress: "bg-slate-400",
+    text: "text-slate-500 dark:text-slate-400",
+    bg: "bg-slate-50 dark:bg-slate-800/50",
+    ring: "ring-slate-100 dark:ring-slate-800",
+    progress: "bg-slate-400 dark:bg-slate-600",
   };
 };
-
 const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
+  const { t, language } = useLanguage();
   const avatarLetter = trip.createdBy
     ? trip.createdBy.charAt(0).toUpperCase()
     : "U";
@@ -112,16 +115,16 @@ const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
     <motion.div
       whileHover={{ y: -4 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="group flex flex-col md:flex-row overflow-hidden rounded-[1.5rem] bg-white border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]"
+      className="group flex flex-col md:flex-row overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-none dark:hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-300"
     >
       {/* --- Image Section --- */}
-      <div className="relative h-56 w-full shrink-0 md:h-auto md:w-64 overflow-hidden bg-slate-50">
+      <div className="relative h-56 w-full shrink-0 md:h-auto md:w-64 overflow-hidden bg-slate-50 dark:bg-slate-900">
         <img
           src={displayImage as string}
           alt={trip.name}
           className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       </div>
 
       {/* --- Info Section --- */}
@@ -129,11 +132,11 @@ const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
         <div>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="font-display text-xl font-semibold text-slate-900 transition-colors group-hover:text-primary">
+              <h3 className="font-display text-xl font-semibold text-slate-900 dark:text-white transition-colors group-hover:text-primary">
                 {trip.name}
               </h3>
               {trip.destination && (
-                <div className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-slate-500">
+                <div className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-slate-500 dark:text-slate-400">
                   <MapPin className="h-4 w-4" />
                   {trip.destination}
                 </div>
@@ -143,40 +146,40 @@ const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
             {/* Premium Match Indicator */}
             <div className="flex flex-col items-center shrink-0">
               <div
-                className={`flex h-14 w-14 items-center justify-center rounded-full ${matchStyle.bg} ring-4 ${matchStyle.ring} shadow-sm transition-colors`}
+                className={`flex h-14 w-14 items-center justify-center rounded-full ${matchStyle.bg} ring-4 ${matchStyle.ring} dark:ring-slate-800/50 shadow-sm transition-colors`}
               >
                 <span className={`text-lg font-bold ${matchStyle.text}`}>
                   {formattedMatch}%
                 </span>
               </div>
-              <span className="mt-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                Match
+              <span className="mt-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                {t("tripMatching.match")}
               </span>
             </div>
           </div>
 
-          <p className="mt-4 text-sm text-slate-500 leading-relaxed line-clamp-2">
+          <p className="mt-4 text-sm text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
             {trip.description}
           </p>
 
-          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-600">
+          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-600 dark:text-slate-300">
             <span className="flex items-center gap-1.5">
-              <Calendar className="h-4 w-4 text-slate-400" />
+              <Calendar className="h-4 w-4 text-slate-400 dark:text-slate-500" />
               {trip.startDate
-                ? new Date(trip.startDate).toLocaleDateString("en-US", {
+                ? new Date(trip.startDate).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', {
                   month: "short",
                   day: "numeric",
                   year: "numeric",
                 })
-                : "TBD"}
+                : t("tripMatching.tbd")}
             </span>
             <span className="flex items-center gap-1.5">
-              <Users className="h-4 w-4 text-slate-400" />
-              {trip.numberOfUser} travelers
+              <Users className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+              {trip.numberOfUser} {t("tripMatching.travelers")}
             </span>
             {trip.budget && (
-              <span className="flex items-center gap-1.5 font-medium text-slate-700">
-                <Wallet className="h-4 w-4 text-slate-400" />${trip.budget}
+              <span className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-200">
+                <Wallet className="h-4 w-4 text-slate-400 dark:text-slate-500" />${trip.budget}
               </span>
             )}
           </div>
@@ -185,7 +188,7 @@ const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
           <div className="mt-4">
             <Progress
               value={formattedMatch}
-              className={`h-1 bg-slate-100 ${matchStyle.progress}`}
+              className={`h-1 bg-slate-100 dark:bg-slate-800 ${matchStyle.progress}`}
             />
           </div>
 
@@ -194,7 +197,7 @@ const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
               <Badge
                 key={pref.id}
                 variant="secondary"
-                className="bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-100 text-xs font-medium px-2.5 py-0.5 rounded-md transition-colors"
+                className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-100 dark:border-slate-700 text-xs font-medium px-2.5 py-0.5 rounded-md transition-colors"
               >
                 {pref.name}
               </Badge>
@@ -203,17 +206,17 @@ const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
         </div>
 
         {/* --- Footer / Actions --- */}
-        <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-5">
+        <div className="mt-6 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-5">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary shadow-sm border border-primary/20">
               {avatarLetter}
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                Created by
+              <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                {t("tripMatching.createdBy")}
               </span>
-              <span className="text-sm font-semibold text-slate-700">
-                {trip.createdBy || "Unknown"}
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                {trip.createdBy || t("tripMatching.unknown")}
               </span>
             </div>
           </div>
@@ -223,13 +226,13 @@ const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-1.5 text-slate-600 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
+                className="gap-1.5 text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
               >
-                Details <ArrowRight className="h-4 w-4" />
+                {t("tripMatching.details")}
+                <ArrowRight className={`h-4 w-4 ${language === 'ar' ? 'rotate-180' : ''}`} />
               </Button>
             </Link>
 
-            {/* 🚀 السحر يبدأ هنا: التفاعلات الدقيقة (Micro-interactions) 🚀 */}
             <AnimatePresence mode="popLayout">
               {isPastTrip ? (
                 <motion.div
@@ -241,11 +244,11 @@ const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="gap-1.5 border-slate-200 bg-slate-50 text-slate-400 cursor-default rounded-lg"
+                    className="gap-1.5 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-default rounded-lg"
                     disabled
                   >
                     <Clock className="h-4 w-4" />
-                    Trip Ended
+                    {t("tripMatching.tripEnded")}
                   </Button>
                 </motion.div>
               ) : trip.userJoinStatus === 1 ? (
@@ -258,7 +261,7 @@ const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="gap-1.5 border-green-200 bg-green-50 text-green-700 cursor-default rounded-lg"
+                    className="gap-1.5 border-green-200 dark:border-green-900/30 bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 cursor-default rounded-lg"
                     disabled
                   >
                     <motion.div
@@ -266,9 +269,9 @@ const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
                       animate={{ scale: 1 }}
                       transition={{ delay: 0.1, type: "spring", bounce: 0.6 }}
                     >
-                      <Check className="h-4 w-4 text-green-600" />
+                      <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
                     </motion.div>
-                    Joined
+                    {t("tripMatching.joined")}
                   </Button>
                 </motion.div>
               ) : trip.userJoinStatus === 2 ? (
@@ -281,10 +284,9 @@ const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="gap-1.5 border-amber-200 bg-amber-50 text-amber-700 cursor-default rounded-lg"
+                    className="gap-1.5 border-amber-200 dark:border-amber-900/30 bg-amber-50 dark:bg-amber-900/10 text-amber-700 dark:text-amber-400 cursor-default rounded-lg"
                     disabled
                   >
-                    {/* دوران خفيف جداً لأيقونة الساعة لتعطي إحساس بالانتظار */}
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{
@@ -293,9 +295,9 @@ const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
                         ease: "linear",
                       }}
                     >
-                      <Clock className="h-4 w-4 text-amber-600" />
+                      <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                     </motion.div>
-                    Pending
+                    {t("tripMatching.pending")}
                   </Button>
                 </motion.div>
               ) : (
@@ -307,7 +309,7 @@ const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
                 >
                   <Button
                     size="sm"
-                    className="bg-primary text-primary-foreground hover:opacity-90 rounded-lg shadow-sm transition-all w-[90px] flex justify-center items-center"
+                    className="bg-primary text-primary-foreground hover:opacity-90 rounded-lg shadow-sm transition-all w-[100px] flex justify-center items-center"
                     onClick={handleJoinClick}
                     disabled={isJoining}
                   >
@@ -330,7 +332,7 @@ const MatchResultCard = ({ trip, onJoin }: MatchResultCardProps) => {
                           exit={{ opacity: 0, scale: 0.5 }}
                           className="flex items-center gap-1.5"
                         >
-                          <UserPlus className="h-4 w-4" /> Join
+                          <UserPlus className="h-4 w-4" /> {t("tripMatching.join")}
                         </motion.div>
                       )}
                     </AnimatePresence>
