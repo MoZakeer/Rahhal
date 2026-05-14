@@ -134,7 +134,6 @@ function MessageList({
       scrollContainerRef.current;
 
     const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-    // Keep 150px as threshold, or adjust to be more precise for mobile if needed
     setShowScrollButton(distanceFromBottom > 150);
   };
 
@@ -201,16 +200,12 @@ function MessageList({
         </ul>
       )}
 
-      {/* 2. Scroll to Bottom Button with updated style and icon */}
       {showScrollButton && (
         <button
           onClick={scrollToBottom}
-          // Correct styling: circular, dark charcoal, grey icon, shadow-md.
-          // Positioning remains logical: sticky bottom center on mobile, fixed corner on desktop
-          className="sticky bottom-6 right-2   md:fixed md:bottom-24 md:right-4 md:translate-x-0 z-50  bg-primary-600 text-white rounded-full shadow-md backdrop-blur-sm hover:bg-primary-700 transition-all focus:outline-none focus:ring-2  flex items-center justify-center  px-2 py-2"
+          className="sticky bottom-6 right-2   md:fixed md:bottom-24 md:right-4 md:translate-x-0 z-50  bg-primary-600 text-white rounded-full shadow-md backdrop-blur-sm hover:bg-primary-700 transition-all focus:outline-none focus:ring-2 items-center justify-center  px-2 py-2 hidden sm:flex"
           aria-label="Scroll to bottom"
         >
-          {/* Use the specific thin chevron icon */}
           <BsChevronDown className="h-7 w-7" />
         </button>
       )}

@@ -3,7 +3,7 @@ import { HiOutlineCheck, HiOutlineXMark } from "react-icons/hi2";
 import type { Participant } from "../types/chatDetails.type";
 import { conversationImage } from "../../../utils/helper";
 import { useRemoveParticipant } from "../hooks/useRemoveParticipant";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { useUser } from "../../../context/UserContext";
 
 type Props = {
@@ -27,34 +27,36 @@ function Member({ type = "member", participant, isAdmin }: Props) {
   return (
     <li className="flex items-center justify-between py-2">
       {/* LEFT SIDE */}
-      <div className="flex items-center gap-3 flex-1 rounded-lg px-2 py-2 transition hover:bg-gray-50">
-        <Avatar
-          src={conversationImage({
-            isGroup: false,
-            otherUserProfilePicture: participant?.profilePicture,
-          })}
-        />
+      <Link to={`/profile/${participant.profileId}`} className="w-100">
+        <div className="flex items-center gap-3 flex-1 rounded-lg px-2 py-2 transition hover:bg-gray-50">
+          <Avatar
+            src={conversationImage({
+              isGroup: false,
+              otherUserProfilePicture: participant?.profilePicture,
+            })}
+          />
 
-        <div className="flex flex-col min-w-0">
-          {/* NAME + ADMIN BADGE */}
-          <div className="flex items-center gap-2">
-            <h4 className="text-sm font-medium text-gray-900 truncate">
-              {participant?.userName}
-            </h4>
+          <div className="flex flex-col min-w-0">
+            {/* NAME + ADMIN BADGE */}
+            <div className="flex items-center gap-2">
+              <h4 className="text-sm font-medium text-gray-900 truncate">
+                {participant?.userName}
+              </h4>
 
-            {participant.isAdmin && (
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 font-medium whitespace-nowrap">
-                Admin
-              </span>
-            )}
+              {participant.isAdmin && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 font-medium whitespace-nowrap">
+                  Admin
+                </span>
+              )}
+            </div>
+
+            {/* DESCRIPTION */}
+            <p className="text-xs text-gray-500 truncate">
+              {participant.description}
+            </p>
           </div>
-
-          {/* DESCRIPTION */}
-          <p className="text-xs text-gray-500 truncate">
-            {participant.description}
-          </p>
         </div>
-      </div>
+      </Link>
 
       {/* RIGHT SIDE */}
       <div className="flex items-center gap-2 ml-3">
