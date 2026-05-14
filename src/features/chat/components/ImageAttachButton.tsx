@@ -1,31 +1,55 @@
 import { useRef, type ChangeEvent } from "react";
 import { HiOutlinePhoto } from "react-icons/hi2";
+import { toast } from "sonner";
 
 interface ImageAttachProps {
   onSelectFiles: (files: File[]) => void;
 }
 
+const MAX_FILES = 10;
+
 function ImageAttachButton({ onSelectFiles }: ImageAttachProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const selectedFiles = Array.from(e.target.files);
+    if (!e.target.files || e.target.files.length === 0) {
+      return;
+    }
 
-      const validFiles = selectedFiles.filter((file) => {
-        const isValidType =
-          file.type.startsWith("image/") || file.type.startsWith("video/");
+    const selectedFiles = Array.from(e.target.files).slice(0, MAX_FILES);
 
-        const isValidSize = file.size <= 16 * 1024 * 1024;
+    const validFiles = selectedFiles.filter((file) => {
+      const isImage = file.type.startsWith("image/");
 
-        return isValidType && isValidSize;
-      });
+      const isVideo = file.type.startsWith("video/");
 
-      onSelectFiles(validFiles);
+      const isValidType = isImage || isVideo;
 
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+      const maxSize = isVideo ? 100 * 1024 * 1024 : 16 * 1024 * 1024;
+
+      const isValidSize = file.size <= maxSize;
+
+      if (!isValidType) {
+        toast.error(`${file.name} is not supported`);
+
+        return false;
       }
+
+      if (!isValidSize) {
+        toast.error(`${file.name} exceeds size limit`);
+
+        return false;
+      }
+
+      return true;
+    });
+
+    if (validFiles.length > 0) {
+      onSelectFiles(validFiles);
+    }
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 

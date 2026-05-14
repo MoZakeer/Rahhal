@@ -99,3 +99,48 @@ export function formatLastMessageDate(dateString: string) {
     year:"numeric",
   });
 }
+export const getFileTypeFromUrl = (
+  url: string,
+): "image" | "video" | "file" => {
+  const extension = url
+    .split(".")
+    .pop()
+    ?.split("?")[0]
+    .toLowerCase();
+
+  const imageExtensions = [
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "webp",
+    "svg",
+    "bmp",
+    "avif",
+  ];
+
+  const videoExtensions = [
+    "mp4",
+    "webm",
+    "mov",
+    "avi",
+    "mkv",
+    "m4v",
+    "wmv",
+    "flv",
+    "mpeg",
+    "mpg",
+    "3gp",
+    "ogv",
+  ];
+
+  if (imageExtensions.includes(extension || "")) {
+    return "image";
+  }
+
+  if (videoExtensions.includes(extension || "")) {
+    return "video";
+  }
+
+  return "file";
+};

@@ -1,11 +1,16 @@
 import { NavLink } from "react-router";
+
 import Avatar from "./Avatar";
+
 import type { ChatType } from "../../../types/ChatType";
-import { HiOutlinePhoto } from "react-icons/hi2";
+
+import { HiOutlinePhoto, HiOutlineVideoCamera } from "react-icons/hi2";
+
 import {
   conversationImage,
   formatLastMessageDate,
 } from "../../../utils/helper";
+import { MessageType } from "../types/MessageType";
 
 type Props = {
   chat: ChatType;
@@ -30,9 +35,16 @@ function ChatItem({ chat }: Props) {
     <NavLink
       to={`/chat/${conversationId}`}
       className={({ isActive }) =>
-        `flex items-center gap-3 px-4 py-2.5 rounded-lg cursor-pointer transition-all duration-300 hover:bg-gray-100 active:bg-gray-100 ${
-          isActive ? "bg-gray-100" : ""
-        }`
+        `
+          flex items-center gap-3
+          px-4 py-2.5
+          rounded-lg
+          cursor-pointer
+          transition-all duration-300
+          hover:bg-gray-100
+          active:bg-gray-100
+          ${isActive ? "bg-gray-100" : ""}
+        `
       }
     >
       <Avatar
@@ -45,56 +57,144 @@ function ChatItem({ chat }: Props) {
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-2">
-          {/* Name + Message */}
+        <div
+          className="
+            flex items-start
+            justify-between
+            gap-2
+          "
+        >
+          {/* Left */}
           <div className="min-w-0">
-            <h4 className="text-base font-semibold text-gray-800 truncate">
+            <h4
+              className="
+                text-base
+                font-semibold
+                text-gray-800
+                truncate
+              "
+            >
               {isGroup ? groupTitle : otherUserName}
             </h4>
 
-            <div className="whitespace-nowrap overflow-hidden text-ellipsis text-sm text-gray-500 w-64 sm:w-56 flex">
-              {/* {lastMessageSender === "You" && (
-                <IoCheckmarkDoneSharp
-                  size={19}
-                  className={`inline mr-1 mb-0.5 ${
-                    isLastMessageFullySeen
-                      ? "text-primary-600"
-                      : "text-gray-400"
-                  }`}
-                />
-              )} */}
+            <div
+              className="
+                whitespace-nowrap
+                overflow-hidden
+                text-ellipsis
+                text-sm
+                text-gray-500
+                w-64 sm:w-56
+                flex items-center
+              "
+            >
               {isGroup && lastMessageType && (
-                <span className="font-medium text-gray-600 mr-1">
+                <span
+                  className="
+                      font-medium
+                      text-gray-600
+                      mr-1
+                      shrink-0
+                    "
+                >
                   {lastMessageSender}:
                 </span>
               )}
 
-              {lastMessageType !== 2 ? (
-               <span dir="auto">
-                {lastMessageContent}
-               </span> 
-              ) : (
-                <div className="ml-.5 flex items-center gap-1 font-medium">
+              {lastMessageType === MessageType.Image ? (
+                <div
+                  className="
+                    ml-0.5
+                    flex items-center gap-1
+                    font-medium
+                  "
+                >
                   <HiOutlinePhoto className="text-gray-900" size={16} />
-                  <span className=" text-gray-700 text-[14px] font-medium">
+
+                  <span
+                    className="
+                      text-gray-700
+                      text-[14px]
+                      font-medium
+                    "
+                  >
                     Photo
                   </span>
                 </div>
+              ) : lastMessageType === MessageType.Video ? (
+                <div
+                  className="
+                    ml-0.5
+                    flex items-center gap-1
+                    font-medium
+                  "
+                >
+                  <span>
+                    <HiOutlineVideoCamera className="text-gray-900" size={16} />
+                  </span>
+
+                  <span
+                    className="
+                      text-gray-700
+                      text-[14px]
+                      font-medium
+                    "
+                  >
+                    Video
+                  </span>
+                </div>
+              ) : (
+                <span dir="auto" className="truncate">
+                  {lastMessageContent}
+                </span>
               )}
             </div>
           </div>
 
-          {/* Date + Unread */}
-          <div className="flex flex-col items-end justify-start gap-1 min-w-fit">
+          {/* Right */}
+          <div
+            className="
+              flex flex-col
+              items-end
+              justify-start
+              gap-1
+              min-w-fit
+            "
+          >
             {lastMessageDate && (
-              <span className="text-xs text-gray-500 font-medium whitespace-nowrap">
+              <span
+                className="
+                  text-xs
+                  text-gray-500
+                  font-medium
+                  whitespace-nowrap
+                "
+              >
                 {formatLastMessageDate(lastMessageDate)}
               </span>
             )}
 
-            <div className="h-5 flex items-center justify-center">
+            <div
+              className="
+                h-5
+                flex items-center
+                justify-center
+              "
+            >
               {unreadMessagesCount > 0 && (
-                <span className="bg-primary-600 min-w-5 h-5 px-1.5 rounded-full text-[11px] font-medium text-white flex items-center justify-center">
+                <span
+                  className="
+                    bg-primary-600
+                    min-w-5 h-5
+                    px-1.5
+                    rounded-full
+                    text-[11px]
+                    font-medium
+                    text-white
+                    flex items-center
+                    justify-center
+                  "
+                >
                   {unreadMessagesCount}
                 </span>
               )}
