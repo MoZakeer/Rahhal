@@ -12,6 +12,8 @@ import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-quer
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useFavicon } from "@/hooks/useFavicon";
 
+import { useLanguage } from "@/context/LanguageContext";
+
 // ==========================================
 // API Fetcher Functions (For React Query)
 // ==========================================
@@ -47,7 +49,7 @@ const fetchTripsAPI = async ({ pageParam = 1, queryKey }: any) => {
 
   const data = await res.json();
   if (!data.isSuccess) throw new Error("Failed to fetch trips");
-  return data.data; // { items: [...], pages: number }
+  return data.data;
 };
 
 // ==========================================
@@ -58,11 +60,13 @@ const Explore = () => {
   const queryClient = useQueryClient();
   useFavicon("/compass.png");
 
+  // استخراج دالة الترجمة
+  const { t } = useLanguage();
+
   // --- 1. URL Search Params (State Preservation) ---
   const [searchParams, setSearchParams] = useSearchParams();
   const urlSearch = searchParams.get("q") || "";
   const urlFilter = searchParams.get("cat") || "ALL";
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const navigate = useNavigate();
 
   const [searchInput, setSearchInput] = useState(urlSearch);
@@ -163,7 +167,7 @@ const Explore = () => {
   const toggleFavorite = async (id: string) => {
     let token = localStorage.getItem("token")?.replace(/^"(.*)"$/, '$1') || "";
     if (!token) {
-      toast.error("Please log in to update your favorites.");
+      toast.error(t("explore.loginRequired"));
       return;
     }
 
@@ -199,7 +203,7 @@ const Explore = () => {
 
     } catch (error) {
       console.error("Error updating trip:", error);
-      toast.error("Failed to update favorite status.");
+      toast.error(t("explore.updateFailed"));
       queryClient.invalidateQueries({ queryKey: ['trips', urlSearch, urlFilter] });
     }
   };
@@ -208,8 +212,9 @@ const Explore = () => {
     <div className="min-h-screen relative pt-[140px] lg:pt-[150px]">
 
       {/* --- Sticky Top Header (Search & Filters) --- */}
+      {/* استبدلنا left-0 right-0 بـ start-0 end-0 */}
       <div
-        className={`fixed top-16 left-0 right-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${isHeaderVisible ? "translate-y-0" : "-translate-y-[200px]"
+        className={`fixed top-16 start-0 end-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${isHeaderVisible ? "translate-y-0" : "-translate-y-[200px]"
           }`}
       >
         <div className="container mx-auto px-4 py-3">
@@ -217,12 +222,14 @@ const Explore = () => {
             {/* Search Input Area */}
             <div className="flex items-center gap-3">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+                {/* استبدلنا left-3 بـ start-3 */}
+                <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
                 <Input
-                  placeholder="Search trips by name or destination..."
+                  placeholder={t("explore.searchPlaceholder")}
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  className="pl-10 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700"
+                  // استبدلنا pl-10 بـ ps-10
+                  className="ps-10 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700"
                 />
               </div>
               <Button variant="outline" size="icon" className="shrink-0 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
@@ -240,7 +247,7 @@ const Explore = () => {
                   }`}
                 onClick={() => handleFilterChange("ALL")}
               >
-                All
+                {t("explore.all")}
               </Badge>
 
               {preferences.map((pref: any) => (
@@ -262,16 +269,17 @@ const Explore = () => {
       </div>
 
       {/* Hero Section */}
+      {/* Hero Section */}
       <section className="relative h-[280px] lg:h-[340px] overflow-hidden mx-2 sm:mx-4 rounded-3xl shadow-sm">
         <img src={heroImage} alt="Travel" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
           <div className="mb-3 flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 backdrop-blur-md border border-white/10">
             <Compass className="h-4 w-4 text-white" />
-            <span className="text-sm font-bold text-white">Discover Amazing Trips</span>
+            <span className="text-sm font-bold text-white">{t("explore.discoverTrips")}</span>
           </div>
           <h1 className="font-display text-4xl font-black text-white md:text-5xl drop-shadow-md">
-            Explore the World
+            {t("explore.exploreWorld")}
           </h1>
         </div>
       </section>
@@ -280,20 +288,24 @@ const Explore = () => {
       <div className="px-4 sm:px-0 container mx-auto py-8">
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
-            {isLoading ? "Searching..." : `${allTrips.length} trips loaded`}
+            {isLoading ? t("explore.searching") : `${allTrips.length} ${t("explore.tripsLoaded")}`}
           </p>
         </div>
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 text-slate-500 dark:text-slate-400">
             <Loader2 className="mb-4 h-12 w-12 animate-spin text-blue-600 dark:text-blue-500" />
-            <p className="text-lg font-bold">Loading trips...</p>
+            <p className="text-lg font-bold">{t("explore.loadingTrips")}</p>
           </div>
         ) : (
           <>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {allTrips.map((trip: any, i: number) => (
-                <div key={trip.id} className="animate-fade-in" style={{ animationDelay: `${(i % 10) * 50}ms` }}>
+                <div
+                  key={trip.id}
+                  className="animate-fade-in min-w-0"
+                  style={{ animationDelay: `${(i % 10) * 50}ms` }}
+                >
                   <TripCard trip={trip} onToggleFavorite={toggleFavorite} />
                 </div>
               ))}
@@ -302,8 +314,8 @@ const Explore = () => {
             {allTrips.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 text-slate-500 dark:text-slate-400">
                 <Compass className="mb-4 h-12 w-12 opacity-50" />
-                <p className="text-lg font-bold">No trips found</p>
-                <p className="text-sm">Try adjusting your search or filters</p>
+                <p className="text-lg font-bold">{t("explore.noTripsFound")}</p>
+                <p className="text-sm">{t("explore.adjustSearch")}</p>
               </div>
             )}
 
@@ -332,6 +344,7 @@ const Explore = () => {
       </AnimatePresence>
 
       {/* --- FAB Menu Options (Create Post) --- */}
+      {/* استبدلنا right-6 بـ end-6 و lg:right-10 بـ lg:end-10 */}
       <AnimatePresence>
         {isHeaderVisible && isFabMenuOpen && (
           <motion.div
@@ -339,7 +352,7 @@ const Explore = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-40 right-6 lg:bottom-28 lg:right-10 z-50 flex flex-col items-end gap-3"
+            className="fixed bottom-40 end-6 lg:bottom-28 lg:end-10 z-50 flex flex-col items-end gap-3"
           >
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -347,7 +360,7 @@ const Explore = () => {
               onClick={() => { setIsFabMenuOpen(false); navigate('/ai-planner'); }}
               className="flex items-center gap-2 rounded-2xl shadow-xl bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 text-sm font-bold transition-colors"
             >
-              <span>Create AI Trip</span>
+              <span>{t("explore.createAITrip")}</span>
               <Sparkles className="h-4 w-4" />
             </motion.button>
             <motion.button
@@ -356,7 +369,7 @@ const Explore = () => {
               onClick={() => { setIsFabMenuOpen(false); navigate('/create-trip'); }}
               className="flex items-center gap-2 rounded-2xl shadow-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 px-5 py-3 text-sm font-bold transition-colors"
             >
-              <span>Create Manual Trip</span>
+              <span>{t("explore.createManualTrip")}</span>
               <PenLine className="h-4 w-4" />
             </motion.button>
           </motion.div>
@@ -364,6 +377,7 @@ const Explore = () => {
       </AnimatePresence>
 
       {/* --- Create Post FAB --- */}
+      {/* استبدلنا right-6 بـ end-6 و lg:right-10 بـ lg:end-10 */}
       <motion.button
         animate={{
           scale: isHeaderVisible ? 1 : 0,
@@ -372,7 +386,7 @@ const Explore = () => {
         }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
         onClick={() => setIsFabMenuOpen(!isFabMenuOpen)}
-        className="fixed bottom-24 right-6 lg:bottom-10 lg:right-10 z-50 flex items-center justify-center w-14 h-14 bg-blue-600 dark:bg-blue-500 text-white rounded-full shadow-lg shadow-blue-600/30 dark:shadow-blue-900/50 hover:bg-blue-700 dark:hover:bg-blue-600 active:scale-95 transition-colors"
+        className="fixed bottom-24 end-6 lg:bottom-10 lg:end-10 z-50 flex items-center justify-center w-14 h-14 bg-blue-600 dark:bg-blue-500 text-white rounded-full shadow-lg shadow-blue-600/30 dark:shadow-blue-900/50 hover:bg-blue-700 dark:hover:bg-blue-600 active:scale-95 transition-colors"
         aria-label="Create Post"
       >
         <motion.div

@@ -19,6 +19,7 @@ import MatchSourceSelector, { type MatchCriteria } from "@/components/matching/M
 import MatchResultCard, { type ApiMatchTrip } from "@/components/matching/MatchResultCard";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useFavicon } from "@/hooks/useFavicon";
+import { useLanguage } from "@/context/LanguageContext";
 
 const getDestinationPosition = (destinationName = "Unknown") => {
   let hash = 0;
@@ -58,6 +59,8 @@ const MatchSkeleton = () => (
 const TripMatching = () => {
   useFavicon("/matching.png");
   usePageTitle("Smart Trip Matching");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { t, language } = useLanguage();
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [selectedMapTrip, setSelectedMapTrip] = useState<ApiMatchTrip | null>(null);
@@ -187,15 +190,16 @@ const TripMatching = () => {
         setHasMatched(true);
         setHasMore(1 < (data.data.pages || 1));
         setIsCriteriaExpanded(false);
-        toast.success(`Found ${sortedItems.length} matching trips!`);
+        const message = t("tripMatching.foundSuccess").replace("{{count}}", sortedItems.length.toString());
+        toast.success(message);
       } else {
         setResults([]);
         setHasMore(false);
-        toast.error("Failed to find matches.");
+        toast.error(t("tripMatching.matchError"));
       }
     } catch (error) {
       console.error("Match error:", error);
-      toast.error("Network error while matching trips.");
+      toast.error(t("tripMatching.requestError"));
     } finally {
       setIsMatching(false);
     }
@@ -304,18 +308,19 @@ const TripMatching = () => {
     });
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] pb-20">
+    <div className="min-h-screen bg-[#FAFAFA] pb-20 dark:bg-slate-950">
 
-      {/* --- Clean Minimalist Hero Section --- */}
-      <section className="relative overflow-hidden bg-white pt-24 pb-32 px-4 border-b border-slate-100">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-50 via-white to-white" />
+      {/* --- Hero Section --- */}
+      <section className="relative overflow-hidden bg-white  dark:bg-slate-900/90  pt-24 pb-32 px-4 border-b border-slate-100 dark:border-slate-800">
+        {/* Gradient Background for Dark/Light Mode */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-50 dark:from-slate-900 via-white dark:via-slate-950 to-white dark:to-slate-950" />
 
         <div className="relative z-10 text-center flex flex-col items-center">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative"
+            className="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative"
           >
             {isMatching ? (
               <Loader2 className="h-6 w-6 text-primary animate-spin" />
@@ -324,16 +329,16 @@ const TripMatching = () => {
             )}
           </motion.div>
 
-          <h1 className="font-display text-4xl font-semibold text-slate-900 md:text-5xl tracking-tight">
-            Intelligent Matching
+          <h1 className="font-display text-4xl font-semibold text-slate-900 dark:text-white md:text-5xl tracking-tight">
+            {t("tripMatching.title")}
           </h1>
-          <p className="mx-auto mt-5 max-w-lg text-slate-500 text-base md:text-lg leading-relaxed">
-            Discover trips tailored exclusively to your preferences. Let our algorithm find your next perfect getaway.
+          <p className="mx-auto mt-5 max-w-lg text-slate-500 dark:text-slate-400 text-base md:text-lg leading-relaxed">
+            {t("tripMatching.subtitle")}
           </p>
         </div>
       </section>
 
-      {/* --- Match Source Selector & Summary Bar (The Airbnb Effect) --- */}
+      {/* --- Match Source Selector & Summary Bar --- */}
       <div className="relative z-20 -mt-20 mb-16 px-4">
         <div className="mx-auto max-w-4xl">
           <AnimatePresence mode="wait" initial={false}>
@@ -346,7 +351,8 @@ const TripMatching = () => {
                 transition={{ duration: 0.4, ease: "easeInOut" }}
                 className="overflow-hidden"
               >
-                <div className="bg-white rounded-[2rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-slate-100 p-2 sm:p-4 mb-2">
+                {/* Form Container */}
+                <div className="bg-white dark:bg-slate-900 rounded-[2rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] dark:shadow-none border border-slate-100 dark:border-slate-800 p-2 sm:p-4 mb-2">
                   <MatchSourceSelector onMatch={handleMatch} isMatching={isMatching} initialData={currentCriteria} destinations={destinations} />
                 </div>
               </motion.div>
@@ -357,23 +363,23 @@ const TripMatching = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white rounded-full shadow-[0_12px_40px_rgb(0,0,0,0.08)] border border-slate-100/80 px-6 py-3.5 flex flex-row items-center justify-between gap-4 cursor-pointer hover:shadow-[0_16px_50px_rgb(0,0,0,0.12)] transition-shadow group mx-auto max-w-3xl"
+                className="bg-white dark:bg-slate-900 rounded-full shadow-[0_12px_40px_rgb(0,0,0,0.08)] border border-slate-100/80 dark:border-slate-800 px-6 py-3.5 flex flex-row items-center justify-between gap-4 cursor-pointer hover:shadow-[0_16px_50px_rgb(0,0,0,0.12)] transition-shadow group mx-auto max-w-3xl"
                 onClick={() => setIsCriteriaExpanded(true)}
               >
-                <div className="flex flex-wrap items-center justify-between md:justify-center sm:justify-start gap-x-5 gap-y-2 text-sm font-medium text-slate-700 flex-1">
+                <div className="flex flex-wrap items-center justify-between md:justify-center sm:justify-start gap-x-5 gap-y-2 text-sm font-medium text-slate-700 dark:text-slate-300 flex-1 md:justify-start">
                   <div className="flex items-center gap-2 text-primary bg-primary/5 px-3 py-1.5 rounded-full hidden md:flex">
                     <Sparkles className="h-4 w-4" />
-                    <span className="font-bold text-xs uppercase tracking-wider">Filtered</span>
+                    <span className="font-bold text-xs uppercase tracking-wider">{t("tripMatching.filtered")}</span>
                   </div>
 
-                  <div className="flex items-center gap-4 text-slate-500">
-                    <span className="flex items-center gap-1.5 transition-colors group-hover:text-slate-700">
+                  <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400">
+                    <span className="flex items-center gap-1.5 transition-colors group-hover:text-slate-700 dark:group-hover:text-slate-200">
                       <MapPin className="h-4 w-4 shrink-0" />
 
                       {(() => {
                         const destName = currentCriteria?.destinationId && currentCriteria.destinationId !== "ANY"
-                          ? (destinations.find(d => d.id === currentCriteria.destinationId)?.name || "Destination")
-                          : "Anywhere";
+                          ? (destinations.find(d => d.id === currentCriteria.destinationId)?.name || t("tripMatching.destination"))
+                          : t("tripMatching.anywhere");
 
                         return (
                           <>
@@ -390,32 +396,33 @@ const TripMatching = () => {
                     </span>
 
                     {currentCriteria?.travelers && (
-                      <span className="flex items-center gap-1.5 transition-colors group-hover:text-slate-700">
+                      <span className="flex items-center gap-1.5 transition-colors group-hover:text-slate-700 dark:group-hover:text-slate-200">
                         <Users className="h-4 w-4" /> {currentCriteria.travelers}
                       </span>
                     )}
 
                     {currentCriteria?.budget && (
-                      <span className="flex items-center gap-1.5 transition-colors group-hover:text-slate-700">
+                      <span className="flex items-center gap-1.5 transition-colors group-hover:text-slate-700 dark:group-hover:text-slate-200">
                         <Wallet className="h-4 w-4" /> ${currentCriteria.budget}
                       </span>
                     )}
 
                     {currentCriteria?.startDate && (
-                      <span className="flex items-center gap-1.5 hidden md:flex transition-colors group-hover:text-slate-700">
-                        <Calendar className="h-4 w-4" /> {new Date(currentCriteria.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      <span className="flex items-center gap-1.5 hidden md:flex transition-colors group-hover:text-slate-700 dark:group-hover:text-slate-200">
+                        <Calendar className="h-4 w-4" /> {new Date(currentCriteria.startDate).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', { month: "short", day: "numeric" })}
                       </span>
                     )}
                   </div>
                 </div>
 
                 <button
-                  className="rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold h-9 px-5 shrink-0 text-sm transition-colors flex items-center gap-2"
+                  className="rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold h-9 px-5 shrink-0 text-sm transition-colors flex items-center gap-2"
                   onClick={(e) => { e.stopPropagation(); setIsCriteriaExpanded(true); }}
                 >
                   <SlidersHorizontal className="h-3.5 w-3.5" />
-                  Edit
-                  <span className="hidden sm:inline">Search</span>
+                  <span>
+                    {t("tripMatching.edit")} <span className="hidden sm:inline">{t("tripMatching.search")}</span>
+                  </span>
                 </button>
               </motion.div>
             )}
@@ -426,11 +433,15 @@ const TripMatching = () => {
       {/* --- Elegant Loading State --- */}
       {isMatching && (
         <div className="container mx-auto max-w-4xl px-4 space-y-6">
-          <div className="flex items-center justify-center gap-3 mb-10 text-slate-400">
-            <div className="h-[1px] w-12 bg-slate-200" />
-            <span className="text-sm tracking-widest uppercase font-medium">Scanning Trips</span>
-            <div className="h-[1px] w-12 bg-slate-200" />
+          <div className="flex items-center justify-center gap-3 mb-10 text-slate-400 dark:text-slate-600">
+            {/* Divider Lines with Dark Mode support */}
+            <div className="h-[1px] w-12 bg-slate-200 dark:bg-slate-800" />
+            <span className="text-sm tracking-widest uppercase font-medium">
+              {t("tripMatching.scanning")}
+            </span>
+            <div className="h-[1px] w-12 bg-slate-200 dark:bg-slate-800" />
           </div>
+
           {[1, 2, 3].map((i) => (
             <MatchSkeleton key={i} />
           ))}
@@ -441,70 +452,87 @@ const TripMatching = () => {
       {!isMatching && hasMatched && (
         <div className="container mx-auto max-w-5xl px-4 relative">
 
+          {/* --- Sticky Results Header & Filters --- */}
           <div className={`sticky top-20 z-40 mb-10 mx-auto max-w-5xl pt-2 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-            <div className="rounded-[2rem] bg-white/80 backdrop-blur-xl p-1.5 sm:p-2.5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-200/50 flex flex-row items-center justify-between transition-all gap-2">
+            <div className="rounded-[2rem] bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-1.5 sm:p-2.5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-200/50 dark:border-slate-800 flex flex-row items-center justify-between transition-all gap-2">
 
-              <div className="hidden md:flex items-center gap-2 pl-4 shrink-0">
-                <span className="font-display font-semibold text-slate-900">Matches</span>
-                <span className="flex items-center justify-center bg-slate-100 text-slate-500 text-xs font-bold px-2 py-0.5 rounded-full">
+              {/* Match Count (Hidden on mobile) */}
+              <div className="hidden md:flex items-center gap-2 ps-4 shrink-0">
+                <span className="font-display font-semibold text-slate-900 dark:text-slate-100">
+                  {t("tripMatching.matches")}
+                </span>
+                <span className="flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs font-bold px-2 py-0.5 rounded-full">
                   {filteredAndSorted.length}
                 </span>
               </div>
 
               <div className="flex-1 flex flex-row items-center justify-between gap-1.5 sm:gap-3">
 
+                {/* Search Input */}
                 <div className="relative flex-1 min-w-[80px] max-w-xs">
-                  <Search className="absolute left-3 sm:left-4 top-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 -translate-y-1/2 text-slate-400" />
+                  <Search className="absolute start-3 sm:start-4 top-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 -translate-y-1/2 text-slate-400" />
                   <Input
-                    placeholder="Search..."
+                    placeholder={t("tripMatching.searchPlaceholder")}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-8 sm:pl-11 bg-slate-50 border-transparent hover:bg-slate-100 focus:bg-white focus:border-primary/20 rounded-full h-9 sm:h-11 text-xs sm:text-sm transition-all shadow-none"
+                    className="ps-8 sm:ps-11 bg-slate-50 dark:bg-slate-800 border-transparent hover:bg-slate-100 dark:hover:bg-slate-700 focus:bg-white dark:focus:bg-slate-950 dark:text-white rounded-full h-9 sm:h-11 text-xs sm:text-sm transition-all shadow-none"
                   />
                 </div>
 
+                {/* Sort Select */}
                 <div className="shrink-0">
                   <Select value={sortBy} onValueChange={(val: any) => setSortBy(val)}>
-                    <SelectTrigger className="w-[90px] sm:w-[150px] bg-slate-50 border-transparent hover:bg-slate-100 text-[10px] sm:text-sm font-semibold text-slate-700 rounded-full h-9 sm:h-11 shadow-none focus:ring-0 px-2 sm:px-4">
-                      <SelectValue placeholder="Sort" />
+                    <SelectTrigger className="w-[90px] sm:w-[150px] bg-slate-50 dark:bg-slate-800 border-transparent hover:bg-slate-100 dark:hover:bg-slate-700 text-[10px] sm:text-sm font-semibold text-slate-700 dark:text-slate-200 rounded-full h-9 sm:h-11 shadow-none focus:ring-0 px-2 sm:px-4">
+                      <SelectValue placeholder={t("tripMatching.sort")} />
                     </SelectTrigger>
-                    <SelectContent className="rounded-2xl border-slate-100 shadow-xl p-1">
-                      <SelectItem value="best_match" className="font-medium rounded-xl py-2 cursor-pointer">
-                        <div className="flex items-center gap-2">
+                    <SelectContent className="rounded-2xl border-slate-100 dark:border-slate-800 dark:bg-slate-900 shadow-xl p-1">
+                      <SelectItem value="best_match" className="font-medium rounded-xl py-2 cursor-pointer dark:hover:bg-slate-700">
+                        <div className="flex items-center gap-2 dark:text-slate-200">
                           <Sparkles className="h-4 w-4 text-primary" />
-                          <span>Best Match</span>
+                          <span>{t("tripMatching.bestMatch")}</span>
                         </div>
                       </SelectItem>
-                      <SelectItem value="budget_asc" className="font-medium rounded-xl py-2 cursor-pointer">
-                        <div className="flex items-center gap-2">
+                      <SelectItem value="budget_asc" className="font-medium rounded-xl py-2 cursor-pointer dark:hover:bg-slate-700">
+                        <div className="flex items-center gap-2 dark:text-slate-200">
                           <Banknote className="h-4 w-4 text-slate-400" />
-                          <span>Low Price</span>
+                          <span>{t("tripMatching.lowPrice")}</span>
                         </div>
                       </SelectItem>
-                      <SelectItem value="date_asc" className="font-medium rounded-xl py-2 cursor-pointer">
-                        <div className="flex items-center gap-2">
+                      <SelectItem value="date_asc" className="font-medium rounded-xl py-2 cursor-pointer dark:hover:bg-slate-700">
+                        <div className="flex items-center gap-2 dark:text-slate-200">
                           <CalendarClock className="h-4 w-4 text-slate-400" />
-                          <span>Soonest</span>
+                          <span>{t("tripMatching.soonest")}</span>
                         </div>
                       </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                <div className="flex items-center bg-slate-100/80 p-0.5 sm:p-1 rounded-full border border-slate-200/50 shrink-0 h-9 sm:h-11">
+                {/* View Mode Toggle (List/Map) */}
+                <div className="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-0.5 sm:p-1 rounded-full border border-slate-200/50 dark:border-slate-700 shrink-0 h-9 sm:h-11">
                   <button
                     onClick={() => setViewMode('list')}
                     className={`relative px-2 sm:px-4 h-full rounded-full flex items-center justify-center transition-all z-10 ${viewMode === 'list' ? 'text-primary' : 'text-slate-400'}`}
                   >
                     <List className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    {viewMode === 'list' && <motion.div layoutId="viewToggle" className="absolute inset-0 bg-white rounded-full shadow-sm border border-slate-200/50 -z-10" />}
+                    {viewMode === 'list' && (
+                      <motion.div
+                        layoutId="viewToggle"
+                        className="absolute inset-0 bg-white dark:bg-slate-700 rounded-full shadow-sm border border-slate-200/50 dark:border-slate-600 -z-10"
+                      />
+                    )}
                   </button>
                   <button
                     onClick={() => { setViewMode('map'); setSelectedMapTrip(null); }}
                     className={`relative px-2 sm:px-4 h-full rounded-full flex items-center justify-center transition-all z-10 ${viewMode === 'map' ? 'text-primary' : 'text-slate-400'}`}
                   >
                     <MapIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    {viewMode === 'map' && <motion.div layoutId="viewToggle" className="absolute inset-0 bg-white rounded-full shadow-sm border border-slate-200/50 -z-10" />}
+                    {viewMode === 'map' && (
+                      <motion.div
+                        layoutId="viewToggle"
+                        className="absolute inset-0 bg-white dark:bg-slate-700 rounded-full shadow-sm border border-slate-200/50 dark:border-slate-600 -z-10"
+                      />
+                    )}
                   </button>
                 </div>
               </div>
@@ -529,9 +557,11 @@ const TripMatching = () => {
 
                 {isFetchingMore && (
                   <div className="flex justify-center py-12">
-                    <div className="flex items-center gap-3 bg-white px-5 py-2.5 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                    <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-5 py-2.5 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 dark:border-slate-800">
                       <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                      <span className="text-sm font-medium text-slate-500">Loading more...</span>
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                        {t("tripMatching.loadingMore")}
+                      </span>
                     </div>
                   </div>
                 )}
@@ -542,64 +572,72 @@ const TripMatching = () => {
 
               <motion.div
                 key="mapView"
-                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.4, type: "spring", bounce: 0.2 }}
-                className="relative w-full h-[650px] bg-slate-100 rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-inner"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.4, type: "spring", bounce: 0.2 }}
+                className="relative w-full h-[650px] bg-slate-100 dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-inner transition-colors duration-300"
               >
-                {/* Abstract Map Grid Background */}
-                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#94a3b8_2px,transparent_2px)] [background-size:24px_24px]" />
+                {/* --- Abstract Map Grid Background (Dark Mode Optimized) --- */}
+                <div className="absolute inset-0 opacity-20 dark:opacity-10 bg-[radial-gradient(#94a3b8_2px,transparent_2px)] [background-size:24px_24px]" />
 
-                {/* Decorative Map elements to feel premium */}
-                <div className="absolute top-8 left-8 bg-white/80 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
-                  <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-primary" /> Destination Clusters
+                {/* --- Premium Map Info Overlay (RTL + Dark Mode) --- */}
+                <div className="absolute top-8 start-8 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm z-20">
+                  <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    {t("tripMatching.destinationClusters")}
                   </h4>
-                  <p className="text-xs text-slate-500">Abstract representation of trip locations.</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {t("tripMatching.abstractMap")}
+                  </p>
                 </div>
 
-                {/* Generating Map Pins */}
+                {/* --- Generating Map Pins with Smart RTL Positioning --- */}
                 {filteredAndSorted.map((trip, index) => {
                   const basePosition = getDestinationPosition(trip.destination || trip.id);
                   const baseTop = parseFloat(basePosition.top);
                   const baseLeft = parseFloat(basePosition.left);
 
                   const angle = (index * (360 / Math.min(filteredAndSorted.length, 10))) * (Math.PI / 180);
-
                   const radius = 6;
-
                   const jitterX = Math.cos(angle) * radius;
                   const jitterY = Math.sin(angle) * radius;
 
                   const finalTop = `${baseTop + jitterY}%`;
                   const finalLeft = `${baseLeft + jitterX}%`;
-
                   const isSelected = selectedMapTrip?.id === trip.id;
 
                   return (
                     <motion.button
                       key={trip.id}
-                      className="absolute w-12 h-12 -ml-6 -mt-12 flex flex-col items-center justify-end group z-10"
-                      style={{ top: finalTop, left: finalLeft }} // حقن مباشر في الـ style
+                      // Logical properties for margins (-ms-6 بدل -ml-6)
+                      className="absolute w-12 h-12 -ms-6 -mt-12 flex flex-col items-center justify-end group z-10"
+                      // 🔥 الذكاء هنا: بنعكس الاتجاه برمجياً بناءً على لغة الواجهة
+                      style={{
+                        top: finalTop,
+                        [language === 'ar' ? 'right' : 'left']: finalLeft
+                      }}
                       onClick={() => setSelectedMapTrip(trip)}
                       whileHover={{ scale: 1.15, zIndex: 40 }}
                       animate={{ zIndex: isSelected ? 50 : 10 }}
                     >
-                      {/* Pin Bubble */}
+                      {/* Pin Bubble (Dark Mode Ready) */}
                       <div className={`relative flex items-center justify-center transition-all duration-300 ${isSelected ? 'scale-110' : ''}`}>
-                        <MapPin className={`h-10 w-10 drop-shadow-md transition-colors duration-300 ${isSelected ? 'text-primary fill-primary/30' : 'text-slate-500 fill-slate-200 group-hover:text-primary group-hover:fill-primary/20'}`} />
-                        <div className="absolute top-2 w-full text-center text-[9px] font-bold text-gray-700">
+                        <MapPin className={`h-10 w-10 drop-shadow-md transition-colors duration-300 ${isSelected ? 'text-primary fill-primary/30' : 'text-slate-400 dark:text-slate-600 fill-slate-200 dark:fill-slate-800 group-hover:text-primary'}`} />
+                        <div className="absolute top-2 w-full text-center text-[9px] font-bold text-gray-700 dark:text-slate-200">
                           {Math.round(trip.matchPercentage)}%
                         </div>
                       </div>
 
-                      {/* Tooltip */}
-                      <span className={`absolute top-full mt-1 bg-slate-900 text-white text-[10px] font-medium px-2 py-1 rounded-md whitespace-nowrap transition-opacity shadow-lg ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                        {trip.destination || "Unknown"}
+                      {/* Tooltip (Dark Mode Ready) */}
+                      <span className={`absolute top-full mt-1 bg-slate-950 dark:bg-slate-800 text-white dark:text-slate-200 text-[10px] font-medium px-2 py-1 rounded-md whitespace-nowrap transition-opacity shadow-lg ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} z-50`}>
+                        {trip.destination || t("tripMatching.anywhere")}
                       </span>
                     </motion.button>
                   );
                 })}
 
-                {/* 🚀 Floating Overlay Card when a Pin is clicked */}
+                {/* Floating Overlay Card when a Pin is clicked */}
                 <AnimatePresence>
                   {selectedMapTrip && (
                     <motion.div
@@ -612,12 +650,12 @@ const TripMatching = () => {
                       <div className="relative">
                         <button
                           onClick={() => setSelectedMapTrip(null)}
-                          className="absolute -top-3 -right-3 z-50 bg-white border border-slate-200 text-slate-500 hover:text-slate-900 p-1.5 rounded-full shadow-lg transition-transform hover:scale-110"
+                          className="absolute -top-3 -right-3 z-50 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white p-1.5 rounded-full shadow-lg transition-transform hover:scale-110"
                         >
                           <X className="h-4 w-4" />
                         </button>
 
-                        <div className="shadow-2xl rounded-[1.5rem] bg-white ring-4 ring-white/50">
+                        <div className="shadow-2xl rounded-[1.5rem] bg-white dark:bg-slate-900 ring-white/10 dark:ring-slate-800/20 overflow-hidden">
                           <MatchResultCard trip={selectedMapTrip} index={0} onJoin={handleJoin} />
                         </div>
                       </div>
@@ -629,22 +667,27 @@ const TripMatching = () => {
             )}
           </AnimatePresence>
 
-          {/* Clean Empty State */}
+          {/* --- Clean Empty State --- */}
           {filteredAndSorted.length === 0 && !isFetchingMore && (
             <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               className="flex flex-col items-center justify-center py-32 text-center"
             >
-              <div className="bg-white p-6 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 mb-6">
-                <SlidersHorizontal className="h-8 w-8 text-slate-300" />
+              {/* Icon Container with Dark Mode support */}
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 dark:border-slate-800 mb-6">
+                <SlidersHorizontal className="h-8 w-8 text-slate-300 dark:text-slate-700" />
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-2">No matches found</h3>
-              <p className="text-slate-500 max-w-sm text-sm leading-relaxed">
-                We couldn't find a trip that fits these exact criteria. Try adjusting your preferences for better results.
+
+              {/* Title and Description linked to i18n */}
+              <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
+                {t("tripMatching.noMatches")}
+              </h3>
+              <p className="text-slate-500 dark:text-slate-400 max-w-sm text-sm leading-relaxed px-4">
+                {t("tripMatching.noMatchesDesc")}
               </p>
             </motion.div>
           )}
-
         </div>
       )}
     </div>

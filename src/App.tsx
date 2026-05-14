@@ -7,6 +7,8 @@ import { UserProvider } from "./context/UserContext";
 import "react-loading-skeleton/dist/skeleton.css";
 import { ThemeProvider } from "./context/ThemeContext";
 import { RealtimeProvider } from "./context/RealtimeContext";
+import { LanguageProvider } from "./context/LanguageContext"; 
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -14,20 +16,22 @@ const queryClient = new QueryClient({
     },
   },
 });
+
 export default function App() {
-  
   return (
-    <ThemeProvider>
-      <Toaster />
-      <Sonner />
-      <UserProvider>
-        <RealtimeProvider>
-          <QueryClientProvider client={queryClient}>
-            <Pages />
-            <CustomToaster />
-          </QueryClientProvider>
-        </RealtimeProvider>
-      </UserProvider>
-    </ThemeProvider>
+    <LanguageProvider>
+      <ThemeProvider>
+        <Toaster />
+        <Sonner />
+        <UserProvider>
+          <RealtimeProvider>
+            <QueryClientProvider client={queryClient}>
+              <Pages />
+              <CustomToaster />
+            </QueryClientProvider>
+          </RealtimeProvider>
+        </UserProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   );
 }
