@@ -293,7 +293,11 @@ const Explore = () => {
           <>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {allTrips.map((trip: any, i: number) => (
-                <div key={trip.id} className="animate-fade-in" style={{ animationDelay: `${(i % 10) * 50}ms` }}>
+                <div
+                  key={trip.id}
+                  className="animate-fade-in min-w-0"
+                  style={{ animationDelay: `${(i % 10) * 50}ms` }}
+                >
                   <TripCard trip={trip} onToggleFavorite={toggleFavorite} />
                 </div>
               ))}
