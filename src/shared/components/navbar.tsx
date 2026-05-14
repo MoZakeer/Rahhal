@@ -225,7 +225,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
               className="relative h-12 w-12 object-contain hidden dark:block"
             />
           </div>
-          <span className="text-2xl tracking-tighter ms-0 hidden sm:flex items-baseline">
+          {/* <span className="text-2xl tracking-tighter ms-0 hidden sm:flex items-baseline">
             {language === 'en' ? (
               <>
                 <span className="font-black text-slate-800 dark:text-slate-100">Rah</span>
@@ -238,9 +238,8 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
               </>
             )}
             <span className="text-blue-400 text-3xl font-black ms-0.5">.</span>
-          </span>
-          {/* Option 2 */}
-          {/* 
+          </span> */}
+          
           <span className="text-2xl tracking-tighter ms-0 hidden sm:flex items-baseline">
             {language === 'en' ? (
               <>
@@ -252,7 +251,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
             )}
             <span className="text-blue-400 text-3xl font-black ms-0.5">.</span>
           </span>
-          */}
+         
         </Link>
 
         {/* Center: Desktop Navigation */}

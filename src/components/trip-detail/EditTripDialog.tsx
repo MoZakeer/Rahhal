@@ -19,23 +19,10 @@ import { toast } from "sonner";
 import type { Trip } from "@/types/trip";
 import { updateTrip } from "@/lib/tripApi";
 import { ApiError } from "@/lib/api";
-
-const editSchema = z.object({
-  name: z.string().trim().min(3, { message: "Name must be at least 3 characters" }).max(100),
-  destination: z.string().trim().min(2, { message: "Destination is required" }).max(100),
-  description: z.string().trim().min(10, { message: "Description must be at least 10 characters" }).max(1000),
-  startDate: z.string().min(1, { message: "Start date is required" }),
-  endDate: z.string().min(1, { message: "End date is required" }),
-  travelers: z.coerce.number().int().min(1, { message: "At least 1 traveler" }).max(50),
-  budget: z.string().trim().max(50).optional(),
-}).refine((d) => new Date(d.endDate) >= new Date(d.startDate), {
-  message: "End date must be after start date",
-  path: ["endDate"],
-});
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Props {
   trip: Trip;
-  // Required to call backend Update — pass IDs from the API response when available.
   destinationId?: string;
   countryId?: string;
   travelPreferencesId?: string[];
@@ -55,6 +42,7 @@ const EditTripDialog = ({
   status = 1,
   onSaved,
 }: Props) => {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -74,8 +62,24 @@ const EditTripDialog = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Define schema inside to access translations
+    const editSchema = z
+      .object({
+        name: z.string().trim().min(3, { message: t("tripDetail.edit.nameMin") }).max(100),
+        destination: z.string().trim().min(2, { message: t("tripDetail.edit.destReq") }).max(100),
+        description: z.string().trim().min(10, { message: t("tripDetail.edit.descMin") }).max(1000),
+        startDate: z.string().min(1, { message: t("tripDetail.edit.startReq") }),
+        endDate: z.string().min(1, { message: t("tripDetail.edit.endReq") }),
+        travelers: z.coerce.number().int().min(1, { message: t("tripDetail.edit.travMin") }).max(50),
+        budget: z.string().trim().max(50).optional(),
+      })
+      .refine((d) => new Date(d.endDate) >= new Date(d.startDate), {
+        message: t("tripDetail.edit.dateOrder"),
+        path: ["endDate"],
+      });
+
     const result = editSchema.safeParse(form);
-    console.log(result)
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       result.error.issues.forEach((i) => {
@@ -93,8 +97,8 @@ const EditTripDialog = ({
         id: trip.id,
         name: result.data.name,
         description: result.data.description,
-        startDate: result.data.startDate.split('T')[0],
-        endDate: result.data.endDate.split('T')[0],
+        startDate: result.data.startDate.split("T")[0],
+        endDate: result.data.endDate.split("T")[0],
         numberOfTravelers: result.data.travelers,
         budget: budgetNum,
         gender,
@@ -104,11 +108,11 @@ const EditTripDialog = ({
         countryId: countryId ?? "",
         travelPreferencesId: travelPreferencesId ?? [],
       });
-      toast.success("Trip updated successfully");
+      toast.success(t("tripDetail.edit.success"));
       setOpen(false);
       onSaved?.();
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : "Failed to update trip";
+      const msg = err instanceof ApiError ? err.message : t("tripDetail.edit.failed");
       toast.error(msg);
     } finally {
       setSubmitting(false);
@@ -120,54 +124,90 @@ const EditTripDialog = ({
       <DialogTrigger asChild>
         <Button
           variant="ghost"
-          className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border max-lg:bg-transparent lg:justify-start lg:border lg:border-blue-100 lg:bg-blue-50/50 hover:lg:bg-blue-50 hover:text-blue-700"
-          title="Edit Trip"
+          className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border lg:border-blue-100 dark:lg:border-slate-800 lg:bg-blue-50/50 dark:lg:bg-slate-800/50 hover:lg:bg-blue-50 dark:hover:lg:bg-slate-800 hover:text-blue-700 dark:text-slate-200 dark:hover:text-blue-400"
+          title={t("tripDetail.edit.editTrip")}
         >
           <Pencil className="h-5 w-5 lg:h-4 lg:w-4" />
-          <span className="hidden lg:inline">Edit Trip</span>
+          <span className="hidden lg:inline">{t("tripDetail.edit.editTrip")}</span>
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] dark:bg-slate-900 dark:border-slate-800">
         <DialogHeader>
-          <DialogTitle className="font-display">Edit Trip</DialogTitle>
-          <DialogDescription>Update your trip details and save.</DialogDescription>
+          <DialogTitle className="font-display dark:text-slate-100">
+            {t("tripDetail.edit.editTrip")}
+          </DialogTitle>
+          <DialogDescription className="dark:text-slate-400">
+            {t("tripDetail.edit.updateDesc")}
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="t-name">Trip Name</Label>
-            <Input id="t-name" value={form.name} onChange={(e) => update("name", e.target.value)} maxLength={100} />
-            {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+            <Label htmlFor="t-name" className="dark:text-slate-200">{t("tripDetail.edit.tripName")}</Label>
+            <Input
+              id="t-name"
+              value={form.name}
+              onChange={(e) => update("name", e.target.value)}
+              maxLength={100}
+              // ضفنا dark:text-white هنا
+              className="dark:bg-slate-950 dark:border-slate-800 dark:text-white"
+            />
+            {errors.name && <p className="text-xs text-destructive dark:text-red-400">{errors.name}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="t-dest">Destination</Label>
-            <Input id="t-dest" value={form.destination} onChange={(e) => update("destination", e.target.value)} maxLength={100} />
-            {errors.destination && <p className="text-xs text-destructive">{errors.destination}</p>}
+            <Label htmlFor="t-dest" className="dark:text-slate-200">{t("tripDetail.edit.destination")}</Label>
+            <Input
+              id="t-dest"
+              value={form.destination}
+              onChange={(e) => update("destination", e.target.value)}
+              maxLength={100}
+              className="dark:bg-slate-950 dark:border-slate-800 dark:text-white"
+            />
+            {errors.destination && <p className="text-xs text-destructive dark:text-red-400">{errors.destination}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="t-desc">Description</Label>
-            <Textarea id="t-desc" rows={4} value={form.description} onChange={(e) => update("description", e.target.value)} maxLength={1000} />
-            {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
+            <Label htmlFor="t-desc" className="dark:text-slate-200">{t("tripDetail.edit.description")}</Label>
+            <Textarea
+              id="t-desc"
+              rows={4}
+              value={form.description}
+              onChange={(e) => update("description", e.target.value)}
+              maxLength={1000}
+              className="dark:bg-slate-950 dark:border-slate-800 dark:text-white"
+            />
+            {errors.description && <p className="text-xs text-destructive dark:text-red-400">{errors.description}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="t-start">Start Date</Label>
-              <Input id="t-start" type="date" value={form.startDate} onChange={(e) => update("startDate", e.target.value)} />
-              {errors.startDate && <p className="text-xs text-destructive">{errors.startDate}</p>}
+              <Label htmlFor="t-start" className="dark:text-slate-200">{t("tripDetail.edit.startDate")}</Label>
+              <Input
+                id="t-start"
+                type="date"
+                value={form.startDate}
+                onChange={(e) => update("startDate", e.target.value)}
+                className="dark:bg-slate-950 dark:border-slate-800 dark:text-white dark:[color-scheme:dark]"
+              />
+              {errors.startDate && <p className="text-xs text-destructive dark:text-red-400">{errors.startDate}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="t-end">End Date</Label>
-              <Input id="t-end" type="date" value={form.endDate} onChange={(e) => update("endDate", e.target.value)} />
-              {errors.endDate && <p className="text-xs text-destructive">{errors.endDate}</p>}
+              <Label htmlFor="t-end" className="dark:text-slate-200">{t("tripDetail.edit.endDate")}</Label>
+              <Input
+                id="t-end"
+                type="date"
+                value={form.endDate}
+                onChange={(e) => update("endDate", e.target.value)}
+                className="dark:bg-slate-950 dark:border-slate-800 dark:text-white dark:[color-scheme:dark]"
+              />
+              {errors.endDate && <p className="text-xs text-destructive dark:text-red-400">{errors.endDate}</p>}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="t-trav">Travelers</Label>
+              <Label htmlFor="t-trav" className="dark:text-slate-200">{t("tripDetail.edit.travelers")}</Label>
               <Input
                 id="t-trav"
                 type="number"
@@ -175,22 +215,32 @@ const EditTripDialog = ({
                 max={50}
                 value={form.travelers}
                 onChange={(e) => update("travelers", Number(e.target.value))}
+                className="dark:bg-slate-950 dark:border-slate-800 dark:text-white"
               />
-              {errors.travelers && <p className="text-xs text-destructive">{errors.travelers}</p>}
+              {errors.travelers && <p className="text-xs text-destructive dark:text-red-400">{errors.travelers}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="t-budget">Budget (optional)</Label>
-              <Input id="t-budget" placeholder="$2,000" value={form.budget} onChange={(e) => update("budget", e.target.value)} maxLength={50} />
+              <Label htmlFor="t-budget" className="dark:text-slate-200">{t("tripDetail.edit.budget")}</Label>
+              <Input
+                id="t-budget"
+                placeholder="$2,000"
+                value={form.budget}
+                onChange={(e) => update("budget", e.target.value)}
+                maxLength={50}
+                className="dark:bg-slate-950 dark:border-slate-800 dark:text-white"
+              />
             </div>
           </div>
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="outline">Cancel</Button>
+              <Button type="button" variant="outline" className="dark:bg-blue-600 dark:border-slate-700 dark:hover:bg-desructive dark:text-slate-200">
+                {t("tripDetail.edit.cancel")}
+              </Button>
             </DialogClose>
-            <Button type="submit" className="gap-2" disabled={submitting}>
+            <Button type="submit" className="gap-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white" disabled={submitting}>
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-              {submitting ? "Saving..." : "Save Changes"}
+              {submitting ? t("tripDetail.edit.saving") : t("tripDetail.edit.saveChanges")}
             </Button>
           </DialogFooter>
         </form>
