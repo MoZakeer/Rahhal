@@ -12,7 +12,7 @@ function ChatLayout() {
 
   useSidebarUpdates();
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] h-screen lg:grid-cols-[420px_1fr]">
+    <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] h-dvh lg:grid-cols-[420px_1fr]">
       <aside
         className={`border-r-2 border-gray-200 border-solid ${
           inChat ? "hidden md:block" : "block"
