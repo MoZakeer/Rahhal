@@ -36,7 +36,7 @@ function ChatHeader({
       date.getMonth() === yesterday.getMonth() &&
       date.getFullYear() === yesterday.getFullYear();
 
-    const time = date.toLocaleTimeString([], {
+    const time = date.toLocaleTimeString("en-GB", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
