@@ -166,6 +166,10 @@ const calculateMinimumBudget = (
   activityLevel: ActivityLevel,
   governorate: string,
 ) => {
+  if (!days || !activityLevel || !governorate || governorate.trim() === "") {
+    return 0;
+  }
+
   const activityMultiplier = ACTIVITY_MULTIPLIERS[activityLevel];
 
   let minimum = activityMultiplier * days * BASE_RATE;
@@ -312,9 +316,7 @@ const AiPlanner = () => {
     if (form.numberOfTravelers < 1)
       return toast.error("At least 1 traveler required");
     if (form.user_budget < minimumBudget) {
-      return toast.error(
-        `Minimum budget for this trip is ${minimumBudget} EGP`,
-      );
+      return toast.error(`Minimum budget for this trip is ${minimumBudget} $`);
     }
     if (!form.countryId)
       return toast.error("Please select a departure country");
@@ -413,6 +415,7 @@ const AiPlanner = () => {
           destinationId: form.destinationId,
           countryId: form.countryId,
           travelPreferencesId: form.travelPreferencesId,
+          description: form.description,
         };
         const saveRes = await fetch(
           "https://rahhal-api.runasp.net/Plan/SavePlan",
@@ -737,9 +740,11 @@ const AiPlanner = () => {
                         <AlertCircle className="w-3 h-3" /> Required
                       </span>
                     )}
-                    <span className="flex items-center gap-1 text-[10px] text-slate-500 font-bold uppercase italic">
-                      Minimum required: {minimumBudget}
-                    </span>
+                    {minimumBudget > 0 && form.user_budget < minimumBudget && (
+                      <span className="flex items-center gap-1 text-[10px] text-slate-500 font-bold uppercase italic">
+                        Minimum required: {minimumBudget} $
+                      </span>
+                    )}
                   </div>
                 </div>
               </CardContent>

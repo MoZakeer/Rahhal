@@ -16,15 +16,15 @@ const Hero: React.FC = () => {
       <div className="absolute inset-0 bg-black/50" />
       <div className="relative max-w-2xl ">
         <div className="relative max-w-2xl mt-20">
-       <div className="h-[1px] w-8 bg-[var(--color-primary-500)]" />
-    <span className="text-xs uppercase tracking-[0.3em] text-[var(--color-primary-400)] font-bold">
-      AI-Powered Travel Planning
-    </span>
-  </div>
+          <div className="h-[1px] w-8 bg-[var(--color-primary-500)]" />
+          <span className="text-xs uppercase tracking-[0.3em] text-[var(--color-primary-400)] font-bold">
+            AI-Powered Travel Planning
+          </span>
+        </div>
 
-  <h1 className="text-8xl md:text-[10rem] font-black tracking-tighter text-white leading-[0.8]">
-    Rahhal<span className="text-[var(--color-primary-500)]">.</span>
-  </h1>
+        <h1 className="text-8xl md:text-[10rem] font-black tracking-tighter text-white leading-[0.8]">
+          Rahhal<span className="text-[var(--color-primary-500)]">.</span>
+        </h1>
         <h2 className="mt-2 text-5xl font-bold leading-tight">
           Discover Your Next{" "}
           <span className="text-[var(--color-primary-500)]">Adventure</span>
