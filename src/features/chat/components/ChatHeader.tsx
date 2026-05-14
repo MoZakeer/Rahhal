@@ -54,7 +54,7 @@ function ChatHeader({
     );
   };
   return (
-    <div className="bg-gray-0 flex items-center gap-2 md:gap-4 border-b  border-solid border-gray-200 shadow-sm px-4 py-2 w-full sm:px-6 sm:py-3">
+    <div className="bg-gray-0 flex items-center gap-1 md:gap-4 border-b  border-solid border-gray-200 shadow-sm px-2 py-2 w-full sm:px-6 sm:py-3">
       <button
         className="rounded-full p-1 text-gray-800 hover:bg-gray-100 flex items-center justify-center md:hidden"
         onClick={() => navigate("/chat")}
