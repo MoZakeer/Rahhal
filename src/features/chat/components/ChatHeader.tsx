@@ -46,7 +46,7 @@ function ChatHeader({
     if (isYesterday) return `yesterday at ${time}`;
 
     return (
-      date.toLocaleDateString([], {
+      date.toLocaleDateString("en-GB", {
         day: "2-digit",
         month: "2-digit",
         year: "2-digit",
