@@ -31,8 +31,8 @@ export default function HomeFeed() {
     /* 1. تم تغيير bg-[#F8FAFC] لـ الكلاسات الخاصة بالـ Palette 
       عشان الخلفية تقلب كحلي غامق في الدارك مود 
     */
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20 transition-colors duration-500 relative">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20 transition-colors duration-500 relative overflow-x-hidden">
+      <div className="w-full max-w-[1440px] mx-auto px-0 sm:px-4 lg:px-6 ">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* العمود الشمال: رادار وبحث */}
           <motion.aside
@@ -44,9 +44,9 @@ export default function HomeFeed() {
 
           {/* العمود الأوسط: الـ Feed */}
           <motion.div
-            animate={{ marginTop: isNavVisible ? 80 : 20 }}
-            className="col-span-12 lg:col-span-6 flex flex-col gap-6 transition-all duration-300 relative"
-          >
+  animate={{ marginTop: isNavVisible ? 80 : 20 }}
+  className="col-span-12 lg:col-span-6 lg:col-start-4 flex flex-col gap-6 transition-all duration-300 relative min-w-0"
+>
             <FeedHeader onCreatePost={() => setIsModalOpen(true)} />
             <PostsList />
 

@@ -97,7 +97,7 @@ export function PostHeader({
 
   return (
     <div
-      className="flex items-center justify-between px-4 py-3 relative cursor-pointer"
+      className="flex items-center justify-between px-4 py-3 relative cursor-pointer "
       onClick={() => navigate(`/post/${id}`)}
     >
       <div className="flex items-center gap-3">
@@ -163,7 +163,7 @@ export function PostHeader({
             </div>
           )}
           {dropdownOpen && (
-            <div className="absolute top-full right-0 mt-2 w-36 bg-white dark:bg-slate-800 rounded-xl shadow-lg ring-1 ring-black/5 dark:ring-white/10 z-50 overflow-hidden translate-x-3 border border-transparent dark:border-slate-700">
+            <div className="absolute top-full right-0 mt-2 w-36 bg-white dark:bg-slate-800 rounded-xl shadow-lg ring-1 ring-black/5 dark:ring-white/10 z-50 overflow-hidden border border-transparent dark:border-slate-700">
               {isOwner ? (
                 <>
                   <button
@@ -259,7 +259,7 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full overflow-x-hidden">
       {/* Main Image (Swipe Area) */}
       <div
         className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden group select-none bg-slate-100 dark:bg-slate-900 cursor-pointer"
@@ -624,7 +624,7 @@ export default function PostCard({ post }: { post: Post }) {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm mb-6 max-w-xl mx-auto border border-transparent dark:border-slate-700/60 transition-colors">
+    <div className="w-full max-w-xl mx-auto bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm mb-6 border border-transparent dark:border-slate-700/60 transition-colors">
       <PostHeader
         id={post.id}
         userName={post.userName}
