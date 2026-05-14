@@ -63,27 +63,27 @@ export default function PostsList() {
   const posts = data?.pages.flatMap((page) => page.data?.items ?? []) ?? [];
 
   return (
-  <div className="max-w-3xl mx-auto w-full space-y-8 px-4">
-    <AnimatePresence mode="popLayout">
-      {posts.map((post, index) => (
-        <motion.div
-          key={post.id}
-          ref={index === posts.length - 1 ? lastPostRef : null}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <PostCard post={post} />
-        </motion.div>
-      ))}
-    </AnimatePresence>
+     <div className="max-w-3xl mx-auto w-full space-y-8 px-4">
+      <AnimatePresence mode="popLayout">
+        {posts.map((post, index) => (
+          <motion.div
+            key={post.id}
+            ref={index === posts.length - 1 ? lastPostRef : null}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <PostCard post={post} />
+          </motion.div>
+        ))}
+      </AnimatePresence>
 
-    {isFetchingNextPage && (
-      <div className="space-y-8 dark:opacity-60 transition-opacity">
-        <Skeleton height={300} borderRadius={10} />
-      </div>
-    )}
-  </div>
-);
+      {isFetchingNextPage && (
+        <div className="space-y-8 dark:opacity-60 transition-opacity">
+          <Skeleton height={300} borderRadius={10} />
+        </div>
+      )}
+    </div>
+  );
 }
