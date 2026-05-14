@@ -6,7 +6,7 @@ type Props = {
 
 export default function FeedHeader({ onCreatePost }: Props) {
   return (
-    <div className="flex flex-col gap-6 w-full">
+    <div className="flex flex-col gap-6 w-full px-3 sm:px-4">
       {/* Create Post Trigger */}
       <div
         onClick={onCreatePost}
@@ -16,7 +16,7 @@ export default function FeedHeader({ onCreatePost }: Props) {
           <PenSquare className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400 group-hover:text-white dark:group-hover:text-white transition-colors" />
         </div>
 
-        <div className="flex-1 bg-slate-50 dark:bg-slate-900/50 group-hover:bg-white dark:group-hover:bg-slate-900 transition-colors rounded-2xl py-2 sm:py-3 px-3 sm:px-5 text-slate-400 dark:text-slate-500 text-xs sm:text-sm font-medium border border-transparent group-hover:border-slate-100 dark:group-hover:border-slate-700">
+        <div className="flex-1 bg-slate-50 dark:bg-slate-900/50 group-hover:bg-white dark:group-hover:bg-slate-900 transition-colors rounded-2xl py-2 sm:py-3 px-3 sm:px-5 text-slate-400 dark:text-slate-500 text-xs sm:text-sm font-medium border border-transparent group-hover:border-slate-100 dark:group-hover:border-slate-700 min-w-0">
           <span className="sm:hidden">Share adventure...</span>
 
           <span className="hidden sm:inline">
