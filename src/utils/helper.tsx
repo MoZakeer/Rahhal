@@ -65,7 +65,7 @@ export function formatLastMessageDate(dateString: string) {
     date.getFullYear() === now.getFullYear();
 
   if (isToday) {
-    return date.toLocaleTimeString("en-GB", {
+    return date.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
@@ -88,12 +88,12 @@ export function formatLastMessageDate(dateString: string) {
   const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
   if (diffDays < 7) {
-    return date.toLocaleDateString([], {
+    return date.toLocaleDateString("en-US", {
       weekday: "long",
     });
   }
 
-  return date.toLocaleDateString("en-GB", {
+  return date.toLocaleDateString("en-US", {
     day: "2-digit",
     month: "2-digit",
     year:"numeric",
