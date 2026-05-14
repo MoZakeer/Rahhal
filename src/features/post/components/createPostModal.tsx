@@ -94,7 +94,7 @@ export default function CreatePostModal({ isOpen, onClose }: CreatePostModalProp
                 <button
                   onClick={handlePost}
                   disabled={isPosting || (!caption.trim() && !media)}
-                  className="flex items-center gap-2 bg-indigo-600 dark:bg-indigo-500 text-white px-5 py-2.5 rounded-full font-bold shadow-md shadow-indigo-200 dark:shadow-indigo-900/20 hover:bg-indigo-700 dark:hover:bg-indigo-600 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed group active:scale-95 cursor-pointer"
+                 className="flex items-center gap-2 bg-blue-700 dark:bg-blue-700 border border-blue-700 dark:border-blue-900 text-white px-5 py-2.5 rounded-full font-bold shadow-md hover:bg-blue-800 dark:hover:bg-blue-900 shadow-blue-200 dark:shadow-blue-900/20 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed group active:scale-95 cursor-pointer"
                 >
                   {isPosting ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
