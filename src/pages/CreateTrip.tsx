@@ -78,7 +78,7 @@ const CreateTrip = () => {
     destinationId: "",
     startDate: "",
     endDate: "",
-    travelers: 1,
+    travelers: "" as number | "",
     description: "",
     budget: "",
     gender: 0,
@@ -403,7 +403,7 @@ const CreateTrip = () => {
                 value={form.startDate}
                 onChange={(e) => update("startDate", e.target.value)}
                 disabled={isSubmitting}
-                className="rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-white dark:[color-scheme:dark]"
+                className="rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-white dark:color-scheme"
               />
 
               {errors.startDate && (
@@ -426,7 +426,7 @@ const CreateTrip = () => {
                 value={form.endDate}
                 onChange={(e) => update("endDate", e.target.value)}
                 disabled={isSubmitting}
-                className="rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-white dark:[color-scheme:dark]"
+                className="rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-white dark:color-scheme"
               />
 
               {errors.endDate && (
@@ -448,12 +448,20 @@ const CreateTrip = () => {
                 min={1}
                 max={100}
                 value={form.travelers}
-                onChange={(e) =>
+                placeholder="e.g. 5"
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  if (value === "") {
+                    update("travelers", "");
+                    return;
+                  }
+
                   update(
                     "travelers",
-                    Math.min(100, Math.max(1, Number(e.target.value) || 1)),
-                  )
-                }
+                    Math.min(100, Math.max(1, Number(value))),
+                  );
+                }}
                 disabled={isSubmitting}
                 className="rounded-xl dark:bg-slate-700 dark:border-slate-700 dark:text-white"
               />
