@@ -11,9 +11,8 @@ import { useTheme } from "@/context/ThemeContext";
 export default function FloatingSidebar() {
    const [isOpen, setIsOpen] = useState(false);
    const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
-   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-   // const tooltipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+   const longPressTimer = useRef<number | null>(null);
+   const timeoutRef = useRef<number | null>(null);
 
 
    const location = useLocation();
@@ -31,7 +30,7 @@ export default function FloatingSidebar() {
    ];
 
    const startLongPress = () => {
-      longPressTimer.current = setTimeout(() => setIsOpen(true), 400);
+      longPressTimer.current = window.setTimeout(() => setIsOpen(true), 400);
    };
 
    const cancelLongPress = () => {
@@ -40,7 +39,7 @@ export default function FloatingSidebar() {
 
 
    const handleTouchStart = (label: string) => {
-      timeoutRef.current = setTimeout(() => {
+      timeoutRef.current = window.setTimeout(() => {
          setActiveTooltip(label);
       }, 500);
    };
@@ -97,7 +96,7 @@ export default function FloatingSidebar() {
                      initial={{ x: isRTL ? -100 : 100 }}
                      animate={{ x: 0 }}
                      exit={{ x: isRTL ? -100 : 100 }}
-                     className={`fixed top-[30%] w-12 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-2xl py-4 flex flex-col items-center gap-4 z-[60] ${isRTL ? "left-0 rounded-r-2xl" : "right-0 rounded-l-2xl"
+                     className={`fixed top-[20%] w-12 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-2xl py-4 flex flex-col items-center gap-4 z-[60] ${isRTL ? "left-0 rounded-r-2xl" : "right-0 rounded-l-2xl"
                         }`}
                   >
                      {menuItems.map((item) => (
