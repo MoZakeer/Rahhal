@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { getTripById } from "@/lib/tripApi";
 import { useLanguage } from "@/context/LanguageContext";
+import { cn } from "@/lib/utils";
 
 export interface ApiTrip {
   id: string;
@@ -187,15 +188,26 @@ const TripCard = ({ trip, onToggleFavorite }: TripCardProps) => {
 
             {/* Tags */}
             <div className="mt-auto md:mt-4 flex flex-wrap gap-2 mb-5 md:mb-0">
-              {trip.travelPreference?.map((pref) => (
-                <Badge
-                  key={pref.id}
-                  variant="secondary"
-                  className="bg-slate-50 text-slate-600 border dark:bg-slate-900 dark:text-blue-300 dark:border-slate-700 border-slate-100 text-[11px] md:text-xs px-2.5 py-1 rounded-full font-medium"
-                >
-                  {pref.name}
-                </Badge>
-              ))}
+              {trip.travelPreference?.map((pref) => {
+                const prefKey = pref.name?.toLowerCase().trim() || "";
+                const translatedName = t(`categories.${prefKey}`);
+                
+                const displayName = translatedName !== `categories.${prefKey}` ? translatedName : pref.name;
+
+                return (
+                  <Badge
+                    key={pref.id}
+                    variant="secondary"
+                    className={cn(
+                      "text-[11px] md:text-xs px-2.5 py-1 rounded-full font-medium border transition-colors",
+                      "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100",
+                      "dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700 backdrop-blur-sm"
+                    )}
+                  >
+                    {displayName}
+                  </Badge>
+                );
+              })}
             </div>
 
             {/* Footer */}
