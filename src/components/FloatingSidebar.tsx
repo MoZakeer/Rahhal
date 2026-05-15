@@ -5,14 +5,14 @@ import {
    Compass, MessageCircle, GitCompareArrows,
    Plus, Sparkles, Plane, Sun, Moon, Languages
 } from "lucide-react";
-import { useLanguage } from "../context/LanguageContext";
-import { useTheme } from "../context/ThemeContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function FloatingSidebar() {
    const [isOpen, setIsOpen] = useState(false);
    const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
-   const longPressTimer = useRef<number | any>(null);
-   const timeoutRef = useRef<number | any>(null);
+   const longPressTimer = useRef<number | undefined>(undefined);
+   const timeoutRef = useRef<number | undefined>(undefined);
 
 
    const location = useLocation();
@@ -33,9 +33,11 @@ export default function FloatingSidebar() {
       if (longPressTimer.current) window.clearTimeout(longPressTimer.current);
       longPressTimer.current = window.setTimeout(() => setIsOpen(true), 400) as any;
    };
+
    const cancelLongPress = () => {
       if (longPressTimer.current) clearTimeout(longPressTimer.current);
    };
+
 
    const handleTouchStart = (label: string) => {
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
