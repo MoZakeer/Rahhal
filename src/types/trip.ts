@@ -84,12 +84,13 @@ export interface EventItem {
 export type JoinRequestStatus = "pending" | "accepted" | "rejected";
 
 export interface JoinRequest {
-  id: string;
+  id: string;          
+  userId: string;   
   userName: string;
   userAvatar: string;
-  message: string;
+  message?: string;
   requestedAt: string;
-  status: JoinRequestStatus;
+  status: "pending" | "accepted" | "rejected";
 }
 
 export interface Trip {

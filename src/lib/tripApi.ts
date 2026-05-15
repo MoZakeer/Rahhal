@@ -466,6 +466,7 @@ export const mapApiTripToTrip = (api: ApiTrip): Trip => {
 };
 
 export const mapPendingToJoinRequest = (p: ApiPendingRequest): JoinRequest => {
+  // بنعمل fallback للحروف الأولى في حالة إن مسار الصورة مكنش موجود
   const initials = (p.requesterName || "?")
     .split(/\s+/)
     .map((s) => s[0])
@@ -473,10 +474,14 @@ export const mapPendingToJoinRequest = (p: ApiPendingRequest): JoinRequest => {
     .slice(0, 2)
     .join("")
     .toUpperCase();
+
   return {
     id: p.requestId,
+    // هنا بناخد الـ requesterId من الباك إند، ونسميه userId للـ Frontend
+    userId: p.requesterId, 
     userName: p.requesterName,
-    userAvatar: initials,
+    // هنا بناخد الصورة، ولو مفيش بنحط الـ initials
+    userAvatar: p.requesterProfilePicture || initials, 
     message: "",
     requestedAt: p.createdDate,
     status: "pending",
