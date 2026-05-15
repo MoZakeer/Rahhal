@@ -47,11 +47,12 @@ export const en = {
       tripNotFound: "Trip not found",
       backToExplore: "Back to Explore",
       status: {
-         upcoming: "Upcoming",
-         ongoing: "Ongoing",
+         planned: "Planned",
          completed: "Completed",
+         past: "Past",
+         upcoming: "Upcoming",
       },
-      budgetLabel: "USD", // أو "$"
+      budgetLabel: "$",
       imageUpdated: "Trip image updated successfully",
       imageSizeError: "Image size should be less than 5MB",
       imageUpdateFailed: "Failed to update image",
@@ -189,5 +190,16 @@ export const en = {
       join: "Join",
 
    },
+   categories: {
+  all: "All",
+  adventure: "Adventure",
+  luxury: "Luxury",
+  beach: "Beach",
+  nightlife: "Nightlife",
+  shopping: "Shopping",
+  nature: "Nature",
+  culture: "Culture",
+  foodie: "Foodie",
+},
 
 };

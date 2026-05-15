@@ -78,6 +78,7 @@ import { updateTripImage } from "@/lib/tripApi";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useFavicon } from "@/hooks/useFavicon";
 import { useLanguage } from "@/context/LanguageContext";
+import { cn } from "@/lib/utils";
 
 interface SafeImageProps {
   src?: string;
@@ -478,10 +479,15 @@ const TripDetail = () => {
                 {apiTrip.tripStatus && (
                   <Badge
                     variant="outline"
-                    className="border-card/40 bg-card/60 dark:border-slate-700 dark:bg-slate-800/60 text-card-foreground dark:text-slate-200 backdrop-blur-sm"
+                    className={cn(
+                      "backdrop-blur-sm px-3 py-1 font-bold transition-all",
+                      apiTrip.tripStatus.toLowerCase() === "completed" && "border-green-200 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-900/20 dark:text-green-400",
+                      apiTrip.tripStatus.toLowerCase() === "planned" && "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/30 dark:bg-amber-900/20 dark:text-amber-400",
+                      apiTrip.tripStatus.toLowerCase() === "upcoming" && "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/30 dark:bg-blue-900/20 dark:text-blue-400",
+                      apiTrip.tripStatus.toLowerCase() === "past" && "border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-800/40 dark:text-slate-400"
+                    )}
                   >
-                    {/* Translate API status dynamically */}
-                    {t(`tripDetail.status.${apiTrip.tripStatus.toLowerCase()}`) || apiTrip.tripStatus}
+                    {t(`tripDetail.status.${apiTrip.tripStatus.toLowerCase()}`)}
                   </Badge>
                 )}
               </div>
@@ -528,13 +534,28 @@ const TripDetail = () => {
               <p className="mt-2 leading-relaxed text-muted-foreground dark:text-slate-400">
                 {trip.description || t("tripDetail.noDescription")}
               </p>
-              {trip.tags.length > 0 && (
+              {trip.tags && trip.tags.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {trip.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="dark:bg-slate-800 dark:text-slate-300">
-                      {tag}
-                    </Badge>
-                  ))}
+                  {trip.tags.map((tag) => {
+                    const tagKey = tag.toLowerCase();
+
+                    const translatedTag = t(`categories.${tagKey}`);
+                    const displayTag = translatedTag !== `categories.${tagKey}` ? translatedTag : tag;
+
+                    return (
+                      <Badge
+                        key={tag}
+                        variant="secondary"
+                        className={cn(
+                          "px-3 py-1 text-xs font-semibold transition-colors",
+                          "bg-slate-100 text-slate-700 hover:bg-slate-200 border-transparent",
+                          "dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-700 dark:border-slate-700 backdrop-blur-sm"
+                        )}
+                      >
+                        {displayTag}
+                      </Badge>
+                    );
+                  })}
                 </div>
               )}
             </div>

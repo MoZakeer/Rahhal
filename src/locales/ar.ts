@@ -47,9 +47,10 @@ export const ar = {
       tripNotFound: "لم يتم العثور على الرحلة",
       backToExplore: "العودة للاستكشاف",
       status: {
-         upcoming: "قادمة",
-         ongoing: "جارية",
+         planned: "مخطط لها",
          completed: "مكتملة",
+         past: "سابقة",
+         upcoming: "قادمة",
       },
       budgetLabel: "دولار",
       imageUpdated: "تم تحديث صورة الرحلة بنجاح",
@@ -187,6 +188,17 @@ export const ar = {
       joined: "تم الانضمام",
       pending: "قيد الانتظار",
       join: "انضمام",
+   },
+   categories: {
+      all: "الكل",
+      adventure: "مغامرة",
+      luxury: "فخامة",
+      beach: "شاطئ",
+      nightlife: "حياة ليلية",
+      shopping: "تسوق",
+      nature: "طبيعة",
+      culture: "ثقافة",
+      foodie: "طعام",
    },
 
 };

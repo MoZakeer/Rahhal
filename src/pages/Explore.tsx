@@ -13,6 +13,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useFavicon } from "@/hooks/useFavicon";
 
 import { useLanguage } from "@/context/LanguageContext";
+import { cn } from "@/lib/utils";
 
 // ==========================================
 // API Fetcher Functions (For React Query)
@@ -60,7 +61,6 @@ const Explore = () => {
   const queryClient = useQueryClient();
   useFavicon("/compass.png");
 
-  // استخراج دالة الترجمة
   const { t } = useLanguage();
 
   // --- 1. URL Search Params (State Preservation) ---
@@ -212,7 +212,6 @@ const Explore = () => {
     <div className="min-h-screen relative pt-[140px] lg:pt-[150px]">
 
       {/* --- Sticky Top Header (Search & Filters) --- */}
-      {/* استبدلنا left-0 right-0 بـ start-0 end-0 */}
       <div
         className={`fixed top-16 start-0 end-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${isHeaderVisible ? "translate-y-0" : "-translate-y-[200px]"
           }`}
@@ -222,13 +221,11 @@ const Explore = () => {
             {/* Search Input Area */}
             <div className="flex items-center gap-3">
               <div className="relative flex-1">
-                {/* استبدلنا left-3 بـ start-3 */}
                 <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
                 <Input
                   placeholder={t("explore.searchPlaceholder")}
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  // استبدلنا pl-10 بـ ps-10
                   className="ps-10 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700"
                 />
               </div>
@@ -238,37 +235,52 @@ const Explore = () => {
             </div>
 
             {/* Horizontal Scrollable Filters */}
-            <div className="flex overflow-x-auto pb-1 gap-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <div
+              className="flex overflow-x-auto pb-2 pt-1 gap-2.5 scrollbar-none [&::-webkit-scrollbar]:hidden"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
               <Badge
                 variant={urlFilter === "ALL" ? "default" : "outline"}
-                className={`cursor-pointer transition-colors whitespace-nowrap px-4 py-1.5 ${urlFilter === "ALL"
-                  ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-                  : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-                  }`}
+                className={cn(
+                  "cursor-pointer transition-all duration-300 whitespace-nowrap px-5 py-1.5 text-sm font-semibold rounded-full",
+                  urlFilter === "ALL"
+                    ? "bg-primary text-primary-foreground border-primary shadow-sm ring-2 ring-primary/20 dark:ring-primary/40 scale-[1.02]"
+                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700"
+                )}
                 onClick={() => handleFilterChange("ALL")}
               >
                 {t("explore.all")}
               </Badge>
 
-              {preferences.map((pref: any) => (
-                <Badge
-                  key={pref.id}
-                  variant={urlFilter === pref.id ? "default" : "outline"}
-                  className={`cursor-pointer transition-colors whitespace-nowrap px-4 py-1.5 ${urlFilter === pref.id
-                    ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-                    }`}
-                  onClick={() => handleFilterChange(pref.id)}
-                >
-                  {pref.name}
-                </Badge>
-              ))}
+              {preferences.map((pref: any) => {
+                const prefKey = pref.name?.toLowerCase().trim() || "";
+                const translatedName = t(`categories.${prefKey}`);
+
+                const displayName = translatedName !== `categories.${prefKey}` ? translatedName : pref.name;
+
+                const isActive = urlFilter === pref.id;
+
+                return (
+                  <Badge
+                    key={pref.id}
+                    variant={isActive ? "default" : "outline"}
+                    className={cn(
+                      "cursor-pointer transition-all duration-300 whitespace-nowrap px-5 py-1.5 text-sm font-semibold rounded-full",
+                      isActive
+                        ? "bg-primary text-primary-foreground border-primary shadow-sm ring-2 ring-primary/20 dark:ring-primary/40 scale-[1.02]"
+                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700"
+                    )}
+                    onClick={() => handleFilterChange(pref.id)}
+                  >
+                    {displayName}
+                  </Badge>
+                );
+              })}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Hero Section */}
       {/* Hero Section */}
       <section className="relative h-[280px] lg:h-[340px] overflow-hidden mx-2 sm:mx-4 rounded-3xl shadow-sm">
         <img src={heroImage} alt="Travel" className="h-full w-full object-cover" />
