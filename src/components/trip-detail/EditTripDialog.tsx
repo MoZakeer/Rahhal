@@ -63,15 +63,14 @@ const EditTripDialog = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Define schema inside to access translations
     const editSchema = z
       .object({
         name: z.string().trim().min(3, { message: t("tripDetail.edit.nameMin") }).max(100),
         destination: z.string().trim().min(2, { message: t("tripDetail.edit.destReq") }).max(100),
-        description: z.string().trim().min(10, { message: t("tripDetail.edit.descMin") }).max(1000),
+        description: z.string().trim().max(1000).optional().or(z.string().length(0)),
         startDate: z.string().min(1, { message: t("tripDetail.edit.startReq") }),
         endDate: z.string().min(1, { message: t("tripDetail.edit.endReq") }),
-        travelers: z.coerce.number().int().min(1, { message: t("tripDetail.edit.travMin") }).max(50),
+        travelers: z.coerce.number().int().max(1000), 
         budget: z.string().trim().max(50).optional(),
       })
       .refine((d) => new Date(d.endDate) >= new Date(d.startDate), {
@@ -96,7 +95,7 @@ const EditTripDialog = ({
       await updateTrip({
         id: trip.id,
         name: result.data.name,
-        description: result.data.description,
+        description: result.data.description || "", 
         startDate: result.data.startDate.split("T")[0],
         endDate: result.data.endDate.split("T")[0],
         numberOfTravelers: result.data.travelers,
@@ -148,8 +147,6 @@ const EditTripDialog = ({
               id="t-name"
               value={form.name}
               onChange={(e) => update("name", e.target.value)}
-              maxLength={100}
-              // ضفنا dark:text-white هنا
               className="dark:bg-slate-950 dark:border-slate-800 dark:text-white"
             />
             {errors.name && <p className="text-xs text-destructive dark:text-red-400">{errors.name}</p>}
@@ -161,7 +158,6 @@ const EditTripDialog = ({
               id="t-dest"
               value={form.destination}
               onChange={(e) => update("destination", e.target.value)}
-              maxLength={100}
               className="dark:bg-slate-950 dark:border-slate-800 dark:text-white"
             />
             {errors.destination && <p className="text-xs text-destructive dark:text-red-400">{errors.destination}</p>}
@@ -211,8 +207,6 @@ const EditTripDialog = ({
               <Input
                 id="t-trav"
                 type="number"
-                min={1}
-                max={50}
                 value={form.travelers}
                 onChange={(e) => update("travelers", Number(e.target.value))}
                 className="dark:bg-slate-950 dark:border-slate-800 dark:text-white"
