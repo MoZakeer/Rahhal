@@ -11,9 +11,9 @@ import { useTheme } from "@/context/ThemeContext";
 export default function FloatingSidebar() {
    const [isOpen, setIsOpen] = useState(false);
    const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
-   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
-   // const tooltipTimer = useRef<NodeJS.Timeout | null>(null);
-   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+   // const tooltipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 
    const location = useLocation();
