@@ -257,6 +257,21 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
     isDragging.current = false;
     startX.current = null;
   };
+  const handleMove = (x: number) => {
+    if (!isDragging.current || startX.current === null) return;
+
+    const diff = startX.current - x;
+
+    if (diff > 50) {
+      next();
+      isDragging.current = false;
+    }
+
+    if (diff < -50) {
+      prev();
+      isDragging.current = false;
+    }
+  };
 
   return (
     <div className="w-full overflow-x-hidden">
@@ -267,6 +282,7 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
         onMouseUp={handleEnd}
         onMouseLeave={handleEnd}
         onTouchStart={(e) => handleStart(e.touches[0].clientX)}
+        onTouchMove={(e) => handleMove(e.touches[0].clientX)}
         onTouchEnd={handleEnd}
       >
         {media.length > 1 && current !== 0 && (
