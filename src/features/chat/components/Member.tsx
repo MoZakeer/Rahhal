@@ -1,19 +1,21 @@
 import Avatar from "./Avatar";
-import { HiOutlineCheck, HiOutlineXMark } from "react-icons/hi2";
 import type { Participant } from "../types/chatDetails.type";
 import { conversationImage } from "../../../utils/helper";
 import { useRemoveParticipant } from "../hooks/useRemoveParticipant";
 import { Link, useParams } from "react-router";
 import { useUser } from "../../../context/UserContext";
+import { useState } from "react";
+import ConfirmDialog from "./ConfirmDialog";
 
 type Props = {
-  type?: "request" | "member";
   participant: Participant;
   isAdmin: boolean;
 };
 
-function Member({ type = "member", participant, isAdmin }: Props) {
+function Member({ participant, isAdmin }: Props) {
   const { conversationId } = useParams<{ conversationId: string }>();
+
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const {
     user: { userId },
@@ -23,6 +25,11 @@ function Member({ type = "member", participant, isAdmin }: Props) {
     profileId: participant?.profileId,
     conversationId: conversationId || "",
   });
+
+  const handleRemoveParticipant = async () => {
+    await removeParticipant();
+    setIsOpen(false);
+  };
 
   return (
     <li className="flex items-center justify-between py-2">
@@ -61,29 +68,32 @@ function Member({ type = "member", participant, isAdmin }: Props) {
       {/* RIGHT SIDE */}
       <div className="flex items-center gap-2 ml-3">
         {isAdmin && userId !== participant?.profileId && (
-          <>
-            {type === "member" ? (
-              <button
-                className="text-xs text-red-500 hover:text-red-600 transition cursor-pointer"
-                disabled={isPending}
-                onClick={() => removeParticipant()}
-              >
-                Remove
-              </button>
-            ) : (
-              <>
-                <button className="p-1 rounded-md text-green-600 hover:bg-green-50 transition cursor-pointer">
-                  <HiOutlineCheck className="w-4 h-4" />
-                </button>
-
-                <button className="p-1 rounded-md text-red-600 hover:bg-red-50 transition cursor-pointer">
-                  <HiOutlineXMark className="w-4 h-4" />
-                </button>
-              </>
-            )}
-          </>
+          <button
+            className="text-xs text-red-500 hover:text-red-600 transition cursor-pointer disabled:opacity-50"
+            disabled={isPending}
+            onClick={() => setIsOpen(true)}
+          >
+            Remove
+          </button>
         )}
       </div>
+
+      <ConfirmDialog
+        title="Remove Participant"
+        subTitle={
+          <>
+            Are you sure you want to remove{" "}
+            <span className="font-semibold text-gray-700">
+              {participant.userName}
+            </span>{" "}
+            from the group?
+          </>
+        }
+        isPending={isPending}
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        onConfirm={handleRemoveParticipant}
+      />
     </li>
   );
 }
