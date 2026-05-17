@@ -54,6 +54,7 @@ import { isTokenValid } from "../utils/auth";
 import NotificationsPage from "../features/Notifications/NotificationsPage.tsx";
 import NotFound from "./NotFound/notfound";
 import { NotificationProvider } from "@/context/NotificationProvider.tsx";
+import AIChatBot from "@/pages/AIChatBot.tsx";
 
 // React Query
 const queryClient = new QueryClient();
@@ -115,6 +116,8 @@ const Pages = () => {
                 )
               }
             >
+              {/* Ai chat bot */}
+              <Route path="/AIChatBot" element={<AIChatBot />} />
               {/* Profile */}
               <Route path="/profile/:profileId" element={<ProfilePage />} />
               <Route
