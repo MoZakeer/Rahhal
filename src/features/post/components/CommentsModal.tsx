@@ -430,7 +430,8 @@ export function CommentsModal({
           <div className="flex items-start gap-2 flex-wrap">
             <div className="flex-1 min-w-0">
               {editingId === id ? (
-                <div className="flex gap-2 flex-wrap w-full">
+                <div className="flex flex-col sm:flex-row gap-2 w-full pb-2">
+                  {" "}
                   <textarea
                     rows={1}
                     className="flex-1 min-w-0 rounded-2xl border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none"
@@ -451,18 +452,20 @@ export function CommentsModal({
                       }
                     }}
                   />
-                  <button
-                    onClick={() => handleEdit(id)}
-                    className="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full bg-slate-900 dark:bg-blue-600 text-white"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => setEditingId(null)}
-                    className="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300"
-                  >
-                    Cancel
-                  </button>
+                  <div className="flex justify-end gap-2 ">
+                    <button
+                      onClick={() => handleEdit(id)}
+                      className="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full bg-slate-900 dark:bg-blue-600 text-white"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditingId(null)}
+                      className="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="rounded-2xl">
@@ -561,22 +564,26 @@ export function CommentsModal({
                   }`}
                 />
               </button>
-              <span
-                onClick={() =>
-                  setLikesModal({
-                    open: true,
-                    id: isReply
-                      ? (comment as ReplyItem).replyId
-                      : (comment as CommentItem).commentId,
-                    type: "comment",
-                  })
-                }
-                className="text-xs font-medium cursor-pointer hover:text-slate-700 dark:hover:text-slate-200"
-              >
-                {isReply
-                  ? (comment as ReplyItem).likesCount
-                  : (comment as CommentItem).likesCount}
-              </span>
+              {(isReply
+                ? (comment as ReplyItem).likesCount
+                : (comment as CommentItem).likesCount) > 0 && (
+                <span
+                  onClick={() =>
+                    setLikesModal({
+                      open: true,
+                      id: isReply
+                        ? (comment as ReplyItem).replyId
+                        : (comment as CommentItem).commentId,
+                      type: "comment",
+                    })
+                  }
+                  className="text-xs font-medium cursor-pointer hover:text-slate-700 dark:hover:text-slate-200"
+                >
+                  {isReply
+                    ? (comment as ReplyItem).likesCount
+                    : (comment as CommentItem).likesCount}
+                </span>
+              )}
             </div>
 
             {likesModal.open && likesModal.id && (
