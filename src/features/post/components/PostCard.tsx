@@ -301,6 +301,7 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
             className="w-full h-full object-cover"
             controls
             playsInline
+            autoPlay={false}
           />
         ) : (
           <img
