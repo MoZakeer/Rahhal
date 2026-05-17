@@ -1,9 +1,10 @@
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
+import type { ReactNode } from "react";
 
 interface ConfirmDialogProps {
   open: boolean;
   title: string;
-  subTitle: string;
+  subTitle: string|ReactNode;
   isPending?: boolean;
   confirmText?: string;
   cancelText?: string;
