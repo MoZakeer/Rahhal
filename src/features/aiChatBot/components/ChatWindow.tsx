@@ -69,7 +69,7 @@ const ChatWindow = ({ className, showHeader = true }: Props) => {
   return (
     <div className={`flex h-full flex-col bg-card ${className ?? ""}`}>
       {showHeader && (
-        <div className="flex items-center justify-between border-b px-4 py-3">
+        <div className="flex items-center justify-between border-b border-secondary/70 px-4 py-3">
           <div className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary/15">
               <Sparkles className="h-4 w-4 text-secondary" />
@@ -110,7 +110,7 @@ const ChatWindow = ({ className, showHeader = true }: Props) => {
         </div>
       </ScrollArea>
 
-      <form onSubmit={handleSubmit} className="border-t p-3">
+      <form onSubmit={handleSubmit} className="border-t  border-secondary/70 p-3">
         <div className="flex items-end gap-2">
           <Textarea
             ref={textareaRef}
@@ -124,7 +124,7 @@ const ChatWindow = ({ className, showHeader = true }: Props) => {
             }}
             placeholder="Ask anything about your trip…"
             rows={1}
-            className="max-h-32 min-h-[40px] resize-none"
+            className="max-h-32 min-h-10 resize-none"
             disabled={loading}
           />
           <Button type="submit" size="icon" disabled={loading || !input.trim()}>
