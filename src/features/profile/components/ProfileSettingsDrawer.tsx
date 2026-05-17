@@ -29,19 +29,22 @@ export default function ProfileSettingsDrawer({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start justify-end z-[9999]"
+         
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
         >
           <motion.div
-            initial={{ x: 300, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 300, opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+           
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ type: "spring", duration: 0.3 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white dark:bg-slate-900 w-72 h-fit mt-24 mr-6 rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-slate-800 p-6 flex flex-col gap-4 transition-colors duration-300"
+           
+            className="bg-white dark:bg-slate-900 w-full max-w-sm h-auto rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-slate-800 p-6 flex flex-col gap-4 transition-colors duration-300"
           >
             {/* Header */}
             <div className="flex justify-between items-center mb-2">
@@ -86,7 +89,7 @@ export default function ProfileSettingsDrawer({
             </div>
 
             {/* Logout Footer */}
-            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="mt-2 pt-4 border-t border-slate-100 dark:border-slate-800">
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-3 w-full p-3 rounded-2xl text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all text-sm font-bold cursor-pointer"
