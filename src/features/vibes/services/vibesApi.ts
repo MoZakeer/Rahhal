@@ -5,9 +5,9 @@ import {
   type Vibe,
   type VibeComment,
   type VibeType,
-  getVibesByTrip,
-  getVibesByUser,
-  getAllVibes,
+  // getVibesByTrip,
+  // getVibesByUser,
+  // getAllVibes,
 } from "../data/vibesData";
 
 // In-memory store (mock).

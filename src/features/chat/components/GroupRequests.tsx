@@ -8,13 +8,16 @@ function GroupRequests() {
       </p>
 
       <ul className="space-y-3">
-        <Member  type="request" participant={{
-          profileId: "",
-          userName: "",
-          profilePicture: null,
-          isAdmin: false,
-          description: ""
-        }} isAdmin={false} />
+        <Member
+          participant={{
+            profileId: "",
+            userName: "",
+            profilePicture: null,
+            isAdmin: false,
+            description: "",
+          }}
+          isAdmin={false}
+        />
       </ul>
     </div>
   );
