@@ -1,10 +1,11 @@
 import { useEffect, useRef, useLayoutEffect, useMemo, useState } from "react";
 import Message from "./Message";
-import type { Message as TMessage } from "../types/message.types";
+import type { Message as TMessage } from "../types/chat.types";
 import { formatDate } from "../../../utils/helper";
 import { useUser } from "../../../context/UserContext";
 // 1. Import the correct thin chevron icon
 import { BsChevronDown } from "react-icons/bs";
+import TypingIndicator from "./TypingIndicator";
 
 interface MessageListProps {
   messages: TMessage[];
@@ -12,6 +13,8 @@ interface MessageListProps {
   hasNextPage: boolean | undefined;
   isFetchingNextPage: boolean;
   isGroup: boolean;
+  isTyping?: boolean;
+  typingUser?: string;
 }
 
 function MessageList({
@@ -20,6 +23,8 @@ function MessageList({
   hasNextPage,
   isFetchingNextPage,
   isGroup,
+  isTyping,
+  typingUser,
 }: MessageListProps) {
   const { user } = useUser();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -154,7 +159,7 @@ function MessageList({
           There are no messages yet… start the conversation!
         </div>
       ) : (
-        <ul className="flex flex-col gap-5 px-3 py-4 lg:py-6 lg:pr-18 lg:pl-12">
+        <ul className="flex flex-col gap-5 px-3 py-4 md:py-6 lg:pr-18 lg:pl-12">
           {sortedMessages.map((message: TMessage, index) => {
             const currentDate = getMessageDateLabel(message.createdDate);
             const prevMessage = sortedMessages[index - 1];
@@ -196,6 +201,10 @@ function MessageList({
               </div>
             );
           })}
+          {/* Typing  */}
+
+          {isTyping && <TypingIndicator name={isGroup ? typingUser : ""} />}
+
           <div ref={messagesEndRef} />
         </ul>
       )}

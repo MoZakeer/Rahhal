@@ -1,11 +1,11 @@
 import { useState } from "react";
-import type { ChatType } from "../../../types/ChatType";
 import { useGetAllChats } from "../hooks/useGetAllChats";
 import ChatItem from "./ChatItem";
 import ChatItemSkeleton from "./ChatItemSkeleton";
 import ChatSearch from "./ChatSearch";
 import { HiOutlineChevronLeft } from "react-icons/hi2";
 import { useNavigate } from "react-router";
+import type { ChatType } from "../types/chatType";
 
 function ChatList() {
   const navigate = useNavigate();

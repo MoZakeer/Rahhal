@@ -1,4 +1,3 @@
-import type { Message } from "./message.types";
 
 export interface PaginatedMessages {
   pageSize: number;
@@ -19,4 +18,18 @@ export interface ChatResponse {
     messages: PaginatedMessages;
     membersCount: number;
   };
+}
+export interface Message {
+  messageId: string;
+  senderProfileId: string;
+  senderName: string;
+  senderProfilePhoto: string;
+  content: string;
+  createdDate: string; // ISO Date
+  attachments: Attachment[];
+  isSeen: boolean;
+}
+export interface Attachment {
+  attachmentId: string;
+  fileUrl: string;
 }

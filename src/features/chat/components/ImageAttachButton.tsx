@@ -1,5 +1,5 @@
 import { useRef, type ChangeEvent } from "react";
-import { HiOutlinePhoto } from "react-icons/hi2";
+import { IoAttach } from "react-icons/io5";
 import { toast } from "sonner";
 
 interface ImageAttachProps {
@@ -77,7 +77,7 @@ function ImageAttachButton({ onSelectFiles }: ImageAttachProps) {
         "
         title="add media"
       >
-        <HiOutlinePhoto className="w-8 h-8 aspect-square text-gray-700" />
+        <IoAttach className="w-8 h-8 aspect-square text-gray-700" />
       </button>
     </>
   );

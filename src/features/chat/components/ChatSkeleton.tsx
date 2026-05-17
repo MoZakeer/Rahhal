@@ -89,15 +89,6 @@ function ChatSkeleton() {
             );
           })}
         </div>
-
-        {/* Input */}
-        <div className="p-4 bg-gray-0 border-t border-gray-200 flex gap-3 items-center shrink-0">
-          <Skeleton circle width={40} height={40} />
-          <div className="flex-1">
-            <Skeleton height={48} borderRadius={24} />
-          </div>
-          <Skeleton circle width={40} height={40} />
-        </div>
       </div>
     </SkeletonTheme>
   );

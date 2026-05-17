@@ -11,5 +11,7 @@ export type ChatType = {
   otherUserProfilePicture: string;
   lastMessageType: number;
   isLastMessageFullySeen: boolean;
-  messageType:number;
+  messageType: number;
+  isTyping?: boolean;
+  typingUserName?: string;
 };

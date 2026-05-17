@@ -15,52 +15,63 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 function ChatWindow() {
   const { conversationId } = useParams<{ conversationId: string }>();
   const [isOnline, setIsOnline] = useState<boolean>(false);
+  const [typingUser, setTypingUser] = useState<string | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
   const { isPending, data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetChatById();
   const chatInfo = data?.pages?.[0]?.data;
   const senderProfileId = chatInfo?.otherParticipantProfileId || null;
   const lastSeen = chatInfo?.lastSeen;
   const { user } = useUser();
-  useEffect(() => {
-    if (chatInfo?.isOnline !== undefined) {
-      setIsOnline(chatInfo.isOnline);
-    }
-  }, [chatInfo?.isOnline]);
-  const imgUrl = conversationImage({
-    isGroup: chatInfo?.isGroup || false,
-    conversationPictureURL: chatInfo?.conversationPictureURL,
-  });
   usePageTitle(chatInfo?.title || "Chatting");
   useChatOnline(senderProfileId, setIsOnline);
-  useChatWindowUpdates(conversationId, user?.userId);
-
-  if (isPending) return <ChatSkeleton />;
-
+  useChatWindowUpdates(
+    conversationId,
+    user?.userId,
+    setTypingUser,
+    setIsTyping,
+  );
   const allMessages = data?.pages
     ? [...data.pages].reverse().flatMap((page) => page?.data?.messages.items)
     : [];
   const uniqueMessages = Array.from(
     new Map(allMessages.map((msg) => [msg.messageId, msg])).values(),
   );
-
+  const imgUrl = conversationImage({
+    isGroup: chatInfo?.isGroup || false,
+    conversationPictureURL: chatInfo?.conversationPictureURL,
+  });
+  useEffect(() => {
+    if (chatInfo?.isOnline !== undefined) {
+      setIsOnline(chatInfo.isOnline);
+    }
+  }, [chatInfo?.isOnline]);
   return (
     <div className="flex flex-col w-full h-dvh overflow-hidden">
-      <ChatHeader
-        title={chatInfo?.title || ""}
-        isOnline={isOnline}
-        lastSeen={lastSeen || ""}
-        isGroup={chatInfo?.isGroup || false}
-        membersCount={chatInfo?.membersCount || 1}
-        avatar={imgUrl}
-      />
+      {isPending ? (
+        <ChatSkeleton />
+      ) : (
+        <>
+          <ChatHeader
+            title={chatInfo?.title || ""}
+            isOnline={isOnline}
+            lastSeen={lastSeen || ""}
+            isGroup={chatInfo?.isGroup || false}
+            membersCount={chatInfo?.membersCount || 1}
+            avatar={imgUrl}
+          />
 
-      <MessageList
-        messages={uniqueMessages}
-        fetchNextPage={fetchNextPage}
-        hasNextPage={hasNextPage}
-        isFetchingNextPage={isFetchingNextPage}
-        isGroup={chatInfo?.isGroup || false}
-      />
+          <MessageList
+            messages={uniqueMessages}
+            fetchNextPage={fetchNextPage}
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            isGroup={chatInfo?.isGroup || false}
+            isTyping={isTyping}
+            typingUser={typingUser ?? ""}
+          />
+        </>
+      )}
 
       <MessageInput conversationId={conversationId || ""} />
     </div>

@@ -1,11 +1,11 @@
 import { IoCheckmarkDoneSharp } from "react-icons/io5";
-import type { Attachment } from "../types/attachment.types";
+import type { Attachment } from "../types/chat.types";
 import MessageAttachments from "./MessageAttachments";
 import { HiOutlineChevronDown, HiTrash } from "react-icons/hi2";
 import { useEffect, useRef, useState } from "react";
 import { ReportModal } from "@/features/reports/components/ReportModal";
 import { Flag } from "lucide-react";
-import type { Message as TMessage } from "../types/message.types";
+import type { Message as TMessage } from "../types/chat.types";
 import { useUser } from "@/context/UserContext";
 import { parseMessageContent } from "@/utils/helper";
 import { useDeleteMessage } from "../hooks/useDeleteMessage";

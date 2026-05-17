@@ -1,16 +1,14 @@
 import { NavLink } from "react-router";
 
-import Avatar from "./Avatar";
-
-import type { ChatType } from "../../../types/ChatType";
-
 import { HiOutlinePhoto, HiOutlineVideoCamera } from "react-icons/hi2";
+import Avatar from "./Avatar";
 
 import {
   conversationImage,
   formatLastMessageDate,
 } from "../../../utils/helper";
 import { MessageType } from "../types/MessageType";
+import type { ChatType } from "../types/chatType";
 
 type Props = {
   chat: ChatType;
@@ -29,6 +27,8 @@ function ChatItem({ chat }: Props) {
     lastMessageType,
     lastMessageDate,
     lastMessageSender,
+    isTyping,
+    typingUserName,
   } = chat;
 
   return (
@@ -76,9 +76,13 @@ function ChatItem({ chat }: Props) {
             >
               {isGroup ? groupTitle : otherUserName}
             </h4>
-
-            <div
-              className="
+            {isTyping ? (
+              <p className="text-sm font-semibold text-primary-700">
+                {isGroup && `${typingUserName} is`} typing...
+              </p>
+            ) : (
+              <div
+                className="
                 whitespace-nowrap
                 overflow-hidden
                 text-ellipsis
@@ -87,68 +91,72 @@ function ChatItem({ chat }: Props) {
                 w-64 sm:w-56
                 flex items-center
               "
-            >
-              {isGroup && lastMessageType && (
-                <span
-                  className="
+              >
+                {isGroup && lastMessageType && (
+                  <span
+                    className="
                       font-medium
                       text-gray-600
                       mr-1
                       shrink-0
                     "
-                >
-                  {lastMessageSender}:
-                </span>
-              )}
+                  >
+                    {lastMessageSender}:
+                  </span>
+                )}
 
-              {lastMessageType === MessageType.Image ? (
-                <div
-                  className="
+                {lastMessageType === MessageType.Image ? (
+                  <div
+                    className="
                     ml-0.5
                     flex items-center gap-1
                     font-medium
                   "
-                >
-                  <HiOutlinePhoto className="text-gray-900" size={16} />
+                  >
+                    <HiOutlinePhoto className="text-gray-900" size={16} />
 
-                  <span
-                    className="
+                    <span
+                      className="
                       text-gray-700
                       text-[14px]
                       font-medium
                     "
-                  >
-                    Photo
-                  </span>
-                </div>
-              ) : lastMessageType === MessageType.Video ? (
-                <div
-                  className="
+                    >
+                      Photo
+                    </span>
+                  </div>
+                ) : lastMessageType === MessageType.Video ? (
+                  <div
+                    className="
                     ml-0.5
                     flex items-center gap-1
                     font-medium
                   "
-                >
-                  <span>
-                    <HiOutlineVideoCamera className="text-gray-900" size={16} />
-                  </span>
+                  >
+                    <span>
+                      <HiOutlineVideoCamera
+                        className="text-gray-900"
+                        size={16}
+                      />
+                    </span>
 
-                  <span
-                    className="
+                    <span
+                      className="
                       text-gray-700
                       text-[14px]
                       font-medium
                     "
-                  >
-                    Video
+                    >
+                      Video
+                    </span>
+                  </div>
+                ) : (
+                  <span dir="auto" className="truncate">
+                    {lastMessageContent}
                   </span>
-                </div>
-              ) : (
-                <span dir="auto" className="truncate">
-                  {lastMessageContent}
-                </span>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Right */}

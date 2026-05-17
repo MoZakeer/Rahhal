@@ -66,7 +66,7 @@ function ChatTextarea({
         w-full
         border border-gray-200
         outline-none
-        bg-gray-50
+        bg-gray-0
         px-6
         py-3
         resize-none

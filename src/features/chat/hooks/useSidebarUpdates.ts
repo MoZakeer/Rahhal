@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { useParams } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import type { ChatType } from "../../../types/ChatType";
+import { type ChatType } from "../types/chatType";
 import { useRealtime } from "@/context/RealtimeContext";
 
 export type UpdateSidebarData = {
@@ -13,6 +13,11 @@ export type UpdateSidebarData = {
   isLastMessageFullySeen: boolean;
   unreadCount: number;
   messageType: number;
+};
+type TypingSidebarData = {
+  conversationId: string;
+  userName: string;
+  isTyping: boolean;
 };
 export const useSidebarUpdates = function () {
   const queryClient = useQueryClient();
@@ -128,17 +133,47 @@ export const useSidebarUpdates = function () {
         },
       );
     };
+
+    const handleSidebarTyping = (data: TypingSidebarData) => {
+      queryClient.setQueryData<{ data: ChatType[] }>(
+        ["all-chats"],
+        (oldData) => {
+          if (!oldData?.data) return oldData;
+
+          const updatedChats = oldData.data.map((chat) => {
+            if (chat.conversationId !== data.conversationId) {
+              return chat;
+            }
+
+            return {
+              ...chat,
+
+              isTyping: data.isTyping,
+
+              typingUserName: data.isTyping ? data.userName : undefined,
+            };
+          });
+
+          return {
+            ...oldData,
+            data: updatedChats,
+          };
+        },
+      );
+    };
     connection.on("UpdateSidebar", handleUpdateSidebar);
     connection.on("UpdateUnreadCount", handleUpdateUnreadCount);
     connection.on("NewChatCreated", handleNewChat);
     connection.on("UpdateSeenMark", handleLastMessageSeen);
     connection.on("DeleteLastMessage", handleDeleteSidebarMessage);
+    connection.on("UserTyping", handleSidebarTyping);
     return () => {
       connection.off("UpdateSidebar", handleUpdateSidebar);
       connection.off("UpdateUnreadCount", handleUpdateUnreadCount);
       connection.off("NewChatCreated", handleNewChat);
       connection.off("UpdateSeenMark", handleLastMessageSeen);
       connection.off("DeleteLastMessage", handleDeleteSidebarMessage);
+      connection.off("UserTyping", handleSidebarTyping);
     };
   }, [connection, queryClient, activeChatId]);
 };

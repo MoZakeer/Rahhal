@@ -7,12 +7,18 @@ import ImagePreviewArea from "./ImagePreviewArea";
 import ImageAttachButton from "./ImageAttachButton";
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
 import { useSendMessage } from "../hooks/useSendMessage";
+import { useTyping } from "../hooks/useTyping";
 
 function MessageInput({ conversationId }: { conversationId: string }) {
   const [message, setMessage] = useState<string>("");
+
   const [showEmoji, setShowEmoji] = useState<boolean>(false);
+
   const [attachments, setAttachments] = useState<File[]>([]);
+
   const { isPending, sendMessage } = useSendMessage();
+
+  const { handleTyping, stopTyping } = useTyping();
 
   const pickerRef = useOutsideClick<HTMLDivElement>(() => {
     if (showEmoji) setShowEmoji(false);
@@ -20,6 +26,8 @@ function MessageInput({ conversationId }: { conversationId: string }) {
 
   function handleEmojiSelect(emoji: string) {
     setMessage((message) => message + emoji);
+
+    handleTyping();
   }
 
   const handleAddFiles = (newFiles: File[]) => {
@@ -32,11 +40,27 @@ function MessageInput({ conversationId }: { conversationId: string }) {
     );
   };
 
+  const handleMessageChange = (value: string) => {
+    setMessage(value);
+
+    if (!value.trim()) {
+      stopTyping();
+      return;
+    }
+
+    handleTyping();
+  };
+
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
 
     if (isPending) return;
-    if (!message.trim() && attachments.length === 0) return;
+
+    if (!message.trim() && attachments.length === 0) {
+      return;
+    }
+
+    stopTyping();
 
     sendMessage(
       {
@@ -54,14 +78,14 @@ function MessageInput({ conversationId }: { conversationId: string }) {
   };
 
   return (
-    <div className="bg-gray-50 px-3 py-4 sm:pt-6 sm:pb-8  relative flex flex-col">
+    <div className="bg-gray-50 px-3 pb-4 sm:pb-8 relative flex flex-col">
       <ImagePreviewArea files={attachments} onRemove={handleRemoveFile} />
 
       <form
         onSubmit={handleSubmit}
-        className="flex sm:gap-4 gap-2 items-end w-full "
+        className="flex sm:gap-4 gap-2 items-end w-full"
       >
-        <div ref={pickerRef} className="flex ">
+        <div ref={pickerRef} className="flex">
           <ImageAttachButton onSelectFiles={handleAddFiles} />
 
           <button
@@ -81,7 +105,7 @@ function MessageInput({ conversationId }: { conversationId: string }) {
 
         <ChatTextarea
           value={message}
-          onChange={setMessage}
+          onChange={handleMessageChange}
           onEnter={handleSubmit}
           onPasteFiles={handleAddFiles}
         />
