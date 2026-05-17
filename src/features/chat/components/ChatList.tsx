@@ -42,7 +42,7 @@ function ChatList() {
         <div className="flex items-center gap-2">
           <button
             className="rounded-full p-1 text-gray-800 hover:bg-gray-100 flex items-center justify-center"
-            onClick={() => navigate("/feed")}
+            onClick={() => navigate(-1)}
           >
             <HiOutlineChevronLeft className="w-6 h-6" />
           </button>

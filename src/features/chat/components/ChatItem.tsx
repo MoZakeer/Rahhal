@@ -34,6 +34,7 @@ function ChatItem({ chat }: Props) {
   return (
     <NavLink
       to={`/chat/${conversationId}`}
+      replace={true}
       className={({ isActive }) =>
         `
           flex items-center gap-3
