@@ -11,6 +11,9 @@ export function useEditChatSettings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["all-chats"] });
       queryClient.invalidateQueries({ queryKey: ["chat", conversationId] });
+      queryClient.invalidateQueries({
+        queryKey: ["chat-details", conversationId],
+      });
     },
   });
   return { isPending, editChatSetting };

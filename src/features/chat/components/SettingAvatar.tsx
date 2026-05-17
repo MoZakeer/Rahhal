@@ -1,4 +1,5 @@
 import { HiOutlineCamera } from "react-icons/hi2";
+import { Link } from "react-router-dom";
 
 function SettingAvatar({
   avatar,
@@ -7,6 +8,8 @@ function SettingAvatar({
   onDeleteImage,
   hasRealAvatar,
   isAdmin,
+  isGroup,
+  profileId,
 }: {
   avatar: string;
   isEditing: boolean;
@@ -14,44 +17,84 @@ function SettingAvatar({
   onDeleteImage: () => void;
   hasRealAvatar: boolean;
   isAdmin: boolean;
+  isGroup: boolean;
+  profileId: string;
 }) {
   return (
     <div className="flex justify-center">
       <div className="flex flex-col items-center gap-3">
         {/* Avatar */}
-        <div
-          className={`relative group transition ${
-            !isEditing ? "pointer-events-none opacity-80" : ""
-          }`}
-        >
-          <img
-            src={avatar}
-            alt="chat-avatar"
-            className="w-36 h-36 rounded-full object-cover border-4 border-gray-0 shadow-md ring-4 ring-gray-100"
-          />
+        {isGroup ? (
+          <div
+            className={`relative group transition ${
+              !isEditing ? "pointer-events-none opacity-80" : ""
+            }`}
+          >
+            <img
+              src={avatar}
+              alt="chat-avatar"
+              className="w-36 h-36 rounded-full object-cover border-4 border-gray-0 shadow-md ring-4 ring-gray-100"
+            />
 
-          {/* Upload Overlay */}
-          {isEditing && (
-            <label
-              htmlFor="avatar-upload"
-              className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 rounded-full flex items-center justify-center cursor-pointer transition"
+            {/* Upload Overlay */}
+            {isEditing && (
+              <label
+                htmlFor="avatar-upload"
+                className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 rounded-full flex items-center justify-center cursor-pointer transition"
+              >
+                <HiOutlineCamera className="text-gray-0 w-6 h-6" />
+              </label>
+            )}
+
+            {/* Hidden Input */}
+            <input
+              id="avatar-upload"
+              type="file"
+              hidden
+              accept="image/*"
+              onChange={(e) => {
+                onImageChange(e);
+                e.target.value = "";
+              }}
+            />
+          </div>
+        ) : (
+          <Link to={`/profile/${profileId}`}>
+            <div
+              className={`relative group transition ${
+                !isEditing ? "pointer-events-none opacity-80" : ""
+              }`}
             >
-              <HiOutlineCamera className="text-gray-0 w-6 h-6" />
-            </label>
-          )}
+              <img
+                src={avatar}
+                alt="chat-avatar"
+                className="w-36 h-36 rounded-full object-cover border-4 border-gray-0 shadow-md ring-4 ring-gray-100"
+              />
 
-          {/* Hidden Input */}
-          <input
-            id="avatar-upload"
-            type="file"
-            hidden
-            accept="image/*"
-            onChange={(e) => {
-              onImageChange(e);
-              e.target.value = "";    
-            }}
-          />
-        </div>
+              {/* Upload Overlay */}
+              {isEditing && (
+                <label
+                  htmlFor="avatar-upload"
+                  className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 rounded-full flex items-center justify-center cursor-pointer transition"
+                >
+                  <HiOutlineCamera className="text-gray-0 w-6 h-6" />
+                </label>
+              )}
+
+              {/* Hidden Input */}
+              <input
+                id="avatar-upload"
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={(e) => {
+                  onImageChange(e);
+                  e.target.value = "";
+                }}
+              />
+            </div>
+          </Link>
+        )}
 
         {/* Remove Image Button */}
         {isEditing && isAdmin && hasRealAvatar && (

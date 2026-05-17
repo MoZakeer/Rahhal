@@ -13,6 +13,7 @@ export default function ChatSettingsInfo({
     isGroup: boolean;
     avatar: string;
     isAdmin: boolean;
+    profileId: string;
   };
 }) {
   const DEFAULT_AVATAR = "/group-default.png";
@@ -104,6 +105,8 @@ export default function ChatSettingsInfo({
         onDeleteImage={handleDeleteImage}
         hasRealAvatar={hasRealAvatar}
         isAdmin={chatInfo.isAdmin}
+        profileId={chatInfo.profileId}
+        isGroup={chatInfo.isGroup}
       />
 
       {/* Divider */}

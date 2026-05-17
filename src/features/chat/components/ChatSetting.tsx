@@ -22,10 +22,12 @@ function ChatSettings() {
   }
   const settings = data?.data;
   const mainInfo = {
+    profileId: settings?.otherProfileId || "",
     name: settings?.title || "",
     description: settings?.description || "",
     isGroup: settings?.isGroup || false,
     isAdmin: settings?.isCurrentUserAdmin || false,
+
     avatar: conversationImage({
       isGroup: settings?.isGroup || false,
       conversationPictureURL: settings?.conversationPictureURL,
@@ -40,18 +42,18 @@ function ChatSettings() {
       <div
         onClick={(e) => e.stopPropagation()}
         className={`
-    fixed right-0 top-0 h-full
-    w-full sm:max-w-md
-    bg-gray-0
-    shadow-2xl
-    transform transition-transform duration-300 ease-out
-    flex flex-col
-    ${open ? "translate-x-0" : "translate-x-full"}
+          fixed right-0 top-0 h-full
+          w-full sm:max-w-md
+        bg-gray-0
+          shadow-2xl
+          transform transition-transform duration-300 ease-out
+          flex flex-col
+          ${open ? "translate-x-0" : "translate-x-full"}
   `}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <h2 className="text-base font-semibold tracking-tight">
-            Chat Settings
+            Chat Details
           </h2>
 
           <button
