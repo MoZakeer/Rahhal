@@ -3,8 +3,6 @@ import type { PostMediaItem } from "../../../types/post";
 import { PostContent } from "./PostContent";
 import type { PostsResponse } from "../../../types/post";
 import toast from "react-hot-toast";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
-
 import {
   MoreHorizontal,
   Edit,
@@ -13,7 +11,14 @@ import {
   MessageCircle,
   Share2,
   GlobeIcon,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Facebook,
+  Link as LinkIcon,
+  CopyCheck
 } from "lucide-react";
+
 import { Bookmark } from "lucide-react";
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { useState, useRef, useEffect } from "react";
@@ -61,7 +66,7 @@ export function PostHeader({
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { language } = useLanguage(); 
+  const { language } = useLanguage();
   const isRtl = language === "ar"
 
   // Close dropdown when clicking outside
@@ -144,8 +149,8 @@ export function PostHeader({
           <button
             onClick={onFollow}
             className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${isFollowing
-                ? "bg-slate-50 dark:bg-blue-950 border border-slate-200 dark:border-blue-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                : "bg-blue-700 dark:bg-blue-700 border border-blue-700 dark:border-blue-900 text-white hover:bg-blue-800 dark:hover:bg-blue-900"
+              ? "bg-slate-50 dark:bg-blue-950 border border-slate-200 dark:border-blue-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+              : "bg-blue-700 dark:bg-blue-700 border border-blue-700 dark:border-blue-900 text-white hover:bg-blue-800 dark:hover:bg-blue-900"
               }`}
           >
             {isFollowing ? "Following" : "Follow"}
@@ -214,7 +219,8 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [current, setCurrent] = useState(0);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const { language } = useLanguage();
+  
+  const { t, language } = useLanguage();
   const isRtl = language === "ar";
 
   const startX = useRef<number | null>(null);
@@ -235,7 +241,6 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
           const playPromise = video.play();
           if (playPromise !== undefined) {
             playPromise.catch((error) => {
-              // Autoplay might be blocked, but we can still allow play on user interaction
               console.warn("Autoplay blocked by browser. User interaction required.", error);
             });
           }
@@ -245,12 +250,12 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
       },
       { threshold: 0.5 }
     );
-    
+
     observer.observe(video);
-    
-    return () => { 
-      observer.disconnect(); 
-      video.pause(); 
+
+    return () => {
+      observer.disconnect();
+      video.pause();
     };
   }, [current]);
 
@@ -315,6 +320,8 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
               isRtl ? "right-2" : "left-2"
             )}
             onClick={(e) => { e.stopPropagation(); prev(); }}
+            title={t("feed.prevMedia")}
+            aria-label={t("feed.prevMedia")}
           >
             {isRtl ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
           </button>
@@ -335,7 +342,7 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
             <img
               onClick={() => setIsPreviewOpen(true)}
               src={normalizeMediaUrl(currentMedia.url)}
-              alt="Post media"
+              alt={t("feed.mediaAlt")}
               loading="lazy"
               decoding="async"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
@@ -351,6 +358,8 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
               isRtl ? "left-2" : "right-2"
             )}
             onClick={(e) => { e.stopPropagation(); next(); }}
+            title={t("feed.nextMedia")}
+            aria-label={t("feed.nextMedia")}
           >
             {isRtl ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
           </button>
@@ -362,8 +371,8 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
               <div
                 key={i}
                 className={`transition-all duration-300 rounded-full ${i === current
-                    ? "w-4 h-1.5 bg-white shadow-sm"
-                    : "w-1.5 h-1.5 bg-white/50"
+                  ? "w-4 h-1.5 bg-white shadow-sm"
+                  : "w-1.5 h-1.5 bg-white/50"
                   }`}
               />
             ))}
@@ -379,25 +388,36 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
       {/* Preview Modal */}
       {isPreviewOpen && (
         <div
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm"
+          className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center backdrop-blur-sm animate-in fade-in duration-200"
           onClick={() => setIsPreviewOpen(false)}
+          dir={isRtl ? "rtl" : "ltr"}
         >
           <div
             className="inset-0 flex items-center justify-center relative w-full h-full"
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              className="absolute top-4 right-4 text-white p-2 rounded-full hover:bg-black/50 z-10"
+              className={cn(
+                "absolute top-4 text-white p-2 rounded-full hover:bg-black/50 z-10 transition-colors",
+                isRtl ? "left-4" : "right-4"
+              )}
               onClick={() => setIsPreviewOpen(false)}
+              title={t("feed.closePreview")} 
+              aria-label={t("feed.closePreview")}
             >
               <X size={24} />
             </button>
+            
             {media.length > 1 && (
               <button
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+                className={cn(
+                  "absolute top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10 transition-colors",
+                  isRtl ? "right-4" : "left-4"
+                )}
                 onClick={prev}
+                title={t("feed.prevMedia")}
               >
-                <ChevronLeft size={32} />
+                {isRtl ? <ChevronRight size={32} /> : <ChevronLeft size={32} />}
               </button>
             )}
 
@@ -411,7 +431,7 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
             ) : (
               <img
                 src={normalizeMediaUrl(currentMedia.url)}
-                alt="Preview"
+                alt={t("feed.previewAlt")}
                 loading="lazy"
                 decoding="async"
                 className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
@@ -420,10 +440,14 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
 
             {media.length > 1 && (
               <button
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+                className={cn(
+                  "absolute top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10 transition-colors",
+                  isRtl ? "left-4" : "right-4"
+                )}
                 onClick={next}
+                title={t("feed.nextMedia")}
               >
-                <ChevronRight size={32} />
+                {isRtl ? <ChevronLeft size={32} /> : <ChevronRight size={32} />}
               </button>
             )}
           </div>
@@ -448,12 +472,20 @@ export function PostActions({
   onSave: () => void;
   onShare?: () => void;
 }) {
+  const { t, language } = useLanguage();
+  const isRtl = language === "ar";
+
   return (
-    <div className="flex justify-between px-6 py-4 border-t border-slate-50 dark:border-slate-700/50">
+    <div 
+      className="flex justify-between px-6 py-4 border-t border-slate-50 dark:border-slate-700/50"
+      dir={isRtl ? "rtl" : "ltr"}
+    >
       <div className="flex gap-7">
         <button
           onClick={onLike}
           className="flex flex-col items-center transition-transform duration-200 ease-in-out"
+          title={liked ? t("feed.unlikeBtn") : t("feed.likeBtn")}
+          aria-label={liked ? t("feed.unlikeBtn") : t("feed.likeBtn")}
         >
           {liked ? (
             <HeartIcon className="w-6 h-6 text-blue-700 fill-blue-700 hover:text-blue-500 hover:scale-125 hover:rotate-12 transition-all duration-500" />
@@ -465,18 +497,27 @@ export function PostActions({
         <button
           onClick={onComment}
           className="group transition-transform active:scale-110 focus:outline-none"
+          title={t("feed.commentBtn")}
+          aria-label={t("feed.commentBtn")}
         >
-          <MessageCircle className="w-5 h-5 text-slate-400 group-hover:text-blue-500  transition-all duration-300 ease-out" />
+          <MessageCircle className="w-5 h-5 text-slate-400 group-hover:text-blue-500 transition-all duration-300 ease-out" />
         </button>
+        
         <button
           onClick={onShare}
           className="group transition-transform active:scale-110"
+          title={t("feed.shareBtn")}
+          aria-label={t("feed.shareBtn")}
         >
           <Share2 className="w-5 h-5 text-slate-400 group-hover:text-blue-500 transition-colors" />
         </button>
       </div>
 
-      <button onClick={onSave}>
+      <button 
+        onClick={onSave}
+        title={saved ? t("feed.unsaveBtn") : t("feed.saveBtn")}
+        aria-label={saved ? t("feed.unsaveBtn") : t("feed.saveBtn")}
+      >
         {saved ? (
           <Bookmark className="w-5 h-5 text-blue-600 dark:text-blue-400 fill-blue-600 dark:fill-blue-400 scale-100 hover:scale-110 transition-all duration-500" />
         ) : (
@@ -488,10 +529,14 @@ export function PostActions({
 }
 
 export default function PostCard({ post }: { post: Post }) {
+  const { t, language } = useLanguage();
+  const isRtl = language === "ar";
   const hasMedia = post.mediaUrLs && post.mediaUrLs.length > 0;
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+
 
   function handleEditPost() {
     setEditModalOpen(true);
@@ -512,7 +557,7 @@ export default function PostCard({ post }: { post: Post }) {
 
   function handleDelete() {
     deleteMutation.mutate(post.id);
-    toast("Deleting post!", {
+    toast(t("postCard.deleteSuccess"), {
       duration: 2000,
       style: {
         border: "1px solid #ef4444",
@@ -527,6 +572,13 @@ export default function PostCard({ post }: { post: Post }) {
     });
   }
 
+  const shareToX = () => {
+    const text = encodeURIComponent(`${shareTitle}\n${shareDesc}`);
+    const url = encodeURIComponent(shareUrl);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, "_blank");
+    setShareModalOpen(false);
+  };
+
   const queryClient = useQueryClient();
 
   const followMutation = useMutation({
@@ -536,47 +588,35 @@ export default function PostCard({ post }: { post: Post }) {
       await queryClient.cancelQueries({ queryKey: ["posts"] });
       await queryClient.cancelQueries({ queryKey: ["PostDetails"] });
 
-      const previousPosts = queryClient.getQueryData<
-        InfiniteData<PostsResponse>
-      >(["posts"]);
+      const previousPosts = queryClient.getQueryData<InfiniteData<PostsResponse>>(["posts"]);
 
       // Optimistic update: feed cache
-      queryClient.setQueryData<InfiniteData<PostsResponse>>(
-        ["posts"],
-        (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            pages: old.pages.map((page) => ({
-              ...page,
-              data: {
-                ...page.data,
-                items: page.data.items.map((p) =>
-                  p.userId === userId
-                    ? {
-                      ...p,
-                      isFollowedByCurrentUser: !p.isFollowedByCurrentUser,
-                    }
-                    : p,
-                ),
-              },
-            })),
-          };
-        },
-      );
+      queryClient.setQueryData<InfiniteData<PostsResponse>>(["posts"], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            data: {
+              ...page.data,
+              items: page.data.items.map((p) =>
+                p.userId === userId
+                  ? { ...p, isFollowedByCurrentUser: !p.isFollowedByCurrentUser }
+                  : p,
+              ),
+            },
+          })),
+        };
+      });
 
-      // ✅ Optimistic update: PostDetails cache
-      // Find the post in feed to get its postId
+      // Optimistic update: PostDetails cache
       const feedPost = queryClient
         .getQueryData<InfiniteData<PostsResponse>>(["posts"])
         ?.pages.flatMap((p) => p.data.items)
         .find((p) => p.userId === userId);
 
       if (feedPost) {
-        const currentPost = queryClient.getQueryData<PostDetails>([
-          "PostDetails",
-          feedPost.id,
-        ]);
+        const currentPost = queryClient.getQueryData<PostDetails>(["PostDetails", feedPost.id]);
         if (currentPost) {
           queryClient.setQueryData<PostDetails>(["PostDetails", feedPost.id], {
             ...currentPost,
@@ -588,7 +628,6 @@ export default function PostCard({ post }: { post: Post }) {
       return { previousPosts };
     },
 
-    // ✅ Sync PostDetails cache with confirmed value from feed
     onSuccess: (_data, userId) => {
       const feedPost = queryClient
         .getQueryData<InfiniteData<PostsResponse>>(["posts"])
@@ -596,10 +635,7 @@ export default function PostCard({ post }: { post: Post }) {
         .find((p) => p.userId === userId);
 
       if (feedPost) {
-        const currentPost = queryClient.getQueryData<PostDetails>([
-          "PostDetails",
-          feedPost.id,
-        ]);
+        const currentPost = queryClient.getQueryData<PostDetails>(["PostDetails", feedPost.id]);
         if (currentPost) {
           queryClient.setQueryData<PostDetails>(["PostDetails", feedPost.id], {
             ...currentPost,
@@ -615,43 +651,73 @@ export default function PostCard({ post }: { post: Post }) {
       }
     },
 
-    // ✅ No invalidation — GetAll returns wrong isFollowedByCurrentUser
     onSettled: () => { },
   });
 
   function handleFollow() {
     followMutation.mutate(post.userId);
   }
-  const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/post/${post.id}`;
 
+
+  const shareUrl = `${window.location.origin}/post/${post.id}`;
+  const shareTitle = isRtl ? `رحلة ${post.userName} على رحّال` : `${post.userName}'s trip on RAHHAL`;
+  const shareDesc = post.description || (isRtl ? "شوف المغامرة دي!" : "Check out this adventure!");
+
+  const shareToWhatsApp = () => {
+    const text = encodeURIComponent(`${shareTitle}\n${shareDesc}\n\n${shareUrl}`);
+    window.open(`https://wa.me/?text=${text}`, "_blank");
+    setShareModalOpen(false);
+  };
+
+  const shareToFacebook = () => {
+    const url = encodeURIComponent(shareUrl);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, "_blank");
+    setShareModalOpen(false);
+  };
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success(t("postCard.copySuccess"), {
+        icon: <CopyCheck className="w-5 h-5 text-green-400" />,
+        style: {
+          borderRadius: "15px",
+          background: "#1e293b",
+          color: "#fff",
+          fontWeight: "500",
+          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+        },
+      });
+    } catch {
+      toast.error(t("postCard.copyFailed"));
+    }
+    setShareModalOpen(false);
+  };
+
+  const shareToOther = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `رحلة ${post.userName} على رحال`,
-          text: post.description || "شوف المغامرة دي!",
+          title: shareTitle,
+          text: shareDesc,
           url: shareUrl,
         });
       } catch (err) {
         if (err instanceof Error && err.name !== "AbortError") {
-          toast.error("Sharing failed");
+          toast.error(t("postCard.shareFailed"));
         }
       }
     } else {
-      try {
-        await navigator.clipboard.writeText(shareUrl);
-        toast.success("Link copied! Share it anywhere", {
-          icon: "📋",
-          style: { borderRadius: "15px", background: "#333", color: "#fff" },
-        });
-      } catch {
-        toast.error("Could not copy link");
-      }
+      copyLink();
     }
+    setShareModalOpen(false);
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm mb-6 border border-transparent dark:border-slate-700/60 transition-colors">
+    <div
+      className="w-full max-w-xl mx-auto bg-white dark:bg-slate-800 rounded-xl shadow-sm mb-6 border border-transparent dark:border-slate-700/60 transition-colors"
+      dir={isRtl ? "rtl" : "ltr"}
+    >
       <PostHeader
         id={post.id}
         userName={post.userName}
@@ -680,15 +746,17 @@ export default function PostCard({ post }: { post: Post }) {
         onLike={handleLike}
         onSave={handleSave}
         onComment={() => setCommentsOpen(true)}
-        onShare={handleShare}
+        onShare={() => setShareModalOpen(true)}
       />
 
-      <div
-        onClick={() => setOpenLikes(true)}
-        className="px-4 text-sm font-semibold mt-1 cursor-pointer text-slate-900 dark:text-slate-100 "
-      >
-        {post.likes} likes
-      </div>
+      {(post.likes ?? 0) > 0 && (
+        <div
+          onClick={() => setOpenLikes(true)}
+          className="px-4 text-sm font-semibold mt-1 cursor-pointer text-slate-900 dark:text-slate-100 transition-colors"
+        >
+          {post.likes} {t("feed.likesCount")}
+        </div>
+      )}
 
       {openLikes && (
         <div
@@ -701,13 +769,16 @@ export default function PostCard({ post }: { post: Post }) {
           >
             <button
               onClick={() => setOpenLikes(false)}
-              className="absolute top-3 right-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+              className={cn(
+                "absolute top-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors",
+                isRtl ? "left-3" : "right-3"
+              )}
             >
               ✕
             </button>
 
             <h3 className="text-lg font-semibold mb-4 text-slate-900 dark:text-slate-100">
-              Likes
+              {t("postCard.likesTitle")}
             </h3>
 
             <LikesList type="post" id={post.id} />
@@ -725,11 +796,14 @@ export default function PostCard({ post }: { post: Post }) {
       {(post.comments ?? 0) > 0 && (
         <div
           className="px-4 pb-3 text-sm text-slate-500 dark:text-slate-400 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-          onClick={() => setCommentsOpen((prev) => !prev)} // toggle
+          onClick={() => setCommentsOpen((prev) => !prev)}
         >
           {commentsOpen
-            ? "Hide comments"
-            : `View all ${post.comments} ${post.comments === 1 ? "comment" : "comments"}`}
+            ? t("postCard.hideComments")
+            : post.comments === 1
+              ? t("postCard.viewComment")
+              : (isRtl ? `عرض كل التعليقات (${post.comments})` : `View all ${post.comments} comments`)
+          }
         </div>
       )}
 
@@ -752,6 +826,111 @@ export default function PostCard({ post }: { post: Post }) {
           postId={post.id}
           onCancel={() => setEditModalOpen(false)}
         />
+      )}
+
+      {/* 🚀 Premium Share Modal (iOS / TikTok Style) */}
+      {shareModalOpen && (
+        <div
+          onClick={() => setShareModalOpen(false)}
+          // في الموبايل بيبقى تحت (items-end) وفي الشاشات الكبيرة بيبقى في النص (sm:items-center)
+          className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-0 transition-all duration-300 animate-in fade-in"
+        >
+          <div
+            // حواف دائرية كبيرة من فوق في الموبايل عشان تدي شكل الـ Bottom Sheet
+            className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-[2rem] sm:rounded-3xl shadow-2xl overflow-hidden relative border border-slate-200/50 dark:border-slate-700/50 animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-4 sm:zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+            dir={isRtl ? "rtl" : "ltr"}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                {isRtl ? "مشاركة عبر..." : "Share via..."}
+              </h3>
+              <button
+                onClick={() => setShareModalOpen(false)}
+                className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+              >
+                <X size={18} strokeWidth={2.5} />
+              </button>
+            </div>
+
+            {/* Share Options - Grid Layout */}
+            <div className="p-6 flex flex-wrap justify-center gap-5">
+
+              {/* WhatsApp */}
+              <button onClick={shareToWhatsApp} className="flex flex-col items-center gap-2 group">
+                <div className="w-14 h-14 rounded-2xl bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400 flex items-center justify-center group-hover:scale-110 group-hover:bg-green-500 group-hover:text-white transition-all duration-300 shadow-sm">
+                  <MessageCircle size={28} strokeWidth={2} />
+                </div>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                  {isRtl ? "واتساب" : "WhatsApp"}
+                </span>
+              </button>
+
+              {/* Facebook */}
+              <button onClick={shareToFacebook} className="flex flex-col items-center gap-2 group">
+                <div className="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                  <Facebook size={28} strokeWidth={2} />
+                </div>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                  {isRtl ? "فيسبوك" : "Facebook"}
+                </span>
+              </button>
+
+              <button onClick={shareToX} className="flex flex-col items-center gap-2 group w-[72px]">
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 flex items-center justify-center group-hover:scale-110 group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-all duration-300 shadow-sm">
+                  <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    className="w-7 h-7 fill-currentColor"
+                  >
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                  </svg>
+                </div>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                  {isRtl ? "إكس" : "X"}
+                </span>
+              </button>
+
+              {/* Copy Link */}
+              <button onClick={copyLink} className="flex flex-col items-center gap-2 group">
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center group-hover:scale-110 group-hover:bg-slate-700 group-hover:text-white dark:group-hover:bg-slate-600 transition-all duration-300 shadow-sm">
+                  <LinkIcon size={28} strokeWidth={2} />
+                </div>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                  {isRtl ? "نسخ" : "Copy"}
+                </span>
+              </button>
+
+              {/* Other Options */}
+              <button onClick={shareToOther} className="flex flex-col items-center gap-2 group">
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300 shadow-sm">
+                  <Share2 size={28} strokeWidth={2} />
+                </div>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                  {isRtl ? "المزيد" : "More"}
+                </span>
+              </button>
+
+            </div>
+
+            {/* Quick URL Copy Box */}
+            <div className="px-6 pb-6">
+              <div className="flex items-center gap-2 p-1.5 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-slate-200 dark:border-slate-800">
+                <div className="truncate flex-1 text-xs text-slate-500 px-3 font-medium" dir="ltr">
+                  {shareUrl}
+                </div>
+                <button
+                  onClick={copyLink}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-colors whitespace-nowrap shadow-sm"
+                >
+                  {isRtl ? "نسخ" : "Copy"}
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
       )}
     </div>
   );
