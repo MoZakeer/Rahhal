@@ -61,7 +61,7 @@ function ChatTextarea({
       onKeyDown={handleKeyDown}
       onPaste={handlePaste}
       rows={1}
-      placeholder={placeholder ?? "Type a message..."}
+      placeholder={placeholder ?? "Type a message.."}
       className={`
         w-full
         outline-none

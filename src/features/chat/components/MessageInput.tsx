@@ -139,7 +139,7 @@ function MessageInput({
   const replyPreview = getReplyPreviewData();
 
   return (
-    <div className="px-3 pb-4 sm:pb-8 relative flex flex-col w-full">
+    <div className="px-1 pb-4 sm:pb-8 relative flex flex-col w-full">
       <ImagePreviewArea files={attachments} onRemove={handleRemoveFile} />
 
       <form onSubmit={handleSubmit} className="flex w-full items-end">
