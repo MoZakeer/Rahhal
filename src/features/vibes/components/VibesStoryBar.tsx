@@ -4,7 +4,7 @@ import VibeCreator from "./VibeCreator";
 import FullVibeViewer from "./FullVibeViewer";
 
 import {
-  fetchTripVibes,
+  fetchTripVibesByTripId,
   canPostVibe,
   type TripLite,
 } from "../services/vibesApi";
@@ -64,7 +64,7 @@ const VibesStoryBar = ({
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await fetchTripVibes(tripId);
+        const data = await fetchTripVibesByTripId(tripId);
         setVibes(data);
       } catch (err) {
         console.error("Failed to load vibes", err);

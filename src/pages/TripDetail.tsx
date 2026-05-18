@@ -79,6 +79,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useFavicon } from "@/hooks/useFavicon";
 import { useLanguage } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
+import VibesStoryBar from "@/features/vibes/components/VibesStoryBar";
 
 interface SafeImageProps {
   src?: string;
@@ -317,13 +318,13 @@ const TripDetail = () => {
     1,
     Math.ceil(
       (new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) /
-        (1000 * 60 * 60 * 24),
+      (1000 * 60 * 60 * 24),
     ),
   );
 
   const handleShare = () => {
     const url = window.location.href;
-    navigator.clipboard?.writeText(url).catch(() => {});
+    navigator.clipboard?.writeText(url).catch(() => { });
     toast.success(t("tripDetail.linkCopied"));
   };
 
@@ -403,9 +404,8 @@ const TripDetail = () => {
                 <img
                   src={getFullImageUrl(trip.image)}
                   alt={trip.name}
-                  className={`h-full w-full object-cover transition-all duration-700 group-hover/hero:scale-105 ${
-                    uploadImageMutation.isPending ? "opacity-50" : "opacity-100"
-                  }`}
+                  className={`h-full w-full object-cover transition-all duration-700 group-hover/hero:scale-105 ${uploadImageMutation.isPending ? "opacity-50" : "opacity-100"
+                    }`}
                 />
               ) : (
                 <div className="h-full w-full bg-gradient-to-br from-primary/30 to-secondary/30" />
@@ -490,13 +490,13 @@ const TripDetail = () => {
                     className={cn(
                       "backdrop-blur-sm px-3 py-1 font-bold transition-all",
                       apiTrip.tripStatus.toLowerCase() === "completed" &&
-                        "border-green-200 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-900/20 dark:text-green-400",
+                      "border-green-200 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-900/20 dark:text-green-400",
                       apiTrip.tripStatus.toLowerCase() === "planned" &&
-                        "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/30 dark:bg-amber-900/20 dark:text-amber-400",
+                      "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/30 dark:bg-amber-900/20 dark:text-amber-400",
                       apiTrip.tripStatus.toLowerCase() === "upcoming" &&
-                        "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/30 dark:bg-blue-900/20 dark:text-blue-400",
+                      "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/30 dark:bg-blue-900/20 dark:text-blue-400",
                       apiTrip.tripStatus.toLowerCase() === "past" &&
-                        "border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-800/40 dark:text-slate-400",
+                      "border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-800/40 dark:text-slate-400",
                     )}
                   >
                     {t(`tripDetail.status.${apiTrip.tripStatus.toLowerCase()}`)}
@@ -533,6 +533,20 @@ const TripDetail = () => {
           </DialogContent>
         )}
       </Dialog>
+      <VibesStoryBar
+        tripId={trip.id}
+        trip={{
+          ownerId: apiTrip.profileId,
+          travelers:
+            apiTrip.travelers?.map((t: any) => ({
+              profileId: t.profileId,
+              userName: t.userName,
+              imageUrl: t.imageUrl,
+            })) || [],
+        }}
+        currentUserId={currentUserId}
+        currentUserName="You"
+      />
 
       <div className="container mt-2 px-6">
         <div className="grid gap-8 lg:grid-cols-3">
@@ -661,7 +675,7 @@ const TripDetail = () => {
 
                                 {stop?.recommendations &&
                                   (stop?.recommendations as any[]).length >
-                                    0 && (
+                                  0 && (
                                     <div className="mt-4 pt-4 border-t border-gray-200/50 dark:border-slate-800">
                                       <p className="text-xs font-semibold text-muted-foreground dark:text-slate-400 mb-3 uppercase tracking-wider">
                                         {t("tripDetail.nearbyPlaces")}
@@ -729,9 +743,9 @@ const TripDetail = () => {
 
             {/* Discover Destination / Tabs Section */}
             {!trip.isAiGenerated &&
-            (trip.attractions?.length ||
-              trip.hotels?.length ||
-              trip.restaurants?.length) ? (
+              (trip.attractions?.length ||
+                trip.hotels?.length ||
+                trip.restaurants?.length) ? (
               <>
                 <div>
                   <h2 className="font-display text-xl font-semibold dark:text-slate-100">
@@ -852,24 +866,22 @@ const TripDetail = () => {
       group duration-500 ease-in-out transition-all will-change-transform z-50 mb-[2px]
       
       /* --- 1. Horizontal Mode (Mobile and Desktop) --- */
-      ${
-        !isDocked
-          ? `max-lg:fixed max-lg:top-4 max-lg:inset-x-0 max-lg:mx-auto 
+      ${!isDocked
+                  ? `max-lg:fixed max-lg:top-4 max-lg:inset-x-0 max-lg:mx-auto 
            max-lg:w-[96%] max-lg:max-w-md /* 96% width for better UX */
            max-lg:flex-row max-lg:rounded-full max-lg:border max-lg:border-white/20 
            max-lg:bg-background/80 dark:max-lg:bg-slate-900/80 max-lg:p-2 max-lg:px-3 /* Reduced inner padding */
            max-lg:backdrop-blur-xl max-lg:shadow-2xl 
            lg:relative lg:rounded-lg lg:border lg:border-gray-200/50 dark:lg:border-slate-800 lg:bg-card dark:lg:bg-slate-900 lg:p-5 lg:w-full lg:shadow-card lg:mt-[2px] 
            ${isNavVisible ? "max-lg:translate-y-16" : "max-lg:translate-y-0"}`
-          : ""
-      }
+                  : ""
+                }
         
       /* --- 2. Vertical Mode (Docked) for Mobile --- */
-      ${
-        isDocked
-          ? "max-lg:fixed max-lg:end-3 max-lg:top-1/4 max-lg:w-auto max-lg:flex-col max-lg:rounded-full max-lg:border max-lg:border-white/20 max-lg:bg-background/90 dark:max-lg:bg-slate-900/90 max-lg:p-3 max-lg:backdrop-blur-xl max-lg:shadow-2xl lg:relative lg:rounded-lg lg:border lg:border-gray-200/50 dark:lg:border-slate-800 lg:bg-card dark:lg:bg-slate-900 lg:p-5 lg:w-full lg:shadow-card lg:mt-[2px]"
-          : ""
-      }
+      ${isDocked
+                  ? "max-lg:fixed max-lg:end-3 max-lg:top-1/4 max-lg:w-auto max-lg:flex-col max-lg:rounded-full max-lg:border max-lg:border-white/20 max-lg:bg-background/90 dark:max-lg:bg-slate-900/90 max-lg:p-3 max-lg:backdrop-blur-xl max-lg:shadow-2xl lg:relative lg:rounded-lg lg:border lg:border-gray-200/50 dark:lg:border-slate-800 lg:bg-card dark:lg:bg-slate-900 lg:p-5 lg:w-full lg:shadow-card lg:mt-[2px]"
+                  : ""
+                }
     `}
             >
               {/* Title (Shows in desktop only) */}
@@ -881,11 +893,10 @@ const TripDetail = () => {
 
               <div
                 className={`flex transition-all duration-300
-      ${
-        isDocked
-          ? "max-lg:flex-col max-lg:space-y-4 max-lg:items-center"
-          : "flex-row items-center justify-between w-full gap-1" /* gap-1 to reduce clutter */
-      }
+      ${isDocked
+                    ? "max-lg:flex-col max-lg:space-y-4 max-lg:items-center"
+                    : "flex-row items-center justify-between w-full gap-1" /* gap-1 to reduce clutter */
+                  }
       lg:flex-col lg:space-y-4 lg:items-start lg:mt-[3px]
     `}
               >

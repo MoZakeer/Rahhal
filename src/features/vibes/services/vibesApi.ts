@@ -79,18 +79,36 @@ export async function fetchUserVibes(userId: string): Promise<Vibe[]> {
   return json.data.items.map(mapVibe);
 }
 
-export async function fetchTripVibes(tripId: string): Promise<Vibe[]> {
-  const res = await fetch(
-    `${BASE_URL}/Vibes/GetByTripId?TripId=${tripId}&SortByLastAdded=true`,
+export async function fetchTripVibesByTripId(tripId: string): Promise<Vibe[]> {
+  const response = await fetch(
+    `https://rahhal-api.runasp.net/Vibes/GetByTripId?TripId=${tripId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
   );
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch trip vibes");
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to fetch trip vibes");
   }
 
-  const json = await res.json();
-
-  return json.data.items.map(mapVibe);
+  return data.data.items.map((item: any) => ({
+    id: item.id,
+    userId: item.userId,
+    userName: item.userName,
+    userAvatar: item.profileUrl,
+    description: item.description,
+    createdAt: item.createdDate,
+    mediaUrls: item.mediaUrLs?.map((m: any) => m.url) || [],
+    reactions: {
+      count: item.likes,
+      userReacted: item.isLiked,
+    },
+    commentsCount: item.comments,
+  }));
 }
 
 // --------------------
@@ -99,11 +117,10 @@ export async function fetchTripVibes(tripId: string): Promise<Vibe[]> {
 
 export interface CreateVibeInput {
   tripId: string;
-  description?: string;
+  description: string;
   files?: File[];
 }
-
-export async function createVibe(input: CreateVibeInput): Promise<void> {
+export async function createVibe(input: CreateVibeInput): Promise<any> {
   const formData = new FormData();
 
   if (input.files?.length) {
@@ -112,19 +129,29 @@ export async function createVibe(input: CreateVibeInput): Promise<void> {
     });
   }
 
-  const query = new URLSearchParams({
+  const params = new URLSearchParams({
+    Description: input.description,
     TripId: input.tripId,
-    Description: input.description ?? "",
   });
 
-  const res = await fetch(`${BASE_URL}/Vibes/Create?${query.toString()}`, {
-    method: "POST",
-    body: formData,
-  });
+  const response = await fetch(
+    `https://rahhal-api.runasp.net/Vibes/Create?${params.toString()}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: formData,
+    }
+  );
 
-  if (!res.ok) {
-    throw new Error("Failed to create vibe");
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to create vibe");
   }
+
+  return data;
 }
 
 // --------------------
@@ -193,17 +220,27 @@ export async function deleteVibe(postId: string): Promise<void> {
 // PERMISSIONS
 // --------------------
 
+export interface TripTraveler {
+  profileId: string;
+  userName?: string;
+  imageUrl?: string;
+}
+
 export interface TripLite {
   ownerId?: string;
-  memberIds?: string[];
+  travelers?: TripTraveler[];
 }
 
 export const canPostVibe = (trip: TripLite | null, userId?: string | null) => {
   if (!userId || !trip) return false;
 
+  const allowedIds =
+    trip.travelers?.map((t) => t.profileId) ?? [];
+
+  
   if (trip.ownerId === userId) return true;
 
-  return Boolean(trip.memberIds?.includes(userId));
+  return allowedIds.includes(userId);
 };
 
 export const canEditVibe = (vibe: Vibe, userId?: string | null) =>
