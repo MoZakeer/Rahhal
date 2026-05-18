@@ -86,6 +86,7 @@ export const useSidebarUpdates = function () {
       );
     };
     const handleNewChat = function (newChat: ChatType) {
+      console.log(newChat);
       queryClient.setQueryData(["all-chats"], (oldData: any) => {
         if (!oldData) return oldData;
 
@@ -101,9 +102,9 @@ export const useSidebarUpdates = function () {
         };
       });
     };
-    const handleLastMessageSeen = function (data: UpdateSidebarData) {
-      console.log(data);
-    };
+    // const handleLastMessageSeen = function (data: UpdateSidebarData) {
+    //   // console.log(data);
+    // };
     const handleDeleteSidebarMessage = function (data: UpdateSidebarData) {
       queryClient.setQueryData<{ data: ChatType[] }>(
         ["all-chats"],
@@ -164,14 +165,14 @@ export const useSidebarUpdates = function () {
     connection.on("UpdateSidebar", handleUpdateSidebar);
     connection.on("UpdateUnreadCount", handleUpdateUnreadCount);
     connection.on("NewChatCreated", handleNewChat);
-    connection.on("UpdateSeenMark", handleLastMessageSeen);
+    // connection.on("UpdateSeenMark", handleLastMessageSeen);
     connection.on("DeleteLastMessage", handleDeleteSidebarMessage);
     connection.on("UserTyping", handleSidebarTyping);
     return () => {
       connection.off("UpdateSidebar", handleUpdateSidebar);
       connection.off("UpdateUnreadCount", handleUpdateUnreadCount);
       connection.off("NewChatCreated", handleNewChat);
-      connection.off("UpdateSeenMark", handleLastMessageSeen);
+      // connection.off("UpdateSeenMark", handleLastMessageSeen);
       connection.off("DeleteLastMessage", handleDeleteSidebarMessage);
       connection.off("UserTyping", handleSidebarTyping);
     };
