@@ -25,7 +25,12 @@ const FeedVibesBar = ({ currentUserId }: { currentUserId?: string | null }) => {
   if (groups.length === 0) return null;
 
   const initials = (n: string) =>
-    n.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+    n
+      .split(" ")
+      .map((p) => p[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
 
   return (
     <div className="container mt-6">

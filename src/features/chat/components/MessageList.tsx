@@ -3,7 +3,6 @@ import Message from "./Message";
 import type { Message as TMessage } from "../types/chat.types";
 import { formatDate } from "../../../utils/helper";
 import { useUser } from "../../../context/UserContext";
-// 1. Import the correct thin chevron icon
 import { BsChevronDown } from "react-icons/bs";
 import TypingIndicator from "./TypingIndicator";
 
@@ -15,6 +14,7 @@ interface MessageListProps {
   isGroup: boolean;
   isTyping?: boolean;
   typingUser?: string;
+  onReply: (message: TMessage) => void;
 }
 
 function MessageList({
@@ -25,8 +25,10 @@ function MessageList({
   isGroup,
   isTyping,
   typingUser,
+  onReply,
 }: MessageListProps) {
   const { user } = useUser();
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -86,6 +88,7 @@ function MessageList({
 
   const sortedMessages = useMemo(() => {
     if (!messages) return [];
+
     return [...messages].sort(
       (a, b) =>
         new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime(),
@@ -102,7 +105,9 @@ function MessageList({
     const currentLastMessage = sortedMessages[sortedMessages.length - 1];
 
     if (isFirstLoadRef.current) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+      messagesEndRef.current?.scrollIntoView({
+        behavior: "auto",
+      });
       isFirstLoadRef.current = false;
       lastMessageIdRef.current = currentLastMessage.messageId;
       firstMessageIdRef.current = currentFirstMessage.messageId;
@@ -110,7 +115,9 @@ function MessageList({
     }
 
     if (lastMessageIdRef.current !== currentLastMessage.messageId) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.current?.scrollIntoView({
+        behavior: "smooth",
+      });
       lastMessageIdRef.current = currentLastMessage.messageId;
       firstMessageIdRef.current = currentFirstMessage.messageId;
       return;
@@ -127,7 +134,6 @@ function MessageList({
       if (oldFirstMessageElement) {
         container.scrollTop = oldFirstMessageElement.offsetTop - 50;
       }
-
       firstMessageIdRef.current = currentFirstMessage.messageId;
     }
   }, [messages, sortedMessages]);
@@ -137,29 +143,31 @@ function MessageList({
 
     const { scrollTop, scrollHeight, clientHeight } =
       scrollContainerRef.current;
-
     const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
     setShowScrollButton(distanceFromBottom > 150);
   };
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
   };
 
   return (
     <div
       ref={scrollContainerRef}
       onScroll={handleScroll}
-      className="flex-1 overflow-y-auto no-scrollbar relative"
+      className="flex-1 overflow-y-auto no-scrollbar relative flex flex-col"
     >
-      <div ref={observerTarget} className="w-full h-1" />
+      <div ref={observerTarget} className="w-full h-1 shrink-0" />
 
       {sortedMessages?.length === 0 ? (
-        <div className="h-full flex justify-center items-center text-gray-500">
+        <div className="flex-1 flex justify-center items-center text-gray-500">
           There are no messages yet… start the conversation!
         </div>
       ) : (
-        <ul className="flex flex-col gap-5 px-3 py-4 md:py-6 lg:pr-18 lg:pl-12">
+        <ul className="flex-1 flex flex-col gap-5 px-3 py-4 md:py-6 lg:pr-18 lg:pl-12 relative">
           {sortedMessages.map((message: TMessage, index) => {
             const currentDate = getMessageDateLabel(message.createdDate);
             const prevMessage = sortedMessages[index - 1];
@@ -195,28 +203,39 @@ function MessageList({
                   isGroup={isGroup}
                   isSeen={message.isSeen}
                   message={message}
+                  onReply={onReply}
                 >
                   {message?.content}
                 </Message>
               </div>
             );
           })}
-          {/* Typing  */}
 
           {isTyping && <TypingIndicator name={isGroup ? typingUser : ""} />}
 
-          <div ref={messagesEndRef} />
+          <div ref={messagesEndRef} className="h-1 shrink-0" />
         </ul>
       )}
 
       {showScrollButton && (
-        <button
-          onClick={scrollToBottom}
-          className="sticky bottom-6 right-2   md:fixed md:bottom-24 md:right-4 md:translate-x-0 z-50  bg-primary-600 text-white rounded-full shadow-md backdrop-blur-sm hover:bg-primary-700 transition-all focus:outline-none focus:ring-2 items-center justify-center  px-2 py-2 hidden sm:flex"
-          aria-label="Scroll to bottom"
-        >
-          <BsChevronDown className="h-7 w-7" />
-        </button>
+        <div className="sticky bottom-1 w-full flex justify-end px-4 md:px-8 pointer-events-none z-50 pb-2">
+          <button
+            onClick={scrollToBottom}
+            className="
+              pointer-events-auto 
+              bg-primary-600 text-white 
+              rounded-full p-2.5 
+              shadow-lg backdrop-blur-sm 
+              hover:bg-primary-700 hover:scale-105 active:scale-95
+              transition-all duration-200 
+              focus:outline-none focus:ring-2 
+              hidden sm:flex items-center justify-center
+            "
+            aria-label="Scroll to bottom"
+          >
+            <BsChevronDown className="h-6 w-6 stroke-1" />
+          </button>
+        </div>
       )}
     </div>
   );

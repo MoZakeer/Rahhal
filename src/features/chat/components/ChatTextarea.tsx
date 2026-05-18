@@ -64,7 +64,6 @@ function ChatTextarea({
       placeholder={placeholder ?? "Type a message..."}
       className={`
         w-full
-        border border-gray-200
         outline-none
         bg-gray-0
         px-6

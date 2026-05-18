@@ -1,4 +1,3 @@
-
 export interface PaginatedMessages {
   pageSize: number;
   pageIndex: number;
@@ -6,6 +5,7 @@ export interface PaginatedMessages {
   records: number;
   items: Message[];
 }
+
 export interface ChatResponse {
   data: {
     conversationId: string;
@@ -19,17 +19,33 @@ export interface ChatResponse {
     membersCount: number;
   };
 }
+
+export interface Attachment {
+  attachmentId: string;
+  fileUrl: string;
+}
+
+export interface ParentMessageInfo {
+  messageId: string;
+  senderName: string;
+  content: string;
+  type: number;
+  attachmentUrls: Attachment[];
+}
+
 export interface Message {
   messageId: string;
   senderProfileId: string;
   senderName: string;
   senderProfilePhoto: string;
+
   content: string;
-  createdDate: string; // ISO Date
+
+  createdDate: string;
+
   attachments: Attachment[];
+
   isSeen: boolean;
-}
-export interface Attachment {
-  attachmentId: string;
-  fileUrl: string;
+
+  parentMessageInfo?: ParentMessageInfo | null;
 }

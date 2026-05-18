@@ -77,7 +77,7 @@ function ImageAttachButton({ onSelectFiles }: ImageAttachProps) {
         "
         title="add media"
       >
-        <IoAttach className="w-8 h-8 aspect-square text-gray-700" />
+        <IoAttach className="w-7 h-7 aspect-square text-gray-700" />
       </button>
     </>
   );
