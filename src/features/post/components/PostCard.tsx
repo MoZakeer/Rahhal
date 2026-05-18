@@ -106,6 +106,9 @@ export function PostHeader({
             e.stopPropagation();
             navigate(`/profile/${profileId}`);
           }}
+          alt={userName}
+          loading="lazy"
+          decoding="async"
           src={normalizeMediaUrl(profileUrl)}
           className="w-10 h-10 rounded-full object-cover"
         />
@@ -203,29 +206,6 @@ export function PostHeader({
 
 export function PostMedia({ media }: { media: PostMediaItem[] }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  useEffect(() => {
-    const video = videoRef.current;
-
-    if (!video) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          video.play().catch(() => {});
-        } else {
-          video.pause();
-        }
-      },
-      {
-        threshold: 0.5,
-      },
-    );
-
-    observer.observe(video);
-
-    return () => observer.disconnect();
-  }, []);
   const [current, setCurrent] = useState(0);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
@@ -233,12 +213,37 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
   const isDragging = useRef(false);
   const currentMedia = media[current];
 
+  // Video Observer
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          video.pause();
+        }
+      },
+      {
+        threshold: 0.5,
+      }
+    );
+    observer.observe(video);
+
+    return () => {
+      observer.disconnect();
+      video.pause(); 
+    };
+  }, [current]);
+
   if (!media.length) return null;
+
   const isVideo = (item: PostMediaItem) => {
     if (item.type) return item.type === "video";
-
     return /\.(mp4|webm|ogg|mov)$/i.test(item.url);
   };
+
   const next = () => {
     setCurrent((prev) => (prev + 1) % media.length);
   };
@@ -257,6 +262,7 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
     isDragging.current = false;
     startX.current = null;
   };
+
   const handleMove = (x: number) => {
     if (!isDragging.current || startX.current === null) return;
 
@@ -288,11 +294,12 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
         {media.length > 1 && current !== 0 && (
           <button
             className="absolute left-4 opacity-0 group-hover:opacity-100 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
-            onClick={prev}
+            onClick={(e) => { e.stopPropagation(); prev(); }}
           >
             <ChevronLeft size={32} />
           </button>
         )}
+
         {isVideo(currentMedia) ? (
           <video
             ref={videoRef}
@@ -301,19 +308,26 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
             className="w-full h-full object-cover"
             controls
             playsInline
+            autoPlay={false}
+            controlsList="nodownload"
+            onContextMenu={(e) => e.preventDefault()}
           />
         ) : (
           <img
             onClick={() => setIsPreviewOpen(true)}
             src={normalizeMediaUrl(currentMedia.url)}
+            alt="Post media content" 
+            loading="lazy" 
+            decoding="async" 
             className="w-full h-full object-cover transition-transform duration-300"
             draggable={false}
           />
         )}
+
         {media.length > 1 && current !== media.length - 1 && (
           <button
             className="absolute opacity-0 group-hover:opacity-100 right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
-            onClick={next}
+            onClick={(e) => { e.stopPropagation(); next(); }}
           >
             <ChevronRight size={32} />
           </button>
@@ -321,12 +335,7 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
 
         {/* Counter */}
         <div
-          className="absolute top-2 right-2 
-bg-black/60 text-white text-xs 
-px-2 py-0.5 rounded-full backdrop-blur-sm
-opacity-0 translate-y-1 
-group-hover:opacity-100 group-hover:translate-y-0
-transition-all duration-300"
+          className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full backdrop-blur-sm opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"
         >
           {current + 1} / {media.length}
         </div>
@@ -353,7 +362,6 @@ transition-all duration-300"
                     className="w-full h-full object-cover"
                     muted
                   />
-
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                     <Play size={24} className="text-white fill-white" />
                   </div>
@@ -361,22 +369,25 @@ transition-all duration-300"
               ) : (
                 <img
                   src={normalizeMediaUrl(m.url)}
-                  className="w-full h-full object-cover"
+                  alt="Media thumbnail"
                   loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover"
                 />
               )}
             </div>
           ))}
         </div>
       )}
+
       {/* Preview Modal */}
       {isPreviewOpen && (
         <div
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm"
           onClick={() => setIsPreviewOpen(false)}
         >
           <div
-            className=" inset-0 bg-black/80 z-50 flex items-center justify-center"
+            className="inset-0 flex items-center justify-center relative w-full h-full"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -397,16 +408,20 @@ transition-all duration-300"
             {isVideo(currentMedia) ? (
               <video
                 src={normalizeMediaUrl(currentMedia.url)}
-                className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
+                className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
                 controls
                 autoPlay
               />
             ) : (
               <img
                 src={normalizeMediaUrl(currentMedia.url)}
-                className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
+                alt="Preview"
+                loading="lazy"
+                decoding="async"
+                className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
               />
             )}
+            
             {media.length > 1 && (
               <button
                 className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"

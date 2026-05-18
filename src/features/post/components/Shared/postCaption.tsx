@@ -1,4 +1,6 @@
 import { useRef } from "react";
+import { useLanguage } from "@/context/LanguageContext";
+import { cn } from "@/lib/utils"; 
 
 type Props = {
   caption: string;
@@ -14,6 +16,9 @@ export default function PostCaption({
   placeholder,
 }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  const { language } = useLanguage(); 
+  const isRtl = language === "ar";
 
   // const remaining = maxChars - caption.length;
   // const warning = remaining <= 50;
@@ -28,24 +33,10 @@ export default function PostCaption({
           // maxLength={maxChars}
           placeholder={placeholder}
           rows={5}
-          className="
-            w-full
-            resize-none
-            bg-gray-50
-            rounded-xl
-            px-4
-            py-3
-            border border-gray-100
-            text-sm
-            text-gray-800
-            placeholder:text-gray-400
-            outline-none
-            focus:ring-2
-            focus:ring-[var(--color-primary-500)]
-            dark:bg-slate-700
-            dark:border-0
-            
-          "
+          className={cn(
+            "w-full resize-none bg-gray-50 rounded-xl px-4 py-3 border border-gray-100 text-sm text-gray-800 dark:text-slate-100 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] dark:bg-slate-700 dark:border-0",
+            isRtl ? "text-right" : "text-left"
+          )}
         />
       </div>
 
