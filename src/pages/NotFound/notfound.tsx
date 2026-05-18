@@ -25,7 +25,7 @@ const NotFoundPage: React.FC = () => {
           <motion.img
             animate={{ y: [-6, 6, -6] }}
             transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
-            src="../../../public/404 (1).png"
+            src="/404.png"
             alt="Lost Traveler Looking Through Telescope"
             className="w-full h-full object-contain pointer-events-none select-none"
           />
