@@ -3,7 +3,7 @@ import type { PostMediaItem } from "../../../types/post";
 import { PostContent } from "./PostContent";
 import type { PostsResponse } from "../../../types/post";
 import toast from "react-hot-toast";
-import { X, ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 import {
   MoreHorizontal,
@@ -31,6 +31,8 @@ import ConfirmModal from "../../ReportDetals/components/confirmModal";
 import { LikesList } from "./LikesList";
 import EditPostModal from "../components/EditPostModal";
 import type { PostDetails } from "../../../types/post";
+import { useLanguage } from "@/context/LanguageContext";
+import { cn } from "@/lib/utils";
 
 export function PostHeader({
   id,
@@ -59,6 +61,8 @@ export function PostHeader({
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { language } = useLanguage(); 
+  const isRtl = language === "ar"
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -139,11 +143,10 @@ export function PostHeader({
         {!isOwner && (
           <button
             onClick={onFollow}
-            className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${
-              isFollowing
+            className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${isFollowing
                 ? "bg-slate-50 dark:bg-blue-950 border border-slate-200 dark:border-blue-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                 : "bg-blue-700 dark:bg-blue-700 border border-blue-700 dark:border-blue-900 text-white hover:bg-blue-800 dark:hover:bg-blue-900"
-            }`}
+              }`}
           >
             {isFollowing ? "Following" : "Follow"}
           </button>
@@ -166,7 +169,10 @@ export function PostHeader({
             </div>
           )}
           {dropdownOpen && (
-            <div className="absolute top-full right-0 mt-2 w-36 bg-white dark:bg-slate-800 rounded-xl shadow-lg ring-1 ring-black/5 dark:ring-white/10 z-50 overflow-hidden border border-transparent dark:border-slate-700">
+            <div className={cn(
+              "absolute top-full mt-2 w-36 bg-white dark:bg-slate-800 rounded-xl shadow-lg ring-1 ring-black/5 dark:ring-white/10 z-50 overflow-hidden border border-transparent dark:border-slate-700",
+              isRtl ? "left-0" : "right-0"
+            )}>
               {isOwner ? (
                 <>
                   <button
@@ -208,6 +214,8 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [current, setCurrent] = useState(0);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const { language } = useLanguage();
+  const isRtl = language === "ar";
 
   const startX = useRef<number | null>(null);
   const isDragging = useRef(false);
@@ -216,23 +224,32 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
   // Video Observer
   useEffect(() => {
     const video = videoRef.current;
-
     if (!video) return;
+
+    video.muted = false;
+    video.defaultMuted = false;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry.isIntersecting) {
+        if (entry.isIntersecting) {
+          const playPromise = video.play();
+          if (playPromise !== undefined) {
+            playPromise.catch((error) => {
+              // Autoplay might be blocked, but we can still allow play on user interaction
+              console.warn("Autoplay blocked by browser. User interaction required.", error);
+            });
+          }
+        } else {
           video.pause();
         }
       },
-      {
-        threshold: 0.5,
-      }
+      { threshold: 0.5 }
     );
+    
     observer.observe(video);
-
-    return () => {
-      observer.disconnect();
+    
+    return () => { 
+      observer.disconnect(); 
       video.pause(); 
     };
   }, [current]);
@@ -265,16 +282,16 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
 
   const handleMove = (x: number) => {
     if (!isDragging.current || startX.current === null) return;
-
     const diff = startX.current - x;
 
     if (diff > 50) {
-      next();
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      isRtl ? prev() : next();
       isDragging.current = false;
     }
-
     if (diff < -50) {
-      prev();
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      isRtl ? next() : prev();
       isDragging.current = false;
     }
   };
@@ -283,7 +300,7 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
     <div className="w-full overflow-x-hidden">
       {/* Main Image (Swipe Area) */}
       <div
-        className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden group select-none bg-slate-100 dark:bg-slate-900 cursor-pointer"
+        className="relative w-full aspect-square sm:aspect-[4/3] max-h-[450px] rounded-2xl overflow-hidden group select-none bg-slate-950 cursor-pointer shadow-sm border border-slate-100 dark:border-slate-800/60"
         onMouseDown={(e) => handleStart(e.clientX)}
         onMouseUp={handleEnd}
         onMouseLeave={handleEnd}
@@ -293,92 +310,71 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
       >
         {media.length > 1 && current !== 0 && (
           <button
-            className="absolute left-4 opacity-0 group-hover:opacity-100 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+            className={cn(
+              "absolute opacity-0 group-hover:opacity-100 top-1/2 -translate-y-1/2 text-white p-1.5 bg-black/30 rounded-full hover:bg-black/50 z-20 transition-all backdrop-blur-sm",
+              isRtl ? "right-2" : "left-2"
+            )}
             onClick={(e) => { e.stopPropagation(); prev(); }}
           >
-            <ChevronLeft size={32} />
+            {isRtl ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
           </button>
         )}
 
-        {isVideo(currentMedia) ? (
-          <video
-            ref={videoRef}
-            onClick={() => setIsPreviewOpen(true)}
-            src={normalizeMediaUrl(currentMedia.url)}
-            className="w-full h-full object-cover"
-            controls
-            playsInline
-            autoPlay={false}
-            controlsList="nodownload"
-            onContextMenu={(e) => e.preventDefault()}
-          />
-        ) : (
-          <img
-            onClick={() => setIsPreviewOpen(true)}
-            src={normalizeMediaUrl(currentMedia.url)}
-            alt="Post media content" 
-            loading="lazy" 
-            decoding="async" 
-            className="w-full h-full object-cover transition-transform duration-300"
-            draggable={false}
-          />
-        )}
+        <div key={current} className="w-full h-full animate-in fade-in duration-300 ease-out flex items-center justify-center">
+          {isVideo(currentMedia) ? (
+            <video
+              ref={videoRef}
+              src={normalizeMediaUrl(currentMedia.url)}
+              className="w-full h-full object-cover"
+              controls
+              playsInline
+              controlsList="nodownload"
+              onContextMenu={(e) => e.preventDefault()}
+            />
+          ) : (
+            <img
+              onClick={() => setIsPreviewOpen(true)}
+              src={normalizeMediaUrl(currentMedia.url)}
+              alt="Post media"
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+              draggable={false}
+            />
+          )}
+        </div>
 
         {media.length > 1 && current !== media.length - 1 && (
           <button
-            className="absolute opacity-0 group-hover:opacity-100 right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+            className={cn(
+              "absolute opacity-0 group-hover:opacity-100 top-1/2 -translate-y-1/2 text-white p-1.5 bg-black/30 rounded-full hover:bg-black/50 z-20 transition-all backdrop-blur-sm",
+              isRtl ? "left-2" : "right-2"
+            )}
             onClick={(e) => { e.stopPropagation(); next(); }}
           >
-            <ChevronRight size={32} />
+            {isRtl ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
           </button>
         )}
 
+        {media.length > 1 && (
+          <div className="absolute bottom-3 left-0 right-0 flex justify-center items-center gap-1.5 z-10">
+            {media.map((_, i) => (
+              <div
+                key={i}
+                className={`transition-all duration-300 rounded-full ${i === current
+                    ? "w-4 h-1.5 bg-white shadow-sm"
+                    : "w-1.5 h-1.5 bg-white/50"
+                  }`}
+              />
+            ))}
+          </div>
+        )}
+
         {/* Counter */}
-        <div
-          className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full backdrop-blur-sm opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"
-        >
+        <div className="absolute top-3 right-3 bg-black/50 text-white font-medium text-[10px] px-2 py-1 rounded-full backdrop-blur-md z-10 tabular-nums">
           {current + 1} / {media.length}
         </div>
       </div>
-
-      {/* Thumbnails */}
-      {media.length > 1 && (
-        <div className="flex gap-3 mt-4 overflow-x-auto pb-2 scrollbar-hide scroll-smooth">
-          {media.map((m, i) => (
-            <div
-              key={m.id}
-              onClick={() => setIsPreviewOpen(true)}
-              onMouseEnter={() => setCurrent(i)}
-              className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${
-                i === current
-                  ? "ring-2 ring-blue-500 dark:ring-blue-400 opacity-100"
-                  : "opacity-60 hover:opacity-100"
-              }`}
-            >
-              {isVideo(m) ? (
-                <>
-                  <video
-                    src={normalizeMediaUrl(m.url)}
-                    className="w-full h-full object-cover"
-                    muted
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                    <Play size={24} className="text-white fill-white" />
-                  </div>
-                </>
-              ) : (
-                <img
-                  src={normalizeMediaUrl(m.url)}
-                  alt="Media thumbnail"
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-full object-cover"
-                />
-              )}
-            </div>
-          ))}
-        </div>
-      )}
 
       {/* Preview Modal */}
       {isPreviewOpen && (
@@ -421,7 +417,7 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
                 className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
               />
             )}
-            
+
             {media.length > 1 && (
               <button
                 className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
@@ -558,9 +554,9 @@ export default function PostCard({ post }: { post: Post }) {
                 items: page.data.items.map((p) =>
                   p.userId === userId
                     ? {
-                        ...p,
-                        isFollowedByCurrentUser: !p.isFollowedByCurrentUser,
-                      }
+                      ...p,
+                      isFollowedByCurrentUser: !p.isFollowedByCurrentUser,
+                    }
                     : p,
                 ),
               },
@@ -620,7 +616,7 @@ export default function PostCard({ post }: { post: Post }) {
     },
 
     // ✅ No invalidation — GetAll returns wrong isFollowedByCurrentUser
-    onSettled: () => {},
+    onSettled: () => { },
   });
 
   function handleFollow() {

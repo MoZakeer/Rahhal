@@ -9,7 +9,6 @@ export default function FeedHeader({ onCreatePost }: Props) {
   const { t } = useLanguage();
 
   const userName = localStorage.getItem("username") || t("feed.traveler");
-  console.log("Username from localStorage:", userName);
 
   return (
     <div className="flex flex-col gap-6 w-full px-3 sm:px-4">
