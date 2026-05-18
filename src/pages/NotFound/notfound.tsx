@@ -25,7 +25,7 @@ const NotFoundPage: React.FC = () => {
           <motion.img
             animate={{ y: [-6, 6, -6] }}
             transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
-            src="/404.png"
+            src="/non.png"
             alt="Lost Traveler Looking Through Telescope"
             className="w-full h-full object-contain pointer-events-none select-none"
           />
@@ -39,7 +39,7 @@ const NotFoundPage: React.FC = () => {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-3xl md:text-4xl font-serif font-bold tracking-tight text-slate-900 dark:text-white mb-4"
+          className="text-3xl md:text-4xl font-serif font-bold tracking-tight text-slate-900 dark:text-white mb-4 mt-3"
         >
           Oops! Page Not Found
         </motion.h2>
