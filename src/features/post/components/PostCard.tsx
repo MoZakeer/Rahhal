@@ -219,7 +219,8 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [current, setCurrent] = useState(0);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const { language } = useLanguage();
+  
+  const { t, language } = useLanguage();
   const isRtl = language === "ar";
 
   const startX = useRef<number | null>(null);
@@ -240,7 +241,6 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
           const playPromise = video.play();
           if (playPromise !== undefined) {
             playPromise.catch((error) => {
-              // Autoplay might be blocked, but we can still allow play on user interaction
               console.warn("Autoplay blocked by browser. User interaction required.", error);
             });
           }
@@ -320,6 +320,8 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
               isRtl ? "right-2" : "left-2"
             )}
             onClick={(e) => { e.stopPropagation(); prev(); }}
+            title={t("feed.prevMedia")}
+            aria-label={t("feed.prevMedia")}
           >
             {isRtl ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
           </button>
@@ -340,7 +342,7 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
             <img
               onClick={() => setIsPreviewOpen(true)}
               src={normalizeMediaUrl(currentMedia.url)}
-              alt="Post media"
+              alt={t("feed.mediaAlt")}
               loading="lazy"
               decoding="async"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
@@ -356,6 +358,8 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
               isRtl ? "left-2" : "right-2"
             )}
             onClick={(e) => { e.stopPropagation(); next(); }}
+            title={t("feed.nextMedia")}
+            aria-label={t("feed.nextMedia")}
           >
             {isRtl ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
           </button>
@@ -384,25 +388,36 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
       {/* Preview Modal */}
       {isPreviewOpen && (
         <div
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm"
+          className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center backdrop-blur-sm animate-in fade-in duration-200"
           onClick={() => setIsPreviewOpen(false)}
+          dir={isRtl ? "rtl" : "ltr"}
         >
           <div
             className="inset-0 flex items-center justify-center relative w-full h-full"
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              className="absolute top-4 right-4 text-white p-2 rounded-full hover:bg-black/50 z-10"
+              className={cn(
+                "absolute top-4 text-white p-2 rounded-full hover:bg-black/50 z-10 transition-colors",
+                isRtl ? "left-4" : "right-4"
+              )}
               onClick={() => setIsPreviewOpen(false)}
+              title={t("feed.closePreview")} 
+              aria-label={t("feed.closePreview")}
             >
               <X size={24} />
             </button>
+            
             {media.length > 1 && (
               <button
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+                className={cn(
+                  "absolute top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10 transition-colors",
+                  isRtl ? "right-4" : "left-4"
+                )}
                 onClick={prev}
+                title={t("feed.prevMedia")}
               >
-                <ChevronLeft size={32} />
+                {isRtl ? <ChevronRight size={32} /> : <ChevronLeft size={32} />}
               </button>
             )}
 
@@ -416,7 +431,7 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
             ) : (
               <img
                 src={normalizeMediaUrl(currentMedia.url)}
-                alt="Preview"
+                alt={t("feed.previewAlt")}
                 loading="lazy"
                 decoding="async"
                 className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
@@ -425,10 +440,14 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
 
             {media.length > 1 && (
               <button
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10"
+                className={cn(
+                  "absolute top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-black/50 z-10 transition-colors",
+                  isRtl ? "left-4" : "right-4"
+                )}
                 onClick={next}
+                title={t("feed.nextMedia")}
               >
-                <ChevronRight size={32} />
+                {isRtl ? <ChevronLeft size={32} /> : <ChevronRight size={32} />}
               </button>
             )}
           </div>

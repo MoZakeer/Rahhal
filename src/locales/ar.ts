@@ -286,7 +286,13 @@ export const ar = {
       viewSingleComment: "عرض تعليق واحد",
       shareVia: "مشاركة عبر...",
       copyAction: "نسخ",
-      moreOptions: "المزيد"
+      moreOptions: "المزيد",
+
+      // Media Carousel & Preview
+      previewAlt: "معاينة الوسائط",
+      nextMedia: "الوسائط التالية",
+      prevMedia: "الوسائط السابقة",
+      closePreview: "إغلاق المعاينة",
 
    },
    postCard: {

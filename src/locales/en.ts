@@ -286,7 +286,13 @@ export const en = {
       viewSingleComment: "View 1 comment",
       shareVia: "Share via...",
       copyAction: "Copy",
-      moreOptions: "More"
+      moreOptions: "More",
+
+      // Media Carousel & Preview
+      previewAlt: "Media preview",
+      nextMedia: "Next media",
+      prevMedia: "Previous media",
+      closePreview: "Close preview",
    },
    postCard: {
       "deleteSuccess": "Deleting post!",
