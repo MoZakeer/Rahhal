@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { normalizeMediaUrl } from "@/features/post/components/services/posts.api";
 
 interface VibeAvatarRingProps {
   src?: string;
@@ -49,7 +50,7 @@ const VibeAvatarRing = ({
           </div>
         ) : (
           <Avatar className="h-16 w-16 border-2 border-card">
-            <AvatarImage src={src} alt={label} />
+            <AvatarImage src={normalizeMediaUrl(src)} alt={label} />
             <AvatarFallback className="bg-primary/10 text-sm font-semibold text-primary">
               {fallback}
             </AvatarFallback>

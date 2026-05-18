@@ -2,13 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import VibeAvatarRing from "./VibeAvatarRing";
 import VibeCreator from "./VibeCreator";
 import FullVibeViewer from "./FullVibeViewer";
+
 import {
-  tripVibesSync,
-  subscribeVibes,
+  fetchTripVibes,
   canPostVibe,
   type TripLite,
 } from "../services/vibesApi";
-import { groupVibesByUser, type UserVibesGroup, type Vibe } from "../data/vibesData";
+
+import {
+  groupVibesByUser,
+  type UserVibesGroup,
+  type Vibe,
+} from "../data/vibesData";
 
 interface VibesStoryBarProps {
   tripId: string;
@@ -33,7 +38,7 @@ const saveSeen = (set: Set<string>) => {
   try {
     localStorage.setItem(SEEN_KEY, JSON.stringify(Array.from(set)));
   } catch {
-    /* ignore */
+    // ignore
   }
 };
 
@@ -44,26 +49,37 @@ const VibesStoryBar = ({
   currentUserName,
   currentUserAvatar,
 }: VibesStoryBarProps) => {
-  const [vibes, setVibes] = useState<Vibe[]>(() => tripVibesSync(tripId));
+  const [vibes, setVibes] = useState<Vibe[]>([]);
   const [creatorOpen, setCreatorOpen] = useState(false);
   const [viewer, setViewer] = useState<{
     groups: UserVibesGroup[];
     groupIndex: number;
   } | null>(null);
-  const [seen, setSeen] = useState<Set<string>>(loadSeen);
 
+  const [seen, setSeen] = useState<Set<string>>(() => loadSeen());
+
+  // -----------------------
+  // FETCH FROM API (NO MOCK)
+  // -----------------------
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setVibes(tripVibesSync(tripId));
-    const unsub = subscribeVibes(() => setVibes(tripVibesSync(tripId)));
-    return () => {
-      unsub();
+    const load = async () => {
+      try {
+        const data = await fetchTripVibes(tripId);
+        setVibes(data);
+      } catch (err) {
+        console.error("Failed to load vibes", err);
+      }
     };
+
+    load();
   }, [tripId]);
 
   const groups = useMemo(() => groupVibesByUser(vibes), [vibes]);
   const canPost = canPostVibe(trip, currentUserId);
 
+  // -----------------------
+  // SEEN LOGIC
+  // -----------------------
   const markGroupSeen = (g: UserVibesGroup) => {
     const next = new Set(seen);
     g.vibes.forEach((v) => next.add(v.id));
@@ -71,31 +87,38 @@ const VibesStoryBar = ({
     saveSeen(next);
   };
 
-  const isGroupSeen = (g: UserVibesGroup) => g.vibes.every((v) => seen.has(v.id));
+  const isGroupSeen = (g: UserVibesGroup) =>
+    g.vibes.every((v) => seen.has(v.id));
 
+  // -----------------------
+  // OPEN GROUP VIEWER
+  // -----------------------
   const openGroup = (idx: number) => {
     setViewer({ groups, groupIndex: idx });
     markGroupSeen(groups[idx]);
   };
 
   const openAll = () => {
-    if (groups.length === 0) return;
-    // collapse all vibes into one chronological group
+    if (!groups.length) return;
+
     const all = [...vibes].sort(
       (a, b) =>
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     );
+
     const merged: UserVibesGroup = {
       userId: "__all__",
       userName: "All Vibes",
       userAvatar: "",
       vibes: all,
-      lastVibeAt: all[all.length - 1]?.createdAt ?? new Date().toISOString(),
+      lastVibeAt: all.at(-1)?.createdAt ?? new Date().toISOString(),
     };
+
     const next = new Set(seen);
     all.forEach((v) => next.add(v.id));
     setSeen(next);
     saveSeen(next);
+
     setViewer({ groups: [merged], groupIndex: 0 });
   };
 
@@ -107,15 +130,16 @@ const VibesStoryBar = ({
       .join("")
       .toUpperCase();
 
+  // -----------------------
+  // UI
+  // -----------------------
   return (
     <div className="rounded-xl border border-gray-50 bg-card/60 p-3 shadow-card backdrop-blur">
       <div className="mb-2 flex items-center justify-between px-1">
-        <h3 className="font-display text-sm font-semibold text-foreground">
-          Vibes
-        </h3>
+        <h3 className="font-display text-sm font-semibold">Vibes</h3>
+
         {groups.length > 0 && (
           <button
-            type="button"
             onClick={openAll}
             className="text-xs font-medium text-primary hover:underline"
           >
@@ -124,7 +148,7 @@ const VibesStoryBar = ({
         )}
       </div>
 
-      <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:thin]">
+      <div className="flex gap-3 overflow-x-auto pb-1">
         {canPost && (
           <VibeAvatarRing
             variant="add"
@@ -153,6 +177,7 @@ const VibesStoryBar = ({
         )}
       </div>
 
+      {/* Creator */}
       {creatorOpen && (
         <VibeCreator
           tripId={tripId}
@@ -163,6 +188,7 @@ const VibesStoryBar = ({
         />
       )}
 
+      {/* Viewer */}
       {viewer && (
         <FullVibeViewer
           groups={viewer.groups}

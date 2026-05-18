@@ -1,167 +1,278 @@
-// Mock API layer for the Vibes feature.
-// Designed to be swapped with real endpoints later (and SignalR for realtime).
-import {
-  mockVibes,
-  type Vibe,
-  type VibeComment,
-  type VibeType,
-  // getVibesByTrip,
-  // getVibesByUser,
-  // getAllVibes,
+// Vibes API layer
+
+import type {
+  Vibe,
+  VibeComment,
+  VibeCommentinput,
+  VibeDTO,
+  VibeMedia,
 } from "../data/vibesData";
 
-// In-memory store (mock).
-let store: Vibe[] = [...mockVibes];
+// --------------------
+// API BASE
+// --------------------
 
-const delay = (ms = 250) => new Promise((r) => setTimeout(r, ms));
-const uid = () => Math.random().toString(36).slice(2, 10);
+const BASE_URL = "https://rahhal-api.runasp.net";
 
-// Subscribers — placeholder for SignalR-like realtime updates.
-type Listener = () => void;
-const listeners = new Set<Listener>();
-const notify = () => listeners.forEach((l) => l());
-export const subscribeVibes = (l: Listener) => {
-  listeners.add(l);
-  return () => listeners.delete(l);
-};
+// --------------------
+// HELPERS
+// --------------------
 
-// ----- Reads -----
-export async function fetchTripVibes(tripId: string): Promise<Vibe[]> {
-  await delay();
-  return store.filter((v) => v.tripId === tripId);
+const mapVibe = (item: VibeDTO): Vibe => ({
+  id: item.vibeId ?? item.vibeId,
+
+  userId: item.userId,
+  userName: item.userName,
+  userAvatar: item.profileUrl,
+
+  type:
+    item.mediaUrLs?.length > 0
+      ? item.mediaUrLs[0].url.match(/\.(mp4|webm|ogg)$/i)
+        ? "video"
+        : "image"
+      : "text",
+
+  content: item.description ?? "",
+
+  mediaUrls: item.mediaUrLs?.map((m: VibeMedia) => m.url) ?? [],
+
+  likes: item.likes,
+  commentsCount: item.comments,
+  isLiked: item.isLiked,
+
+  createdAt: item.createdDate,
+});
+
+// --------------------
+// READS
+// --------------------
+
+export async function fetchFeedVibes(): Promise<Vibe[]> {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${BASE_URL}/Vibes/Feed`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch feed vibes");
+  }
+
+  const json = await res.json();
+
+  return json.data.items.map(mapVibe);
 }
 
 export async function fetchUserVibes(userId: string): Promise<Vibe[]> {
-  await delay();
-  return store.filter((v) => v.userId === userId);
-}
-
-export async function fetchFeedVibes(): Promise<Vibe[]> {
-  await delay();
-  return [...store].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  const res = await fetch(
+    `${BASE_URL}/Vibes/GetByUserId?UserId=${userId}&VibesOnly=true`,
   );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch user vibes");
+  }
+
+  const json = await res.json();
+
+  return json.data.items.map(mapVibe);
 }
 
-// Sync helpers (for components that don't need async)
-// export const tripVibesSync = (tripId: string) => getVibesByTrip(tripId);
-// export const userVibesSync = (userId: string) => getVibesByUser(userId);
-// export const allVibesSync = () => getAllVibes();
+export async function fetchTripVibes(tripId: string): Promise<Vibe[]> {
+  const res = await fetch(
+    `${BASE_URL}/Vibes/GetByTripId?TripId=${tripId}&SortByLastAdded=true`,
+  );
 
-export const tripVibesSync = (tripId: string) => store.filter((v) => v.tripId === tripId);
-export const userVibesSync = (userId: string) => store.filter((v) => v.userId === userId);
-export const allVibesSync = () => [...store];
+  if (!res.ok) {
+    throw new Error("Failed to fetch trip vibes");
+  }
 
-// ----- Mutations -----
+  const json = await res.json();
+
+  return json.data.items.map(mapVibe);
+}
+
+// --------------------
+// CREATE
+// --------------------
+
 export interface CreateVibeInput {
   tripId: string;
-  userId: string;
-  userName: string;
-  userAvatar: string;
-  type: VibeType;
-  content?: string;
-  mediaUrls: string[];
+  description?: string;
+  files?: File[];
 }
 
-export async function createVibe(input: CreateVibeInput): Promise<Vibe> {
-  await delay();
-  const vibe: Vibe = {
-    id: uid(),
-    ...input,
-    reactions: { emoji: "❤️", count: 0, userReacted: false },
-    commentsCount: 0,
-    comments: [],
-    createdAt: new Date().toISOString(),
-  };
-  store = [vibe, ...store];
-  notify();
-  return vibe;
+export async function createVibe(input: CreateVibeInput): Promise<void> {
+  const formData = new FormData();
+
+  if (input.files?.length) {
+    input.files.forEach((file) => {
+      formData.append("Files", file);
+    });
+  }
+
+  const query = new URLSearchParams({
+    TripId: input.tripId,
+    Description: input.description ?? "",
+  });
+
+  const res = await fetch(`${BASE_URL}/Vibes/Create?${query.toString()}`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to create vibe");
+  }
 }
 
-export async function deleteVibe(id: string): Promise<void> {
-  await delay();
-  store = store.filter((v) => v.id !== id);
-  notify();
+// --------------------
+// UPDATE
+// --------------------
+
+export interface UpdateVibeInput {
+  id: string;
+  description?: string;
+  media?: {
+    mediaId?: string;
+    file?: File;
+  }[];
 }
 
-export async function updateVibe(
-  id: string,
-  patch: Partial<Pick<Vibe, "content" | "mediaUrls" | "type">>
-): Promise<Vibe | null> {
-  await delay();
-  const idx = store.findIndex((v) => v.id === id);
-  if (idx === -1) return null;
-  store[idx] = { ...store[idx], ...patch };
-  notify();
-  return store[idx];
+export async function updateVibe(input: UpdateVibeInput): Promise<void> {
+  const formData = new FormData();
+
+  formData.append("ID", input.id);
+
+  if (input.description) {
+    formData.append("Description", input.description);
+  }
+
+  input.media?.forEach((m, index) => {
+    if (m.mediaId) {
+      formData.append(`Media[${index}].mediaId`, m.mediaId);
+    }
+
+    if (m.file) {
+      formData.append(`Media[${index}].file`, m.file);
+    }
+  });
+
+  const res = await fetch(`${BASE_URL}/Vibes/Update`, {
+    method: "PATCH",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to update vibe");
+  }
 }
 
-export async function toggleReaction(vibeId: string): Promise<Vibe | null> {
-  await delay(120);
-  const idx = store.findIndex((v) => v.id === vibeId);
-  if (idx === -1) return null;
-  const v = store[idx];
-  const reacted = !v.reactions.userReacted;
-  store[idx] = {
-    ...v,
-    reactions: {
-      ...v.reactions,
-      userReacted: reacted,
-      count: v.reactions.count + (reacted ? 1 : -1),
+// --------------------
+// DELETE
+// --------------------
+
+export async function deleteVibe(postId: string): Promise<void> {
+  const res = await fetch(`${BASE_URL}/Vibes/Delete`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
     },
-  };
-  notify();
-  return store[idx];
+    body: JSON.stringify({
+      postId,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to delete vibe");
+  }
 }
 
-export async function addComment(
-  vibeId: string,
-  comment: Omit<VibeComment, "id" | "createdAt">
-): Promise<VibeComment | null> {
-  await delay(150);
-  const idx = store.findIndex((v) => v.id === vibeId);
-  if (idx === -1) return null;
-  const c: VibeComment = {
-    ...comment,
-    id: uid(),
-    createdAt: new Date().toISOString(),
-  };
-  const v = store[idx];
-  store[idx] = {
-    ...v,
-    comments: [...v.comments, c],
-    commentsCount: v.commentsCount + 1,
-    latestComment: c,
-  };
-  notify();
-  return c;
-}
+// --------------------
+// PERMISSIONS
+// --------------------
 
-// ----- Permissions -----
 export interface TripLite {
-  ownerId?: string; // admin
+  ownerId?: string;
   memberIds?: string[];
 }
 
 export const canPostVibe = (trip: TripLite | null, userId?: string | null) => {
   if (!userId || !trip) return false;
+
   if (trip.ownerId === userId) return true;
+
   return Boolean(trip.memberIds?.includes(userId));
 };
 
 export const canEditVibe = (vibe: Vibe, userId?: string | null) =>
   Boolean(userId && vibe.userId === userId);
 
-// Owner-only delete. Trip admins are intentionally NOT granted delete rights.
-export const canDeleteVibe = (
-  vibe: Vibe,
-  userId?: string | null,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _trip?: TripLite | null
-) => Boolean(userId && vibe.userId === userId);
+export const canDeleteVibe = (vibe: Vibe, userId?: string | null) =>
+  Boolean(userId && vibe.userId === userId);
 
-// TODO: Hook up SignalR here for realtime vibe/reaction/comment updates.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function useVibesRealtime(_tripId?: string) {
-  // placeholder
+export async function addComment(input: VibeCommentinput): Promise<void> {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${BASE_URL}/Comment/Create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      profileId: input.profileId,
+      postId: input.postId,
+      parentCommentId: input.parentCommentId ?? null,
+      description: input.description,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to add comment");
+  }
+}
+export async function fetchVibeComments(
+  postId: string,
+): Promise<VibeComment[]> {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(
+    `${BASE_URL}/Vibes/AllCommentsToVibe?PostId=${postId}&SortByLastAdded=true`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch comments");
+  }
+
+  const json = await res.json();
+
+  return json.data.items;
+}
+// --------------------
+// LIKE VIBE
+// --------------------
+
+export async function toggleReaction(postId: string): Promise<void> {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${BASE_URL}/Vibes/AddLikeToVibe`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      postId,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to like vibe");
+  }
 }

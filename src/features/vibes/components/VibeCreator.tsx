@@ -1,6 +1,11 @@
 import { useRef, useState } from "react";
 import { Image as ImageIcon, Video, X, Loader2 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -167,7 +172,6 @@ const VibeCreator = ({
           </DialogTitle>
         </DialogHeader>
 
-
         <Textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -183,9 +187,17 @@ const VibeCreator = ({
                 className="relative aspect-square overflow-hidden rounded-lg border bg-muted"
               >
                 {m.kind === "image" ? (
-                  <img src={m.url} alt="preview" className="h-full w-full object-cover" />
+                  <img
+                    src={m.url}
+                    alt="preview"
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
-                  <video src={m.url} className="h-full w-full object-cover" muted />
+                  <video
+                    src={m.url}
+                    className="h-full w-full object-cover"
+                    muted
+                  />
                 )}
                 <button
                   type="button"
@@ -272,7 +284,12 @@ const VibeCreator = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Remove this media?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will remove the existing {media[confirmRemoveIdx ?? 0]?.kind === "video" ? "video" : "image"} from your Vibe once you save changes. This action cannot be undone.
+              This will remove the existing{" "}
+              {media[confirmRemoveIdx ?? 0]?.kind === "video"
+                ? "video"
+                : "image"}{" "}
+              from your Vibe once you save changes. This action cannot be
+              undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

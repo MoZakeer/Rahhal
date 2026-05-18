@@ -1,6 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight, MoreVertical, Trash2, Pencil } from "lucide-react";
+import {
+  X,
+  ChevronLeft,
+  ChevronRight,
+  MoreVertical,
+  Trash2,
+  Pencil,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -24,6 +31,7 @@ import VibeCommentsSheet from "./VibeCommentsSheet";
 import VibeCreator from "./VibeCreator";
 import { deleteVibe, canDeleteVibe, canEditVibe } from "../services/vibesApi";
 import type { UserVibesGroup, Vibe } from "../data/vibesData";
+import { normalizeMediaUrl } from "@/features/post/components/services/posts.api";
 
 interface FullVibeViewerProps {
   groups: UserVibesGroup[];
@@ -39,7 +47,6 @@ const FullVibeViewer = ({
   groups,
   startGroupIndex,
   currentUserId,
-  tripOwnerId,
   onClose,
 }: FullVibeViewerProps) => {
   const [groupIdx, setGroupIdx] = useState(startGroupIndex);
@@ -110,11 +117,9 @@ const FullVibeViewer = ({
     }
   };
 
-  const tripLite = useMemo(() => ({ ownerId: tripOwnerId }), [tripOwnerId]);
-
   if (!vibe || !group) return null;
 
-  const canDel = canDeleteVibe(vibe, currentUserId, tripLite);
+  const canDel = canDeleteVibe(vibe, currentUserId);
   const canEdit = canEditVibe(vibe, currentUserId);
   const showMenu = canDel || canEdit;
   const initials = group.userName
@@ -151,7 +156,11 @@ const FullVibeViewer = ({
                   className="h-full bg-white transition-[width] duration-75"
                   style={{
                     width:
-                      i < vibeIdx ? "100%" : i === vibeIdx ? `${progress}%` : "0%",
+                      i < vibeIdx
+                        ? "100%"
+                        : i === vibeIdx
+                          ? `${progress}%`
+                          : "0%",
                   }}
                 />
               </div>
@@ -161,7 +170,10 @@ const FullVibeViewer = ({
           {/* Header */}
           <div className="absolute left-0 right-0 top-3 z-20 flex items-center gap-3 px-4 pt-2">
             <Avatar className="h-9 w-9 border-2 border-white/40">
-              <AvatarImage src={group.userAvatar} alt={group.userName} />
+              <AvatarImage
+                src={normalizeMediaUrl(group.userAvatar)}
+                alt={group.userName}
+              />
               <AvatarFallback className="bg-primary/20 text-xs">
                 {initials}
               </AvatarFallback>
@@ -277,7 +289,9 @@ const FullVibeViewer = ({
             {/* Caption for image/mixed */}
             {vibe.content && vibe.type !== "text" && (
               <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 pb-6">
-                <p className="text-sm leading-relaxed text-white">{vibe.content}</p>
+                <p className="text-sm leading-relaxed text-white">
+                  {vibe.content}
+                </p>
               </div>
             )}
 
@@ -319,7 +333,7 @@ const FullVibeViewer = ({
 
         {editing && currentUserId && (
           <VibeCreator
-            tripId={vibe.tripId}
+            tripId={vibe.tripId ?? ""}
             currentUserId={currentUserId}
             currentUserName={vibe.userName}
             currentUserAvatar={vibe.userAvatar}
@@ -369,7 +383,7 @@ const VibeImageStack = ({ urls }: { urls: string[] }) => {
   return (
     <div className="relative h-full w-full">
       <img
-        src={urls[idx]}
+        src={normalizeMediaUrl(urls[idx])}
         alt=""
         className="h-full w-full object-contain"
       />

@@ -265,19 +265,22 @@ const TripDetail = () => {
   const formatBudget = (amount: any) => {
     if (!amount) return t("tripDetail.unknown");
 
-    const cleanAmount = String(amount).replace(/[^0-9.]/g, '');
+    const cleanAmount = String(amount).replace(/[^0-9.]/g, "");
     const value = Number(cleanAmount);
 
-    if (isNaN(value) || cleanAmount === '') {
+    if (isNaN(value) || cleanAmount === "") {
       return t("tripDetail.unknown");
     }
 
-    const formattedNumber = new Intl.NumberFormat(language === 'ar' ? 'ar-EG' : 'en-US', {
-      style: 'decimal',
-      maximumFractionDigits: 0,
-    }).format(value);
+    const formattedNumber = new Intl.NumberFormat(
+      language === "ar" ? "ar-EG" : "en-US",
+      {
+        style: "decimal",
+        maximumFractionDigits: 0,
+      },
+    ).format(value);
 
-    return language === 'ar'
+    return language === "ar"
       ? `${formattedNumber} ${t("tripDetail.budgetLabel")}`
       : `${t("tripDetail.budgetLabel")} ${formattedNumber}`;
   };
@@ -314,13 +317,13 @@ const TripDetail = () => {
     1,
     Math.ceil(
       (new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) /
-      (1000 * 60 * 60 * 24),
+        (1000 * 60 * 60 * 24),
     ),
   );
 
   const handleShare = () => {
     const url = window.location.href;
-    navigator.clipboard?.writeText(url).catch(() => { });
+    navigator.clipboard?.writeText(url).catch(() => {});
     toast.success(t("tripDetail.linkCopied"));
   };
 
@@ -348,10 +351,13 @@ const TripDetail = () => {
       toast.success(
         !isPublic
           ? t("tripDetail.tripMadePublic")
-          : t("tripDetail.tripMadePrivate")
+          : t("tripDetail.tripMadePrivate"),
       );
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : t("tripDetail.failedToChangeVisibility");
+      const msg =
+        err instanceof ApiError
+          ? err.message
+          : t("tripDetail.failedToChangeVisibility");
       toast.error(msg);
     } finally {
       setChangingVision(false);
@@ -397,8 +403,9 @@ const TripDetail = () => {
                 <img
                   src={getFullImageUrl(trip.image)}
                   alt={trip.name}
-                  className={`h-full w-full object-cover transition-all duration-700 group-hover/hero:scale-105 ${uploadImageMutation.isPending ? "opacity-50" : "opacity-100"
-                    }`}
+                  className={`h-full w-full object-cover transition-all duration-700 group-hover/hero:scale-105 ${
+                    uploadImageMutation.isPending ? "opacity-50" : "opacity-100"
+                  }`}
                 />
               ) : (
                 <div className="h-full w-full bg-gradient-to-br from-primary/30 to-secondary/30" />
@@ -464,7 +471,8 @@ const TripDetail = () => {
               <div className="mb-2 flex flex-wrap items-center gap-2">
                 {trip.isAiGenerated && (
                   <Badge className="gap-1 border-0 bg-secondary text-secondary-foreground">
-                    <Sparkles className="h-3 w-3" /> {t("tripDetail.aiGenerated")}
+                    <Sparkles className="h-3 w-3" />{" "}
+                    {t("tripDetail.aiGenerated")}
                   </Badge>
                 )}
                 {/* Added dark mode styling */}
@@ -481,10 +489,14 @@ const TripDetail = () => {
                     variant="outline"
                     className={cn(
                       "backdrop-blur-sm px-3 py-1 font-bold transition-all",
-                      apiTrip.tripStatus.toLowerCase() === "completed" && "border-green-200 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-900/20 dark:text-green-400",
-                      apiTrip.tripStatus.toLowerCase() === "planned" && "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/30 dark:bg-amber-900/20 dark:text-amber-400",
-                      apiTrip.tripStatus.toLowerCase() === "upcoming" && "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/30 dark:bg-blue-900/20 dark:text-blue-400",
-                      apiTrip.tripStatus.toLowerCase() === "past" && "border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-800/40 dark:text-slate-400"
+                      apiTrip.tripStatus.toLowerCase() === "completed" &&
+                        "border-green-200 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-900/20 dark:text-green-400",
+                      apiTrip.tripStatus.toLowerCase() === "planned" &&
+                        "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/30 dark:bg-amber-900/20 dark:text-amber-400",
+                      apiTrip.tripStatus.toLowerCase() === "upcoming" &&
+                        "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/30 dark:bg-blue-900/20 dark:text-blue-400",
+                      apiTrip.tripStatus.toLowerCase() === "past" &&
+                        "border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-800/40 dark:text-slate-400",
                     )}
                   >
                     {t(`tripDetail.status.${apiTrip.tripStatus.toLowerCase()}`)}
@@ -504,10 +516,10 @@ const TripDetail = () => {
         </div>
 
         {trip.image && (
-          <DialogContent
-            className="max-w-5xl bg-transparent border-none shadow-none p-0 flex items-center justify-center [&>button]:fixed [&>button]:top-6 [&>button]:right-6 [&>button]:z-[100] [&>button]:text-white [&>button]:bg-black/50 hover:[&>button]:bg-black/80 [&>button]:p-3 [&>button]:rounded-full [&>button]:backdrop-blur-sm [&>button]:border [&>button]:border-white/20 [&_svg]:h-6 [&_svg]:w-6"
-          >
-            <DialogTitle className="sr-only">{t("tripDetail.tripCoverImage")}</DialogTitle>
+          <DialogContent className="max-w-5xl bg-transparent border-none shadow-none p-0 flex items-center justify-center [&>button]:fixed [&>button]:top-6 [&>button]:right-6 [&>button]:z-[100] [&>button]:text-white [&>button]:bg-black/50 hover:[&>button]:bg-black/80 [&>button]:p-3 [&>button]:rounded-full [&>button]:backdrop-blur-sm [&>button]:border [&>button]:border-white/20 [&_svg]:h-6 [&_svg]:w-6">
+            <DialogTitle className="sr-only">
+              {t("tripDetail.tripCoverImage")}
+            </DialogTitle>
             <div
               className="relative w-full flex items-center justify-center"
               onClick={(e) => e.stopPropagation()}
@@ -540,7 +552,10 @@ const TripDetail = () => {
                     const tagKey = tag.toLowerCase();
 
                     const translatedTag = t(`categories.${tagKey}`);
-                    const displayTag = translatedTag !== `categories.${tagKey}` ? translatedTag : tag;
+                    const displayTag =
+                      translatedTag !== `categories.${tagKey}`
+                        ? translatedTag
+                        : tag;
 
                     return (
                       <Badge
@@ -549,7 +564,7 @@ const TripDetail = () => {
                         className={cn(
                           "px-3 py-1 text-xs font-semibold transition-colors",
                           "bg-slate-100 text-slate-700 hover:bg-slate-200 border-transparent",
-                          "dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-700 dark:border-slate-700 backdrop-blur-sm"
+                          "dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-700 dark:border-slate-700 backdrop-blur-sm",
                         )}
                       >
                         {displayTag}
@@ -565,7 +580,9 @@ const TripDetail = () => {
             {/* Itinerary Section */}
             {trip.itinerary.length > 0 && (
               <section>
-                <h2 className="text-xl font-bold dark:text-slate-100">{t("tripDetail.itinerary")}</h2>
+                <h2 className="text-xl font-bold dark:text-slate-100">
+                  {t("tripDetail.itinerary")}
+                </h2>
                 <div className="mt-6 space-y-8">
                   {trip.itinerary.map((day) => (
                     <div
@@ -600,12 +617,18 @@ const TripDetail = () => {
                                     <h4 className="font-bold text-lg dark:text-slate-100">
                                       {stop.place || stop.category}
                                     </h4>
-                                    <Badge variant="secondary" className="mt-1 dark:bg-slate-800 dark:text-slate-300">
+                                    <Badge
+                                      variant="secondary"
+                                      className="mt-1 dark:bg-slate-800 dark:text-slate-300"
+                                    >
                                       {stop.category}
                                     </Badge>
                                   </div>
                                   {stop.arrivalTime && (
-                                    <Badge variant="outline" className="gap-1 dark:border-slate-700 dark:text-slate-300">
+                                    <Badge
+                                      variant="outline"
+                                      className="gap-1 dark:border-slate-700 dark:text-slate-300"
+                                    >
                                       <Clock className="h-3 w-3" />{" "}
                                       {stop.arrivalTime}
                                     </Badge>
@@ -630,14 +653,15 @@ const TripDetail = () => {
                                       target="_blank"
                                       className="flex items-center gap-1 text-primary hover:underline ms-auto"
                                     >
-                                      <ExternalLink className="h-3 w-3" /> {t("tripDetail.viewMap")}
+                                      <ExternalLink className="h-3 w-3" />{" "}
+                                      {t("tripDetail.viewMap")}
                                     </a>
                                   )}
                                 </div>
 
                                 {stop?.recommendations &&
                                   (stop?.recommendations as any[]).length >
-                                  0 && (
+                                    0 && (
                                     <div className="mt-4 pt-4 border-t border-gray-200/50 dark:border-slate-800">
                                       <p className="text-xs font-semibold text-muted-foreground dark:text-slate-400 mb-3 uppercase tracking-wider">
                                         {t("tripDetail.nearbyPlaces")}
@@ -668,7 +692,9 @@ const TripDetail = () => {
                                                   if (!mapLink) {
                                                     e.preventDefault();
                                                     toast.info(
-                                                      t("tripDetail.mapNotAvailable"),
+                                                      t(
+                                                        "tripDetail.mapNotAvailable",
+                                                      ),
                                                     );
                                                   }
                                                 }}
@@ -703,9 +729,9 @@ const TripDetail = () => {
 
             {/* Discover Destination / Tabs Section */}
             {!trip.isAiGenerated &&
-              (trip.attractions?.length ||
-                trip.hotels?.length ||
-                trip.restaurants?.length) ? (
+            (trip.attractions?.length ||
+              trip.hotels?.length ||
+              trip.restaurants?.length) ? (
               <>
                 <div>
                   <h2 className="font-display text-xl font-semibold dark:text-slate-100">
@@ -826,64 +852,107 @@ const TripDetail = () => {
       group duration-500 ease-in-out transition-all will-change-transform z-50 mb-[2px]
       
       /* --- 1. Horizontal Mode (Mobile and Desktop) --- */
-      ${!isDocked
-                  ? `max-lg:fixed max-lg:top-4 max-lg:inset-x-0 max-lg:mx-auto 
+      ${
+        !isDocked
+          ? `max-lg:fixed max-lg:top-4 max-lg:inset-x-0 max-lg:mx-auto 
            max-lg:w-[96%] max-lg:max-w-md /* 96% width for better UX */
            max-lg:flex-row max-lg:rounded-full max-lg:border max-lg:border-white/20 
            max-lg:bg-background/80 dark:max-lg:bg-slate-900/80 max-lg:p-2 max-lg:px-3 /* Reduced inner padding */
            max-lg:backdrop-blur-xl max-lg:shadow-2xl 
            lg:relative lg:rounded-lg lg:border lg:border-gray-200/50 dark:lg:border-slate-800 lg:bg-card dark:lg:bg-slate-900 lg:p-5 lg:w-full lg:shadow-card lg:mt-[2px] 
            ${isNavVisible ? "max-lg:translate-y-16" : "max-lg:translate-y-0"}`
-                  : ""}
+          : ""
+      }
         
       /* --- 2. Vertical Mode (Docked) for Mobile --- */
-      ${isDocked
-                  ? "max-lg:fixed max-lg:end-3 max-lg:top-1/4 max-lg:w-auto max-lg:flex-col max-lg:rounded-full max-lg:border max-lg:border-white/20 max-lg:bg-background/90 dark:max-lg:bg-slate-900/90 max-lg:p-3 max-lg:backdrop-blur-xl max-lg:shadow-2xl lg:relative lg:rounded-lg lg:border lg:border-gray-200/50 dark:lg:border-slate-800 lg:bg-card dark:lg:bg-slate-900 lg:p-5 lg:w-full lg:shadow-card lg:mt-[2px]"
-                  : ""}
+      ${
+        isDocked
+          ? "max-lg:fixed max-lg:end-3 max-lg:top-1/4 max-lg:w-auto max-lg:flex-col max-lg:rounded-full max-lg:border max-lg:border-white/20 max-lg:bg-background/90 dark:max-lg:bg-slate-900/90 max-lg:p-3 max-lg:backdrop-blur-xl max-lg:shadow-2xl lg:relative lg:rounded-lg lg:border lg:border-gray-200/50 dark:lg:border-slate-800 lg:bg-card dark:lg:bg-slate-900 lg:p-5 lg:w-full lg:shadow-card lg:mt-[2px]"
+          : ""
+      }
     `}
             >
               {/* Title (Shows in desktop only) */}
-              <h3 className={`font-display font-semibold mb-3 dark:text-slate-100 ${isDocked ? "max-lg:hidden" : "hidden lg:block"}`}>
+              <h3
+                className={`font-display font-semibold mb-3 dark:text-slate-100 ${isDocked ? "max-lg:hidden" : "hidden lg:block"}`}
+              >
                 {t("tripDetail.tripDetails")}
               </h3>
 
-              <div className={`flex transition-all duration-300
-      ${isDocked
-                  ? "max-lg:flex-col max-lg:space-y-4 max-lg:items-center"
-                  : "flex-row items-center justify-between w-full gap-1" /* gap-1 to reduce clutter */}
+              <div
+                className={`flex transition-all duration-300
+      ${
+        isDocked
+          ? "max-lg:flex-col max-lg:space-y-4 max-lg:items-center"
+          : "flex-row items-center justify-between w-full gap-1" /* gap-1 to reduce clutter */
+      }
       lg:flex-col lg:space-y-4 lg:items-start lg:mt-[3px]
-    `}>
-
+    `}
+              >
                 {/* --- Date --- */}
-                <div className={`flex shrink-0 items-center gap-1.5 lg:gap-3 text-sm ${isDocked ? "max-lg:flex-col max-lg:gap-0.5" : ""}`}>
+                <div
+                  className={`flex shrink-0 items-center gap-1.5 lg:gap-3 text-sm ${isDocked ? "max-lg:flex-col max-lg:gap-0.5" : ""}`}
+                >
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 lg:h-auto lg:w-auto lg:bg-transparent lg:p-0">
                     <Calendar className="h-4 w-4 text-primary" />
                   </div>
-                  <div className={`text-center ${isDocked ? "max-lg:text-[10px] max-lg:leading-none max-lg:text-foreground" : ""}`}>
-                    <span className={`hidden font-bold dark:text-slate-200 ${isDocked ? "max-lg:block" : ""}`}>{daysDiff}d</span>
+                  <div
+                    className={`text-center ${isDocked ? "max-lg:text-[10px] max-lg:leading-none max-lg:text-foreground" : ""}`}
+                  >
+                    <span
+                      className={`hidden font-bold dark:text-slate-200 ${isDocked ? "max-lg:block" : ""}`}
+                    >
+                      {daysDiff}d
+                    </span>
                     <div className={`${isDocked ? "max-lg:hidden" : ""}`}>
                       <p className="hidden font-medium lg:block dark:text-slate-200">
-                        {new Date(trip.startDate).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', { month: "long", day: "numeric", year: "numeric" })}
+                        {new Date(trip.startDate).toLocaleDateString(
+                          language === "ar" ? "ar-EG" : "en-US",
+                          { month: "long", day: "numeric", year: "numeric" },
+                        )}
                       </p>
                       <p className="font-medium lg:hidden dark:text-slate-200">
-                        {new Date(trip.startDate).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', { month: "short", day: "numeric" })}
+                        {new Date(trip.startDate).toLocaleDateString(
+                          language === "ar" ? "ar-EG" : "en-US",
+                          { month: "short", day: "numeric" },
+                        )}
                       </p>
-                      <p className="text-xs text-muted-foreground dark:text-slate-400 lg:text-sm">{daysDiff} {t("tripDetail.day")}s</p>
+                      <p className="text-xs text-muted-foreground dark:text-slate-400 lg:text-sm">
+                        {daysDiff} {t("tripDetail.day")}s
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                <Separator orientation="vertical" className={`bg-foreground/10 dark:bg-slate-800 ${isDocked ? "max-lg:hidden" : "h-6 lg:hidden"}`} />
+                <Separator
+                  orientation="vertical"
+                  className={`bg-foreground/10 dark:bg-slate-800 ${isDocked ? "max-lg:hidden" : "h-6 lg:hidden"}`}
+                />
 
                 {/* --- Travelers --- */}
-                <div className={`flex shrink-0 items-center gap-1.5 lg:gap-3 text-sm ${isDocked ? "max-lg:flex-col max-lg:gap-0.5" : ""}`}>
+                <div
+                  className={`flex shrink-0 items-center gap-1.5 lg:gap-3 text-sm ${isDocked ? "max-lg:flex-col max-lg:gap-0.5" : ""}`}
+                >
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 lg:h-auto lg:w-auto lg:bg-transparent lg:p-0">
                     <Users className="h-4 w-4 text-primary" />
                   </div>
-                  <div className={`text-center ${isDocked ? "max-lg:text-[10px] max-lg:leading-none max-lg:text-foreground" : ""}`}>
-                    <span className="font-medium max-lg:font-bold dark:text-slate-200">{trip.travelers}</span>
-                    <span className={`hidden lg:inline dark:text-slate-400 ${isDocked ? "max-lg:hidden" : ""}`}> {t("tripDetail.travelers")}</span>
-                    <p className={`text-xs text-muted-foreground dark:text-slate-400 lg:hidden ${isDocked ? "max-lg:hidden" : ""}`}>{t("tripDetail.people")}</p>
+                  <div
+                    className={`text-center ${isDocked ? "max-lg:text-[10px] max-lg:leading-none max-lg:text-foreground" : ""}`}
+                  >
+                    <span className="font-medium max-lg:font-bold dark:text-slate-200">
+                      {trip.travelers}
+                    </span>
+                    <span
+                      className={`hidden lg:inline dark:text-slate-400 ${isDocked ? "max-lg:hidden" : ""}`}
+                    >
+                      {" "}
+                      {t("tripDetail.travelers")}
+                    </span>
+                    <p
+                      className={`text-xs text-muted-foreground dark:text-slate-400 lg:hidden ${isDocked ? "max-lg:hidden" : ""}`}
+                    >
+                      {t("tripDetail.people")}
+                    </p>
                   </div>
                 </div>
 
@@ -891,17 +960,26 @@ const TripDetail = () => {
                 {/* --- Budget --- */}
                 {trip.budget && (
                   <>
-                    <Separator orientation="vertical" className={`bg-foreground/10 dark:bg-slate-800 ${isDocked ? "max-lg:hidden" : "h-6 lg:hidden"}`} />
-                    <div className={`flex shrink-0 items-center gap-1.5 lg:gap-3 text-sm ${isDocked ? "max-lg:flex-col max-lg:gap-0.5" : ""}`}>
+                    <Separator
+                      orientation="vertical"
+                      className={`bg-foreground/10 dark:bg-slate-800 ${isDocked ? "max-lg:hidden" : "h-6 lg:hidden"}`}
+                    />
+                    <div
+                      className={`flex shrink-0 items-center gap-1.5 lg:gap-3 text-sm ${isDocked ? "max-lg:flex-col max-lg:gap-0.5" : ""}`}
+                    >
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 lg:h-auto lg:w-auto lg:bg-transparent lg:p-0">
                         <DollarSign className="h-4 w-4 text-primary" />
                       </div>
-                      <div className={`text-center ${isDocked ? "max-lg:text-[10px] max-lg:leading-none max-lg:text-foreground" : ""}`}>
+                      <div
+                        className={`text-center ${isDocked ? "max-lg:text-[10px] max-lg:leading-none max-lg:text-foreground" : ""}`}
+                      >
                         {/* التعديل هنا: نستخدم formatBudget */}
                         <p className="font-medium max-lg:font-bold truncate max-w-[80px] lg:max-w-none dark:text-slate-200">
                           {formatBudget(trip.budget)}
                         </p>
-                        <p className={`text-xs text-muted-foreground dark:text-slate-400 lg:hidden ${isDocked ? "max-lg:hidden" : ""}`}>
+                        <p
+                          className={`text-xs text-muted-foreground dark:text-slate-400 lg:hidden ${isDocked ? "max-lg:hidden" : ""}`}
+                        >
                           {t("tripDetail.budget")}
                         </p>
                       </div>
@@ -909,7 +987,10 @@ const TripDetail = () => {
                   </>
                 )}
 
-                <Separator orientation="vertical" className={`bg-foreground/10 dark:bg-slate-800 ${isDocked ? "max-lg:hidden" : "h-6 lg:hidden"}`} />
+                <Separator
+                  orientation="vertical"
+                  className={`bg-foreground/10 dark:bg-slate-800 ${isDocked ? "max-lg:hidden" : "h-6 lg:hidden"}`}
+                />
 
                 {/* --- Creator --- */}
                 <div
@@ -918,30 +999,47 @@ const TripDetail = () => {
                 >
                   <div className="flex h-7 w-7 lg:h-8 lg:w-8 overflow-hidden items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-sm">
                     {creatorImage ? (
-                      <img src={creatorImage} alt="Creator" className="h-full w-full object-cover" />
+                      <img
+                        src={creatorImage}
+                        alt="Creator"
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
-                      <span>{trip.createdByAvatar || apiTrip?.profileUserName?.charAt(0) || "U"}</span>
+                      <span>
+                        {trip.createdByAvatar ||
+                          apiTrip?.profileUserName?.charAt(0) ||
+                          "U"}
+                      </span>
                     )}
                   </div>
-                  <div className={isDocked ? "max-lg:hidden" : "hidden lg:block"}>
+                  <div
+                    className={isDocked ? "max-lg:hidden" : "hidden lg:block"}
+                  >
                     <p className="text-[13px] font-medium hover:underline lg:text-sm dark:text-slate-200">
                       {trip.createdBy || apiTrip?.profileUserName}
                     </p>
-                    <p className="text-[10px] text-muted-foreground dark:text-slate-400 lg:text-xs">{t("tripDetail.tripCreator")}</p>
+                    <p className="text-[10px] text-muted-foreground dark:text-slate-400 lg:text-xs">
+                      {t("tripDetail.tripCreator")}
+                    </p>
                   </div>
                 </div>
 
                 {/* --- Toggle Button --- */}
-                <div className={`lg:hidden shrink-0 flex items-center justify-center ${isDocked ? "mt-2" : "ms-0.5"}`}>
+                <div
+                  className={`lg:hidden shrink-0 flex items-center justify-center ${isDocked ? "mt-2" : "ms-0.5"}`}
+                >
                   <button
                     onClick={() => setIsDocked(!isDocked)}
                     className={`flex h-8 w-8 items-center justify-center rounded-full transition-transform active:scale-90 shadow-sm
             ${isDocked ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
                   >
-                    {isDocked ? <AlignVerticalSpaceAround className="h-4 w-4" /> : <PanelRight className="h-4 w-4" />}
+                    {isDocked ? (
+                      <AlignVerticalSpaceAround className="h-4 w-4" />
+                    ) : (
+                      <PanelRight className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
-
               </div>
             </motion.div>
 
@@ -997,7 +1095,9 @@ const TripDetail = () => {
                   className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border lg:border-blue-100 dark:lg:border-slate-800 lg:bg-blue-50/50 dark:lg:bg-slate-800/50 hover:lg:bg-blue-50 dark:hover:lg:bg-slate-800 hover:text-blue-700 dark:text-slate-200 dark:hover:text-blue-400"
                   onClick={handleSaveTrip}
                   disabled={savingFav}
-                  title={isFav ? t("tripDetail.saved") : t("tripDetail.saveTrip")}
+                  title={
+                    isFav ? t("tripDetail.saved") : t("tripDetail.saveTrip")
+                  }
                 >
                   {savingFav ? (
                     <Loader2 className="h-5 w-5 animate-spin lg:h-4 lg:w-4" />
@@ -1036,7 +1136,11 @@ const TripDetail = () => {
                     className="w-full gap-2 max-lg:h-12 max-lg:w-12 max-lg:rounded-full max-lg:p-0 max-lg:bg-transparent lg:justify-start lg:border max-lg:bg-transparent lg:justify-start lg:border lg:border-blue-100 dark:lg:border-slate-800 lg:bg-blue-50/50 dark:lg:bg-slate-800/50 hover:lg:bg-blue-50 dark:hover:lg:bg-slate-800 hover:text-blue-700 dark:text-slate-200 dark:hover:text-blue-400"
                     onClick={handleChangeVision}
                     disabled={changingVision}
-                    title={isPublic ? t("tripDetail.makePrivate") : t("tripDetail.makePublic")}
+                    title={
+                      isPublic
+                        ? t("tripDetail.makePrivate")
+                        : t("tripDetail.makePublic")
+                    }
                   >
                     {changingVision ? (
                       <Loader2 className="h-5 w-5 animate-spin lg:h-4 lg:w-4" />
@@ -1046,7 +1150,9 @@ const TripDetail = () => {
                       <Globe className="h-5 w-5 lg:h-4 lg:w-4" />
                     )}
                     <span className="hidden lg:inline">
-                      {isPublic ? t("tripDetail.makePrivate") : t("tripDetail.makePublic")}
+                      {isPublic
+                        ? t("tripDetail.makePrivate")
+                        : t("tripDetail.makePublic")}
                     </span>
                   </Button>
                 )}
@@ -1058,7 +1164,9 @@ const TripDetail = () => {
                   title={t("tripDetail.shareTrip")}
                 >
                   <Share2 className="h-5 w-5 lg:h-4 lg:w-4" />
-                  <span className="hidden lg:inline">{t("tripDetail.shareTrip")}</span>
+                  <span className="hidden lg:inline">
+                    {t("tripDetail.shareTrip")}
+                  </span>
                 </Button>
 
                 {isAdmin && (
@@ -1070,7 +1178,9 @@ const TripDetail = () => {
                         title={t("tripDetail.joinRequests")}
                       >
                         <UserCheck className="h-5 w-5 lg:h-4 lg:w-4" />
-                        <span className="hidden lg:inline">{t("tripDetail.joinRequests")}</span>
+                        <span className="hidden lg:inline">
+                          {t("tripDetail.joinRequests")}
+                        </span>
                         {pendingCount > 0 && (
                           <Badge className="absolute max-lg:top-1 max-lg:end-1 lg:ms-auto border-0 bg-secondary text-secondary-foreground max-lg:h-4 max-lg:w-4 max-lg:p-0 max-lg:flex max-lg:items-center max-lg:justify-center max-lg:text-[10px]">
                             {pendingCount}
@@ -1113,18 +1223,24 @@ const TripDetail = () => {
                         ) : (
                           <Trash2 className="h-5 w-5 lg:h-4 lg:w-4" />
                         )}
-                        <span className="hidden lg:inline">{t("tripDetail.deleteTrip")}</span>
+                        <span className="hidden lg:inline">
+                          {t("tripDetail.deleteTrip")}
+                        </span>
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent className="dark:bg-slate-900 dark:border-slate-800">
                       <AlertDialogHeader>
-                        <AlertDialogTitle className="dark:text-slate-100">{t("tripDetail.deleteTripConfirm")}</AlertDialogTitle>
+                        <AlertDialogTitle className="dark:text-slate-100">
+                          {t("tripDetail.deleteTripConfirm")}
+                        </AlertDialogTitle>
                         <AlertDialogDescription className="dark:text-slate-400">
                           {t("tripDetail.deleteTripWarning")}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel className="dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700">{t("tripDetail.cancel")}</AlertDialogCancel>
+                        <AlertDialogCancel className="dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700">
+                          {t("tripDetail.cancel")}
+                        </AlertDialogCancel>
                         <AlertDialogAction
                           onClick={handleDelete}
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
