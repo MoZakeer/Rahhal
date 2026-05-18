@@ -1,5 +1,8 @@
 import React from "react";
+import { X, ImagePlus } from "lucide-react";
 import type { EditMedia } from "../services/editPost";
+import { useLanguage } from "@/context/LanguageContext"; 
+import { cn } from "@/lib/utils";
 
 type Props = {
   media: EditMedia[];
@@ -12,6 +15,9 @@ export default function PostMedia({
   setMedia,
   fileRef,
 }: Props) {
+  const { t, language } = useLanguage();
+  const isRtl = language === "ar";
+
   const uploadFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
 
@@ -42,13 +48,14 @@ export default function PostMedia({
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 w-full">
       <button
         type="button"
         onClick={() => fileRef.current?.click()}
-        className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm w-fit transition dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
+        className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm w-fit transition dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600 outline-none"
       >
-        Add Media
+        <ImagePlus className="w-4 h-4 text-blue-500 dark:text-sky-400" />
+        {t("feed.addMedia")}
       </button>
 
       <input
@@ -61,7 +68,7 @@ export default function PostMedia({
       />
 
       {media.length > 0 && (
-        <div className="flex gap-3 overflow-x-auto pb-2">
+        <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
           {media.map((m) => {
             const mediaSrc =
               m.preview ||
@@ -86,7 +93,7 @@ export default function PostMedia({
                 ) : (
                   <img
                     src={mediaSrc}
-                    alt="media"
+                    alt={t("feed.mediaAlt") || "media"} // 👈 تعريب الـ alt
                     className="w-full h-full object-cover"
                   />
                 )}
@@ -94,9 +101,12 @@ export default function PostMedia({
                 <button
                   type="button"
                   onClick={() => removeMedia(m.mediaId)}
-                  className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center transition"
+                  className={cn(
+                    "absolute top-2 bg-black/60 hover:bg-black/80 text-white w-6 h-6 rounded-full flex items-center justify-center transition outline-none cursor-pointer",
+                    isRtl ? "left-2" : "right-2"
+                  )}
                 >
-                  ✕
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </div>
             );
