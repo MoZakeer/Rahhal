@@ -269,6 +269,19 @@ export const en = {
       postBtn: "Publish",
       mediaAlt: "Media preview",
    },
+   postCard: {
+      "deleteSuccess": "Deleting post!",
+      "shareTitle": "{{userName}}'s trip on RAHHAL",
+      "shareText": "Check out this adventure!",
+      "shareFailed": "Sharing failed",
+      "copySuccess": "Link copied! Share it anywhere",
+      "copyFailed": "Could not copy link",
+      "likes": "likes",
+      "likesTitle": "Likes",
+      "hideComments": "Hide comments",
+      "viewAllComments": "View all {{count}} comments",
+      "viewComment": "View 1 comment"
+   },
    search: {
       pageTitle: "Search",
       placeholder: "Search for anything...",

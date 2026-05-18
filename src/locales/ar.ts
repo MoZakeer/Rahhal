@@ -270,6 +270,19 @@ export const ar = {
       mediaAlt: "معاينة الوسائط",
 
    },
+   postCard: {
+      "deleteSuccess": "جاري حذف المنشور!",
+      "shareTitle": "رحلة {{userName}} على رحّال",
+      "shareText": "شوف المغامرة دي!",
+      "shareFailed": "فشلت عملية المشاركة",
+      "copySuccess": "تم نسخ الرابط بنجاح! شاركه في أي مكان",
+      "copyFailed": "تعذر نسخ الرابط",
+      "likes": "إعجاب",
+      "likesTitle": "الإعجابات",
+      "hideComments": "إخفاء التعليقات",
+      "viewAllComments": "عرض كل التعليقات ({{count}})",
+      "viewComment": "عرض تعليق واحد"
+   },
    search: {
       pageTitle: "البحث",
       placeholder: "ابحث عن أي شيء...",
