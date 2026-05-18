@@ -11,18 +11,19 @@ function ChatLayout() {
   useFavicon("/bubble-chat.png");
 
   useSidebarUpdates();
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] h-dvh lg:grid-cols-[420px_1fr]">
+    <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] h-dvh overflow-hidden lg:grid-cols-[420px_1fr]">
       <aside
-        className={`border-r-2 border-gray-200 border-solid ${
-          inChat ? "hidden md:block" : "block"
+        className={`border-r-2 border-gray-200 border-solid min-h-0 flex flex-col ${
+          inChat ? "hidden md:flex" : "flex"
         }`}
       >
         <ChatList />
       </aside>
 
       <main
-        className={`h-screen w-full bg-gray-50 ${
+        className={`h-full w-full flex-col min-h-0 bg-gray-50 ${
           !inChat ? "hidden md:flex" : "flex"
         }`}
       >

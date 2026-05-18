@@ -66,7 +66,7 @@ function ChatWindow() {
   }, [chatInfo?.isOnline]);
 
   return (
-    <div className="flex flex-col w-full h-dvh overflow-hidden">
+    <div className="flex flex-col w-full h-full overflow-hidden min-h-0">
       {isPending ? (
         <ChatSkeleton />
       ) : (
@@ -92,7 +92,6 @@ function ChatWindow() {
           />
         </>
       )}
-
       <MessageInput
         conversationId={conversationId || ""}
         replyingMessage={replyingMessage}

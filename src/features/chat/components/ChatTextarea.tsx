@@ -6,6 +6,7 @@ type Props = {
   onEnter?: () => void;
   placeholder?: string;
   onPasteFiles?: (files: File[]) => void;
+  dir: string;
 };
 
 function ChatTextarea({
@@ -14,6 +15,7 @@ function ChatTextarea({
   onEnter,
   placeholder,
   onPasteFiles,
+  dir,
 }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -35,7 +37,7 @@ function ChatTextarea({
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      if (onEnter ) {
+      if (onEnter) {
         onEnter();
       }
     }
@@ -54,7 +56,7 @@ function ChatTextarea({
   };
   return (
     <textarea
-    dir="auto"
+      dir={dir}
       ref={textareaRef}
       value={value}
       onChange={(e) => onChange(e.target.value)}
@@ -67,7 +69,7 @@ function ChatTextarea({
         outline-none
         bg-gray-0
         px-6
-        py-3
+        py-2
         resize-none
         overflow-y-auto
         transition-all duration-200

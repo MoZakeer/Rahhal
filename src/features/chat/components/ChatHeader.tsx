@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router"; // (أو react-router-dom)
 import Avatar from "./Avatar";
 import { HiOutlineChevronLeft } from "react-icons/hi2";
 
@@ -53,8 +53,10 @@ function ChatHeader({
       }) + ` at ${time}`
     );
   };
+
   return (
-    <div className="bg-gray-0 flex items-center gap-1 md:gap-4 border-b  border-solid border-gray-200 shadow-sm px-2 py-2 w-full sm:px-6 sm:py-3">
+    // ضفنا هنا shrink-0
+    <div className="shrink-0 bg-gray-0 flex items-center gap-1 md:gap-4 border-b border-solid border-gray-200 shadow-sm px-2 py-2 w-full sm:px-6 sm:py-3">
       <button
         className="rounded-full p-1 text-gray-800 hover:bg-gray-100 flex items-center justify-center "
         onClick={() =>
@@ -65,28 +67,24 @@ function ChatHeader({
       >
         <HiOutlineChevronLeft className="w-6 h-6" />
       </button>
+
       <Link to="settings" className="flex gap-4">
         <Avatar src={avatar} />
         <div className="self-start">
           <h4 className="text-lg font-semibold text-gray-900 ">{title}</h4>
-          <p
-            className={`text-gray-500 font-normal 
-            ${isOnline ? "text-green-700 font-medium" : ""} `}
-          >
-            {!isGroup ? (
-              <p
-                className={`text-gray-500 font-normal ${
-                  isOnline ? "text-green-700 font-medium" : ""
-                }`}
-              >
-                {isOnline ? "online" : `last seen ${formatLastSeen(lastSeen)}`}
-              </p>
-            ) : (
-              <p className="text-gray-500 font-medium">
-                {membersCount} Member{membersCount > 1 && "s"}
-              </p>
-            )}
-          </p>
+          {!isGroup ? (
+            <p
+              className={`text-sm font-normal ${
+                isOnline ? "text-green-700 font-medium" : "text-gray-500"
+              }`}
+            >
+              {isOnline ? "online" : `last seen ${formatLastSeen(lastSeen)}`}
+            </p>
+          ) : (
+            <p className="text-sm text-gray-500 font-medium">
+              {membersCount} Member{membersCount > 1 && "s"}
+            </p>
+          )}
         </div>
       </Link>
     </div>

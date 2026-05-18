@@ -153,12 +153,28 @@ function MessageList({
       behavior: "smooth",
     });
   };
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
 
+    const resizeObserver = new ResizeObserver(() => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 150;
+
+      if (isNearBottom) {
+        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+      }
+    });
+
+    resizeObserver.observe(container);
+
+    return () => resizeObserver.disconnect();
+  }, []);
   return (
     <div
       ref={scrollContainerRef}
       onScroll={handleScroll}
-      className="flex-1 overflow-y-auto no-scrollbar relative flex flex-col"
+      className="flex-1 overflow-y-auto no-scrollbar relative flex flex-col min-h-0"
     >
       <div ref={observerTarget} className="w-full h-1 shrink-0" />
 
@@ -167,7 +183,7 @@ function MessageList({
           There are no messages yet… start the conversation!
         </div>
       ) : (
-        <ul className="flex-1 flex flex-col gap-5 px-3 py-4 md:py-6 lg:pr-18 lg:pl-12 relative">
+        <ul className="flex flex-col gap-5 px-3 py-4 md:py-6 pb-8 lg:pr-18 lg:pl-12 relative">
           {sortedMessages.map((message: TMessage, index) => {
             const currentDate = getMessageDateLabel(message.createdDate);
             const prevMessage = sortedMessages[index - 1];

@@ -37,7 +37,7 @@ function ChatList() {
       if (activeTab === "group") return chat.isGroup;
     });
   return (
-    <div className="w-full h-full flex flex-col overflow-hidden max-h-screen bg-gray-0">
+    <div className="w-full h-full flex flex-col overflow-hidden bg-gray-0 min-h-0">
       <div className="px-2 sm:px-4 pt-8 sm:pt-6 pb-4 flex flex-col gap-6 shrink-0">
         <div className="flex items-center gap-2">
           <button
@@ -72,7 +72,6 @@ function ChatList() {
           ))}
         </div>
       </div>
-
       <ul className="flex-1 overflow-y-auto flex flex-col gap-2.5 px-2 sm:px-4 pb-4 no-scrollbar">
         {isPending
           ? Array.from({ length: 16 }).map((_, index) => (
