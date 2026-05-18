@@ -168,8 +168,8 @@ function Message({
 
         <motion.div
           style={{ x }}
-          drag="x"     
-          dragConstraints={{ left: 0, right: 0 }} 
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
           onDragEnd={handleDragEnd}
           className={`
             relative flex flex-col z-10
