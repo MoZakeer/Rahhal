@@ -269,6 +269,25 @@ export const ar = {
       postBtn: "نشر",
       mediaAlt: "معاينة الوسائط",
 
+      likeBtn: "إعجاب",
+      unlikeBtn: "إلغاء الإعجاب",
+      commentBtn: "إضافة تعليق",
+      shareBtn: "مشاركة",
+      saveBtn: "حفظ",
+      unsaveBtn: "إلغاء الحفظ",
+      deleteSuccess: "جاري حذف المنشور!",
+      shareFailed: "فشلت عملية المشاركة",
+      copySuccess: "تم نسخ الرابط بنجاح! شاركه في أي مكان",
+      copyFailed: "تعذر نسخ الرابط",
+      likesCount: "إعجاب", 
+      likesTitle: "الإعجابات",
+      hideComments: "إخفاء التعليقات",
+      viewAllComments: "عرض كل التعليقات ({{count}})",
+      viewSingleComment: "عرض تعليق واحد",
+      shareVia: "مشاركة عبر...",
+      copyAction: "نسخ",
+      moreOptions: "المزيد"
+
    },
    postCard: {
       "deleteSuccess": "جاري حذف المنشور!",

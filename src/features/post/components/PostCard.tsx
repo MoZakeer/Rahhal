@@ -453,12 +453,20 @@ export function PostActions({
   onSave: () => void;
   onShare?: () => void;
 }) {
+  const { t, language } = useLanguage();
+  const isRtl = language === "ar";
+
   return (
-    <div className="flex justify-between px-6 py-4 border-t border-slate-50 dark:border-slate-700/50">
+    <div 
+      className="flex justify-between px-6 py-4 border-t border-slate-50 dark:border-slate-700/50"
+      dir={isRtl ? "rtl" : "ltr"}
+    >
       <div className="flex gap-7">
         <button
           onClick={onLike}
           className="flex flex-col items-center transition-transform duration-200 ease-in-out"
+          title={liked ? t("feed.unlikeBtn") : t("feed.likeBtn")}
+          aria-label={liked ? t("feed.unlikeBtn") : t("feed.likeBtn")}
         >
           {liked ? (
             <HeartIcon className="w-6 h-6 text-blue-700 fill-blue-700 hover:text-blue-500 hover:scale-125 hover:rotate-12 transition-all duration-500" />
@@ -470,18 +478,27 @@ export function PostActions({
         <button
           onClick={onComment}
           className="group transition-transform active:scale-110 focus:outline-none"
+          title={t("feed.commentBtn")}
+          aria-label={t("feed.commentBtn")}
         >
-          <MessageCircle className="w-5 h-5 text-slate-400 group-hover:text-blue-500  transition-all duration-300 ease-out" />
+          <MessageCircle className="w-5 h-5 text-slate-400 group-hover:text-blue-500 transition-all duration-300 ease-out" />
         </button>
+        
         <button
           onClick={onShare}
           className="group transition-transform active:scale-110"
+          title={t("feed.shareBtn")}
+          aria-label={t("feed.shareBtn")}
         >
           <Share2 className="w-5 h-5 text-slate-400 group-hover:text-blue-500 transition-colors" />
         </button>
       </div>
 
-      <button onClick={onSave}>
+      <button 
+        onClick={onSave}
+        title={saved ? t("feed.unsaveBtn") : t("feed.saveBtn")}
+        aria-label={saved ? t("feed.unsaveBtn") : t("feed.saveBtn")}
+      >
         {saved ? (
           <Bookmark className="w-5 h-5 text-blue-600 dark:text-blue-400 fill-blue-600 dark:fill-blue-400 scale-100 hover:scale-110 transition-all duration-500" />
         ) : (
