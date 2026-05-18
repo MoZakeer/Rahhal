@@ -727,16 +727,17 @@ export default function PostCard({ post }: { post: Post }) {
         onLike={handleLike}
         onSave={handleSave}
         onComment={() => setCommentsOpen(true)}
-        // onShare={handleShare}
         onShare={() => setShareModalOpen(true)}
       />
 
-      <div
-        onClick={() => setOpenLikes(true)}
-        className="px-4 text-sm font-semibold mt-1 cursor-pointer text-slate-900 dark:text-slate-100 "
-      >
-        {post.likes} {t("postCard.likes")}
-      </div>
+      {(post.likes ?? 0) > 0 && (
+        <div
+          onClick={() => setOpenLikes(true)}
+          className="px-4 text-sm font-semibold mt-1 cursor-pointer text-slate-900 dark:text-slate-100 transition-colors"
+        >
+          {post.likes} {t("feed.likesCount")}
+        </div>
+      )}
 
       {openLikes && (
         <div
