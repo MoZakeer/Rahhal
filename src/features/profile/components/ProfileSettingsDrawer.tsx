@@ -46,7 +46,7 @@ export default function ProfileSettingsDrawer({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -10, scale: 0.95 }}
       transition={{ duration: 0.2 }}
-      /* absolute تعني موضعه بالنسبة للترس، top-12 ينزل تحته، right-0 يحاذيه من اليمين */
+      
       className="absolute  top-46 right-0 bg-white dark:bg-slate-900 w-64 h-auto rounded-2xl shadow-2xl overflow-hidden border border-gray-100 dark:border-slate-800 p-4 flex flex-col gap-3 transition-colors duration-300 z-50"
     >
       {/* Header */}
