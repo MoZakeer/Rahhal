@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+// import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 
@@ -97,6 +97,7 @@ export function PostHeader({
   currentUserId: string;
   isFollowed?: boolean;
   createdAt?: string;
+  post?: unknown;
   onEdit?: () => void;
   onDelete?: () => void;
   onReport?: () => void;
@@ -1339,9 +1340,13 @@ export function CommentsModal({
   );
 }
 
-export default function PostDetailsPage() {
-  usePageTitle("Post Details");
-  const { postId } = useParams<{ postId: string }>();
+
+type Props = {
+  postId?: string;
+  initialData?: unknown;
+};
+
+export default function PostDetails({ postId, initialData }: Props) {
   const currentUserId = getUserId() || "";
 
   // Modal States
@@ -1351,20 +1356,23 @@ export default function PostDetailsPage() {
   const [commentsOpen, setCommentsOpen] = useState(true);
 
   // 1. Fetch Post Data
-  const { data: PostDetails, isLoading } = useQuery<PostDetails>({
+  const { data: postDetailsData, isLoading } = useQuery({
     queryKey: ["PostDetails", postId],
     queryFn: async () => {
       const response = await getPostById(postId!);
       return response.data;
     },
     enabled: !!postId,
+    initialData: initialData,
   });
 
+  usePageTitle(postDetailsData?.userName + "'s post");
+
+
   // 2. Use the new actions hook
-  // This hook handles all the cache updates (Optimistic UI) for us
   const { like, save, follow, remove } = usePostDetailsActions(postId!);
 
-  if (isLoading) {
+  if (isLoading && !postDetailsData) {
     return (
       <div className="min-h-screen flex justify-center items-center">
         Loading...
@@ -1372,7 +1380,7 @@ export default function PostDetailsPage() {
     );
   }
 
-  if (!PostDetails) {
+  if (!postDetailsData) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center items-center">
         Post not found
@@ -1380,76 +1388,79 @@ export default function PostDetailsPage() {
     );
   }
 
-  const hasMedia = PostDetails.media_URLs && PostDetails.media_URLs.length > 0;
+  const hasMedia = postDetailsData.media_URLs && postDetailsData.media_URLs.length > 0;
 
   const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/post/${PostDetails.id}`;
+    const shareUrl = `${window.location.origin}/post/${postDetailsData.id}`;
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `رحلة ${PostDetails.userName} على رحال`,
-          text: PostDetails.description || "شوف المغامرة دي!",
+          title: `رحلة ${postDetailsData.userName} على رحّال`,
+          text: postDetailsData.description || "شوف المغامرة دي!",
           url: shareUrl,
         });
       } catch (err) {
         if (err instanceof Error && err.name !== "AbortError") {
-          toast.error("Sharing failed");
+          // toast.error("Sharing failed");
         }
       }
     } else {
       try {
         await navigator.clipboard.writeText(shareUrl);
-        toast.success("Link copied!");
+        // toast.success("Link copied!");
       } catch {
-        toast.error("Could not copy link");
+        // toast.error("Could not copy link");
       }
     }
   };
 
   return (
-    <div className="  max-w-2xl mx-auto bg-white dark:bg-slate-900   border-x border-slate-100 dark:border-slate-700/50 border rounded-2xl overflow-hidden">
+    <div className="max-w-2xl mx-auto bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-xl shadow-slate-200/40 dark:shadow-none transition-all duration-300">
       <PostHeader
-        id={PostDetails.id}
-        userName={PostDetails.userName}
-        profileUrl={PostDetails.profileURL}
-        profileId={PostDetails.userId}
-        isFollowed={PostDetails.isFollowedByCurrentUser ?? false}
-        onFollow={() => follow(PostDetails.userId)}
+        id={postDetailsData.id}
+        userName={postDetailsData.userName}
+        profileUrl={postDetailsData.profileURL}
+        profileId={postDetailsData.userId}
+        isFollowed={postDetailsData.isFollowedByCurrentUser ?? false}
+        onFollow={() => follow(postDetailsData.userId)}
         currentUserId={currentUserId}
-        createdAt={PostDetails.createdDate}
+        createdAt={postDetailsData.createdDate}
         onDelete={() => setOpenModal(true)}
         onEdit={() => setEditModalOpen(true)}
+        post={postDetailsData}
       />
 
       <div className="px-4">
         {!hasMedia && (
           <PostContent
-            description={PostDetails.description}
+            description={postDetailsData.description}
             className="px-4 py-8 text-lg font-medium wrap-break-word leading-relaxed text-slate-900 dark:text-slate-100"
           />
         )}
-        {hasMedia && <PostMedia media={PostDetails.media_URLs} />}
+        {hasMedia && <PostMedia media={postDetailsData.media_URLs} />}
       </div>
 
       <PostActions
-        liked={PostDetails.isLiked ?? false}
-        saved={PostDetails.isSaved ?? false}
+        liked={postDetailsData.isLiked ?? false}
+        saved={postDetailsData.isSaved ?? false}
         onLike={like}
         onSave={save}
         onComment={() => document.getElementById("main-input")?.focus()}
         onShare={handleShare}
       />
 
-      <div
-        onClick={() => setOpenLikes(true)}
-        className="px-4 text-sm font-semibold mt-1 cursor-pointer text-slate-900 dark:text-slate-100"
-      >
-        {PostDetails.likes} likes
-      </div>
+      {(postDetailsData.likes ?? 0) > 0 && (
+  <div
+    onClick={() => setOpenLikes(true)}
+    className="px-4 text-sm font-semibold mt-1 cursor-pointer text-slate-900 dark:text-slate-100 hover:text-blue-600 transition-colors"
+  >
+    {postDetailsData.likes} likes
+  </div>
+)}
 
       {hasMedia && (
         <PostContent
-          description={PostDetails.description}
+          description={postDetailsData.description}
           className="px-4 mt-1 text-sm wrap-break-word text-slate-800 dark:text-slate-200"
         />
       )}
@@ -1461,19 +1472,19 @@ export default function PostDetailsPage() {
           className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
         >
           <div
-            className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-5 relative"
+            className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-5 relative shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setOpenLikes(false)}
-              className="absolute top-3 right-3"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
             >
               ✕
             </button>
             <h3 className="text-lg font-semibold mb-4 dark:text-white">
               Likes
             </h3>
-            <LikesList type="post" id={PostDetails.id} />
+            <LikesList type="post" id={postDetailsData.id} />
           </div>
         </div>
       )}
@@ -1487,15 +1498,16 @@ export default function PostDetailsPage() {
 
       {editModalOpen && (
         <EditPostModal
-          postId={PostDetails.id}
+          post={postDetailsData}
           onCancel={() => setEditModalOpen(false)}
         />
       )}
+
       <CommentsModal
         open={commentsOpen}
         onClose={() => setCommentsOpen(false)}
-        postId={PostDetails.id}
-        currentUserId={getUserId() || ""}
+        postId={postDetailsData.id}
+        currentUserId={currentUserId}
       />
     </div>
   );

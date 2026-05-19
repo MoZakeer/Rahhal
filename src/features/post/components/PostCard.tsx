@@ -47,6 +47,7 @@ export function PostHeader({
   currentUserId,
   isFollowing,
   createdAt,
+  post,
   onEdit,
   onDelete,
   onFollow,
@@ -58,6 +59,7 @@ export function PostHeader({
   currentUserId: string;
   isFollowing?: boolean;
   createdAt?: string;
+  post?: Post;
   onEdit?: () => void;
   onDelete?: () => void;
   onReport?: () => void;
@@ -107,7 +109,7 @@ export function PostHeader({
   return (
     <div
       className="flex items-center justify-between px-4 py-3 relative cursor-pointer"
-      onClick={() => navigate(`/post/${id}`)}
+      onClick={() => navigate(`/post/${id}`, { state: { post } })}
       dir={isRtl ? "rtl" : "ltr"}
     >
       <div className="flex items-center gap-3">
@@ -194,12 +196,14 @@ export function PostHeader({
               {isOwner ? (
                 <>
                   <button
+                  type="button"
                     className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                     onClick={(e) => {
-                      e.stopPropagation(); 
-                      setDropdownOpen(false);
-                      onEdit?.();
-                    }}
+    e.preventDefault();
+    e.stopPropagation();
+    setDropdownOpen(false);
+    onEdit?.();
+  }}
                   >
                     <Edit className="w-4 h-4" />
                     {t("feed.edit")}
@@ -752,6 +756,7 @@ export default function PostCard({ post }: { post: Post }) {
         createdAt={post.createdDate}
         onDelete={() => setOpenModal(true)}
         onEdit={handleEditPost}
+        post={post}
       />
 
       {!hasMedia && (
@@ -846,9 +851,9 @@ export default function PostCard({ post }: { post: Post }) {
 
       {editModalOpen && (
         <EditPostModal
-          postId={post.id}
-          onCancel={() => setEditModalOpen(false)}
-        />
+    post={post}
+    onCancel={() => setEditModalOpen(false)}
+  />
       )}
 
       {/* 🚀 Premium Share Modal (iOS / TikTok Style) */}

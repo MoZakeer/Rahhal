@@ -1,143 +1,80 @@
-import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import type { EditMedia } from "../services/editPost";
+// useEditPost.ts
+import { useState, useRef } from "react";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { useQueryClient } from "@tanstack/react-query";
+import type { Post } from "@/types/post";
+import type { EditMedia } from "../services/editPost";
 
-export function useEditPost(postId: string) {
+export function useEditPost(post: Post, onClose: () => void) {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
-
-  const DEFAULT_AVATAR = "https://www.gravatar.com/avatar/?d=mp&f=y";
   const BASE_URL = "https://rahhal-api.runasp.net";
 
-  const [caption, setCaption] = useState("");
-  const [media, setMedia] = useState<EditMedia[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [caption, setCaption] = useState(post.description || "");
+  const [media, setMedia] = useState<EditMedia[]>(() => {
+    return (post.mediaUrLs || []).map((m) => ({
+      mediaId: m.id || crypto.randomUUID(),
+      file: m.url.startsWith("http") ? m.url : `${BASE_URL}${m.url}`,
+      isNew: false,
+      preview: m.url.startsWith("http") ? m.url : `${BASE_URL}${m.url}`,
+    }));
+  });
 
-  const [user, setUser] = useState<{
-    name: string;
-    username: string;
-    avatar: string;
-  } | null>(null);
+  // Handling both possible cases for avatar URL (profileURL or profileUrl) for backward compatibility
+  const avatarPath = post.profileURL || post.profileUrl;
 
-  function getUserFromStorage() {
-    const userJS = localStorage.getItem("user");
-    return userJS ? JSON.parse(userJS) : null;
-  }
-
-  const fetchPost = async () => {
-    const storedUser = getUserFromStorage();
-    if (!storedUser) return;
-
-    const { token } = storedUser;
-
-    try {
-      const res = await fetch(`${BASE_URL}/Post/GetById?PostId=${postId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) throw new Error("Failed to fetch post");
-
-      const json = await res.json();
-      const data = json.data;
-      if (!data) return;
-
-      setCaption(data.description || "");
-
-      const mediaData = data.media_URLs || [];
-
-      setMedia(
-        mediaData.map((m: { id: string; url: string }) => ({
-          mediaId: m.id || crypto.randomUUID(),
-          file: m.url.startsWith("http")
-            ? m.url
-            : `${BASE_URL}${m.url}`,
-          isNew: false,
-        }))
-      );
-
-      setUser({
-        name: data.userName || "Unknown User",
-        username: data.userName || "unknown",
-        avatar: data.profileURL
-          ? data.profileURL.startsWith("http")
-            ? data.profileURL
-            : `${BASE_URL}${data.profileURL}`
-          : DEFAULT_AVATAR,
-      });
-    } catch (err) {
-      toast.error("Failed to load post");
-
-      setUser({
-        name: "Unknown User",
-        username: "unknown",
-        avatar: DEFAULT_AVATAR,
-      });
-    }
+  const user = {
+    name: post.userName,
+    username: post.userName,
+    avatar: avatarPath
+      ? (avatarPath.startsWith("http") ? avatarPath : `${BASE_URL}${avatarPath}`)
+      : "https://www.gravatar.com/avatar/?d=mp&f=y",
   };
 
-  useEffect(() => {
-    fetchPost();
-  }, []);
-
-  const handleUpdatePost = async () => {
-    if (!caption.trim() && media.length === 0) return;
-
-    const storedUser = getUserFromStorage();
-    if (!storedUser) return;
-
-    const { token } = storedUser;
-
-    try {
-      setLoading(true);
-
-      const formData = new FormData();
-
-      formData.append("ID", postId);
-      formData.append("Description", caption);
-
-
-      let i = 0;
-      media.forEach((m) => {
-        if (!m.isNew && typeof m.file === "string") {
-          formData.append(`Media[${i}].mediaId`, m.mediaId);
-          formData.append(`Media[${i}].file`, m.file);
-        }
-
-        if (m.isNew && m.file instanceof File) {
-          formData.append(`Media[${i}].mediaId`, "");
-          formData.append(`Media[${i}].file`, m.file);
-        }
-
-        i++;
-      });
+  // Best Practice: using React query Mutation instead of plain fetch for better state management and error handling
+  const updateMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const userJS = localStorage.getItem("user");
+      const token = userJS ? JSON.parse(userJS).token : "";
 
       const res = await fetch(`${BASE_URL}/Post/Update`, {
         method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("Update failed:", text);
-        throw new Error("Failed to update post");
-      }
-
-      toast.success("Post updated successfully");
-
+      if (!res.ok) throw new Error("Failed to update");
+      return res;
+    },
+    onSuccess: () => {
+      toast.success("تم تحديث الرحلة بنجاح!");
       queryClient.invalidateQueries({ queryKey: ["posts"] });
-      navigate("/feed");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update post");
-    } finally {
-      setLoading(false);
+      onClose();
+    },
+    onError: () => {
+      toast.error("حدث خطأ أثناء التحديث");
     }
+  });
+
+  const handleUpdatePost = () => {
+    if (!caption.trim() && media.length === 0) return;
+    const formData = new FormData();
+    formData.append("ID", post.id);
+    formData.append("Description", caption);
+
+    let i = 0;
+    media.forEach((m) => {
+      if (!m.isNew && typeof m.file === "string") {
+        formData.append(`Media[${i}].mediaId`, m.mediaId);
+        formData.append(`Media[${i}].file`, m.file);
+      }
+      if (m.isNew && m.file instanceof File) {
+        formData.append(`Media[${i}].mediaId`, "");
+        formData.append(`Media[${i}].file`, m.file);
+      }
+      i++;
+    });
+
+    updateMutation.mutate(formData);
   };
 
   return {
@@ -145,7 +82,7 @@ export function useEditPost(postId: string) {
     setCaption,
     media,
     setMedia,
-    loading,
+    loading: updateMutation.isPending,
     user,
     handleUpdatePost,
     fileRef,
