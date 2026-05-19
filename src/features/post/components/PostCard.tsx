@@ -66,8 +66,8 @@ export function PostHeader({
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { language } = useLanguage();
-  const isRtl = language === "ar"
+  const { t, language } = useLanguage();
+  const isRtl = language === "ar";
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -96,18 +96,19 @@ export function PostHeader({
     const created = new Date(date);
     const diff = Math.floor((now.getTime() - created.getTime()) / 1000);
 
-    if (diff < 60) return "Just now";
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+    if (diff < 60) return t("feed.justNow");
+    if (diff < 3600) return `${Math.floor(diff / 60)}${t("feed.minsAgo")}`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}${t("feed.hoursAgo")}`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}${t("feed.daysAgo")}`;
 
-    return created.toLocaleDateString();
+    return created.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US');
   }
 
   return (
     <div
-      className="flex items-center justify-between px-4 py-3 relative cursor-pointer "
+      className="flex items-center justify-between px-4 py-3 relative cursor-pointer"
       onClick={() => navigate(`/post/${id}`)}
+      dir={isRtl ? "rtl" : "ltr"}
     >
       <div className="flex items-center gap-3">
         <img
@@ -119,7 +120,7 @@ export function PostHeader({
           loading="lazy"
           decoding="async"
           src={normalizeMediaUrl(profileUrl)}
-          className="w-10 h-10 rounded-full object-cover"
+          className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-slate-800"
         />
         <div className="flex flex-col leading-tight">
           <span
@@ -132,7 +133,10 @@ export function PostHeader({
             {userName}
           </span>
           {createdAt && (
-            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold flex items-center gap-1.5 mt-0.5">
+            <span 
+              className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold flex items-center gap-1.5 mt-0.5"
+              dir="auto"
+            >
               {formatTime(createdAt)} <GlobeIcon className="w-3 h-3" />
             </span>
           )}
@@ -147,25 +151,33 @@ export function PostHeader({
       >
         {!isOwner && (
           <button
-            onClick={onFollow}
-            className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${isFollowing
-              ? "bg-slate-50 dark:bg-blue-950 border border-slate-200 dark:border-blue-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-              : "bg-blue-700 dark:bg-blue-700 border border-blue-700 dark:border-blue-900 text-white hover:bg-blue-800 dark:hover:bg-blue-900"
+            onClick={(e) => {
+               e.stopPropagation();
+               onFollow?.();
+            }}
+            className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-colors duration-200 ${isFollowing
+              ? "bg-slate-50 dark:bg-blue-950/30 border border-slate-200 dark:border-blue-900/50 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              : "bg-blue-700 dark:bg-blue-600 border border-transparent text-white hover:bg-blue-800 dark:hover:bg-blue-700 shadow-sm"
               }`}
           >
-            {isFollowing ? "Following" : "Follow"}
+            {isFollowing ? t("feed.following") : t("feed.follow")}
           </button>
         )}
 
         <div className="relative" ref={dropdownRef}>
           <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors"
+            onClick={(e) => {
+               e.stopPropagation();
+               setDropdownOpen(!dropdownOpen);
+            }}
+            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors"
+            aria-label="More options"
           >
             <MoreHorizontal className="w-5 h-5" />
           </button>
+          
           {isReportOpen && (
-            <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm animate-in fade-in">
               <ReportModal
                 entityType="post"
                 entityId={id}
@@ -173,38 +185,48 @@ export function PostHeader({
               />
             </div>
           )}
+          
           {dropdownOpen && (
             <div className={cn(
-              "absolute top-full mt-2 w-36 bg-white dark:bg-slate-800 rounded-xl shadow-lg ring-1 ring-black/5 dark:ring-white/10 z-50 overflow-hidden border border-transparent dark:border-slate-700",
+              "absolute top-full mt-2 w-36 bg-white dark:bg-slate-800 rounded-xl shadow-lg ring-1 ring-black/5 dark:ring-white/10 z-50 overflow-hidden border border-slate-100 dark:border-slate-700 animate-in zoom-in-95 duration-100",
               isRtl ? "left-0" : "right-0"
             )}>
               {isOwner ? (
                 <>
                   <button
-                    className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                    onClick={onEdit}
+                    className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation(); 
+                      setDropdownOpen(false);
+                      onEdit?.();
+                    }}
                   >
                     <Edit className="w-4 h-4" />
-                    Edit
+                    {t("feed.edit")}
                   </button>
                   <button
-                    className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
-                    onClick={onDelete}
+                    className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors border-t border-slate-50 dark:border-slate-700/50"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDropdownOpen(false);
+                      onDelete?.();
+                    }}
                   >
                     <Trash2 className="w-4 h-4" />
-                    Delete
+                    {t("feed.delete")}
                   </button>
                 </>
               ) : (
                 <button
-                  className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
-                  onClick={() => {
-                    setDropdownOpen(!dropdownOpen);
+                  className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDropdownOpen(false);
                     setIsReportOpen(true);
                   }}
                 >
                   <Flag className="w-4 h-4" />
-                  Report
+                  {t("feed.report")}
                 </button>
               )}
             </div>
@@ -214,6 +236,7 @@ export function PostHeader({
     </div>
   );
 }
+
 
 export function PostMedia({ media }: { media: PostMediaItem[] }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);

@@ -294,6 +294,16 @@ export const ar = {
       prevMedia: "الوسائط السابقة",
       closePreview: "إغلاق المعاينة",
 
+      // Post Header
+      following: "تتابع",
+      follow: "متابعة",
+      edit: "تعديل",
+      delete: "حذف",
+      report: "إبلاغ",
+      justNow: "الآن",
+      minsAgo: "د",
+      hoursAgo: "س",
+      daysAgo: "ي",
    },
    postCard: {
       "deleteSuccess": "جاري حذف المنشور!",

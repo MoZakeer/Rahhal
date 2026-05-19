@@ -293,6 +293,17 @@ export const en = {
       nextMedia: "Next media",
       prevMedia: "Previous media",
       closePreview: "Close preview",
+      
+      // Post Header
+      following: "Following",
+      follow: "Follow",
+      edit: "Edit",
+      delete: "Delete",
+      report: "Report",
+      justNow: "Just now",
+      minsAgo: "m",
+      hoursAgo: "h",
+      daysAgo: "d",
    },
    postCard: {
       "deleteSuccess": "Deleting post!",
