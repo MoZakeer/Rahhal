@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 type Props = {
   media: EditMedia[];
   setMedia: React.Dispatch<React.SetStateAction<EditMedia[]>>;
-  fileRef: React.RefObject<HTMLInputElement>;
+  fileRef: React.RefObject<HTMLInputElement | null>;
 };
 
 export default function PostMedia({

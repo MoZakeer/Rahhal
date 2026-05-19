@@ -21,7 +21,7 @@ export function useEditPost(post: Post, onClose: () => void) {
   });
 
   // Handling both possible cases for avatar URL (profileURL or profileUrl) for backward compatibility
-  const avatarPath = post.profileURL || post.profileUrl;
+  const avatarPath = (post as any).profileURL || post.profileUrl;
 
   const user = {
     name: post.userName,
