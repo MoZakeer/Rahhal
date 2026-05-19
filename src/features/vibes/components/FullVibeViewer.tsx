@@ -32,6 +32,7 @@ import VibeCreator from "./VibeCreator";
 import { deleteVibe, canDeleteVibe, canEditVibe } from "../services/vibesApi";
 import type { UserVibesGroup, Vibe } from "../data/vibesData";
 import { normalizeMediaUrl } from "@/features/post/components/services/posts.api";
+import { toggleReaction } from "../services/vibesApi";
 
 interface FullVibeViewerProps {
   groups: UserVibesGroup[];
@@ -39,6 +40,7 @@ interface FullVibeViewerProps {
   currentUserId: string | null;
   tripOwnerId?: string;
   onClose: () => void;
+  onVibeUpdate?: (updatedVibe: Vibe) => void;
 }
 
 const AUTO_MS = 5000;
@@ -48,6 +50,7 @@ const FullVibeViewer = ({
   startGroupIndex,
   currentUserId,
   onClose,
+  onVibeUpdate,
 }: FullVibeViewerProps) => {
   const [groupIdx, setGroupIdx] = useState(startGroupIndex);
   const [vibeIdx, setVibeIdx] = useState(0);
@@ -57,7 +60,9 @@ const FullVibeViewer = ({
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const group = groups[groupIdx];
+  const [viewerGroups, setViewerGroups] = useState(groups);
+
+  const group = viewerGroups[groupIdx];
   const vibe: Vibe | undefined = group?.vibes[vibeIdx];
 
   // Auto-advance progress
@@ -80,7 +85,7 @@ const FullVibeViewer = ({
   const next = () => {
     if (!group) return;
     if (vibeIdx < group.vibes.length - 1) setVibeIdx((i) => i + 1);
-    else if (groupIdx < groups.length - 1) {
+    else if (groupIdx < viewerGroups.length - 1) {
       setGroupIdx((i) => i + 1);
       setVibeIdx(0);
     } else {
@@ -91,12 +96,42 @@ const FullVibeViewer = ({
   const prev = () => {
     if (vibeIdx > 0) setVibeIdx((i) => i - 1);
     else if (groupIdx > 0) {
-      const prevG = groups[groupIdx - 1];
+      const prevG = viewerGroups[groupIdx - 1];
       setGroupIdx((i) => i - 1);
       setVibeIdx(prevG.vibes.length - 1);
     }
   };
+  const handleToggleLike = async (vibeId: string) => {
+    const updatedVibe = { ...vibe, isLiked: !vibe.isLiked };
 
+    // Optimistic local update
+    setViewerGroups((prev) =>
+      prev.map((group) => ({
+        ...group,
+        vibes: group.vibes.map((v) => (v.id === vibeId ? updatedVibe : v)),
+      })),
+    );
+
+    // 👇 Propagate up to parent so it survives remount
+    onVibeUpdate?.(updatedVibe);
+
+    try {
+      await toggleReaction(vibeId);
+    } catch (err) {
+      console.error("Failed to toggle reaction", err);
+      // Rollback locally
+      setViewerGroups((prev) =>
+        prev.map((group) => ({
+          ...group,
+          vibes: group.vibes.map((v) =>
+            v.id === vibeId ? { ...v, isLiked: !v.isLiked } : v,
+          ),
+        })),
+      );
+      // Rollback in parent too
+      onVibeUpdate?.({ ...updatedVibe, isLiked: !updatedVibe.isLiked });
+    }
+  };
   const handleDelete = async () => {
     if (!vibe) return;
     try {
@@ -318,6 +353,7 @@ const FullVibeViewer = ({
           <VibeReactionsBar
             key={vibe.id}
             vibe={vibe}
+            onToggleLike={() => handleToggleLike(vibe.id)}
             onOpenComments={() => setCommentsOpen(true)}
             onPause={() => setPaused(true)}
             onResume={() => setPaused(false)}

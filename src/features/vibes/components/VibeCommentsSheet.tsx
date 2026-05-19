@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
-import { Send, X, Loader2 } from "lucide-react";
+import { Send, X, Trash2, Loader2, Heart, Pencil, Check } from "lucide-react";
+
 import { motion, AnimatePresence } from "framer-motion";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import { addComment, fetchVibeComments } from "../services/vibesApi";
+import {
+  addComment,
+  fetchVibeComments,
+  deleteComment,
+  addLikeToComment,
+  updateComment,
+} from "../services/vibesApi";
 
 import type { Vibe, VibeComment } from "../data/vibesData";
 
@@ -29,6 +36,15 @@ const VibeCommentsSheet = ({
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
 
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const [bumps, setBumps] = useState<Record<string, number>>({});
+  const [likingIds, setLikingIds] = useState<Record<string, boolean>>({});
+
   // -------------------
   // FETCH COMMENTS
   // -------------------
@@ -48,6 +64,28 @@ const VibeCommentsSheet = ({
       setLoading(false);
     });
   }, [vibe.id]);
+
+  // -------------------
+  // HELPERS
+  // -------------------
+  const updateLocalComment = (
+    commentId: string,
+    updater: (comment: VibeComment) => VibeComment,
+  ) => {
+    setComments((prev) =>
+      prev.map((comment) =>
+        comment.commentId === commentId ? updater(comment) : comment,
+      ),
+    );
+  };
+
+  const initials = (name: string) =>
+    name
+      .split(" ")
+      .map((part) => part[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
 
   // -------------------
   // SEND COMMENT
@@ -77,15 +115,126 @@ const VibeCommentsSheet = ({
   };
 
   // -------------------
-  // HELPERS
+  // DELETE COMMENT
   // -------------------
-  const initials = (name: string) =>
-    name
-      .split(" ")
-      .map((part) => part[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase();
+  const handleDelete = async (commentId: string) => {
+    if (deletingId) return;
+
+    setDeletingId(commentId);
+
+    try {
+      await deleteComment(commentId);
+
+      setComments((prev) => prev.filter((c) => c.commentId !== commentId));
+    } catch (err) {
+      console.error("Failed to delete comment", err);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  // -------------------
+  // EDIT COMMENT
+  // -------------------
+  const startEditing = (comment: VibeComment) => {
+    setEditingId(comment.commentId);
+    setEditText(comment.description);
+  };
+
+  const cancelEditing = () => {
+    setEditingId(null);
+    setEditText("");
+  };
+
+  const handleEditSave = async (commentId: string) => {
+    const trimmed = editText.trim();
+
+    if (!trimmed) return;
+
+    setSavingEdit(true);
+
+    const oldComment = comments.find((c) => c.commentId === commentId);
+
+    if (!oldComment) return;
+
+    // Optimistic update
+    updateLocalComment(commentId, (comment) => ({
+      ...comment,
+      description: trimmed,
+    }));
+
+    try {
+      await updateComment(commentId, trimmed);
+
+      setEditingId(null);
+      setEditText("");
+    } catch (err) {
+      console.error("Failed to update comment", err);
+
+      // rollback
+      updateLocalComment(commentId, (comment) => ({
+        ...comment,
+        description: oldComment.description,
+      }));
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  // -------------------
+  // LIKE COMMENT
+  // -------------------
+  const handleLikeComment = async (commentId: string) => {
+    if (!currentUserId) return;
+
+    if (likingIds[commentId]) return;
+
+    setBumps((prev) => ({
+      ...prev,
+      [commentId]: (prev[commentId] || 0) + 1,
+    }));
+
+    const currentComment = comments.find((c) => c.commentId === commentId);
+
+    if (!currentComment) return;
+
+    const previousState = {
+      isLikedByCurrentUser: currentComment.isLikedByCurrentUser,
+      likesCount: currentComment.likesCount,
+    };
+
+    const nextLiked = !currentComment.isLikedByCurrentUser;
+
+    setLikingIds((prev) => ({
+      ...prev,
+      [commentId]: true,
+    }));
+
+    updateLocalComment(commentId, (comment) => ({
+      ...comment,
+      isLikedByCurrentUser: nextLiked,
+      likesCount: nextLiked
+        ? comment.likesCount + 1
+        : Math.max(0, comment.likesCount - 1),
+    }));
+
+    try {
+      await addLikeToComment(currentUserId, commentId);
+    } catch (err) {
+      console.error("Failed to toggle comment like:", err);
+
+      updateLocalComment(commentId, (comment) => ({
+        ...comment,
+        isLikedByCurrentUser: previousState.isLikedByCurrentUser,
+        likesCount: previousState.likesCount,
+      }));
+    } finally {
+      setLikingIds((prev) => ({
+        ...prev,
+        [commentId]: false,
+      }));
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -130,66 +279,35 @@ const VibeCommentsSheet = ({
             </Button>
           </div>
 
-          {/* COMMENTS LIST */}
+          {/* COMMENTS */}
           <div className="custom-scrollbar flex-1 space-y-4 overflow-y-auto p-4">
-            {/* LOADING */}
             {loading && (
-              <div className="animate-fade-in space-y-4">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className="h-8 w-8 shrink-0 animate-pulse rounded-full border border-border/10 bg-muted/60" />
-
-                    <div className="min-w-0 flex-1 space-y-2">
-                      <div className="max-w-[85%] space-y-2 rounded-2xl bg-muted/40 px-4 py-3">
-                        <div className="h-3 w-20 animate-pulse rounded bg-muted-foreground/20" />
-
-                        <div className="h-3.5 w-full animate-pulse rounded bg-muted-foreground/15" />
-
-                        <div className="h-3.5 w-[75%] animate-pulse rounded bg-muted-foreground/15" />
-                      </div>
-
-                      <div className="ml-1 h-2 w-12 animate-pulse rounded bg-muted-foreground/10" />
-                    </div>
-                  </div>
-                ))}
+              <div className="flex justify-center py-10">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
             )}
 
-            {/* EMPTY STATE */}
-            {!loading && comments.length === 0 && (
-              <div className="flex h-full flex-col items-center justify-center py-12 text-center">
-                <p className="text-sm font-medium text-muted-foreground/80">
-                  No comments yet
-                </p>
+            {!loading &&
+              comments.map((c) => {
+                const isOwner = currentUserId && c.profileId === currentUserId;
 
-                <p className="text-xs text-muted-foreground/60">
-                  Start the conversation below.
-                </p>
-              </div>
-            )}
+                const isDeleting = deletingId === c.commentId;
 
-            {/* COMMENTS */}
-            <AnimatePresence initial={false}>
-              {!loading &&
-                comments.map((c) => (
+                const isLiking = likingIds[c.commentId];
+
+                const commentBump = bumps[c.commentId] || 0;
+
+                const isEditing = editingId === c.commentId;
+
+                return (
                   <motion.div
                     key={c.commentId}
-                    initial={{
-                      opacity: 0,
-                      x: -10,
-                    }}
-                    animate={{
-                      opacity: 1,
-                      x: 0,
-                    }}
-                    exit={{
-                      opacity: 0,
-                      scale: 0.95,
-                    }}
-                    className="flex items-start gap-3"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="group flex items-start justify-between gap-3"
                   >
-                    <div className="flex w-full min-w-0 items-start gap-3">
-                      {/* AVATAR */}
+                    <div className="flex min-w-0 flex-1 gap-3">
                       <Avatar className="h-8 w-8 shrink-0 border border-border/20 shadow-sm">
                         <AvatarImage
                           src={normalizeMediaUrl(c.profilePicture)}
@@ -201,39 +319,146 @@ const VibeCommentsSheet = ({
                         </AvatarFallback>
                       </Avatar>
 
-                      {/* COMMENT CONTENT */}
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <div>
-                          <div className="rounded-2xl bg-muted/50 px-3.5 py-2 transition-colors hover:bg-muted/70">
-                            <p className="text-xs font-semibold text-foreground/90">
-                              {c.userName}
-                            </p>
+                      <div className="min-w-0 flex-1">
+                        {/* TOP BAR */}
+                        <div className="mb-1 flex items-center justify-between gap-2">
+                          <p className="truncate text-xs font-semibold text-foreground/90">
+                            {c.userName}
+                          </p>
 
-                            <p className="mt-0.5 whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground/80">
+                          {isOwner && !isEditing && (
+                            <div className="flex items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                              {/* EDIT */}
+                              <button
+                                onClick={() => startEditing(c)}
+                                className="flex h-7 w-7 items-center justify-center rounded-full border border-border/50 bg-background/80 text-muted-foreground transition-all hover:scale-105 hover:border-blue-500/40 hover:bg-blue/10 hover:text-blue-500"
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </button>
+
+                              {/* DELETE */}
+                              <button
+                                disabled={isDeleting}
+                                onClick={() => handleDelete(c.commentId)}
+                                className="flex h-7 w-7 items-center justify-center rounded-full border border-border/50 bg-background/80 text-muted-foreground transition-all hover:scale-105 hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                              >
+                                {isDeleting ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                )}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* COMMENT BUBBLE */}
+                        <div className="rounded-2xl border border-border/40 bg-muted/40 px-3.5 py-3 shadow-sm transition-colors hover:bg-muted/55">
+                          {isEditing ? (
+                            <div className="space-y-3">
+                              <textarea
+                                rows={3}
+                                value={editText}
+                                onChange={(e) => setEditText(e.target.value)}
+                                className="w-full resize-none rounded-xl border border-border/60 bg-background px-3 py-2 text-sm outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/10"
+                              />
+
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={cancelEditing}
+                                  disabled={savingEdit}
+                                  className="rounded-xl"
+                                >
+                                  Cancel
+                                </Button>
+
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  disabled={savingEdit || !editText.trim()}
+                                  onClick={() => handleEditSave(c.commentId)}
+                                  className="rounded-xl"
+                                >
+                                  {savingEdit ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <>
+                                      <Check className="mr-1 h-4 w-4" />
+                                      Save
+                                    </>
+                                  )}
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground/85">
                               {c.description}
                             </p>
-                          </div>
+                          )}
                         </div>
 
                         {/* FOOTER */}
-                        <div className="flex items-center gap-3 px-1">
+                        <div className="mt-1.5 flex items-center gap-3 px-1">
                           <p className="text-[10px] font-medium tracking-wide text-muted-foreground/70">
                             {new Date(c.createdDate).toLocaleTimeString([], {
                               hour: "2-digit",
                               minute: "2-digit",
                             })}
                           </p>
+
+                          {c.likesCount > 0 && (
+                            <p className="text-[10px] font-semibold text-muted-foreground/90">
+                              {c.likesCount}{" "}
+                              {c.likesCount === 1 ? "like" : "likes"}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
+
+                    {/* LIKE */}
+                    {!isEditing && (
+                      <button
+                        type="button"
+                        disabled={!currentUserId || isLiking}
+                        onClick={() => handleLikeComment(c.commentId)}
+                        className="mt-8 shrink-0 rounded-full p-2 transition-all hover:bg-muted active:scale-75 disabled:opacity-40"
+                      >
+                        <motion.div
+                          key={commentBump}
+                          animate={
+                            commentBump > 0 ? { scale: [1, 1.35, 0.9, 1] } : {}
+                          }
+                          transition={{
+                            duration: 0.35,
+                            ease: "easeInOut",
+                          }}
+                        >
+                          {isLiking ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          ) : (
+                            <Heart
+                              className={`h-4 w-4 transition-all ${
+                                c.isLikedByCurrentUser
+                                  ? "fill-red-500 text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.35)]"
+                                  : "text-muted-foreground/50 hover:text-foreground"
+                              }`}
+                            />
+                          )}
+                        </motion.div>
+                      </button>
+                    )}
                   </motion.div>
-                ))}
-            </AnimatePresence>
+                );
+              })}
           </div>
 
-          {/* INPUT FOOTER */}
+          {/* INPUT */}
           <div className="border-t border-border/60 bg-card/80 p-3 backdrop-blur-sm">
-            <div className="flex items-center gap-2 rounded-xl border border-border/50 bg-muted/40 p-1 pl-3 transition-within:border-primary/40 transition-within:ring-1 transition-within:ring-primary/20">
+            <div className="flex items-center gap-2 rounded-2xl border border-border/50 bg-muted/40 p-1 pl-3">
               <Input
                 placeholder={
                   currentUserId ? "Add a comment…" : "Sign in to comment"
@@ -241,7 +466,7 @@ const VibeCommentsSheet = ({
                 value={text}
                 disabled={!currentUserId || sending}
                 onChange={(e) => setText(e.target.value)}
-                className="h-9 flex-1 border-0 bg-transparent p-0 text-sm placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="h-9 flex-1 border-0 bg-transparent p-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
@@ -255,12 +480,12 @@ const VibeCommentsSheet = ({
                 variant={text.trim() ? "default" : "ghost"}
                 onClick={handleSend}
                 disabled={sending || !text.trim() || !currentUserId}
-                className="h-8 w-8 shrink-0 rounded-lg transition-all duration-200"
+                className="h-9 w-9 rounded-xl"
               >
                 {sending ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Send className="h-3.5 w-3.5" />
+                  <Send className="h-4 w-4" />
                 )}
               </Button>
             </div>

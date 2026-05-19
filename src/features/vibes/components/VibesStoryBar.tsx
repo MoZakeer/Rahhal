@@ -59,7 +59,7 @@ const VibesStoryBar = ({
   const [seen, setSeen] = useState<Set<string>>(() => loadSeen());
 
   // -----------------------
-  // FETCH FROM API (NO MOCK)
+  // FETCH FROM API
   // -----------------------
   useEffect(() => {
     const load = async () => {
@@ -89,6 +89,32 @@ const VibesStoryBar = ({
 
   const isGroupSeen = (g: UserVibesGroup) =>
     g.vibes.every((v) => seen.has(v.id));
+
+  // -----------------------
+  // VIBE UPDATE — keeps like state alive across open/close cycles
+  // -----------------------
+  const handleVibeUpdate = (updatedVibe: Vibe) => {
+    // Update the flat vibes array → useMemo recomputes groups automatically
+    setVibes((prev) =>
+      prev.map((v) => (v.id === updatedVibe.id ? updatedVibe : v)),
+    );
+
+    // Also patch the viewer snapshot so the heart doesn't flicker
+    // back to unliked while the viewer is still open
+    setViewer((prev) =>
+      prev
+        ? {
+            ...prev,
+            groups: prev.groups.map((group) => ({
+              ...group,
+              vibes: group.vibes.map((v) =>
+                v.id === updatedVibe.id ? updatedVibe : v,
+              ),
+            })),
+          }
+        : null,
+    );
+  };
 
   // -----------------------
   // OPEN GROUP VIEWER
@@ -196,6 +222,7 @@ const VibesStoryBar = ({
           currentUserId={currentUserId ?? null}
           tripOwnerId={trip.ownerId}
           onClose={() => setViewer(null)}
+          onVibeUpdate={handleVibeUpdate}
         />
       )}
     </div>

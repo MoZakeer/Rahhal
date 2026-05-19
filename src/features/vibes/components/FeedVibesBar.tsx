@@ -13,9 +13,7 @@ import FullVibeViewer from "./FullVibeViewer";
 
 const FeedVibesBar = ({ currentUserId }: { currentUserId?: string | null }) => {
   const [vibes, setVibes] = useState<Vibe[]>([]);
-
   const [loading, setLoading] = useState(true);
-
   const [viewer, setViewer] = useState<{
     groups: UserVibesGroup[];
     groupIndex: number;
@@ -29,9 +27,7 @@ const FeedVibesBar = ({ currentUserId }: { currentUserId?: string | null }) => {
     const load = async () => {
       try {
         setLoading(true);
-
         const data = await fetchFeedVibes();
-
         setVibes(data);
       } catch (err) {
         console.error("Failed to fetch feed vibes", err);
@@ -62,6 +58,33 @@ const FeedVibesBar = ({ currentUserId }: { currentUserId?: string | null }) => {
       .toUpperCase();
 
   // -------------------
+  // VIBE UPDATE — keeps like state alive across open/close cycles
+  // Updates the flat vibes array; groups are recomputed via useMemo
+  // -------------------
+
+  const handleVibeUpdate = (updatedVibe: Vibe) => {
+    setVibes((prev) =>
+      prev.map((v) => (v.id === updatedVibe.id ? updatedVibe : v)),
+    );
+
+    // Also keep the active viewer's snapshot in sync so the heart
+    // doesn't flicker back while the viewer is still open
+    setViewer((prev) =>
+      prev
+        ? {
+            ...prev,
+            groups: prev.groups.map((group) => ({
+              ...group,
+              vibes: group.vibes.map((v) =>
+                v.id === updatedVibe.id ? updatedVibe : v,
+              ),
+            })),
+          }
+        : null,
+    );
+  };
+
+  // -------------------
   // EMPTY
   // -------------------
 
@@ -75,14 +98,14 @@ const FeedVibesBar = ({ currentUserId }: { currentUserId?: string | null }) => {
 
   return (
     <div className="container mt-2 mx-auto px-4">
-      {/* Header Section - Minimal & Integrated */}
+      {/* Header Section */}
       <div className="mb-3 px-1">
         <h3 className="font-display text-sm font-semibold tracking-tight text-blue-900">
           Latest Vibes
         </h3>
       </div>
 
-      {/* Active Vibes List - Pure Whitespace, No Card Box */}
+      {/* Active Vibes List */}
       <div className="flex gap-4 overflow-x-auto pb-4 pt-1 scrollbar-none snap-x snap-mandatory">
         {/* LOADING SKELETON */}
         {loading &&
@@ -119,8 +142,6 @@ const FeedVibesBar = ({ currentUserId }: { currentUserId?: string | null }) => {
           ))}
       </div>
 
-      {/* Subtle native divider below the vibes list to cleanly separate it from the main feed */}
-
       {/* FULL SCREEN VIEWER */}
       {viewer && (
         <FullVibeViewer
@@ -128,6 +149,7 @@ const FeedVibesBar = ({ currentUserId }: { currentUserId?: string | null }) => {
           startGroupIndex={viewer.groupIndex}
           currentUserId={currentUserId ?? null}
           onClose={() => setViewer(null)}
+          onVibeUpdate={handleVibeUpdate}
         />
       )}
     </div>

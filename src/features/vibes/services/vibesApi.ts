@@ -269,7 +269,7 @@ export async function addComment(input: VibeCommentinput): Promise<void> {
 }
 // Add this to your vibesApi.ts
 export const deleteComment = async (commentId: string): Promise<void> => {
-  await fetch("/Vibes/DeleteComment", {
+  await fetch(`${BASE_URL}/Vibes/DeleteComment`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -283,7 +283,7 @@ export const addLikeToComment = async (
   profileId: string,
   commentId: string,
 ): Promise<void> => {
-  const response = await fetch("/Vibes/AddLikeToComment", {
+  const response = await fetch(`${BASE_URL}/Vibes/AddLikeToComment`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -296,7 +296,30 @@ export const addLikeToComment = async (
     throw new Error("Failed to like comment");
   }
 };
+export const updateComment = async (
+  commentId: string,
+  description: string,
+): Promise<void> => {
+  const response = await fetch(`${BASE_URL}/Comment/Update`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: JSON.stringify({
+      commentId,
+      description,
+    }),
+  });
 
+  if (!response.ok) {
+    const errorText = await response.text();
+
+    console.error("Update comment failed:", errorText);
+
+    throw new Error("Failed to update comment");
+  }
+};
 export async function fetchVibeComments(
   postId: string,
 ): Promise<VibeComment[]> {
