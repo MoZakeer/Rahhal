@@ -316,6 +316,7 @@ const FullVibeViewer = ({
 
           {/* Reactions / latest comment */}
           <VibeReactionsBar
+            key={vibe.id}
             vibe={vibe}
             onOpenComments={() => setCommentsOpen(true)}
             onPause={() => setPaused(true)}

@@ -19,13 +19,7 @@ const VibeReactionsBar = ({
   onPause,
   onResume,
 }: VibeReactionsBarProps) => {
-  const [liked, setLiked] = useState(
-    vibe.isLiked,
-  );
-
-  const [likes, setLikes] = useState(
-    vibe.likes,
-  );
+  const [liked, setLiked] = useState(vibe.isLiked);
 
   const [bump, setBump] = useState(0);
 
@@ -39,80 +33,56 @@ const VibeReactionsBar = ({
     // optimistic update
     setLiked(next);
 
-    setLikes((c) =>
-      next ? c + 1 : c - 1,
-    );
-
     setBump((b) => b + 1);
 
     try {
       await toggleReaction(vibe.id);
     } catch (err) {
-      console.error(
-        "Failed to like vibe",
-        err,
-      );
+      console.error("Failed to like vibe", err);
 
       // rollback
       setLiked(!next);
-
-      setLikes((c) =>
-        next ? c - 1 : c + 1,
-      );
     }
   };
 
   return (
-    <div className="relative z-10 border-t border-white/10 bg-black/60 p-3 backdrop-blur">
-      <div className="flex items-center gap-3">
-        {/* LIKE */}
-
+    <div className="relative z-10 border-t border-white/5 bg-zinc-950/40 p-4 backdrop-blur-md">
+      <div className="flex items-center gap-4">
+        {/* LIKE BUTTON */}
         <button
           type="button"
           onClick={handleReact}
           onMouseEnter={onPause}
           onMouseLeave={onResume}
-          className="flex items-center gap-1.5 text-white"
+          className="group flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-white transition-all duration-200 hover:bg-white/10 active:scale-95"
+          aria-label={liked ? "Unlike" : "Like"}
         >
-          <motion.span
+          <motion.div
             key={bump}
-            initial={{ scale: 1 }}
-            animate={{
-              scale: [1, 1.4, 1],
-            }}
-            transition={{
-              duration: 0.35,
-            }}
+            animate={bump ? { scale: [1, 1.25, 0.95, 1] } : {}}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
           >
             <Heart
-              className={`h-6 w-6 transition-colors ${
+              className={`h-5 w-5 transition-all duration-300 group-hover:scale-105 ${
                 liked
-                  ? "fill-red-500 text-red-500"
-                  : "text-white"
+                  ? "fill-red-500 text-red-500 drop-shadow-[0_0_6px_rgba(239,68,68,0.5)]"
+                  : "text-zinc-300 group-hover:text-white"
               }`}
             />
-          </motion.span>
-
-          <span className="text-sm font-medium">
-            {likes}
-          </span>
+          </motion.div>
         </button>
 
-        {/* COMMENTS */}
-
+        {/* COMMENTS BUTTON */}
         <button
           type="button"
           onClick={() => {
             onPause?.();
             onOpenComments();
           }}
-          className="flex items-center gap-1.5 text-white"
+          className="group flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-zinc-300 transition-all duration-200 hover:bg-white/10 hover:text-white active:scale-95"
+          aria-label="Open comments"
         >
-          <MessageCircle className="h-6 w-6" />
-
-          <span className="text-sm font-medium">
-            {vibe.commentsCount}
-          </span>
+          <MessageCircle className="h-5 w-5 transition-transform duration-200 group-hover:scale-105" />
         </button>
       </div>
     </div>

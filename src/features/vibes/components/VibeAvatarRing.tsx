@@ -24,7 +24,7 @@ const VibeAvatarRing = ({
     variant === "user"
       ? seen
         ? "bg-muted"
-        : "bg-gradient-to-tr from-primary via-secondary to-accent"
+        : "bg-gradient-to-tr from-accent via-blue-900 to-blue-950"
       : "bg-transparent";
 
   return (
@@ -51,13 +51,13 @@ const VibeAvatarRing = ({
         ) : (
           <Avatar className="h-16 w-16 border-2 border-card">
             <AvatarImage src={normalizeMediaUrl(src)} alt={label} />
-            <AvatarFallback className="bg-primary/10 text-sm font-semibold text-primary">
+            <AvatarFallback className="bg-primary/10 text-sm font-semibold text-blue-100">
               {fallback}
             </AvatarFallback>
           </Avatar>
         )}
       </div>
-      <span className="line-clamp-1 max-w-[72px] text-center text-[11px] font-medium text-foreground/80">
+      <span className="line-clamp-1 max-w-[72px] text-center text-[11px] font-medium text-foreground/80 dark:text-slate-100">
         {label}
       </span>
     </button>

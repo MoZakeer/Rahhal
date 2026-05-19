@@ -86,7 +86,7 @@ export async function fetchTripVibesByTripId(tripId: string): Promise<Vibe[]> {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-    }
+    },
   );
 
   const data = await response.json();
@@ -142,7 +142,7 @@ export async function createVibe(input: CreateVibeInput): Promise<any> {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
       body: formData,
-    }
+    },
   );
 
   const data = await response.json();
@@ -234,10 +234,8 @@ export interface TripLite {
 export const canPostVibe = (trip: TripLite | null, userId?: string | null) => {
   if (!userId || !trip) return false;
 
-  const allowedIds =
-    trip.travelers?.map((t) => t.profileId) ?? [];
+  const allowedIds = trip.travelers?.map((t) => t.profileId) ?? [];
 
-  
   if (trip.ownerId === userId) return true;
 
   return allowedIds.includes(userId);
@@ -269,6 +267,36 @@ export async function addComment(input: VibeCommentinput): Promise<void> {
     throw new Error("Failed to add comment");
   }
 }
+// Add this to your vibesApi.ts
+export const deleteComment = async (commentId: string): Promise<void> => {
+  await fetch("/Vibes/DeleteComment", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+
+    body: JSON.stringify({ commentId }),
+  });
+};
+export const addLikeToComment = async (
+  profileId: string,
+  commentId: string,
+): Promise<void> => {
+  const response = await fetch("/Vibes/AddLikeToComment", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: JSON.stringify({ profileId, commentId }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to like comment");
+  }
+};
+
 export async function fetchVibeComments(
   postId: string,
 ): Promise<VibeComment[]> {
