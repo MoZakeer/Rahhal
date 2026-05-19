@@ -1,20 +1,16 @@
 import React from "react";
 import { X, ImagePlus } from "lucide-react";
 import type { EditMedia } from "../services/editPost";
-import { useLanguage } from "@/context/LanguageContext"; 
+import { useLanguage } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
 
 type Props = {
   media: EditMedia[];
   setMedia: React.Dispatch<React.SetStateAction<EditMedia[]>>;
-  fileRef: React.RefObject<HTMLInputElement | null>;
+  fileRef: React.RefObject<HTMLInputElement>;
 };
 
-export default function PostMedia({
-  media,
-  setMedia,
-  fileRef,
-}: Props) {
+export default function PostMedia({ media, setMedia, fileRef }: Props) {
   const { t, language } = useLanguage();
   const isRtl = language === "ar";
 
@@ -71,8 +67,7 @@ export default function PostMedia({
         <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
           {media.map((m) => {
             const mediaSrc =
-              m.preview ||
-              (typeof m.file === "string" ? m.file : "");
+              m.preview || (typeof m.file === "string" ? m.file : "");
 
             const isVideo =
               (typeof m.file !== "string" &&
@@ -103,7 +98,7 @@ export default function PostMedia({
                   onClick={() => removeMedia(m.mediaId)}
                   className={cn(
                     "absolute top-2 bg-black/60 hover:bg-black/80 text-white w-6 h-6 rounded-full flex items-center justify-center transition outline-none cursor-pointer",
-                    isRtl ? "left-2" : "right-2"
+                    isRtl ? "left-2" : "right-2",
                   )}
                 >
                   <X className="w-3.5 h-3.5" />
