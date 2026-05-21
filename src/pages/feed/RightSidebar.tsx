@@ -1,5 +1,5 @@
 import { Plus, Sparkles } from "lucide-react";
-import HiddenGemsHighlight from "./HiddenGemsHighlight";
+// import HiddenGemsHighlight from "./HiddenGemsHighlight";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -34,7 +34,7 @@ export function RightSidebar() {
           </div>
         </div>
 
-        <HiddenGemsHighlight />
+        {/* <HiddenGemsHighlight /> */}
       </div>
     </div>
   );

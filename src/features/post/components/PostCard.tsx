@@ -16,11 +16,11 @@ import {
   ChevronRight,
   Facebook,
   Link as LinkIcon,
-  CopyCheck
+  CopyCheck,
+  Heart,
 } from "lucide-react";
 
 import { Bookmark } from "lucide-react";
-import { HeartIcon } from "@heroicons/react/24/outline";
 import { useState, useRef, useEffect } from "react";
 import { normalizeMediaUrl } from "./services/posts.api";
 import { getUserId } from "../../../utils/auth";
@@ -485,6 +485,15 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
   );
 }
 
+interface PostActionsProps {
+  liked: boolean;
+  saved: boolean;
+  onLike: () => void;
+  onComment: () => void;
+  onSave: () => void;
+  onShare?: () => void;
+}
+
 export function PostActions({
   liked,
   saved,
@@ -492,65 +501,75 @@ export function PostActions({
   onComment,
   onSave,
   onShare,
-}: {
-  liked: boolean;
-  saved: boolean;
-  onLike: () => void;
-  onComment: () => void;
-  onSave: () => void;
-  onShare?: () => void;
-}) {
+}: PostActionsProps) {
   const { t, language } = useLanguage();
   const isRtl = language === "ar";
 
+  const btnBaseClass = 
+    "group p-2.5 -m-2.5 flex items-center justify-center rounded-full transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 active:scale-75";
+
   return (
     <div 
-      className="flex justify-between px-6 py-4 border-t border-slate-50 dark:border-slate-700/50"
+      className="flex justify-between items-center px-4 py-3 sm:px-6 sm:py-4 border-t border-slate-100 dark:border-slate-800/80"
       dir={isRtl ? "rtl" : "ltr"}
     >
-      <div className="flex gap-7">
+      <div className="flex items-center gap-5 sm:gap-7">
+        
         <button
+          type="button"
           onClick={onLike}
-          className="flex flex-col items-center transition-transform duration-200 ease-in-out"
+          className={btnBaseClass}
           title={liked ? t("feed.unlikeBtn") : t("feed.likeBtn")}
           aria-label={liked ? t("feed.unlikeBtn") : t("feed.likeBtn")}
         >
-          {liked ? (
-            <HeartIcon className="w-6 h-6 text-blue-700 fill-blue-700 hover:text-blue-500 hover:scale-125 hover:rotate-12 transition-all duration-500" />
-          ) : (
-            <HeartIcon className="w-6 h-6 text-slate-400 dark:text-slate-300 hover:text-blue-500 dark:hover:text-blue-400 scale-100 transition-all duration-300" />
-          )}
+          <Heart 
+            className={cn(
+              "w-6 h-6 transition-all duration-300",
+              liked 
+                ? "text-blue-700 fill-blue-700 scale-110 drop-shadow-[0_2px_8px_rgba(37,99,235,0.4)]" 
+                : "text-slate-500 dark:text-slate-400 group-hover:text-blue-700 dark:group-hover:text-blue-600"
+            )} 
+          />
         </button>
 
         <button
+          type="button"
           onClick={onComment}
-          className="group transition-transform active:scale-110 focus:outline-none"
+          className={btnBaseClass}
           title={t("feed.commentBtn")}
           aria-label={t("feed.commentBtn")}
         >
-          <MessageCircle className="w-5 h-5 text-slate-400 group-hover:text-blue-500 transition-all duration-300 ease-out" />
+          <MessageCircle className="w-6 h-6 text-slate-500 dark:text-slate-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors" />
         </button>
         
-        <button
-          onClick={onShare}
-          className="group transition-transform active:scale-110"
-          title={t("feed.shareBtn")}
-          aria-label={t("feed.shareBtn")}
-        >
-          <Share2 className="w-5 h-5 text-slate-400 group-hover:text-blue-500 transition-colors" />
-        </button>
+        {onShare && (
+          <button
+            type="button"
+            onClick={onShare}
+            className={btnBaseClass}
+            title={t("feed.shareBtn")}
+            aria-label={t("feed.shareBtn")}
+          >
+            <Share2 className="w-4 h-4 text-slate-500 dark:text-slate-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors" />
+          </button>
+        )}
       </div>
 
       <button 
+        type="button"
         onClick={onSave}
+        className={btnBaseClass}
         title={saved ? t("feed.unsaveBtn") : t("feed.saveBtn")}
         aria-label={saved ? t("feed.unsaveBtn") : t("feed.saveBtn")}
       >
-        {saved ? (
-          <Bookmark className="w-5 h-5 text-blue-600 dark:text-blue-400 fill-blue-600 dark:fill-blue-400 scale-100 hover:scale-110 transition-all duration-500" />
-        ) : (
-          <Bookmark className="w-5 h-5 text-slate-400 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 scale-100 transition-all duration-300" />
-        )}
+        <Bookmark 
+          className={cn(
+            "w-6 h-6 transition-all duration-300",
+            saved 
+              ? "text-blue-600 dark:text-blue-400 fill-blue-600 dark:fill-blue-400 scale-110 drop-shadow-[0_2px_8px_rgba(37,99,235,0.4)]" 
+              : "text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400"
+          )} 
+        />
       </button>
     </div>
   );
