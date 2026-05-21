@@ -326,6 +326,15 @@ export const en = {
       charCounter: "{{current}} / {{max}} chars",
       loadingSubmit: "Submitting...",
       reportSubtitle: "Help us keep the community safe.",
+
+      // Confirm Modal
+      confirmRemoveTitle: "Confirm Remove",
+      confirmRemoveDesc: "Are you sure you want to remove this",
+      confirmRemoveWarning: "This action cannot be undone.",
+      removeBtn: "Yes, Remove",
+      removingBtn: "Removing",
+      itemPost: "post",
+      itemComment: "comment",
    },
    postCard: {
       "deleteSuccess": "Deleting post!",

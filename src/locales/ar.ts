@@ -326,6 +326,15 @@ export const ar = {
       charCounter: "{{current}} / {{max}} حرف",
       loadingSubmit: "جاري الإرسال...",
       reportSubtitle: "ساعدنا في الحفاظ على أمان المجتمع.",
+
+      // Confirm Modal
+      confirmRemoveTitle: "تأكيد الحذف",
+      confirmRemoveDesc: "هل أنت متأكد أنك تريد حذف هذا الـ",
+      confirmRemoveWarning: "لا يمكن التراجع عن هذا الإجراء.",
+      removeBtn: "نعم، احذف",
+      removingBtn: "جاري الحذف",
+      itemPost: "منشور",
+      itemComment: "تعليق",
    },
    postCard: {
       "deleteSuccess": "جاري حذف المنشور!",
