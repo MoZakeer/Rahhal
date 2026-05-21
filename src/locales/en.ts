@@ -265,6 +265,7 @@ export const en = {
       noTrending: "No trending trips found.",
       postingAs: "Posting as",
       addMedia: "Add Media",
+      processingMedia: "Preparing media...",
       createPostPlaceholder: "What's your next adventure?...",
       postBtn: "Publish",
       mediaAlt: "Media preview",

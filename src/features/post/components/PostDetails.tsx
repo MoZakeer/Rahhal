@@ -167,11 +167,10 @@ export function PostHeader({
         {!isOwner && (
           <button
             onClick={onFollow}
-            className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${
-              isFollowed
+            className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${isFollowed
                 ? "bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                 : "bg-blue-700 dark:bg-blue-700 border border-blue-700 dark:border-blue-900 text-white hover:bg-blue-800 dark:hover:bg-blue-900"
-            }`}
+              }`}
           >
             {isFollowed ? "Following" : "Follow"}
           </button>
@@ -241,10 +240,12 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
   const currentMedia = media[current];
 
   if (!media.length) return null;
-  const isVideo = (item: PostMediaItem) => {
-    if (item.type) return item.type === "video";
+  const isVideo = (item: PostMediaItem | undefined | null) => {
+    if (!item) return false;
 
-    return /\.(mp4|webm|ogg|mov)$/i.test(item.url);
+    if (item.type) return item.type.includes("video");
+
+    return item.url ? /\.(mp4|webm|ogg|mov)$/i.test(item.url) : false;
   };
   const next = () => {
     setCurrent((prev) => (prev + 1) % media.length);
@@ -329,11 +330,10 @@ transition-all duration-300"
               key={m.id}
               onClick={() => setIsPreviewOpen(true)}
               onMouseEnter={() => setCurrent(i)}
-              className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${
-                i === current
+              className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${i === current
                   ? "ring-2 ring-blue-500 dark:ring-blue-400 opacity-100"
                   : "opacity-60 hover:opacity-100"
-              }`}
+                }`}
             >
               {isVideo(m) ? (
                 <>
@@ -431,16 +431,16 @@ export function PostActions({
   const { t, language } = useLanguage();
   const isRtl = language === "ar";
 
-  const btnBaseClass = 
+  const btnBaseClass =
     "group p-2.5 -m-2.5 flex items-center justify-center rounded-full transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 active:scale-75";
 
   return (
-    <div 
+    <div
       className="flex justify-between items-center px-4 py-3 sm:px-6 sm:py-4 border-t border-slate-100 dark:border-slate-800/80"
       dir={isRtl ? "rtl" : "ltr"}
     >
       <div className="flex items-center gap-5 sm:gap-7">
-        
+
         <button
           type="button"
           onClick={onLike}
@@ -448,13 +448,13 @@ export function PostActions({
           title={liked ? t("feed.unlikeBtn") : t("feed.likeBtn")}
           aria-label={liked ? t("feed.unlikeBtn") : t("feed.likeBtn")}
         >
-          <Heart 
+          <Heart
             className={cn(
               "w-6 h-6 transition-all duration-300",
-              liked 
-                ? "text-blue-700 fill-blue-700 scale-110 drop-shadow-[0_2px_8px_rgba(37,99,235,0.4)]" 
+              liked
+                ? "text-blue-700 fill-blue-700 scale-110 drop-shadow-[0_2px_8px_rgba(37,99,235,0.4)]"
                 : "text-slate-500 dark:text-slate-400 group-hover:text-blue-700 dark:group-hover:text-blue-600"
-            )} 
+            )}
           />
         </button>
 
@@ -467,7 +467,7 @@ export function PostActions({
         >
           <MessageCircle className="w-6 h-6 text-slate-500 dark:text-slate-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors" />
         </button>
-        
+
         {onShare && (
           <button
             type="button"
@@ -481,20 +481,20 @@ export function PostActions({
         )}
       </div>
 
-      <button 
+      <button
         type="button"
         onClick={onSave}
         className={btnBaseClass}
         title={saved ? t("feed.unsaveBtn") : t("feed.saveBtn")}
         aria-label={saved ? t("feed.unsaveBtn") : t("feed.saveBtn")}
       >
-        <Bookmark 
+        <Bookmark
           className={cn(
             "w-6 h-6 transition-all duration-300",
-            saved 
-              ? "text-blue-600 dark:text-blue-400 fill-blue-600 dark:fill-blue-400 scale-110 drop-shadow-[0_2px_8px_rgba(37,99,235,0.4)]" 
+            saved
+              ? "text-blue-600 dark:text-blue-400 fill-blue-600 dark:fill-blue-400 scale-110 drop-shadow-[0_2px_8px_rgba(37,99,235,0.4)]"
               : "text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400"
-          )} 
+          )}
         />
       </button>
     </div>
@@ -727,12 +727,12 @@ export function CommentsModal({
         [parentId]: prev[parentId]?.map((reply) =>
           reply.replyId === commentId
             ? {
-                ...reply,
-                isLikedByCurrentUser: !reply.isLikedByCurrentUser,
-                likesCount: reply.isLikedByCurrentUser
-                  ? reply.likesCount - 1
-                  : reply.likesCount + 1,
-              }
+              ...reply,
+              isLikedByCurrentUser: !reply.isLikedByCurrentUser,
+              likesCount: reply.isLikedByCurrentUser
+                ? reply.likesCount - 1
+                : reply.likesCount + 1,
+            }
             : reply,
         ),
       }));
@@ -741,12 +741,12 @@ export function CommentsModal({
         prev.map((comment) =>
           comment.commentId === commentId
             ? {
-                ...comment,
-                isLikedByCurrentUser: !comment.isLikedByCurrentUser,
-                likesCount: comment.isLikedByCurrentUser
-                  ? comment.likesCount - 1
-                  : comment.likesCount + 1,
-              }
+              ...comment,
+              isLikedByCurrentUser: !comment.isLikedByCurrentUser,
+              likesCount: comment.isLikedByCurrentUser
+                ? comment.likesCount - 1
+                : comment.likesCount + 1,
+            }
             : comment,
         ),
       );
@@ -846,9 +846,9 @@ export function CommentsModal({
               onClick={
                 profileId
                   ? (e) => {
-                      e.stopPropagation();
-                      navigate(`/profile/${profileId}`);
-                    }
+                    e.stopPropagation();
+                    navigate(`/profile/${profileId}`);
+                  }
                   : undefined
               }
             >
@@ -876,9 +876,8 @@ export function CommentsModal({
             normalizeMediaUrl(comment.profilePicture) ||
             `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.userName)}`
           }
-          className={`${
-            isReply ? "w-7 h-7" : "w-9 h-9"
-          } rounded-full object-cover mt-0.5 flex-shrink-0 border border-slate-100 dark:border-slate-700`}
+          className={`${isReply ? "w-7 h-7" : "w-9 h-9"
+            } rounded-full object-cover mt-0.5 flex-shrink-0 border border-slate-100 dark:border-slate-700`}
           alt="avatar"
         />
 
@@ -956,7 +955,7 @@ export function CommentsModal({
                     entityType="comment"
                     entityId={id}
                     profileId={currentUserId}
-                    onClose={() => setIsReportOpen(false)} open={true}                  />
+                    onClose={() => setIsReportOpen(false)} open={true} />
                 </div>
               )}
               {menuOpenMap[menuKey] && (
@@ -1007,37 +1006,36 @@ export function CommentsModal({
                 className="flex items-center gap-1 group"
               >
                 <Heart
-                  className={`w-4 h-4 transition-colors ${
-                    (
+                  className={`w-4 h-4 transition-colors ${(
                       isReply
                         ? (comment as ReplyItem).isLikedByCurrentUser
                         : (comment as CommentItem).isLikedByCurrentUser
                     )
                       ? "text-blue-700 fill-blue-700 scale-110"
                       : "text-slate-400 dark:text-slate-500 group-hover:text-blue-600"
-                  }`}
+                    }`}
                 />
               </button>
               {(isReply
                 ? (comment as ReplyItem).likesCount
                 : (comment as CommentItem).likesCount) > 0 && (
-                <span
-                  onClick={() =>
-                    setLikesModal({
-                      open: true,
-                      id: isReply
-                        ? (comment as ReplyItem).replyId
-                        : (comment as CommentItem).commentId,
-                      type: "comment",
-                    })
-                  }
-                  className="text-xs font-medium cursor-pointer hover:text-slate-700 dark:hover:text-slate-200"
-                >
-                  {isReply
-                    ? (comment as ReplyItem).likesCount
-                    : (comment as CommentItem).likesCount}
-                </span>
-              )}
+                  <span
+                    onClick={() =>
+                      setLikesModal({
+                        open: true,
+                        id: isReply
+                          ? (comment as ReplyItem).replyId
+                          : (comment as CommentItem).commentId,
+                        type: "comment",
+                      })
+                    }
+                    className="text-xs font-medium cursor-pointer hover:text-slate-700 dark:hover:text-slate-200"
+                  >
+                    {isReply
+                      ? (comment as ReplyItem).likesCount
+                      : (comment as CommentItem).likesCount}
+                  </span>
+                )}
             </div>
 
             {likesModal.open && likesModal.id && (
@@ -1227,11 +1225,10 @@ export function CommentsModal({
                   <button
                     onClick={() => handleAddComment(id)}
                     disabled={!replyText.trim() || addCommentMutation.isPending}
-                    className={`flex-shrink-0 text-xs font-semibold px-3 py-1 rounded-full transition-colors ${
-                      replyText.trim()
+                    className={`flex-shrink-0 text-xs font-semibold px-3 py-1 rounded-full transition-colors ${replyText.trim()
                         ? "text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700"
                         : "text-slate-400 dark:text-slate-500 cursor-not-allowed"
-                    }`}
+                      }`}
                   >
                     {addCommentMutation.isPending && actionType === "reply"
                       ? "Replying..."
@@ -1361,11 +1358,10 @@ export function CommentsModal({
         <button
           onClick={() => handleAddComment()}
           disabled={!newComment.trim() || addCommentMutation.isPending}
-          className={`flex-shrink-0 text-sm font-semibold px-4 py-2 rounded-full transition-colors ${
-            newComment.trim()
+          className={`flex-shrink-0 text-sm font-semibold px-4 py-2 rounded-full transition-colors ${newComment.trim()
               ? "bg-blue-600 text-white hover:bg-blue-700"
               : "text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 cursor-not-allowed"
-          }`}
+            }`}
         >
           {addCommentMutation.isPending && actionType === "comment"
             ? "Adding..."
@@ -1382,20 +1378,23 @@ type Props = {
   initialData?: unknown;
 };
 
-import {Facebook, Link as LinkIcon} from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
+
+import { Facebook, Link as LinkIcon } from "lucide-react";
+
 
 export default function PostDetails({ postId, initialData }: Props) {
   const currentUserId = getUserId() || "";
   const { t, language } = useLanguage();
   const isRtl = language === "ar";
+
   // Modal States
   const [openModal, setOpenModal] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [openLikes, setOpenLikes] = useState(false);
-  const [commentsOpen, setCommentsOpen] = useState(true);
-  const [shareModalOpen, setShareModalOpen] = useState(false); 
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   // 1. Fetch Post Data
   const { data: postDetailsData, isLoading } = useQuery({
@@ -1428,7 +1427,10 @@ export default function PostDetails({ postId, initialData }: Props) {
     );
   }
 
-  const hasMedia = postDetailsData.media_URLs && postDetailsData.media_URLs.length > 0;
+  const mediaList = postDetailsData.media_URLs || postDetailsData.mediaUrls || postDetailsData.mediaUrLs || [];
+  const hasMedia = mediaList.length > 0;
+
+  const profileAvatar = postDetailsData.profileURL || postDetailsData.profileUrl;
 
   const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/post/${postDetailsData.id}` : "";
   const shareText = postDetailsData.description || "شوف المغامرة دي على رحّال!";
@@ -1482,7 +1484,7 @@ export default function PostDetails({ postId, initialData }: Props) {
       <PostHeader
         id={postDetailsData.id}
         userName={postDetailsData.userName}
-        profileUrl={postDetailsData.profileURL}
+        profileUrl={profileAvatar} 
         profileId={postDetailsData.userId}
         isFollowed={postDetailsData.isFollowedByCurrentUser ?? false}
         onFollow={() => follow(postDetailsData.userId)}
@@ -1500,7 +1502,7 @@ export default function PostDetails({ postId, initialData }: Props) {
             className="px-4 py-8 text-lg font-medium break-words leading-relaxed text-slate-900 dark:text-slate-100"
           />
         ) : (
-          <PostMedia media={postDetailsData.media_URLs} />
+          <PostMedia media={mediaList} />
         )}
       </div>
 
@@ -1509,8 +1511,8 @@ export default function PostDetails({ postId, initialData }: Props) {
         saved={postDetailsData.isSaved ?? false}
         onLike={like}
         onSave={save}
-        onComment={() => document.getElementById("main-input")?.focus()}
-        onShare={() => setShareModalOpen(true)} 
+        onComment={() => setCommentsOpen(true)}
+        onShare={() => setShareModalOpen(true)}
       />
 
       {(postDetailsData.likes ?? 0) > 0 && (
@@ -1532,7 +1534,6 @@ export default function PostDetails({ postId, initialData }: Props) {
 
       {/* ---------------- Modals ---------------- */}
 
-      {/* Premium Share Modal (iOS / TikTok Style) */}
       {shareModalOpen && (
         <div
           onClick={() => setShareModalOpen(false)}
@@ -1558,7 +1559,6 @@ export default function PostDetails({ postId, initialData }: Props) {
 
             {/* Share Options - Grid Layout */}
             <div className="p-6 flex flex-wrap justify-center gap-5">
-              {/* WhatsApp */}
               <button onClick={shareToWhatsApp} className="flex flex-col items-center gap-2 group">
                 <div className="w-14 h-14 rounded-2xl bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400 flex items-center justify-center group-hover:scale-110 group-hover:bg-green-500 group-hover:text-white transition-all duration-300 shadow-sm">
                   <MessageCircle size={28} strokeWidth={2} />
@@ -1568,7 +1568,6 @@ export default function PostDetails({ postId, initialData }: Props) {
                 </span>
               </button>
 
-              {/* Facebook */}
               <button onClick={shareToFacebook} className="flex flex-col items-center gap-2 group">
                 <div className="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-sm">
                   <Facebook size={28} strokeWidth={2} />
@@ -1578,7 +1577,6 @@ export default function PostDetails({ postId, initialData }: Props) {
                 </span>
               </button>
 
-              {/* X (Twitter) */}
               <button onClick={shareToX} className="flex flex-col items-center gap-2 group w-[72px]">
                 <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 flex items-center justify-center group-hover:scale-110 group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-all duration-300 shadow-sm">
                   <svg viewBox="0 0 24 24" aria-hidden="true" className="w-7 h-7 fill-current">
@@ -1590,7 +1588,6 @@ export default function PostDetails({ postId, initialData }: Props) {
                 </span>
               </button>
 
-              {/* Copy Link */}
               <button onClick={copyLink} className="flex flex-col items-center gap-2 group">
                 <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center group-hover:scale-110 group-hover:bg-slate-700 group-hover:text-white dark:group-hover:bg-slate-600 transition-all duration-300 shadow-sm">
                   <LinkIcon size={28} strokeWidth={2} />
@@ -1600,7 +1597,6 @@ export default function PostDetails({ postId, initialData }: Props) {
                 </span>
               </button>
 
-              {/* Other Options */}
               <button onClick={shareToOther} className="flex flex-col items-center gap-2 group">
                 <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300 shadow-sm">
                   <Share2 size={28} strokeWidth={2} />

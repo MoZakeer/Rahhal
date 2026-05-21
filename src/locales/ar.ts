@@ -265,6 +265,7 @@ export const ar = {
       noTrending: "لا توجد وجهات رائجة حالياً.",
       postingAs: "النشر باسم",
       addMedia: "إضافة وسائط",
+      processingMedia: "جاري تجهيز الوسائط...",
       createPostPlaceholder: "ما هي مغامرتك القادمة؟...",
       postBtn: "نشر",
       mediaAlt: "معاينة الوسائط",
