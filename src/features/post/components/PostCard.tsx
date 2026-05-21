@@ -183,6 +183,7 @@ export function PostHeader({
               <ReportModal
                 entityType="post"
                 entityId={id}
+                open={true}
                 onClose={() => setIsReportOpen(false)}
               />
             </div>

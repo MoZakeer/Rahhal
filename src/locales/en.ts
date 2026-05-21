@@ -268,7 +268,7 @@ export const en = {
       createPostPlaceholder: "What's your next adventure?...",
       postBtn: "Publish",
       mediaAlt: "Media preview",
-      
+
       likeBtn: "Like",
       unlikeBtn: "Unlike",
       commentBtn: "Add a comment",
@@ -293,7 +293,7 @@ export const en = {
       nextMedia: "Next media",
       prevMedia: "Previous media",
       closePreview: "Close preview",
-      
+
       // Post Header
       following: "Following",
       follow: "Follow",
@@ -304,6 +304,28 @@ export const en = {
       minsAgo: "m",
       hoursAgo: "h",
       daysAgo: "d",
+
+      // Report Modal
+      reportTitle: "Report Content",
+      reportReason: "Reason",
+      reportDescLabel: "Description",
+      reportDescPlaceholder: "Describe the issue...",
+      selectReason: "Select reason",
+      cancelBtn: "Cancel",
+      submitBtn: "Submit",
+      submittingBtn: "Submitting...",
+      reasonIllegal: "Illegal Activities",
+      reasonHate: "Hate Or Bullying",
+      reasonSexual: "Sexual Content",
+      reasonImpersonation: "Impersonation",
+      reasonPrivacy: "Privacy Violation",
+      reasonOther: "Other",
+      // Report Modal Premium UX
+      reportSuccess: "Report submitted! Thank you.",
+      reportFailed: "Failed to submit report. Please try again.",
+      charCounter: "{{current}} / {{max}} chars",
+      loadingSubmit: "Submitting...",
+      reportSubtitle: "Help us keep the community safe.",
    },
    postCard: {
       "deleteSuccess": "Deleting post!",

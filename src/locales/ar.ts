@@ -304,6 +304,28 @@ export const ar = {
       minsAgo: "د",
       hoursAgo: "س",
       daysAgo: "ي",
+
+      // Report Modal
+      reportTitle: "الإبلاغ عن المحتوى",
+      reportReason: "السبب",
+      reportDescLabel: "الوصف",
+      reportDescPlaceholder: "صف المشكلة بالتفصيل...",
+      selectReason: "اختر السبب",
+      cancelBtn: "إلغاء",
+      submitBtn: "إرسال",
+      submittingBtn: "جاري الإرسال...",
+      reasonIllegal: "أنشطة غير قانونية",
+      reasonHate: "كراهية أو تنمر",
+      reasonSexual: "محتوى جنسي",
+      reasonImpersonation: "انتحال شخصية",
+      reasonPrivacy: "انتهاك الخصوصية",
+      reasonOther: "أخرى",
+      // Report Modal Premium UX
+      reportSuccess: "تم إرسال بلاغك! شكراً لك.",
+      reportFailed: "فشل إرسال البلاغ. حاول مرة أخرى.",
+      charCounter: "{{current}} / {{max}} حرف",
+      loadingSubmit: "جاري الإرسال...",
+      reportSubtitle: "ساعدنا في الحفاظ على أمان المجتمع.",
    },
    postCard: {
       "deleteSuccess": "جاري حذف المنشور!",

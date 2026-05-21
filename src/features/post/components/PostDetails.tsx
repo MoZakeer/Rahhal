@@ -190,6 +190,7 @@ export function PostHeader({
               <ReportModal
                 entityType="post"
                 entityId={id}
+                open={true}
                 onClose={() => setIsReportOpen(false)}
               />
             </div>
@@ -919,8 +920,7 @@ export function CommentsModal({
                     entityType="comment"
                     entityId={id}
                     profileId={currentUserId}
-                    onClose={() => setIsReportOpen(false)}
-                  />
+                    onClose={() => setIsReportOpen(false)} open={true}                  />
                 </div>
               )}
               {menuOpenMap[menuKey] && (
