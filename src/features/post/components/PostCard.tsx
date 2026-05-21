@@ -550,7 +550,7 @@ export function PostActions({
             title={t("feed.shareBtn")}
             aria-label={t("feed.shareBtn")}
           >
-            <Share2 className="w-4 h-4 text-slate-500 dark:text-slate-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors" />
+            <Share2 className="w-6 h-6 text-slate-500 dark:text-slate-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors" />
           </button>
         )}
       </div>
@@ -876,15 +876,13 @@ export default function PostCard({ post }: { post: Post }) {
   />
       )}
 
-      {/* 🚀 Premium Share Modal (iOS / TikTok Style) */}
+      {/* Premium Share Modal (iOS / TikTok Style) */}
       {shareModalOpen && (
         <div
           onClick={() => setShareModalOpen(false)}
-          // في الموبايل بيبقى تحت (items-end) وفي الشاشات الكبيرة بيبقى في النص (sm:items-center)
           className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-0 transition-all duration-300 animate-in fade-in"
         >
           <div
-            // حواف دائرية كبيرة من فوق في الموبايل عشان تدي شكل الـ Bottom Sheet
             className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-[2rem] sm:rounded-3xl shadow-2xl overflow-hidden relative border border-slate-200/50 dark:border-slate-700/50 animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-4 sm:zoom-in-95 duration-300"
             onClick={(e) => e.stopPropagation()}
             dir={isRtl ? "rtl" : "ltr"}
