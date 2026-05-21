@@ -335,6 +335,9 @@ export const en = {
       removingBtn: "Removing",
       itemPost: "post",
       itemComment: "comment",
+
+      // Likes List
+      noLikes: "No likes yet 🤍",
    },
    postCard: {
       "deleteSuccess": "Deleting post!",

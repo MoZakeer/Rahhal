@@ -335,6 +335,9 @@ export const ar = {
       removingBtn: "جاري الحذف",
       itemPost: "منشور",
       itemComment: "تعليق",
+
+      // Likes List
+      noLikes: "لا توجد إعجابات حتى الآن 🤍",
    },
    postCard: {
       "deleteSuccess": "جاري حذف المنشور!",
