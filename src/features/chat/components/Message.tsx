@@ -176,7 +176,7 @@ function Message({
   const longPressEvents = useLongPress(
     () => {
       if (window.navigator?.vibrate) {
-        window.navigator.vibrate(50);
+        window.navigator.vibrate(30);
       }
       setOpenedReactionId(message.messageId);
       setOpenedMenuId(null);
