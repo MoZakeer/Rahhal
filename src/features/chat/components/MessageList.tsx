@@ -29,6 +29,8 @@ function MessageList({
 }: MessageListProps) {
   const { user } = useUser();
   const [openedMenuId, setOpenedMenuId] = useState<string | null>(null);
+  const [openedReactionId, setOpenedReactionId] = useState<string | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -227,6 +229,8 @@ function MessageList({
                   onReply={onReply}
                   openedMenuId={openedMenuId}
                   setOpenedMenuId={setOpenedMenuId}
+                  openedReactionId={openedReactionId}
+                  setOpenedReactionId={setOpenedReactionId}
                 >
                   {message?.content}
                 </Message>

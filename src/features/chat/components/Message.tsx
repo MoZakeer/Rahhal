@@ -43,6 +43,8 @@ type Props = {
 
   openedMenuId: string | null;
   setOpenedMenuId: React.Dispatch<React.SetStateAction<string | null>>;
+  openedReactionId: string | null;
+  setOpenedReactionId: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
 function Message({
@@ -57,11 +59,12 @@ function Message({
   onReply,
   openedMenuId,
   setOpenedMenuId,
+  openedReactionId,
+  setOpenedReactionId,
 }: Props) {
   const isSend = type === "send";
 
   const [isReportOpen, setIsReportOpen] = useState(false);
-  const [openedReactionId, setOpenedReactionId] = useState<string | null>(null);
 
   const menuRef = useOutsideClick<HTMLDivElement>(() => {
     if (openedMenuId === message.messageId) {
