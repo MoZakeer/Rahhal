@@ -362,7 +362,7 @@ function Message({
                       w-full text-left
                       px-4 py-2.5
                       text-sm font-medium
-                      text-gray-700 dark:text-gray-200
+                      text-gray-700 
                       hover:bg-gray-100 dark:hover:bg-slate-700
                       transition-colors duration-200
                     "
