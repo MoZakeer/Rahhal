@@ -24,7 +24,8 @@ const mapVibe = (item: VibeDTO): Vibe => ({
   userId: item.userId,
   userName: item.userName,
   userAvatar: item.profileUrl,
-tripId: item.tripId,
+  tripId: item.tripId,
+
   type:
     item.mediaUrLs?.length > 0
       ? item.mediaUrLs[0].url.match(/\.(mp4|webm|ogg)$/i)
@@ -32,7 +33,9 @@ tripId: item.tripId,
         : "image"
       : "text",
 
+
   content: item.description ?? "",
+  description: item.description ?? "",
 
   mediaUrls: item.mediaUrLs?.map((m: VibeMedia) => m.url) ?? [],
 
