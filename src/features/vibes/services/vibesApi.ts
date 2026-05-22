@@ -24,7 +24,7 @@ const mapVibe = (item: VibeDTO): Vibe => ({
   userId: item.userId,
   userName: item.userName,
   userAvatar: item.profileUrl,
-
+tripId: item.tripId,
   type:
     item.mediaUrLs?.length > 0
       ? item.mediaUrLs[0].url.match(/\.(mp4|webm|ogg)$/i)
@@ -61,7 +61,6 @@ export async function fetchFeedVibes(): Promise<Vibe[]> {
   }
 
   const json = await res.json();
-
   return json.data.items.map(mapVibe);
 }
 
