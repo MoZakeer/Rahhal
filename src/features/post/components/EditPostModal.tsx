@@ -1,4 +1,4 @@
-import { useRef } from "react"; // ضيف دي
+import { useRef } from "react";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { X, Save, Loader2 } from "lucide-react";
 import PostUser from "./Shared/postUser";
@@ -13,7 +13,18 @@ type Props = {
 };
 
 export default function EditPostModal({ post, onCancel }: Props) {
-  const { caption, setCaption, media, setMedia, loading, user, handleUpdatePost, fileRef } = useEditPost(post, onCancel);
+  const { 
+    caption, 
+    setCaption, 
+    media, 
+    setMedia, 
+    loading, 
+    user, 
+    handleUpdatePost, 
+    fileRef,
+    isCompressing,
+    setIsCompressing
+  } = useEditPost(post, onCancel);
 
   const initialFocusRef = useRef<HTMLDivElement>(null);
 
@@ -51,18 +62,29 @@ export default function EditPostModal({ post, onCancel }: Props) {
             
             <div className="flex-1 overflow-y-auto max-h-[55vh] px-6 py-2 flex flex-col gap-4 custom-scrollbar">
               <PostCaption caption={caption} onChange={setCaption} placeholder="Edit your adventure..." />
-              <PostMedia media={media} setMedia={setMedia} fileRef={fileRef} />
+              <PostMedia 
+                media={media} 
+                setMedia={setMedia} 
+                fileRef={fileRef} 
+                isCompressing={isCompressing}
+                setIsCompressing={setIsCompressing}
+              />
             </div>
 
             <div className="px-6 py-4 mt-2 bg-slate-50 dark:bg-slate-900/30 border-t flex items-center justify-end">
               <button
                 type="button"
                 onClick={handleUpdatePost}
-                disabled={loading || (!caption?.trim() && media.length === 0)}
+                disabled={loading || isCompressing || (!caption?.trim() && media.length === 0)}
                 className="flex items-center gap-2 bg-blue-700 text-white px-6 py-2.5 rounded-full font-bold shadow-lg hover:bg-blue-800 transition-all disabled:opacity-50"
               >
                 {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
-                  <><span className="text-sm">Save Changes</span> <Save className="h-4 w-4" /></>
+                  <>
+                    <span className="text-sm">
+                      {isCompressing ? "Preparing media..." : "Save Changes"}
+                    </span> 
+                    <Save className="h-4 w-4" />
+                  </>
                 )}
               </button>
             </div>

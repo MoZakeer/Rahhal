@@ -265,10 +265,11 @@ export const en = {
       noTrending: "No trending trips found.",
       postingAs: "Posting as",
       addMedia: "Add Media",
+      processingMedia: "Preparing media...",
       createPostPlaceholder: "What's your next adventure?...",
       postBtn: "Publish",
       mediaAlt: "Media preview",
-      
+
       likeBtn: "Like",
       unlikeBtn: "Unlike",
       commentBtn: "Add a comment",
@@ -293,7 +294,7 @@ export const en = {
       nextMedia: "Next media",
       prevMedia: "Previous media",
       closePreview: "Close preview",
-      
+
       // Post Header
       following: "Following",
       follow: "Follow",
@@ -304,6 +305,40 @@ export const en = {
       minsAgo: "m",
       hoursAgo: "h",
       daysAgo: "d",
+
+      // Report Modal
+      reportTitle: "Report Content",
+      reportReason: "Reason",
+      reportDescLabel: "Description",
+      reportDescPlaceholder: "Describe the issue...",
+      selectReason: "Select reason",
+      cancelBtn: "Cancel",
+      submitBtn: "Submit",
+      submittingBtn: "Submitting...",
+      reasonIllegal: "Illegal Activities",
+      reasonHate: "Hate Or Bullying",
+      reasonSexual: "Sexual Content",
+      reasonImpersonation: "Impersonation",
+      reasonPrivacy: "Privacy Violation",
+      reasonOther: "Other",
+      // Report Modal Premium UX
+      reportSuccess: "Report submitted! Thank you.",
+      reportFailed: "Failed to submit report. Please try again.",
+      charCounter: "{{current}} / {{max}} chars",
+      loadingSubmit: "Submitting...",
+      reportSubtitle: "Help us keep the community safe.",
+
+      // Confirm Modal
+      confirmRemoveTitle: "Confirm Remove",
+      confirmRemoveDesc: "Are you sure you want to remove this",
+      confirmRemoveWarning: "This action cannot be undone.",
+      removeBtn: "Yes, Remove",
+      removingBtn: "Removing",
+      itemPost: "post",
+      itemComment: "comment",
+
+      // Likes List
+      noLikes: "No likes yet 🤍",
    },
    postCard: {
       "deleteSuccess": "Deleting post!",

@@ -26,13 +26,14 @@ export default function CreatePostModal({ isOpen, onClose }: CreatePostModalProp
     user,
     isPosting,
     handleCreatePost,
-    fileRef
+    fileRef,
+    isCompressing,
+    setIsCompressing
   } = useCreatePost();
 
   const handlePost = async () => {
-    if (!caption.trim() && !media) return;
-    await handleCreatePost();
-    onClose();
+    if (!caption.trim() && media.length === 0) return;
+    await handleCreatePost(onClose);
   };
 
   return (
@@ -44,7 +45,6 @@ export default function CreatePostModal({ isOpen, onClose }: CreatePostModalProp
 
       <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
         <div className="flex min-h-full items-end justify-center sm:items-center p-0 sm:p-4">
-          
           <DialogPanel
             transition
             dir={isRtl ? "rtl" : "ltr"}
@@ -76,40 +76,35 @@ export default function CreatePostModal({ isOpen, onClose }: CreatePostModalProp
                 onChange={setCaption}
                 placeholder={t("feed.createPostPlaceholder") || "What's your next adventure?..."} 
               />
-
               <PostMedia
                 media={media}
                 setMedia={setMedia}
                 fileRef={fileRef}
+                isCompressing={isCompressing}      
+                setIsCompressing={setIsCompressing} 
               />
             </div>
 
             {/* Footer */}
             <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/30 flex items-center justify-end mt-auto">
-              
-              {/* Submit Button */}
               <div className="flex items-center gap-4">
                 <button
                   onClick={handlePost}
-                  disabled={isPosting || (!caption.trim() && !media)}
+                  disabled={isPosting || isCompressing || (!caption.trim() && media.length === 0)}
                   className="flex items-center gap-2 bg-blue-700 dark:bg-blue-700 border border-blue-700 dark:border-blue-900 text-white px-5 py-2.5 rounded-full font-bold shadow-md hover:bg-blue-800 dark:hover:bg-blue-900 shadow-blue-200 dark:shadow-blue-900/20 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed group active:scale-95 cursor-pointer outline-none"
                 >
                   {isPosting ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
                     <>
-                      <Send className={cn(
-                        "h-4 w-4 -mt-0.5 transition-transform",
-                        isRtl 
-                          ? "group-hover:-translate-x-1 group-hover:-translate-y-1 scale-x-[-1]" 
-                          : "group-hover:translate-x-1 group-hover:-translate-y-1"
-                      )} />
-                      <span className="hidden sm:inline">{t("feed.postBtn")}</span> 
+                      <Send className="h-5 w-5" />
+                      <span className="hidden sm:inline">
+                        {isCompressing ? t("feed.processingMedia") : t("feed.postBtn")}
+                      </span> 
                     </>
                   )}
                 </button>
               </div>
-
             </div>
           </DialogPanel>
         </div>

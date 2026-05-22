@@ -265,6 +265,7 @@ export const ar = {
       noTrending: "لا توجد وجهات رائجة حالياً.",
       postingAs: "النشر باسم",
       addMedia: "إضافة وسائط",
+      processingMedia: "جاري تجهيز الوسائط...",
       createPostPlaceholder: "ما هي مغامرتك القادمة؟...",
       postBtn: "نشر",
       mediaAlt: "معاينة الوسائط",
@@ -304,6 +305,40 @@ export const ar = {
       minsAgo: "د",
       hoursAgo: "س",
       daysAgo: "ي",
+
+      // Report Modal
+      reportTitle: "الإبلاغ عن المحتوى",
+      reportReason: "السبب",
+      reportDescLabel: "الوصف",
+      reportDescPlaceholder: "صف المشكلة بالتفصيل...",
+      selectReason: "اختر السبب",
+      cancelBtn: "إلغاء",
+      submitBtn: "إرسال",
+      submittingBtn: "جاري الإرسال...",
+      reasonIllegal: "أنشطة غير قانونية",
+      reasonHate: "كراهية أو تنمر",
+      reasonSexual: "محتوى جنسي",
+      reasonImpersonation: "انتحال شخصية",
+      reasonPrivacy: "انتهاك الخصوصية",
+      reasonOther: "أخرى",
+      // Report Modal Premium UX
+      reportSuccess: "تم إرسال بلاغك! شكراً لك.",
+      reportFailed: "فشل إرسال البلاغ. حاول مرة أخرى.",
+      charCounter: "{{current}} / {{max}} حرف",
+      loadingSubmit: "جاري الإرسال...",
+      reportSubtitle: "ساعدنا في الحفاظ على أمان المجتمع.",
+
+      // Confirm Modal
+      confirmRemoveTitle: "تأكيد الحذف",
+      confirmRemoveDesc: "هل أنت متأكد أنك تريد حذف هذا الـ",
+      confirmRemoveWarning: "لا يمكن التراجع عن هذا الإجراء.",
+      removeBtn: "نعم، احذف",
+      removingBtn: "جاري الحذف",
+      itemPost: "منشور",
+      itemComment: "تعليق",
+
+      // Likes List
+      noLikes: "لا توجد إعجابات حتى الآن 🤍",
    },
    postCard: {
       "deleteSuccess": "جاري حذف المنشور!",

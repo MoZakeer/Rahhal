@@ -185,31 +185,16 @@ const VibeCommentsSheet = ({
   // LIKE COMMENT
   // -------------------
   const handleLikeComment = async (commentId: string) => {
-    if (!currentUserId) return;
-
-    if (likingIds[commentId]) return;
-
-    setBumps((prev) => ({
-      ...prev,
-      [commentId]: (prev[commentId] || 0) + 1,
-    }));
+    if (!currentUserId || likingIds[commentId]) return;
 
     const currentComment = comments.find((c) => c.commentId === commentId);
-
     if (!currentComment) return;
-
-    const previousState = {
-      isLikedByCurrentUser: currentComment.isLikedByCurrentUser,
-      likesCount: currentComment.likesCount,
-    };
 
     const nextLiked = !currentComment.isLikedByCurrentUser;
 
-    setLikingIds((prev) => ({
-      ...prev,
-      [commentId]: true,
-    }));
-
+    // Optimistic update
+    setLikingIds((prev) => ({ ...prev, [commentId]: true }));
+    setBumps((prev) => ({ ...prev, [commentId]: (prev[commentId] || 0) + 1 }));
     updateLocalComment(commentId, (comment) => ({
       ...comment,
       isLikedByCurrentUser: nextLiked,
@@ -222,20 +207,11 @@ const VibeCommentsSheet = ({
       await addLikeToComment(currentUserId, commentId);
     } catch (err) {
       console.error("Failed to toggle comment like:", err);
-
-      updateLocalComment(commentId, (comment) => ({
-        ...comment,
-        isLikedByCurrentUser: previousState.isLikedByCurrentUser,
-        likesCount: previousState.likesCount,
-      }));
     } finally {
-      setLikingIds((prev) => ({
-        ...prev,
-        [commentId]: false,
-      }));
+      await loadComments(); // ✅ always sync — even if API "errors", data was saved
+      setLikingIds((prev) => ({ ...prev, [commentId]: false }));
     }
   };
-
   return (
     <AnimatePresence>
       <motion.div

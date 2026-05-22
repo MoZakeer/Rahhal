@@ -26,7 +26,6 @@ import {
   Play,
 } from "lucide-react";
 import { Bookmark } from "lucide-react";
-import { HeartIcon } from "@heroicons/react/24/outline";
 import { ReportModal } from "../../reports/components/ReportModal";
 import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
@@ -168,11 +167,10 @@ export function PostHeader({
         {!isOwner && (
           <button
             onClick={onFollow}
-            className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${
-              isFollowed
+            className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${isFollowed
                 ? "bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                 : "bg-blue-700 dark:bg-blue-700 border border-blue-700 dark:border-blue-900 text-white hover:bg-blue-800 dark:hover:bg-blue-900"
-            }`}
+              }`}
           >
             {isFollowed ? "Following" : "Follow"}
           </button>
@@ -190,6 +188,7 @@ export function PostHeader({
               <ReportModal
                 entityType="post"
                 entityId={id}
+                open={true}
                 onClose={() => setIsReportOpen(false)}
               />
             </div>
@@ -241,10 +240,12 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
   const currentMedia = media[current];
 
   if (!media.length) return null;
-  const isVideo = (item: PostMediaItem) => {
-    if (item.type) return item.type === "video";
+  const isVideo = (item: PostMediaItem | undefined | null) => {
+    if (!item) return false;
 
-    return /\.(mp4|webm|ogg|mov)$/i.test(item.url);
+    if (item.type) return item.type.includes("video");
+
+    return item.url ? /\.(mp4|webm|ogg|mov)$/i.test(item.url) : false;
   };
   const next = () => {
     setCurrent((prev) => (prev + 1) % media.length);
@@ -329,11 +330,10 @@ transition-all duration-300"
               key={m.id}
               onClick={() => setIsPreviewOpen(true)}
               onMouseEnter={() => setCurrent(i)}
-              className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${
-                i === current
+              className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${i === current
                   ? "ring-2 ring-blue-500 dark:ring-blue-400 opacity-100"
                   : "opacity-60 hover:opacity-100"
-              }`}
+                }`}
             >
               {isVideo(m) ? (
                 <>
@@ -411,6 +411,15 @@ transition-all duration-300"
   );
 }
 
+interface PostActionsProps {
+  liked: boolean;
+  saved: boolean;
+  onLike: () => void;
+  onComment: () => void;
+  onSave: () => void;
+  onShare?: () => void;
+}
+
 export function PostActions({
   liked,
   saved,
@@ -418,52 +427,80 @@ export function PostActions({
   onComment,
   onSave,
   onShare,
-}: {
-  liked: boolean;
-  saved: boolean;
-  onLike: () => void;
-  onComment: () => void;
-  onSave: () => void;
-  onShare?: () => void;
-}) {
+}: PostActionsProps) {
+  const { t, language } = useLanguage();
+  const isRtl = language === "ar";
+
+  const btnBaseClass =
+    "group p-2.5 -m-2.5 flex items-center justify-center rounded-full transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 active:scale-75";
+
   return (
-    <div className="flex justify-between px-6 py-4  border-slate-50 dark:border-slate-700/50">
-      <div className="flex gap-7">
+    <div
+      className="flex justify-between items-center px-4 py-3 sm:px-6 sm:py-4 border-t border-slate-100 dark:border-slate-800/80"
+      dir={isRtl ? "rtl" : "ltr"}
+    >
+      <div className="flex items-center gap-5 sm:gap-7">
+
         <button
+          type="button"
           onClick={onLike}
-          className="flex flex-col items-center transition-transform duration-200 ease-in-out"
+          className={btnBaseClass}
+          title={liked ? t("feed.unlikeBtn") : t("feed.likeBtn")}
+          aria-label={liked ? t("feed.unlikeBtn") : t("feed.likeBtn")}
         >
-          {liked ? (
-            <HeartIcon className="w-6 h-6 text-blue-700 fill-blue-700 hover:text-blue-600 hover:scale-125 hover:rotate-12 transition-all duration-500" />
-          ) : (
-            <HeartIcon className="w-6 h-6 text-slate-400 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 scale-100 transition-all duration-300" />
-          )}
+          <Heart
+            className={cn(
+              "w-6 h-6 transition-all duration-300",
+              liked
+                ? "text-blue-700 fill-blue-700 scale-110 drop-shadow-[0_2px_8px_rgba(37,99,235,0.4)]"
+                : "text-slate-500 dark:text-slate-400 group-hover:text-blue-700 dark:group-hover:text-blue-600"
+            )}
+          />
         </button>
 
         <button
+          type="button"
           onClick={onComment}
-          className="group transition-transform active:scale-110 focus:outline-none"
+          className={btnBaseClass}
+          title={t("feed.commentBtn")}
+          aria-label={t("feed.commentBtn")}
         >
-          <MessageCircle className="w-5 h-5 text-slate-400 group-hover:text-blue-500  transition-all duration-300 ease-out" />
+          <MessageCircle className="w-6 h-6 text-slate-500 dark:text-slate-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors" />
         </button>
-        <button
-          onClick={onShare}
-          className="group transition-transform active:scale-110"
-        >
-          <Share2 className="w-5 h-5 text-slate-400 group-hover:text-blue-500 transition-colors" />
-        </button>
+
+        {onShare && (
+          <button
+            type="button"
+            onClick={onShare}
+            className={btnBaseClass}
+            title={t("feed.shareBtn")}
+            aria-label={t("feed.shareBtn")}
+          >
+            <Share2 className="w-6 h-6 text-slate-500 dark:text-slate-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors" />
+          </button>
+        )}
       </div>
 
-      <button onClick={onSave}>
-        {saved ? (
-          <Bookmark className="w-5 h-5 text-blue-600 dark:text-blue-400 fill-blue-600 dark:fill-blue-400 scale-100 hover:scale-110 transition-all duration-500" />
-        ) : (
-          <Bookmark className="w-5 h-5 text-slate-400 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 scale-100 transition-all duration-300" />
-        )}
+      <button
+        type="button"
+        onClick={onSave}
+        className={btnBaseClass}
+        title={saved ? t("feed.unsaveBtn") : t("feed.saveBtn")}
+        aria-label={saved ? t("feed.unsaveBtn") : t("feed.saveBtn")}
+      >
+        <Bookmark
+          className={cn(
+            "w-6 h-6 transition-all duration-300",
+            saved
+              ? "text-blue-600 dark:text-blue-400 fill-blue-600 dark:fill-blue-400 scale-110 drop-shadow-[0_2px_8px_rgba(37,99,235,0.4)]"
+              : "text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400"
+          )}
+        />
       </button>
     </div>
   );
 }
+
 export function CommentsModal({
   open,
   postId,
@@ -690,12 +727,12 @@ export function CommentsModal({
         [parentId]: prev[parentId]?.map((reply) =>
           reply.replyId === commentId
             ? {
-                ...reply,
-                isLikedByCurrentUser: !reply.isLikedByCurrentUser,
-                likesCount: reply.isLikedByCurrentUser
-                  ? reply.likesCount - 1
-                  : reply.likesCount + 1,
-              }
+              ...reply,
+              isLikedByCurrentUser: !reply.isLikedByCurrentUser,
+              likesCount: reply.isLikedByCurrentUser
+                ? reply.likesCount - 1
+                : reply.likesCount + 1,
+            }
             : reply,
         ),
       }));
@@ -704,12 +741,12 @@ export function CommentsModal({
         prev.map((comment) =>
           comment.commentId === commentId
             ? {
-                ...comment,
-                isLikedByCurrentUser: !comment.isLikedByCurrentUser,
-                likesCount: comment.isLikedByCurrentUser
-                  ? comment.likesCount - 1
-                  : comment.likesCount + 1,
-              }
+              ...comment,
+              isLikedByCurrentUser: !comment.isLikedByCurrentUser,
+              likesCount: comment.isLikedByCurrentUser
+                ? comment.likesCount - 1
+                : comment.likesCount + 1,
+            }
             : comment,
         ),
       );
@@ -809,9 +846,9 @@ export function CommentsModal({
               onClick={
                 profileId
                   ? (e) => {
-                      e.stopPropagation();
-                      navigate(`/profile/${profileId}`);
-                    }
+                    e.stopPropagation();
+                    navigate(`/profile/${profileId}`);
+                  }
                   : undefined
               }
             >
@@ -839,9 +876,8 @@ export function CommentsModal({
             normalizeMediaUrl(comment.profilePicture) ||
             `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.userName)}`
           }
-          className={`${
-            isReply ? "w-7 h-7" : "w-9 h-9"
-          } rounded-full object-cover mt-0.5 flex-shrink-0 border border-slate-100 dark:border-slate-700`}
+          className={`${isReply ? "w-7 h-7" : "w-9 h-9"
+            } rounded-full object-cover mt-0.5 flex-shrink-0 border border-slate-100 dark:border-slate-700`}
           alt="avatar"
         />
 
@@ -919,8 +955,7 @@ export function CommentsModal({
                     entityType="comment"
                     entityId={id}
                     profileId={currentUserId}
-                    onClose={() => setIsReportOpen(false)}
-                  />
+                    onClose={() => setIsReportOpen(false)} open={true} />
                 </div>
               )}
               {menuOpenMap[menuKey] && (
@@ -971,37 +1006,36 @@ export function CommentsModal({
                 className="flex items-center gap-1 group"
               >
                 <Heart
-                  className={`w-4 h-4 transition-colors ${
-                    (
+                  className={`w-4 h-4 transition-colors ${(
                       isReply
                         ? (comment as ReplyItem).isLikedByCurrentUser
                         : (comment as CommentItem).isLikedByCurrentUser
                     )
                       ? "text-blue-700 fill-blue-700 scale-110"
                       : "text-slate-400 dark:text-slate-500 group-hover:text-blue-600"
-                  }`}
+                    }`}
                 />
               </button>
               {(isReply
                 ? (comment as ReplyItem).likesCount
                 : (comment as CommentItem).likesCount) > 0 && (
-                <span
-                  onClick={() =>
-                    setLikesModal({
-                      open: true,
-                      id: isReply
-                        ? (comment as ReplyItem).replyId
-                        : (comment as CommentItem).commentId,
-                      type: "comment",
-                    })
-                  }
-                  className="text-xs font-medium cursor-pointer hover:text-slate-700 dark:hover:text-slate-200"
-                >
-                  {isReply
-                    ? (comment as ReplyItem).likesCount
-                    : (comment as CommentItem).likesCount}
-                </span>
-              )}
+                  <span
+                    onClick={() =>
+                      setLikesModal({
+                        open: true,
+                        id: isReply
+                          ? (comment as ReplyItem).replyId
+                          : (comment as CommentItem).commentId,
+                        type: "comment",
+                      })
+                    }
+                    className="text-xs font-medium cursor-pointer hover:text-slate-700 dark:hover:text-slate-200"
+                  >
+                    {isReply
+                      ? (comment as ReplyItem).likesCount
+                      : (comment as CommentItem).likesCount}
+                  </span>
+                )}
             </div>
 
             {likesModal.open && likesModal.id && (
@@ -1191,11 +1225,10 @@ export function CommentsModal({
                   <button
                     onClick={() => handleAddComment(id)}
                     disabled={!replyText.trim() || addCommentMutation.isPending}
-                    className={`flex-shrink-0 text-xs font-semibold px-3 py-1 rounded-full transition-colors ${
-                      replyText.trim()
+                    className={`flex-shrink-0 text-xs font-semibold px-3 py-1 rounded-full transition-colors ${replyText.trim()
                         ? "text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700"
                         : "text-slate-400 dark:text-slate-500 cursor-not-allowed"
-                    }`}
+                      }`}
                   >
                     {addCommentMutation.isPending && actionType === "reply"
                       ? "Replying..."
@@ -1325,11 +1358,10 @@ export function CommentsModal({
         <button
           onClick={() => handleAddComment()}
           disabled={!newComment.trim() || addCommentMutation.isPending}
-          className={`flex-shrink-0 text-sm font-semibold px-4 py-2 rounded-full transition-colors ${
-            newComment.trim()
+          className={`flex-shrink-0 text-sm font-semibold px-4 py-2 rounded-full transition-colors ${newComment.trim()
               ? "bg-blue-600 text-white hover:bg-blue-700"
               : "text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 cursor-not-allowed"
-          }`}
+            }`}
         >
           {addCommentMutation.isPending && actionType === "comment"
             ? "Adding..."
@@ -1346,36 +1378,43 @@ type Props = {
   initialData?: unknown;
 };
 
+import { useLanguage } from "@/context/LanguageContext";
+import { cn } from "@/lib/utils";
+
+import { Facebook, Link as LinkIcon } from "lucide-react";
+
+
 export default function PostDetails({ postId, initialData }: Props) {
   const currentUserId = getUserId() || "";
+  const { t, language } = useLanguage();
+  const isRtl = language === "ar";
 
   // Modal States
   const [openModal, setOpenModal] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [openLikes, setOpenLikes] = useState(false);
-  const [commentsOpen, setCommentsOpen] = useState(true);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   // 1. Fetch Post Data
   const { data: postDetailsData, isLoading } = useQuery({
     queryKey: ["PostDetails", postId],
     queryFn: async () => {
-      const response = await getPostById(postId!);
+      const response = await getPostById(postId as string);
       return response.data;
     },
     enabled: !!postId,
     initialData: initialData,
   });
 
-  usePageTitle(postDetailsData?.userName + "'s post");
+  usePageTitle(postDetailsData?.userName ? `${postDetailsData.userName}'s post` : "Post Details");
 
-
-  // 2. Use the new actions hook
-  const { like, save, follow, remove } = usePostDetailsActions(postId!);
+  const { like, save, follow, remove } = usePostDetailsActions(postId || "");
 
   if (isLoading && !postDetailsData) {
     return (
-      <div className="min-h-screen flex justify-center items-center">
-        Loading...
+      <div className="min-h-screen flex justify-center items-center" aria-busy="true">
+        <span className="text-slate-500">Loading...</span>
       </div>
     );
   }
@@ -1383,43 +1422,69 @@ export default function PostDetails({ postId, initialData }: Props) {
   if (!postDetailsData) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center items-center">
-        Post not found
+        <p className="text-lg text-slate-600 dark:text-slate-400">Post not found</p>
       </div>
     );
   }
 
-  const hasMedia = postDetailsData.media_URLs && postDetailsData.media_URLs.length > 0;
+  const mediaList = postDetailsData.media_URLs || postDetailsData.mediaUrls || postDetailsData.mediaUrLs || [];
+  const hasMedia = mediaList.length > 0;
 
-  const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/post/${postDetailsData.id}`;
+  const profileAvatar = postDetailsData.profileURL || postDetailsData.profileUrl;
+
+  const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/post/${postDetailsData.id}` : "";
+  const shareText = postDetailsData.description || "شوف المغامرة دي على رحّال!";
+
+  const shareToWhatsApp = () => {
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + " " + shareUrl)}`, "_blank");
+    setShareModalOpen(false);
+  };
+
+  const shareToFacebook = () => {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, "_blank");
+    setShareModalOpen(false);
+  };
+
+  const shareToX = () => {
+    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`, "_blank");
+    setShareModalOpen(false);
+  };
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success(isRtl ? "تم نسخ الرابط بنجاح!" : "Link copied!");
+      setShareModalOpen(false);
+    } catch {
+      toast.error(isRtl ? "حدث خطأ أثناء النسخ" : "Failed to copy link");
+    }
+  };
+
+  const shareToOther = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
           title: `رحلة ${postDetailsData.userName} على رحّال`,
-          text: postDetailsData.description || "شوف المغامرة دي!",
+          text: shareText,
           url: shareUrl,
         });
+        setShareModalOpen(false);
       } catch (err) {
         if (err instanceof Error && err.name !== "AbortError") {
-          // toast.error("Sharing failed");
+          console.error("Error sharing:", err);
         }
       }
     } else {
-      try {
-        await navigator.clipboard.writeText(shareUrl);
-        // toast.success("Link copied!");
-      } catch {
-        // toast.error("Could not copy link");
-      }
+      copyLink();
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-xl shadow-slate-200/40 dark:shadow-none transition-all duration-300">
+    <article className="max-w-2xl mx-auto bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-xl shadow-slate-200/40 dark:shadow-none transition-all duration-300">
       <PostHeader
         id={postDetailsData.id}
         userName={postDetailsData.userName}
-        profileUrl={postDetailsData.profileURL}
+        profileUrl={profileAvatar} 
         profileId={postDetailsData.userId}
         isFollowed={postDetailsData.isFollowedByCurrentUser ?? false}
         onFollow={() => follow(postDetailsData.userId)}
@@ -1431,13 +1496,14 @@ export default function PostDetails({ postId, initialData }: Props) {
       />
 
       <div className="px-4">
-        {!hasMedia && (
+        {!hasMedia ? (
           <PostContent
             description={postDetailsData.description}
-            className="px-4 py-8 text-lg font-medium wrap-break-word leading-relaxed text-slate-900 dark:text-slate-100"
+            className="px-4 py-8 text-lg font-medium break-words leading-relaxed text-slate-900 dark:text-slate-100"
           />
+        ) : (
+          <PostMedia media={mediaList} />
         )}
-        {hasMedia && <PostMedia media={postDetailsData.media_URLs} />}
       </div>
 
       <PostActions
@@ -1445,31 +1511,126 @@ export default function PostDetails({ postId, initialData }: Props) {
         saved={postDetailsData.isSaved ?? false}
         onLike={like}
         onSave={save}
-        onComment={() => document.getElementById("main-input")?.focus()}
-        onShare={handleShare}
+        onComment={() => setCommentsOpen(true)}
+        onShare={() => setShareModalOpen(true)}
       />
 
       {(postDetailsData.likes ?? 0) > 0 && (
-  <div
-    onClick={() => setOpenLikes(true)}
-    className="px-4 text-sm font-semibold mt-1 cursor-pointer text-slate-900 dark:text-slate-100 hover:text-blue-600 transition-colors"
-  >
-    {postDetailsData.likes} likes
-  </div>
-)}
+        <button
+          onClick={() => setOpenLikes(true)}
+          className="px-4 text-sm font-semibold mt-1 text-slate-900 dark:text-slate-100 hover:text-blue-600 transition-colors text-left"
+          aria-label={`View all ${postDetailsData.likes} likes`}
+        >
+          {postDetailsData.likes} likes
+        </button>
+      )}
 
-      {hasMedia && (
+      {hasMedia && postDetailsData.description && (
         <PostContent
           description={postDetailsData.description}
-          className="px-4 mt-1 text-sm wrap-break-word text-slate-800 dark:text-slate-200"
+          className="px-4 mt-2 text-sm break-words text-slate-800 dark:text-slate-200"
         />
       )}
 
-      {/* Modals */}
+      {/* ---------------- Modals ---------------- */}
+
+      {shareModalOpen && (
+        <div
+          onClick={() => setShareModalOpen(false)}
+          className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-0 transition-all duration-300 animate-in fade-in"
+        >
+          <div
+            className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-[2rem] sm:rounded-3xl shadow-2xl overflow-hidden relative border border-slate-200/50 dark:border-slate-700/50 animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-4 sm:zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+            dir={isRtl ? "rtl" : "ltr"}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                {isRtl ? "مشاركة عبر..." : "Share via..."}
+              </h3>
+              <button
+                onClick={() => setShareModalOpen(false)}
+                className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+              >
+                <X size={18} strokeWidth={2.5} />
+              </button>
+            </div>
+
+            {/* Share Options - Grid Layout */}
+            <div className="p-6 flex flex-wrap justify-center gap-5">
+              <button onClick={shareToWhatsApp} className="flex flex-col items-center gap-2 group">
+                <div className="w-14 h-14 rounded-2xl bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400 flex items-center justify-center group-hover:scale-110 group-hover:bg-green-500 group-hover:text-white transition-all duration-300 shadow-sm">
+                  <MessageCircle size={28} strokeWidth={2} />
+                </div>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                  {isRtl ? "واتساب" : "WhatsApp"}
+                </span>
+              </button>
+
+              <button onClick={shareToFacebook} className="flex flex-col items-center gap-2 group">
+                <div className="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                  <Facebook size={28} strokeWidth={2} />
+                </div>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                  {isRtl ? "فيسبوك" : "Facebook"}
+                </span>
+              </button>
+
+              <button onClick={shareToX} className="flex flex-col items-center gap-2 group w-[72px]">
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 flex items-center justify-center group-hover:scale-110 group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-all duration-300 shadow-sm">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" className="w-7 h-7 fill-current">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                  </svg>
+                </div>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                  {isRtl ? "إكس" : "X"}
+                </span>
+              </button>
+
+              <button onClick={copyLink} className="flex flex-col items-center gap-2 group">
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center group-hover:scale-110 group-hover:bg-slate-700 group-hover:text-white dark:group-hover:bg-slate-600 transition-all duration-300 shadow-sm">
+                  <LinkIcon size={28} strokeWidth={2} />
+                </div>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                  {isRtl ? "نسخ" : "Copy"}
+                </span>
+              </button>
+
+              <button onClick={shareToOther} className="flex flex-col items-center gap-2 group">
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300 shadow-sm">
+                  <Share2 size={28} strokeWidth={2} />
+                </div>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                  {isRtl ? "المزيد" : "More"}
+                </span>
+              </button>
+            </div>
+
+            {/* Quick URL Copy Box */}
+            <div className="px-6 pb-6">
+              <div className="flex items-center gap-2 p-1.5 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-slate-200 dark:border-slate-800">
+                <div className="truncate flex-1 text-xs text-slate-500 px-3 font-medium" dir="ltr">
+                  {shareUrl}
+                </div>
+                <button
+                  onClick={copyLink}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-colors whitespace-nowrap shadow-sm"
+                >
+                  {isRtl ? "نسخ" : "Copy"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {openLikes && (
         <div
           onClick={() => setOpenLikes(false)}
-          className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
         >
           <div
             className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-5 relative shadow-2xl"
@@ -1477,7 +1638,8 @@ export default function PostDetails({ postId, initialData }: Props) {
           >
             <button
               onClick={() => setOpenLikes(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors p-2"
+              aria-label="Close likes modal"
             >
               ✕
             </button>
@@ -1493,7 +1655,7 @@ export default function PostDetails({ postId, initialData }: Props) {
         open={openModal}
         onClose={() => setOpenModal(false)}
         onConfirm={remove}
-        itemType={"post"}
+        itemType="post"
       />
 
       {editModalOpen && (
@@ -1509,6 +1671,6 @@ export default function PostDetails({ postId, initialData }: Props) {
         postId={postDetailsData.id}
         currentUserId={currentUserId}
       />
-    </div>
+    </article>
   );
 }

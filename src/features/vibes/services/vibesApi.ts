@@ -283,7 +283,7 @@ export const addLikeToComment = async (
   profileId: string,
   commentId: string,
 ): Promise<void> => {
-  const response = await fetch(`${BASE_URL}/Vibes/AddLikeToComment`, {
+  await fetch(`${BASE_URL}/Vibes/AddLikeToComment`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -292,9 +292,6 @@ export const addLikeToComment = async (
     body: JSON.stringify({ profileId, commentId }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to like comment");
-  }
 };
 export const updateComment = async (
   commentId: string,
