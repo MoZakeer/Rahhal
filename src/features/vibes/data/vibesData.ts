@@ -54,7 +54,7 @@ export interface VibeCommentinput {
 export interface VibeComment {
   commentId: string;
   profileId: string;
-
+postId: string;
   userName: string;
   profilePicture: string;
 
@@ -63,7 +63,7 @@ export interface VibeComment {
   createdDate: string;
 
   likesCount: number;
-  repliesCount: number;
+  repliesCount?: number;
 
   isLikedByCurrentUser: boolean;
 }

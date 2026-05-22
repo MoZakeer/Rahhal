@@ -18,6 +18,7 @@ import {
 import type { Vibe, VibeComment } from "../data/vibesData";
 
 import { normalizeMediaUrl } from "@/features/post/components/services/posts.api";
+import Skeleton from "react-loading-skeleton";
 
 interface VibeCommentsSheetProps {
   vibe: Vibe;
@@ -259,7 +260,7 @@ const VibeCommentsSheet = ({
           <div className="custom-scrollbar flex-1 space-y-4 overflow-y-auto p-4">
             {loading && (
               <div className="flex justify-center py-10">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                <Skeleton count={3} />
               </div>
             )}
 
@@ -401,7 +402,7 @@ const VibeCommentsSheet = ({
                         type="button"
                         disabled={!currentUserId || isLiking}
                         onClick={() => handleLikeComment(c.commentId)}
-                        className="mt-8 shrink-0 rounded-full p-2 transition-all hover:bg-muted active:scale-75 disabled:opacity-40"
+                        className="mt-8 shrink-0 rounded-full p-2  hover:bg-muted active:scale-75 "
                       >
                         <motion.div
                           key={commentBump}
@@ -409,21 +410,17 @@ const VibeCommentsSheet = ({
                             commentBump > 0 ? { scale: [1, 1.35, 0.9, 1] } : {}
                           }
                           transition={{
-                            duration: 0.35,
+                            duration: 0.01,
                             ease: "easeInOut",
                           }}
                         >
-                          {isLiking ? (
-                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                          ) : (
-                            <Heart
-                              className={`h-4 w-4 transition-all ${
-                                c.isLikedByCurrentUser
-                                  ? "fill-red-500 text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.35)]"
-                                  : "text-muted-foreground/50 hover:text-foreground"
-                              }`}
-                            />
-                          )}
+                          <Heart
+                            className={`h-4 w-4  ${
+                              c.isLikedByCurrentUser
+                                ? "fill-red-500 text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.35)]"
+                                : "text-muted-foreground/50 hover:text-foreground"
+                            }`}
+                          />
                         </motion.div>
                       </button>
                     )}
