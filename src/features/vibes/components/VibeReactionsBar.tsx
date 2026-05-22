@@ -66,20 +66,18 @@ const VibeReactionsBar = ({
         </div>
 
         {/* RIGHT SIDE: VIEW TRIP CONTEXT BUTTON */}
-        {/* Pass your router function or link redirection handler to onClick */}
-        {vibe.tripId && (
-          <button
-            type="button"
-            onClick={() => {
-              onPause?.();
-              window.location.href = `/trip/${vibe.tripId}`;
-            }}
-            className="group flex h-10 items-center gap-1.5 rounded-full bg-white/15 px-4 text-xs font-semibold text-white backdrop-blur-md border border-white/10 transition-all duration-200 hover:bg-white/25 active:scale-95 shadow-sm"
-          >
-            <span>View Trip</span>
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
-          </button>
-        )}
+        {vibe.tripId &&(
+        <button
+          type="button"
+          onClick={() => {
+            onPause?.();
+            window.location.href = `/trip/${vibe.tripId}`;
+          }}
+          className="group flex h-10 items-center gap-1.5 rounded-full bg-white/15 px-4 text-xs font-semibold text-white backdrop-blur-md border border-white/10 transition-all duration-200 hover:bg-white/25 active:scale-95 shadow-sm"
+        >
+          <span>View Trip</span>
+          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+        </button> )}
       </div>
     </div>
   );
