@@ -5,7 +5,7 @@ import ReactionDetailsModal from "./ReactionDetailsModal";
 type Props = {
   reactionsSummary: ReactionSummary[];
   isSend: boolean;
-  message: TMessage; // محتاجين الـ message كاملة عشان المودال
+  message: TMessage;
 };
 
 function MessageReactions({ reactionsSummary, isSend, message }: Props) {
@@ -15,7 +15,6 @@ function MessageReactions({ reactionsSummary, isSend, message }: Props) {
 
   return (
     <Popover.Root>
-      {/* التريجر هو شكل الريأكشنز اللي في الرسالة */}
       <Popover.Trigger asChild>
         <div
           className={`
@@ -45,14 +44,13 @@ function MessageReactions({ reactionsSummary, isSend, message }: Props) {
         </div>
       </Popover.Trigger>
 
-      {/* بوابة المودال - Portal بتضمن إنه يظهر فوق أي حاجة تانية في الصفحة */}
       <Popover.Portal>
         <Popover.Content
-          side="bottom" // افتح تحت افتراضياً
-          sideOffset={8} // مسافة 8 بيكسل
-          align={isSend ? "start" : "end"} // لو Send ابدأ من الشمال، لو Receive ابدأ من اليمين
-          avoidCollisions={true} // السحر هنا! لو مفيش مكان تحت هيقلب فوق لوحده
-          className="z-[500] outline-none"
+          side="bottom"
+          sideOffset={8}
+          align={isSend ? "start" : "end"}
+          avoidCollisions={true}
+          className="z-500 outline-none"
         >
           <ReactionDetailsModal message={message} />
         </Popover.Content>

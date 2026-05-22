@@ -55,10 +55,9 @@ function ChatHeader({
   };
 
   return (
-    // ضفنا هنا shrink-0
-    <div className="shrink-0 bg-gray-0 flex items-center gap-1 md:gap-4 border-b border-solid border-gray-200 shadow-sm px-2 py-2 w-full sm:px-6 sm:py-3">
+    <div className="shrink-0 bg-gray-0 flex items-center gap-2 md:gap-4 border-b border-solid border-gray-200 shadow-sm px-2 py-2 w-full sm:px-6 sm:py-3">
       <button
-        className="rounded-full p-1 text-gray-800 hover:bg-gray-100 flex items-center justify-center "
+        className="shrink-0 rounded-full p-1 text-gray-800 hover:bg-gray-100 flex items-center justify-center"
         onClick={() =>
           navigate("/chat", {
             replace: true,
@@ -68,20 +67,29 @@ function ChatHeader({
         <HiOutlineChevronLeft className="w-6 h-6" />
       </button>
 
-      <Link to="settings" className="flex gap-4">
+      <Link
+        to="settings"
+        className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0"
+      >
         <Avatar src={avatar} />
-        <div className="self-start">
-          <h4 className="text-lg font-semibold text-gray-900 ">{title}</h4>
+
+        <div className="flex flex-col flex-1 min-w-0">
+          <h4
+            className="text-lg font-semibold text-gray-900 truncate"
+            title={title} // إضافة حلوة عشان لو وقف بالماوس يظهرله الاسم كامل
+          >
+            {title}
+          </h4>
           {!isGroup ? (
             <p
-              className={`text-sm font-normal ${
+              className={`text-sm font-normal truncate ${
                 isOnline ? "text-green-700 font-medium" : "text-gray-500"
               }`}
             >
               {isOnline ? "online" : `last seen ${formatLastSeen(lastSeen)}`}
             </p>
           ) : (
-            <p className="text-sm text-gray-500 font-medium">
+            <p className="text-sm text-gray-500 font-medium truncate">
               {membersCount} Member{membersCount > 1 && "s"}
             </p>
           )}

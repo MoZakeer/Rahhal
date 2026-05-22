@@ -28,6 +28,8 @@ import { BASE_URL } from "@/utils/constant";
 import { useOutsideClick } from "@/hooks/useOutsideClick";
 import { useReactToMessage } from "../hooks/useReactToMessage";
 
+import { useLongPress } from "../hooks/useLongPress";
+
 type Props = {
   type: "send" | "receive";
   children: React.ReactNode;
@@ -66,13 +68,11 @@ function Message({
       setOpenedMenuId(null);
     }
   });
-
   const reactionBarRef = useOutsideClick<HTMLDivElement>(() => {
     if (openedReactionId === message.messageId) {
       setOpenedReactionId(null);
     }
   });
-
   const { isPending, deleteMessage } = useDeleteMessage();
   const { react } = useReactToMessage();
   const {
@@ -173,6 +173,17 @@ function Message({
 
   const replyPreview = getReplyPreviewData();
 
+  const longPressEvents = useLongPress(
+    () => {
+      if (window.navigator?.vibrate) {
+        window.navigator.vibrate(50);
+      }
+      setOpenedReactionId(message.messageId);
+      setOpenedMenuId(null);
+    },
+    { delay: 400, moveThreshold: 15 },
+  );
+
   return (
     <li
       id={`msg-${message.messageId}`}
@@ -220,6 +231,7 @@ function Message({
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
           onDragEnd={handleDragEnd}
+          {...longPressEvents}
           className={`
             relative flex flex-col overflow-visible
 
@@ -283,6 +295,8 @@ function Message({
             )}
           <FaChevronDown
             className={`
+              hidden
+              sm:flex
               absolute top-1 right-1
               opacity-0
               group-hover:opacity-100
@@ -541,6 +555,7 @@ function Message({
           {isReportOpen && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
               <ReportModal
+                open={isReportOpen}
                 entityType="user"
                 entityId={message.senderProfileId}
                 reporterId={reporterId}

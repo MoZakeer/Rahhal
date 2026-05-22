@@ -20,7 +20,7 @@ export default function ReactionDetailsModal({ message }: Props) {
     >
       {/* Header */}
       <div className="px-4 pt-4 pb-3 border-b border-gray-100 dark:border-white/5">
-        <h2 className="text-[15px] font-medium text-gray-800 dark:text-gray-200">
+        <h2 className="text-[15px] font-medium text-gray-800 ">
           {message.totalReactionsCount}{" "}
           {message.totalReactionsCount === 1 ? "reaction" : "reactions"}
         </h2>
@@ -38,7 +38,7 @@ export default function ReactionDetailsModal({ message }: Props) {
             return (
               <motion.div
                 key={reaction.profileId}
-                layout 
+                layout
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0, x: -10 }}
@@ -53,10 +53,10 @@ export default function ReactionDetailsModal({ message }: Props) {
                 className={`flex items-center gap-3 px-4 py-2 transition-colors overflow-hidden ${
                   isMe
                     ? "cursor-pointer hover:bg-red-50 dark:hover:bg-red-500/10"
-                    : "hover:bg-gray-50 dark:hover:bg-white/5"
+                    : "hover:bg-gray-50"
                 }`}
               >
-                <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-gray-200 dark:bg-slate-700">
+                <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-gray-200 ">
                   {reaction.profilePicture ? (
                     <img
                       src={profilePicUrl}
@@ -70,11 +70,11 @@ export default function ReactionDetailsModal({ message }: Props) {
                 </div>
 
                 <div className="flex-1 flex flex-col min-w-0">
-                  <span className="text-[15px] font-medium text-gray-900 dark:text-gray-100 truncate">
+                  <span className="text-[15px] font-medium text-gray-900  truncate">
                     {isMe ? "You" : reaction.senderName}
                   </span>
                   {isMe && (
-                    <span className="text-[12px] text-gray-500 dark:text-gray-400 mt-0.5">
+                    <span className="text-[12px] text-gray-500  mt-0.5">
                       Click to remove
                     </span>
                   )}
