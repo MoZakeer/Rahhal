@@ -32,6 +32,7 @@ export interface UserVibesGroup {
 export interface VibeDTO {
   vibeId: string;
   userId: string;
+  tripId?: string;
   userName: string;
   profileUrl: string;
   description: string;
