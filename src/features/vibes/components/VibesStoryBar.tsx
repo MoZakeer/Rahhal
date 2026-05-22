@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
 import VibeAvatarRing from "./VibeAvatarRing";
 import VibeCreator from "./VibeCreator";
 import FullVibeViewer from "./FullVibeViewer";
@@ -21,25 +22,25 @@ interface VibesStoryBarProps {
   currentUserId?: string | null;
   currentUserName?: string;
   currentUserAvatar?: string;
+  onOpen?: () => void;
+  onClose?: () => void;
 }
 
-const SEEN_KEY = "rahhal:vibes:seen";
+const getSeenKey = (tripId: string) => `rahhal:vibes:seen:${tripId}`;
 
-const loadSeen = (): Set<string> => {
+const loadSeen = (key: string): Set<string> => {
   try {
-    const raw = localStorage.getItem(SEEN_KEY);
+    const raw = localStorage.getItem(key);
     return new Set(raw ? (JSON.parse(raw) as string[]) : []);
   } catch {
     return new Set();
   }
 };
 
-const saveSeen = (set: Set<string>) => {
+const saveSeen = (key: string, set: Set<string>) => {
   try {
-    localStorage.setItem(SEEN_KEY, JSON.stringify(Array.from(set)));
-  } catch {
-    // ignore
-  }
+    localStorage.setItem(key, JSON.stringify([...set]));
+  } catch {}
 };
 
 const VibesStoryBar = ({
@@ -48,88 +49,114 @@ const VibesStoryBar = ({
   currentUserId,
   currentUserName,
   currentUserAvatar,
+  onOpen,
+  onClose
 }: VibesStoryBarProps) => {
+  // ---------------- STATE ----------------
   const [vibes, setVibes] = useState<Vibe[]>([]);
   const [creatorOpen, setCreatorOpen] = useState(false);
   const [viewer, setViewer] = useState<{
     groups: UserVibesGroup[];
     groupIndex: number;
   } | null>(null);
-
-  const [seen, setSeen] = useState<Set<string>>(() => loadSeen());
-
-  // -----------------------
-  // FETCH FROM API
-  // -----------------------
   useEffect(() => {
+  if (viewer) {
+    onOpen?.();
+  } else {
+    onClose?.();
+  }
+}, [viewer]);
+
+  const seenKey = useMemo(() => getSeenKey(tripId), [tripId]);
+
+  const [seen, setSeen] = useState<Set<string>>(() =>
+    loadSeen(getSeenKey(tripId))
+  );
+
+  const canPost = canPostVibe(trip, currentUserId);
+
+  // ---------------- FETCH ----------------
+  useEffect(() => {
+    let mounted = true;
+
     const load = async () => {
       try {
         const data = await fetchTripVibesByTripId(tripId);
-        setVibes(data);
+        if (mounted) setVibes(data);
       } catch (err) {
         console.error("Failed to load vibes", err);
       }
     };
 
     load();
+    return () => {
+      mounted = false;
+    };
   }, [tripId]);
 
-  const groups = useMemo(() => groupVibesByUser(vibes), [vibes]);
-  const canPost = canPostVibe(trip, currentUserId);
+  // ---------------- DERIVED DATA ----------------
+  const groups = useMemo(
+    () => groupVibesByUser(vibes),
+    [vibes]
+  );
 
-  // -----------------------
-  // SEEN LOGIC
-  // -----------------------
-  const markGroupSeen = (g: UserVibesGroup) => {
-    const next = new Set(seen);
-    g.vibes.forEach((v) => next.add(v.id));
-    setSeen(next);
-    saveSeen(next);
-  };
+  // ---------------- SEEN LOGIC ----------------
+  const markGroupSeen = useCallback(
+    (group: UserVibesGroup) => {
+      setSeen((prev) => {
+        const next = new Set(prev);
+        group.vibes.forEach((v) => next.add(v.id));
+        saveSeen(seenKey, next);
+        return next;
+      });
+    },
+    [seenKey]
+  );
 
-  const isGroupSeen = (g: UserVibesGroup) =>
-    g.vibes.every((v) => seen.has(v.id));
+  const isGroupSeen = useCallback(
+    (group: UserVibesGroup) =>
+      group.vibes.every((v) => seen.has(v.id)),
+    [seen]
+  );
 
-  // -----------------------
-  // VIBE UPDATE — keeps like state alive across open/close cycles
-  // -----------------------
-  const handleVibeUpdate = (updatedVibe: Vibe) => {
-    // Update the flat vibes array → useMemo recomputes groups automatically
+  // ---------------- UPDATE VIBE ----------------
+  const handleVibeUpdate = useCallback((updated: Vibe) => {
     setVibes((prev) =>
-      prev.map((v) => (v.id === updatedVibe.id ? updatedVibe : v)),
+      prev.map((v) => (v.id === updated.id ? updated : v))
     );
 
-    // Also patch the viewer snapshot so the heart doesn't flicker
-    // back to unliked while the viewer is still open
-    setViewer((prev) =>
-      prev
-        ? {
-            ...prev,
-            groups: prev.groups.map((group) => ({
-              ...group,
-              vibes: group.vibes.map((v) =>
-                v.id === updatedVibe.id ? updatedVibe : v,
-              ),
-            })),
-          }
-        : null,
-    );
-  };
+    setViewer((prev) => {
+      if (!prev) return null;
 
-  // -----------------------
-  // OPEN GROUP VIEWER
-  // -----------------------
-  const openGroup = (idx: number) => {
-    setViewer({ groups, groupIndex: idx });
-    markGroupSeen(groups[idx]);
-  };
+      return {
+        ...prev,
+        groups: prev.groups.map((g) => ({
+          ...g,
+          vibes: g.vibes.map((v) =>
+            v.id === updated.id ? updated : v
+          ),
+        })),
+      };
+    });
+  }, []);
 
-  const openAll = () => {
+  // ---------------- OPEN GROUP ----------------
+  const openGroup = useCallback(
+    (idx: number) => {
+      setViewer({ groups, groupIndex: idx });
+      markGroupSeen(groups[idx]);
+    },
+    [groups, markGroupSeen]
+  );
+
+  // ---------------- OPEN ALL ----------------
+  const openAll = useCallback(() => {
     if (!groups.length) return;
 
     const all = [...vibes].sort(
       (a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+        new Date(a.createdAt).getTime() -
+        new Date(b.createdAt).getTime()
     );
 
     const merged: UserVibesGroup = {
@@ -137,32 +164,38 @@ const VibesStoryBar = ({
       userName: "All Vibes",
       userAvatar: "",
       vibes: all,
-      lastVibeAt: all.at(-1)?.createdAt ?? new Date().toISOString(),
+      lastVibeAt:
+        all.at(-1)?.createdAt ?? new Date().toISOString(),
     };
 
-    const next = new Set(seen);
-    all.forEach((v) => next.add(v.id));
-    setSeen(next);
-    saveSeen(next);
+    setSeen((prev) => {
+      const next = new Set(prev);
+      all.forEach((v) => next.add(v.id));
+      saveSeen(seenKey, next);
+      return next;
+    });
 
     setViewer({ groups: [merged], groupIndex: 0 });
-  };
+  }, [groups, vibes, seenKey]);
 
-  const initials = (name: string) =>
-    name
+  // ---------------- UTILS ----------------
+  const initials = useCallback((name: string) => {
+    return name
       .split(" ")
       .map((p) => p[0])
       .slice(0, 2)
       .join("")
       .toUpperCase();
+  }, []);
 
-  // -----------------------
-  // UI
-  // -----------------------
+  // ---------------- RENDER ----------------
   return (
-    <div className="rounded-xl border border-gray-50 bg-card/60 p-3 shadow-card backdrop-blur">
+    <div className="rounded-xl border border-gray-50 bg-card/60 p-3 shadow-card ">
+      {/* HEADER */}
       <div className="mb-2 flex items-center justify-between px-1">
-        <h3 className="font-display text-sm font-semibold">Vibes</h3>
+        <h3 className="font-display text-sm font-semibold">
+          Vibes
+        </h3>
 
         {groups.length > 0 && (
           <button
@@ -174,6 +207,7 @@ const VibesStoryBar = ({
         )}
       </div>
 
+      {/* AVATARS */}
       <div className="flex gap-3 overflow-x-auto pb-1">
         {canPost && (
           <VibeAvatarRing
@@ -203,7 +237,7 @@ const VibesStoryBar = ({
         )}
       </div>
 
-      {/* Creator */}
+      {/* CREATOR */}
       {creatorOpen && (
         <VibeCreator
           tripId={tripId}
@@ -214,7 +248,7 @@ const VibesStoryBar = ({
         />
       )}
 
-      {/* Viewer */}
+      {/* VIEWER */}
       {viewer && (
         <FullVibeViewer
           groups={viewer.groups}

@@ -14,7 +14,7 @@ export interface Vibe {
   type: VibeType;
   content: string;
   mediaUrls: string[];
-
+ description: string;
   likes: number;
   commentsCount: number;
   isLiked: boolean;

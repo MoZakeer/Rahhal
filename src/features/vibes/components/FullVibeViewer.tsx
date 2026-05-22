@@ -57,6 +57,11 @@ const FullVibeViewer = ({
 
   const group = viewerGroups[groupIdx];
   const vibe: Vibe | undefined = group?.vibes[vibeIdx];
+  const vibeText =
+  vibe?.content ?? vibe?.description ?? "";
+const isTextVibe =
+  vibe.type?.toLowerCase?.() === "text" ||
+  (!vibe.mediaUrls || vibe.mediaUrls.length === 0);
 
   // Auto-advance progress
   useEffect(() => {
@@ -287,7 +292,7 @@ const FullVibeViewer = ({
                 transition={{ duration: 0.2 }}
                 className="absolute inset-0 flex items-center justify-center"
               >
-                {vibe.type === "text" ? (
+                {isTextVibe ? (
                   <div className="relative flex h-full w-full flex-col items-center justify-center px-8 text-center bg-zinc-950 overflow-hidden">
                     <img
                       src={normalizeMediaUrl(group.userAvatar)}
@@ -299,7 +304,7 @@ const FullVibeViewer = ({
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/60" />
 
                     <p className="relative z-10 font-display text-3xl font-bold leading-tight tracking-tight text-white drop-shadow-md max-w-xs">
-                      {vibe.content}
+                      {vibeText}
                     </p>
                   </div>
                 ) : vibe.type === "video" ? (
@@ -332,10 +337,10 @@ const FullVibeViewer = ({
             />
 
             {/* Caption layer for media */}
-            {vibe.content && vibe.type !== "text" && (
+            {vibeText && !isTextVibe && (
               <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 pb-23">
                 <p className="text-sm font-medium leading-relaxed text-white drop-shadow-md">
-                  {vibe.content}
+                  {vibeText}
                 </p>
               </div>
             )}
