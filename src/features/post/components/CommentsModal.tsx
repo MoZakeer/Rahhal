@@ -498,6 +498,7 @@ export function CommentsModal({
               {isReportOpen && (
                 <div className="fixed inset-0  flex items-center justify-center z-50">
                   <ReportModal
+                  open={isReportOpen}
                     entityType="comment"
                     entityId={id}
                     profileId={currentUserId}

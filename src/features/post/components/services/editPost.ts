@@ -3,6 +3,7 @@ export type EditMedia = {
   file: File | string;
   preview?: string;
   isNew?: boolean;
+  type?: string;
 };
 
 export type User = {
@@ -10,8 +11,3 @@ export type User = {
   username: string;
   avatar: string;
 };
-
-
-
-
-
