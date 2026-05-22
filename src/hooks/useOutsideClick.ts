@@ -2,19 +2,23 @@ import { useEffect, useRef } from "react";
 
 export function useOutsideClick<T extends HTMLElement>(
   handler: () => void,
-  listCaputring: boolean = false,
+  listenCapturing = false,
 ) {
   const ref = useRef<T | null>(null);
-  useEffect(
-    function () {
-      function handleClick(e: MouseEvent) {
-        if (ref.current && !ref?.current?.contains(e.target as Node)) handler();
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        handler();
       }
-      document.addEventListener("click", handleClick, listCaputring);
-      return () =>
-        document.removeEventListener("click", handleClick, listCaputring);
-    },
-    [handler, listCaputring],
-  );
+    }
+
+    document.addEventListener("mousedown", handleClick, listenCapturing);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClick, listenCapturing);
+    };
+  }, [handler, listenCapturing]);
+
   return ref;
 }

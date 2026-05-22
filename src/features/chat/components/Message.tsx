@@ -4,19 +4,29 @@ import { HiOutlinePhoto, HiOutlineVideoCamera, HiTrash } from "react-icons/hi2";
 import { LuReply } from "react-icons/lu";
 import { FaChevronDown } from "react-icons/fa";
 import { Flag } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 
 import type { Attachment, Message as TMessage } from "../types/chat.types";
+
 import MessageAttachments from "./MessageAttachments";
+import MessageReactions from "./MessageReactions";
+import MessageReactionTrigger from "./MessageReactionTrigger";
+import MessageReactionBar from "./MessageReactionBar";
+
 import { ReportModal } from "@/features/reports/components/ReportModal";
+
 import { useUser } from "@/context/UserContext";
 
-import { parseMessageContent } from "@/utils/helper";
-import { getFileTypeFromUrl } from "@/utils/helper";
+import { parseMessageContent, getFileTypeFromUrl } from "@/utils/helper";
+
 import { useDeleteMessage } from "../hooks/useDeleteMessage";
+
 import { BASE_URL } from "@/utils/constant";
+
+import { useOutsideClick } from "@/hooks/useOutsideClick";
+import { useReactToMessage } from "../hooks/useReactToMessage";
 
 type Props = {
   type: "send" | "receive";
@@ -28,6 +38,9 @@ type Props = {
   isSeen: boolean;
   message: TMessage;
   onReply: (message: TMessage) => void;
+
+  openedMenuId: string | null;
+  setOpenedMenuId: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
 function Message({
@@ -40,17 +53,33 @@ function Message({
   isSeen,
   message,
   onReply,
+  openedMenuId,
+  setOpenedMenuId,
 }: Props) {
   const isSend = type === "send";
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const [isReportOpen, setIsReportOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [openedReactionId, setOpenedReactionId] = useState<string | null>(null);
+
+  const menuRef = useOutsideClick<HTMLDivElement>(() => {
+    if (openedMenuId === message.messageId) {
+      setOpenedMenuId(null);
+    }
+  });
+
+  const reactionBarRef = useOutsideClick<HTMLDivElement>(() => {
+    if (openedReactionId === message.messageId) {
+      setOpenedReactionId(null);
+    }
+  });
 
   const { isPending, deleteMessage } = useDeleteMessage();
+  const { react } = useReactToMessage();
   const {
     user: { userId: reporterId },
   } = useUser();
-
+  const currentUserReaction =
+    message.reactions?.find((r) => r.profileId === reporterId)?.emoji || null;
   const x = useMotionValue(0);
 
   const rightSwipeOpacity = useTransform(x, [0, 50], [0, 1]);
@@ -63,31 +92,15 @@ function Message({
     if (Math.abs(info.offset.x) > 60) {
       onReply(message);
 
-      if (window.navigator && window.navigator.vibrate) {
+      if (window.navigator?.vibrate) {
         window.navigator.vibrate(50);
       }
     }
   };
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    if (isMenuOpen) {
-      document.addEventListener("click", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [isMenuOpen]);
-
   function handleDelete() {
     deleteMessage(message.messageId);
-    setIsMenuOpen(false);
+    setOpenedMenuId(null);
   }
 
   const repliedMessage = message.parentMessageInfo;
@@ -130,12 +143,26 @@ function Message({
       const fileType = getFileTypeFromUrl(attachmentUrl);
 
       if (fileType === "image") {
-        return { type: "image", text: "Photo", previewUrl: attachmentUrl };
+        return {
+          type: "image",
+          text: "Photo",
+          previewUrl: attachmentUrl,
+        };
       }
+
       if (fileType === "video") {
-        return { type: "video", text: "Video", previewUrl: attachmentUrl };
+        return {
+          type: "video",
+          text: "Video",
+          previewUrl: attachmentUrl,
+        };
       }
-      return { type: "file", text: "Document", previewUrl: attachmentUrl };
+
+      return {
+        type: "file",
+        text: "Document",
+        previewUrl: attachmentUrl,
+      };
     }
 
     return {
@@ -149,19 +176,41 @@ function Message({
   return (
     <li
       id={`msg-${message.messageId}`}
-      className={`flex w-full items-center ${isSend ? "justify-start" : "justify-end"}`}
+      className={`flex w-full items-center ${
+        isSend ? "justify-start" : "justify-end"
+      }`}
     >
       <div className="relative flex items-center">
         <motion.div
-          style={{ opacity: rightSwipeOpacity, scale: rightSwipeScale }}
-          className="absolute -left-10 flex items-center justify-center w-8 h-8 bg-gray-200 dark:bg-slate-700 rounded-full z-0"
+          style={{
+            opacity: rightSwipeOpacity,
+            scale: rightSwipeScale,
+          }}
+          className="
+            absolute -left-10
+            flex items-center justify-center
+            w-8 h-8
+            bg-gray-200 dark:bg-slate-700
+            rounded-full
+            z-0
+          "
         >
           <LuReply className="w-4 h-4 text-gray-600 dark:text-gray-300" />
         </motion.div>
 
         <motion.div
-          style={{ opacity: leftSwipeOpacity, scale: leftSwipeScale }}
-          className="absolute -right-10 flex items-center justify-center w-8 h-8 bg-gray-200 dark:bg-slate-700 rounded-full z-0"
+          style={{
+            opacity: leftSwipeOpacity,
+            scale: leftSwipeScale,
+          }}
+          className="
+            absolute -right-10
+            flex items-center justify-center
+            w-8 h-8
+            bg-gray-200 dark:bg-slate-700
+            rounded-full
+            z-0
+          "
         >
           <LuReply className="w-4 h-4 text-gray-600 dark:text-gray-300 transform -scale-x-100" />
         </motion.div>
@@ -172,9 +221,19 @@ function Message({
           dragConstraints={{ left: 0, right: 0 }}
           onDragEnd={handleDragEnd}
           className={`
-            relative flex flex-col z-10
+            relative flex flex-col overflow-visible
+
+            ${openedMenuId === message.messageId ? "z-50" : "z-10"}
+
             px-3 pt-0.5 pb-1.5
-            shadow-md max-w-70 sm:max-w-87.5 min-w-20 group
+
+            shadow-md
+
+            max-w-70 sm:max-w-87.5
+            min-w-20
+
+            group
+
             ${
               !isSend
                 ? "bg-gray-0 text-gray-800 rounded-tr-lg rounded-bl-lg"
@@ -191,124 +250,178 @@ function Message({
               </Link>
             </div>
           )}
-
+          <MessageReactionTrigger
+            isSend={isSend}
+            onClick={() =>
+              setOpenedReactionId((prev) =>
+                prev === message.messageId ? null : message.messageId,
+              )
+            }
+          />
+          {openedReactionId === message.messageId &&
+            openedMenuId !== message.messageId && (
+              <div
+                ref={reactionBarRef}
+                className={`
+                  absolute
+                  -top-12
+                  z-60
+                  ${isSend ? "left-0" : "right-0"}
+                `}
+              >
+                <MessageReactionBar
+                  currentReaction={currentUserReaction}
+                  onReact={(emoji) => {
+                    react({
+                      messageId: message.messageId,
+                      emoji,
+                    });
+                    setOpenedReactionId(null);
+                  }}
+                />
+              </div>
+            )}
           <FaChevronDown
             className={`
               absolute top-1 right-1
               opacity-0
               group-hover:opacity-100
-              transition-all
-              duration-200
+              transition-all duration-200
               text-3xl
               cursor-pointer
-              z-100
-              pb-3
-              pl-2
+              z-50
+              pb-3 pl-2
               ${!isSeen ? "text-primary-600" : "text-gray-100"}
               font-bold
             `}
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsMenuOpen((prev) => !prev);
+            onClick={() => {
+              setOpenedReactionId(null);
+              setOpenedMenuId((prev) =>
+                prev === message.messageId ? null : message.messageId,
+              );
             }}
           />
-
-          {isMenuOpen && (
+          {openedMenuId === message.messageId && (
             <div
               ref={menuRef}
               onClick={(e) => e.stopPropagation()}
               className={`
-                absolute top-8
-                ${isSend ? "left-2" : "right-2"}
-                w-40
-                bg-white dark:bg-slate-800
-                rounded-xl shadow-lg shadow-black/10
-                ring-1 ring-black/5 dark:ring-white/10
+                absolute
+                -top-2
+                ${
+                  isSend
+                    ? "left-[calc(100%+12px)] items-start"
+                    : "right-[calc(100%+12px)] items-end"
+                }
                 z-100
-                animate-fadeIn
+                flex flex-col gap-2
               `}
             >
-              <div
-                className={`
-                  absolute -top-1.5 w-3 h-3
-                  bg-white dark:bg-slate-800
-                  rotate-45
-                  border-l border-t border-black/5 dark:border-white/10
-                  ${isSend ? "left-4" : "right-4"}
-                `}
+              <MessageReactionBar
+                currentReaction={currentUserReaction}
+                onReact={(emoji) => {
+                  react({
+                    messageId: message.messageId,
+                    emoji,
+                  });
+                  setOpenedReactionId(null);
+                }}
               />
 
-              <div className="relative flex flex-col py-1 overflow-hidden rounded-xl">
-                <button
-                  className="
-                    flex items-center gap-2.5 w-full text-left
-                    px-4 py-2.5 text-sm font-medium
-                    text-gray-700 
-                    hover:bg-gray-100 dark:hover:bg-slate-700
-                    transition-colors duration-200
-                  "
-                  onClick={() => {
-                    onReply(message);
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  <LuReply className="w-5 h-5 " />
-                  Reply
-                </button>
+              <div
+                className={`
+                  w-48
+                  bg-gray-0 dark:bg-slate-800
+                  rounded-xl
+                  shadow-lg shadow-black/10
+                  ring-1 ring-black/5 dark:ring-white/10
+                  animate-fadeIn
+                `}
+              >
+                <div className="relative flex flex-col py-1 overflow-hidden rounded-xl">
+                  <button
+                    className="
+                      flex items-center gap-3
+                      w-full text-left
+                      px-4 py-2.5
+                      text-sm font-medium
+                      text-gray-700 dark:text-gray-200
+                      hover:bg-gray-100 dark:hover:bg-slate-700
+                      transition-colors duration-200
+                    "
+                    onClick={() => {
+                      onReply(message);
+                      setOpenedMenuId(null);
+                    }}
+                  >
+                    <LuReply className="w-5 h-5" />
+                    Reply
+                  </button>
 
-                {!isSend && (
-                  <>
-                    <div className="h-px bg-gray-100 dark:bg-slate-700/60 mx-3 my-0.5" />
-                    <button
-                      className="
-                        flex items-center gap-2.5 w-full text-left
-                        px-4 py-2.5 text-sm font-medium
-                        text-red-600 dark:text-red-400
-                        hover:bg-red-50 dark:hover:bg-red-500/10
-                        transition-colors duration-200
-                      "
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        setIsReportOpen(true);
-                      }}
-                    >
-                      <Flag className="w-4 h-4" />
-                      Report
-                    </button>
-                  </>
-                )}
+                  {!isSend && (
+                    <>
+                      <div className="h-px bg-gray-100 dark:bg-slate-700/60 mx-3 my-0.5" />
+                      <button
+                        className="
+                          flex items-center gap-3
+                          w-full text-left
+                          px-4 py-2.5
+                          text-sm font-medium
+                          text-red-600 dark:text-red-400
+                          hover:bg-red-50 dark:hover:bg-red-500/10
+                          transition-colors duration-200
+                        "
+                        onClick={() => {
+                          setOpenedMenuId(null);
+                          setIsReportOpen(true);
+                        }}
+                      >
+                        <Flag className="w-5 h-5" />
+                        Report
+                      </button>
+                    </>
+                  )}
 
-                {isSend && (
-                  <>
-                    <div className="h-px bg-gray-100 dark:bg-slate-700/60 mx-3 my-0.5" />
-                    <button
-                      disabled={isPending}
-                      className="
-                        flex items-center gap-2.5 w-full text-left
-                        px-4 py-2.5 text-sm font-medium
-                        text-red-600 dark:text-red-400
-                        hover:bg-red-50 dark:hover:bg-red-500/10
-                        transition-colors duration-200
-                        disabled:opacity-50 disabled:cursor-not-allowed
-                      "
-                      onClick={handleDelete}
-                    >
-                      <HiTrash className="w-4 h-4" />
-                      Delete
-                    </button>
-                  </>
-                )}
+                  {isSend && (
+                    <>
+                      <div className="h-px bg-gray-100 dark:bg-slate-700/60 mx-3 my-0.5" />
+                      <button
+                        disabled={isPending}
+                        className="
+                          flex items-center gap-3
+                          w-full text-left
+                          px-4 py-2.5
+                          text-sm font-medium
+                          text-red-600 dark:text-red-400
+                          hover:bg-red-50 dark:hover:bg-red-500/10
+                          transition-colors duration-200
+                          disabled:opacity-50
+                          disabled:cursor-not-allowed
+                        "
+                        onClick={handleDelete}
+                      >
+                        <HiTrash className="w-5 h-5" />
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           )}
-
           {repliedMessage && replyPreview && (
             <button
               onClick={handleScrollToRepliedMessage}
               className={`
-                mb-2 text-left rounded-md px-2 py-1 border-l-4
+                mb-2
+                text-left
+                rounded-md
+                px-2 py-1
+                border-l-4
                 transition-all hover:opacity-90
-                flex items-center justify-between gap-2 overflow-hidden
+                flex items-center justify-between gap-2
+                overflow-hidden
+
                 ${
                   isSend
                     ? "bg-primary-500 border-primary-300"
@@ -319,7 +432,10 @@ function Message({
               <div className="flex flex-col min-w-0 flex-1">
                 <p
                   className={`
-                    text-[11px] font-semibold truncate
+                    text-[11px]
+                    font-semibold
+                    truncate
+
                     ${isSend ? "text-primary-100" : "text-primary-700"}
                   `}
                 >
@@ -328,21 +444,28 @@ function Message({
 
                 <div
                   className={`
-                    text-[11px] truncate flex items-center gap-1
+                    text-[11px]
+                    truncate
+
+                    flex items-center gap-1
+
                     ${isSend ? "text-primary-50" : "text-gray-600"}
                   `}
                 >
                   {replyPreview.type === "image" && (
                     <span>
-                      <HiOutlinePhoto />{" "}
+                      <HiOutlinePhoto />
                     </span>
                   )}
+
                   {replyPreview.type === "video" && (
                     <span>
                       <HiOutlineVideoCamera />
                     </span>
                   )}
+
                   {replyPreview.type === "file" && <span>📄</span>}
+
                   <span className="truncate">{replyPreview.text}</span>
                 </div>
               </div>
@@ -373,14 +496,16 @@ function Message({
               )}
             </button>
           )}
-
           <MessageAttachments attachments={attachments} isSend={isSend} />
-
           {!!children && (
             <div
               dir="auto"
               className="
-                text-xs leading-relaxed wrap-break-word whitespace-pre-wrap pr-14 mr-2
+                text-xs
+                leading-relaxed
+                wrap-break-word
+                whitespace-pre-wrap
+                pr-14 mr-2
               "
             >
               {typeof children === "string"
@@ -388,13 +513,13 @@ function Message({
                 : children}
             </div>
           )}
-
           <div
             dir="ltr"
             className={`
               absolute bottom-1 right-2
               flex items-center gap-1
-              text-[10px] select-none
+              text-[10px]
+              select-none
               ${isSend ? "text-primary-200" : "text-gray-400"}
             `}
           >
@@ -407,6 +532,11 @@ function Message({
               />
             )}
           </div>
+          <MessageReactions
+            reactionsSummary={message.reactionsSummary}
+            isSend={isSend}
+            message={message}
+          />
 
           {isReportOpen && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

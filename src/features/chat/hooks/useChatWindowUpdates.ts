@@ -39,21 +39,64 @@ export const useChatWindowUpdates = (
     // Receive Message
     // =========================
 
-    const handleReceiveMessage = function (newMessage: Message) {
+    const handleReceiveMessage = function (incomingMessage: Message) {
       queryClient.setQueryData<InfiniteData<ChatResponse>>(
         ["chat", conversationId],
+
         (oldData) => {
           if (!oldData || oldData.pages.length === 0) {
             return oldData;
           }
 
-          const isDuplicate = oldData.pages.some((page) =>
+          const messageExists = oldData.pages.some((page) =>
             page.data.messages.items.some(
-              (msg: Message) => msg.messageId === newMessage.messageId,
+              (msg: Message) => msg.messageId === incomingMessage.messageId,
             ),
           );
 
-          if (isDuplicate) return oldData;
+          // =========================
+          // EXISTING MESSAGE
+          // UPDATE REACTIONS
+          // =========================
+
+          if (messageExists) {
+            return {
+              ...oldData,
+
+              pages: oldData.pages.map((page) => ({
+                ...page,
+
+                data: {
+                  ...page.data,
+
+                  messages: {
+                    ...page.data.messages,
+
+                    items: page.data.messages.items.map((msg: Message) => {
+                      if (msg.messageId !== incomingMessage.messageId) {
+                        return msg;
+                      }
+
+                      return {
+                        ...msg,
+
+                        totalReactionsCount:
+                          incomingMessage.totalReactionsCount,
+
+                        reactionsSummary: incomingMessage.reactionsSummary,
+
+                        reactions: incomingMessage.reactions,
+                      };
+                    }),
+                  },
+                },
+              })),
+            };
+          }
+
+          // =========================
+          // NEW MESSAGE
+          // =========================
 
           const newPages = [...oldData.pages];
 
@@ -66,31 +109,40 @@ export const useChatWindowUpdates = (
               messages: {
                 ...newPages[0].data.messages,
 
-                items: [...newPages[0].data.messages.items, newMessage],
+                items: [...newPages[0].data.messages.items, incomingMessage],
               },
             },
           };
 
           return {
             ...oldData,
+
             pages: newPages,
           };
         },
       );
 
-      // remove typing instantly
+      // =========================
+      // REMOVE TYPING
+      // =========================
+
       setTypingUser(null);
+
       setIsTyping(false);
 
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
 
-      // mark as read
-      if (userId && newMessage.senderProfileId !== userId) {
+      // =========================
+      // MARK AS READ
+      // =========================
+
+      if (userId && incomingMessage.senderProfileId !== userId) {
         connection
           .invoke("MarkAsRead", {
             ConversationId: conversationId,
+
             ProfileId: userId,
           })
           .catch(() => {});

@@ -28,7 +28,7 @@ function MessageList({
   onReply,
 }: MessageListProps) {
   const { user } = useUser();
-
+  const [openedMenuId, setOpenedMenuId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -153,6 +153,7 @@ function MessageList({
       behavior: "smooth",
     });
   };
+
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -170,6 +171,7 @@ function MessageList({
 
     return () => resizeObserver.disconnect();
   }, []);
+
   return (
     <div
       ref={scrollContainerRef}
@@ -183,7 +185,7 @@ function MessageList({
           There are no messages yet… start the conversation!
         </div>
       ) : (
-        <ul className="flex flex-col gap-5 px-3 py-4 md:py-6 pb-8 lg:pr-18 lg:pl-12 relative">
+        <ul className="flex flex-col px-3 py-4 md:py-6 pb-8 lg:pr-18 lg:pl-12 relative">
           {sortedMessages.map((message: TMessage, index) => {
             const currentDate = getMessageDateLabel(message.createdDate);
             const prevMessage = sortedMessages[index - 1];
@@ -192,10 +194,13 @@ function MessageList({
               : null;
             const showDateHeader = currentDate !== prevDate;
 
+            const hasReactions = message.totalReactionsCount > 0;
+
             return (
               <div
                 key={`${message.messageId}-${index}`}
                 id={`msg-${message.messageId}`}
+                className={hasReactions ? "mb-8" : "mb-1.5"}
               >
                 {showDateHeader && (
                   <div className="flex justify-center my-3">
@@ -220,6 +225,8 @@ function MessageList({
                   isSeen={message.isSeen}
                   message={message}
                   onReply={onReply}
+                  openedMenuId={openedMenuId}
+                  setOpenedMenuId={setOpenedMenuId}
                 >
                   {message?.content}
                 </Message>
@@ -227,7 +234,11 @@ function MessageList({
             );
           })}
 
-          {isTyping && <TypingIndicator name={isGroup ? typingUser : ""} />}
+          {isTyping && (
+            <div className="mb-2">
+              <TypingIndicator name={isGroup ? typingUser : ""} />
+            </div>
+          )}
 
           <div ref={messagesEndRef} className="h-1 shrink-0" />
         </ul>

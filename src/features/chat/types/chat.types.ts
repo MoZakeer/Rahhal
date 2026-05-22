@@ -33,10 +33,25 @@ export interface ParentMessageInfo {
   attachmentUrls: Attachment[];
 }
 
+export interface ReactionSummary {
+  emoji: string;
+  count: number;
+}
+
+export interface MessageReaction {
+  profileId: string;
+  senderName: string;
+  profilePicture: string;
+  emoji: string;
+}
+
 export interface Message {
   messageId: string;
+
   senderProfileId: string;
+
   senderName: string;
+
   senderProfilePhoto: string;
 
   content: string;
@@ -48,4 +63,10 @@ export interface Message {
   isSeen: boolean;
 
   parentMessageInfo?: ParentMessageInfo | null;
+
+  totalReactionsCount: number;
+
+  reactionsSummary: ReactionSummary[];
+
+  reactions: MessageReaction[];
 }
