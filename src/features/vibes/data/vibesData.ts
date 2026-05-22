@@ -95,3 +95,47 @@ export const groupVibesByUser = (vibes: Vibe[]): UserVibesGroup[] => {
       new Date(b.lastVibeAt).getTime() - new Date(a.lastVibeAt).getTime(),
   );
 };
+export interface TripVibesGroup {
+  tripId: string;
+
+  coverUserName: string;
+  coverUserAvatar: string;
+
+  vibes: Vibe[];
+  lastVibeAt: string;
+}
+
+export const groupVibesByTrip = (vibes: Vibe[]): TripVibesGroup[] => {
+  const map = new Map<string, TripVibesGroup>();
+
+  for (const v of vibes) {
+    // Skip vibes without tripId
+    if (!v.tripId) continue;
+
+    const g = map.get(v.tripId);
+
+    if (!g) {
+      map.set(v.tripId, {
+        tripId: v.tripId,
+
+        coverUserName: v.userName,
+        coverUserAvatar: v.userAvatar,
+
+        vibes: [v],
+        lastVibeAt: v.createdAt,
+      });
+    } else {
+      g.vibes.push(v);
+
+      // Update latest vibe timestamp
+      if (new Date(v.createdAt) > new Date(g.lastVibeAt)) {
+        g.lastVibeAt = v.createdAt;
+      }
+    }
+  }
+
+  return Array.from(map.values()).sort(
+    (a, b) =>
+      new Date(b.lastVibeAt).getTime() - new Date(a.lastVibeAt).getTime(),
+  );
+};
