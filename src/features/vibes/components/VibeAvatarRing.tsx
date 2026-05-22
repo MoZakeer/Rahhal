@@ -49,7 +49,7 @@ const VibeAvatarRing = ({
             All
           </div>
         ) : (
-          <Avatar className="h-16 w-16 border-2 border-card">
+          <Avatar className="h-16 w-16 border-2  border-white dark:border-slate-900">
             <AvatarImage src={normalizeMediaUrl(src)} alt={label} />
             <AvatarFallback className="bg-primary/10 text-sm font-semibold text-blue-100">
               {fallback}

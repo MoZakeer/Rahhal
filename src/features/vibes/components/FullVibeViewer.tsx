@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  X,
-  ChevronLeft,
-  ChevronRight,
-  MoreVertical,
-  Trash2,
-  Pencil,
-} from "lucide-react";
+import { X, MoreVertical, Trash2, Pencil } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -170,25 +163,33 @@ const FullVibeViewer = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-md"
+        // OPTIMIZATION: Softened backdrop for desktop, richer blur effect
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-lg"
         onClick={() => {
           if (editing || confirmDelete || commentsOpen) return;
           onClose();
         }}
       >
         <div
-          className="relative flex h-full w-full max-w-md flex-col overflow-hidden bg-black md:h-[90vh] md:rounded-2xl"
+          // OPTIMIZATION: Ring borders on desktop create a crisp edge against dark backdrops
+          className="relative flex h-full w-full max-w-md flex-col overflow-hidden bg-black shadow-2xl md:h-[90vh] md:rounded-2xl md:ring-1 md:ring-white/10"
           onClick={(e) => e.stopPropagation()}
         >
+          {/* 
+        OPTIMIZATION: Added a scrim (gradient protection layer) 
+        This keeps progress bars & headers visible even over pure white images/videos
+      */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-28 bg-gradient-to-b from-black/60 to-transparent" />
+
           {/* Progress bars */}
-          <div className="absolute left-0 right-0 top-0 z-20 flex gap-1 p-2">
+          <div className="absolute left-0 right-0 top-0 z-30 flex gap-1 p-2">
             {group.vibes.map((_, i) => (
               <div
                 key={i}
-                className="h-1 flex-1 overflow-hidden rounded-full bg-white/25"
+                className="h-1 flex-1 overflow-hidden rounded-full bg-white/20 backdrop-blur-sm"
               >
                 <div
-                  className="h-full bg-white transition-[width] duration-75"
+                  className="h-full bg-white transition-[width] linear"
                   style={{
                     width:
                       i < vibeIdx
@@ -196,6 +197,8 @@ const FullVibeViewer = ({
                         : i === vibeIdx
                           ? `${progress}%`
                           : "0%",
+                    // OPTIMIZATION: ensures smooth fluid transition tracking updates perfectly
+                    transitionDuration: i === vibeIdx ? "75ms" : "0ms",
                   }}
                 />
               </div>
@@ -203,21 +206,21 @@ const FullVibeViewer = ({
           </div>
 
           {/* Header */}
-          <div className="absolute left-0 right-0 top-3 z-20 flex items-center gap-3 px-4 pt-2">
-            <Avatar className="h-9 w-9 border-2 border-white/40">
+          <div className="absolute left-0 right-0 top-3 z-30 flex items-center gap-3 px-4 pt-2">
+            <Avatar className="h-9 w-9 border border-white/20 shadow-sm">
               <AvatarImage
                 src={normalizeMediaUrl(group.userAvatar)}
                 alt={group.userName}
               />
-              <AvatarFallback className="bg-primary/20 text-xs">
+              <AvatarFallback className="bg-white/10 text-xs text-white">
                 {initials}
               </AvatarFallback>
             </Avatar>
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 drop-shadow-sm">
               <p className="truncate text-sm font-semibold text-white">
                 {group.userName}
               </p>
-              <p className="text-[11px] text-white/60">
+              <p className="text-[11px] text-white/75 font-medium">
                 {new Date(vibe.createdAt).toLocaleString(undefined, {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -231,7 +234,7 @@ const FullVibeViewer = ({
                 <DropdownMenuTrigger asChild>
                   <button
                     type="button"
-                    className="rounded-full p-1.5 text-white hover:bg-white/10"
+                    className="rounded-full p-1.5 text-white/90 hover:text-white hover:bg-white/10 transition-colors"
                     onClick={() => setPaused(true)}
                     aria-label="More"
                   >
@@ -261,16 +264,16 @@ const FullVibeViewer = ({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full p-1.5 text-white hover:bg-white/10"
+              className="rounded-full p-1.5 text-white/90 hover:text-white hover:bg-white/10 transition-colors"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
 
-          {/* Content */}
+          {/* Content Canvas */}
           <div
-            className="relative flex-1 select-none"
+            className="relative flex-1 select-none bg-zinc-950"
             onPointerDown={() => setPaused(true)}
             onPointerUp={() => setPaused(false)}
             onPointerLeave={() => setPaused(false)}
@@ -278,18 +281,24 @@ const FullVibeViewer = ({
             <AnimatePresence mode="wait">
               <motion.div
                 key={vibe.id}
-                initial={{ opacity: 0, scale: 0.98 }}
+                initial={{ opacity: 0, scale: 1 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.02 }}
-                transition={{ duration: 0.25 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
                 className="absolute inset-0 flex items-center justify-center"
               >
                 {vibe.type === "text" ? (
-                  <div
-                    className="flex h-full w-full items-center justify-center p-8 text-center"
-                    style={{ background: "var(--gradient-ocean)" }}
-                  >
-                    <p className="font-display text-2xl leading-snug text-white">
+                  <div className="relative flex h-full w-full flex-col items-center justify-center px-8 text-center bg-zinc-950 overflow-hidden">
+                    <img
+                      src={normalizeMediaUrl(group.userAvatar)}
+                      alt=""
+                      className="absolute inset-0 h-full w-full object-cover scale-150 blur-[80px] opacity-40 brightness-[0.4] saturate-[1.8]"
+                    />
+
+                    {/* Vignette layer to ensure text readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/60" />
+
+                    <p className="relative z-10 font-display text-3xl font-bold leading-tight tracking-tight text-white drop-shadow-md max-w-xs">
                       {vibe.content}
                     </p>
                   </div>
@@ -299,7 +308,8 @@ const FullVibeViewer = ({
                     autoPlay
                     muted
                     playsInline
-                    className="max-h-full max-w-full object-contain"
+                    loop
+                    className="h-full w-full object-cover"
                   />
                 ) : (
                   <VibeImageStack urls={vibe.mediaUrls} />
@@ -307,57 +317,41 @@ const FullVibeViewer = ({
               </motion.div>
             </AnimatePresence>
 
-            {/* Tap zones */}
+            {/* Tap zones for Navigation */}
             <button
               type="button"
-              aria-label="Previous"
+              aria-label="Previous story"
               onClick={prev}
-              className="absolute inset-y-0 left-0 z-10 w-1/3"
+              className="absolute inset-y-0 left-0 z-10 w-1/4 cursor-w-resize"
             />
             <button
               type="button"
-              aria-label="Next"
+              aria-label="Next story"
               onClick={next}
-              className="absolute inset-y-0 right-0 z-10 w-1/3"
+              className="absolute inset-y-0 right-0 z-10 w-1/4 cursor-e-resize"
             />
 
-            {/* Caption for image/mixed */}
+            {/* Caption layer for media */}
             {vibe.content && vibe.type !== "text" && (
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 pb-6">
-                <p className="text-sm leading-relaxed text-white">
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 pb-23">
+                <p className="text-sm font-medium leading-relaxed text-white drop-shadow-md">
                   {vibe.content}
                 </p>
               </div>
             )}
-
-            {/* Side nav buttons (desktop) */}
-            <button
-              type="button"
-              onClick={prev}
-              className="absolute left-2 top-1/2 z-20 hidden -translate-y-1/2 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 md:block"
-              aria-label="Previous"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={next}
-              className="absolute right-2 top-1/2 z-20 hidden -translate-y-1/2 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 md:block"
-              aria-label="Next"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
           </div>
 
-          {/* Reactions / latest comment */}
-          <VibeReactionsBar
-            key={vibe.id}
-            vibe={vibe}
-            onToggleLike={() => handleToggleLike(vibe.id)}
-            onOpenComments={() => setCommentsOpen(true)}
-            onPause={() => setPaused(true)}
-            onResume={() => setPaused(false)}
-          />
+          {/* Reactions Footer Container */}
+          <div className="relative z-30 bg-black">
+            <VibeReactionsBar
+              key={vibe.id}
+              vibe={vibe}
+              onToggleLike={() => handleToggleLike(vibe.id)}
+              onOpenComments={() => setCommentsOpen(true)}
+              onPause={() => setPaused(true)}
+              onResume={() => setPaused(false)}
+            />
+          </div>
         </div>
 
         {commentsOpen && (
@@ -417,22 +411,24 @@ const FullVibeViewer = ({
 const VibeImageStack = ({ urls }: { urls: string[] }) => {
   const [idx, setIdx] = useState(0);
   if (urls.length === 0) return null;
+
   return (
     <div className="relative h-full w-full">
       <img
         src={normalizeMediaUrl(urls[idx])}
         alt=""
-        className="h-full w-full object-contain"
+        /* OPTIMIZATION: Changed object-contain to object-cover for full bleed integration */
+        className="h-full w-full object-cover"
       />
       {urls.length > 1 && (
-        <div className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 gap-1.5">
+        <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-1.5 rounded-full bg-black/20 p-1.5 backdrop-blur-md">
           {urls.map((_, i) => (
             <button
               key={i}
               type="button"
               onClick={() => setIdx(i)}
               className={`h-1.5 rounded-full transition-all ${
-                i === idx ? "w-5 bg-white" : "w-1.5 bg-white/50"
+                i === idx ? "w-4 bg-white" : "w-1.5 bg-white/40"
               }`}
               aria-label={`Image ${i + 1}`}
             />
