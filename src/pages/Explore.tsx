@@ -1,5 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, SlidersHorizontal, Compass, Loader2, Sparkles, PenLine } from "lucide-react";
+import {
+  Search,
+  SlidersHorizontal,
+  Compass,
+  Loader2,
+  Sparkles,
+  PenLine,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +15,11 @@ import heroImage from "@/assets/hero-travel.jpg";
 import { toast } from "sonner";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { motion, AnimatePresence } from "framer-motion";
-import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useFavicon } from "@/hooks/useFavicon";
 
@@ -19,9 +30,12 @@ import { cn } from "@/lib/utils";
 // API Fetcher Functions (For React Query)
 // ==========================================
 const fetchPreferencesAPI = async () => {
-  const res = await fetch("https://rahhal-api.runasp.net/TravelPreference/GetAll?SortByLastAdded=true", {
-    headers: { 'accept': 'text/plain' }
-  });
+  const res = await fetch(
+    "https://rahhal-api.runasp.net/TravelPreference/GetAll?SortByLastAdded=true",
+    {
+      headers: { accept: "text/plain" },
+    },
+  );
   const data = await res.json();
   if (!data.isSuccess) throw new Error("Failed to fetch preferences");
   return data.data;
@@ -29,7 +43,7 @@ const fetchPreferencesAPI = async () => {
 
 const fetchTripsAPI = async ({ pageParam = 1, queryKey }: any) => {
   const [_key, searchTerm, filterId] = queryKey;
-  let token = localStorage.getItem("token")?.replace(/^"(.*)"$/, '$1') || "";
+  let token = localStorage.getItem("token")?.replace(/^"(.*)"$/, "$1") || "";
 
   let url = `https://rahhal-api.runasp.net/TripManagement/GetAll?PageNumber=${pageParam}&PageSize=20&SortByLastAdded=true`;
 
@@ -44,8 +58,8 @@ const fetchTripsAPI = async ({ pageParam = 1, queryKey }: any) => {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { "Authorization": `Bearer ${token}` } : {})
-    }
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
   });
 
   const data = await res.json();
@@ -78,24 +92,30 @@ const Explore = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchInput !== urlSearch) {
-        setSearchParams((prev) => {
-          const newParams = new URLSearchParams(prev);
-          if (searchInput) newParams.set("q", searchInput);
-          else newParams.delete("q");
-          return newParams;
-        }, { replace: true });
+        setSearchParams(
+          (prev) => {
+            const newParams = new URLSearchParams(prev);
+            if (searchInput) newParams.set("q", searchInput);
+            else newParams.delete("q");
+            return newParams;
+          },
+          { replace: true },
+        );
       }
     }, 500);
     return () => clearTimeout(timer);
   }, [searchInput, urlSearch, setSearchParams]);
 
   const handleFilterChange = (id: string) => {
-    setSearchParams((prev) => {
-      const newParams = new URLSearchParams(prev);
-      if (id !== "ALL") newParams.set("cat", id);
-      else newParams.delete("cat");
-      return newParams;
-    }, { replace: true });
+    setSearchParams(
+      (prev) => {
+        const newParams = new URLSearchParams(prev);
+        if (id !== "ALL") newParams.set("cat", id);
+        else newParams.delete("cat");
+        return newParams;
+      },
+      { replace: true },
+    );
   };
 
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
@@ -121,7 +141,7 @@ const Explore = () => {
 
   // --- 3. React Query: Fetch Data ---
   const { data: preferences = [] } = useQuery({
-    queryKey: ['preferences'],
+    queryKey: ["preferences"],
     queryFn: fetchPreferencesAPI,
     staleTime: 1000 * 60 * 60,
   });
@@ -133,7 +153,7 @@ const Explore = () => {
     isFetchingNextPage,
     isLoading,
   } = useInfiniteQuery({
-    queryKey: ['trips', urlSearch, urlFilter],
+    queryKey: ["trips", urlSearch, urlFilter],
     queryFn: fetchTripsAPI,
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
@@ -153,7 +173,7 @@ const Explore = () => {
           fetchNextPage();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (observerTarget.current) {
@@ -165,56 +185,67 @@ const Explore = () => {
 
   // --- 5. Toggle Favorite (Optimistic Update) ---
   const toggleFavorite = async (id: string) => {
-    let token = localStorage.getItem("token")?.replace(/^"(.*)"$/, '$1') || "";
+    let token = localStorage.getItem("token")?.replace(/^"(.*)"$/, "$1") || "";
     if (!token) {
       toast.error(t("explore.loginRequired"));
       return;
     }
 
-    queryClient.setQueryData(['trips', urlSearch, urlFilter], (oldData: any) => {
-      if (!oldData) return oldData;
-      return {
-        ...oldData,
-        pages: oldData.pages.map((page: any) => ({
-          ...page,
-          items: page.items.map((trip: any) => {
-            if (trip.id === id) {
-              const isCurrentlySaved = trip.isFavorite || trip.isSaved;
-              return { ...trip, isFavorite: !isCurrentlySaved, isSaved: !isCurrentlySaved };
-            }
-            return trip;
-          })
-        }))
-      };
-    });
+    queryClient.setQueryData(
+      ["trips", urlSearch, urlFilter],
+      (oldData: any) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page: any) => ({
+            ...page,
+            items: page.items.map((trip: any) => {
+              if (trip.id === id) {
+                const isCurrentlySaved = trip.isFavorite || trip.isSaved;
+                return {
+                  ...trip,
+                  isFavorite: !isCurrentlySaved,
+                  isSaved: !isCurrentlySaved,
+                };
+              }
+              return trip;
+            }),
+          })),
+        };
+      },
+    );
 
     try {
-      const res = await fetch(`https://rahhal-api.runasp.net/TripManagement/SaveTrip`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+      const res = await fetch(
+        `https://rahhal-api.runasp.net/TripManagement/SaveTrip`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ tripId: id }),
         },
-        body: JSON.stringify({ tripId: id })
-      });
+      );
 
       const data = await res.json();
       if (!data.isSuccess) throw new Error(data.message);
-
     } catch (error) {
       console.error("Error updating trip:", error);
       toast.error(t("explore.updateFailed"));
-      queryClient.invalidateQueries({ queryKey: ['trips', urlSearch, urlFilter] });
+      queryClient.invalidateQueries({
+        queryKey: ["trips", urlSearch, urlFilter],
+      });
     }
   };
 
   return (
     <div className="min-h-screen relative pt-[140px] lg:pt-[150px]">
-
       {/* --- Sticky Top Header (Search & Filters) --- */}
       <div
-        className={`fixed top-16 start-0 end-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${isHeaderVisible ? "translate-y-0" : "-translate-y-[200px]"
-          }`}
+        className={`fixed top-16 start-0 end-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${
+          isHeaderVisible ? "translate-y-0" : "-translate-y-[200px]"
+        }`}
       >
         <div className="container mx-auto px-4 py-3">
           <div className="flex flex-col gap-3">
@@ -229,7 +260,11 @@ const Explore = () => {
                   className="ps-10 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700"
                 />
               </div>
-              <Button variant="outline" size="icon" className="shrink-0 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
+              <Button
+                variant="outline"
+                size="icon"
+                className="shrink-0 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
+              >
                 <SlidersHorizontal className="h-4 w-4" />
               </Button>
             </div>
@@ -237,7 +272,7 @@ const Explore = () => {
             {/* Horizontal Scrollable Filters */}
             <div
               className="flex overflow-x-auto pb-2 pt-1 gap-2.5 scrollbar-none [&::-webkit-scrollbar]:hidden"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               <Badge
                 variant={urlFilter === "ALL" ? "default" : "outline"}
@@ -245,7 +280,7 @@ const Explore = () => {
                   "cursor-pointer transition-all duration-300 whitespace-nowrap px-5 py-1.5 text-sm font-semibold rounded-full",
                   urlFilter === "ALL"
                     ? "bg-primary text-primary-foreground border-primary shadow-sm ring-2 ring-primary/20 dark:ring-primary/40 scale-[1.02]"
-                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700"
+                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700",
                 )}
                 onClick={() => handleFilterChange("ALL")}
               >
@@ -256,7 +291,10 @@ const Explore = () => {
                 const prefKey = pref.name?.toLowerCase().trim() || "";
                 const translatedName = t(`categories.${prefKey}`);
 
-                const displayName = translatedName !== `categories.${prefKey}` ? translatedName : pref.name;
+                const displayName =
+                  translatedName !== `categories.${prefKey}`
+                    ? translatedName
+                    : pref.name;
 
                 const isActive = urlFilter === pref.id;
 
@@ -268,7 +306,7 @@ const Explore = () => {
                       "cursor-pointer transition-all duration-300 whitespace-nowrap px-5 py-1.5 text-sm font-semibold rounded-full",
                       isActive
                         ? "bg-primary text-primary-foreground border-primary shadow-sm ring-2 ring-primary/20 dark:ring-primary/40 scale-[1.02]"
-                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700"
+                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700",
                     )}
                     onClick={() => handleFilterChange(pref.id)}
                   >
@@ -283,12 +321,18 @@ const Explore = () => {
 
       {/* Hero Section */}
       <section className="relative h-[280px] lg:h-[340px] overflow-hidden mx-2 sm:mx-4 rounded-3xl shadow-sm">
-        <img src={heroImage} alt="Travel" className="h-full w-full object-cover" />
+        <img
+          src={heroImage}
+          alt="Travel"
+          className="h-full w-full object-cover"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
           <div className="mb-3 flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 backdrop-blur-md border border-white/10">
             <Compass className="h-4 w-4 text-white" />
-            <span className="text-sm font-bold text-white">{t("explore.discoverTrips")}</span>
+            <span className="text-sm font-bold text-white">
+              {t("explore.discoverTrips")}
+            </span>
           </div>
           <h1 className="font-display text-4xl font-black text-white md:text-5xl drop-shadow-md">
             {t("explore.exploreWorld")}
@@ -297,10 +341,12 @@ const Explore = () => {
       </section>
 
       {/* Grid */}
-      <div className="px-4 sm:px-0 container mx-auto py-8">
+      <div className="px-4 container mx-auto py-8">
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
-            {isLoading ? t("explore.searching") : `${allTrips.length} ${t("explore.tripsLoaded")}`}
+          <p className="text-sm font-bold text-slate-500 dark:text-slate-400 sm:px-4">
+            {isLoading
+              ? t("explore.searching")
+              : `${allTrips.length} ${t("explore.tripsLoaded")}`}
           </p>
         </div>
 
@@ -369,7 +415,10 @@ const Explore = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => { setIsFabMenuOpen(false); navigate('/ai-planner'); }}
+              onClick={() => {
+                setIsFabMenuOpen(false);
+                navigate("/ai-planner");
+              }}
               className="flex items-center gap-2 rounded-2xl shadow-xl bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 text-sm font-bold transition-colors"
             >
               <span>{t("explore.createAITrip")}</span>
@@ -378,7 +427,10 @@ const Explore = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => { setIsFabMenuOpen(false); navigate('/create-trip'); }}
+              onClick={() => {
+                setIsFabMenuOpen(false);
+                navigate("/create-trip");
+              }}
               className="flex items-center gap-2 rounded-2xl shadow-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 px-5 py-3 text-sm font-bold transition-colors"
             >
               <span>{t("explore.createManualTrip")}</span>
@@ -413,11 +465,14 @@ const Explore = () => {
             stroke="currentColor"
             className="w-6 h-6 text-white"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 4.5v15m7.5-7.5h-15"
+            />
           </svg>
         </motion.div>
       </motion.button>
-
     </div>
   );
 };
