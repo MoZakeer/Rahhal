@@ -16,7 +16,7 @@ interface LoginFormProps {
 }
 
 function LoginForm({ onLoginSuccess }: LoginFormProps) {
-   usePageTitle("Login");
+  usePageTitle("Login");
   const { isPending, login } = useLogin();
   const navigate = useNavigate();
 
@@ -85,7 +85,10 @@ function LoginForm({ onLoginSuccess }: LoginFormProps) {
 
           <p className="text-center text-sm text-gray-600 dark:text-slate-400">
             Don’t have an account?{" "}
-            <Link to="/sign-up" className="text-primary-700 dark:text-blue-400 font-medium">
+            <Link
+              to="/sign-up"
+              className="text-primary-700 dark:text-blue-400 font-medium"
+            >
               Sign up
             </Link>
           </p>

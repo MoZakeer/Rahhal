@@ -6,15 +6,31 @@ function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div
       className="
-      min-h-screen flex flex-col md:flex-row items-center justify-center gap-2
-      relative overflow-hidden
-      bg-slate-50 dark:bg-slate-900
-      transition-colors duration-500
-    "
+        min-h-screen
+        flex items-center justify-center
+        md:flex-row
+        relative overflow-hidden
+        bg-slate-50 dark:bg-slate-900
+        transition-colors duration-500
+      "
     >
+      {/* BACK BUTTON */}
       <Link
         to="/"
-        className="absolute top-6 left-6 z-50 flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md hover:text-blue-600 dark:hover:text-blue-400 hover:scale-105 active:scale-95 shadow-sm transition-all duration-300"
+        className="
+          absolute top-5 left-5 z-50
+          flex items-center justify-center
+          w-10 h-10
+          rounded-xl
+          border border-gray-200 dark:border-slate-800
+          text-slate-500 dark:text-slate-400
+          bg-white/70 dark:bg-slate-900/70
+          backdrop-blur-md
+          hover:text-blue-600 dark:hover:text-blue-400
+          hover:scale-105 active:scale-95
+          shadow-sm
+          transition-all duration-300
+        "
         aria-label="Back to home"
       >
         <svg
@@ -33,17 +49,24 @@ function AuthLayout({ children }: { children: ReactNode }) {
         </svg>
       </Link>
 
-      {/* Background Blobs Dynamic */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-primary-200 dark:bg-blue-900 rounded-full mix-blend-multiply opacity-30 animate-blob"></div>
-      <div className="absolute top-1/4 right-0 w-64 h-64 bg-gray-200 dark:bg-slate-700 rounded-full mix-blend-multiply opacity-30 animate-blob animation-delay-2000"></div>
-      <div className="absolute bottom-0 left-20 w-80 h-80 bg-primary-100 dark:bg-blue-800 rounded-full mix-blend-multiply opacity-30 animate-blob animation-delay-4000"></div>
+      {/* BACKGROUND BLOBS -> Desktop Only */}
+      <div className="hidden md:block absolute top-0 left-0 w-72 h-72 bg-primary-200 dark:bg-blue-900 rounded-full mix-blend-multiply opacity-30 animate-blob"></div>
 
-      {/* LEFT SIDE */}
+      <div className="hidden md:block absolute top-1/4 right-0 w-64 h-64 bg-gray-200 dark:bg-slate-700 rounded-full mix-blend-multiply opacity-30 animate-blob animation-delay-2000"></div>
+
+      <div className="hidden md:block absolute bottom-0 left-20 w-80 h-80 bg-primary-100 dark:bg-blue-800 rounded-full mix-blend-multiply opacity-30 animate-blob animation-delay-4000"></div>
+
+      {/* LEFT SIDE -> Desktop Only */}
       <motion.div
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}
-        className="md:w-1/2 flex flex-col items-center justify-center p-2 relative z-10 mt-16 md:mt-0"
+        className="
+          hidden md:flex
+          md:w-1/2
+          flex-col items-center justify-center
+          p-2 relative z-10
+        "
       >
         <h2 className="text-4xl font-bold text-center text-gradient-blue-gray">
           Explore The World With Us
@@ -61,12 +84,19 @@ function AuthLayout({ children }: { children: ReactNode }) {
         />
       </motion.div>
 
-      {/* RIGHT SIDE (FORM) */}
+      {/* RIGHT SIDE */}
       <motion.div
         initial={{ x: 100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}
-        className="md:w-1/2 flex flex-col items-center justify-center p-6 relative z-10"
+        className="
+          w-full
+          md:w-1/2
+          flex items-center justify-center
+          px-5 pt-20 pb-5
+          md:p-6
+          relative z-10
+        "
       >
         <motion.div
           layout
@@ -77,7 +107,7 @@ function AuthLayout({ children }: { children: ReactNode }) {
             border border-gray-200 dark:border-slate-700
             rounded-2xl
             shadow-xl dark:shadow-black/40
-            p-10
+            p-5 sm:p-6 md:p-10
             transition-colors duration-500
           "
         >
