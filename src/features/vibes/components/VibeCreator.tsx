@@ -61,7 +61,7 @@ const VibeCreator = ({
       url,
       kind,
       existing: true,
-      mediaId: url, 
+      mediaId: url,
     }));
   });
 
@@ -192,9 +192,21 @@ const VibeCreator = ({
   return (
     <>
       <Dialog open onOpenChange={(o) => !o && onClose()}>
-        <DialogContent className="max-w-lg">
+        <DialogContent
+          className="
+            w-[95vw]
+            max-w-lg
+            rounded-2xl
+            border border-slate-200/70
+            dark:border-slate-800
+            bg-white
+            dark:bg-slate-900
+            p-4 sm:p-6
+            shadow-2xl
+          "
+        >
           <DialogHeader>
-            <DialogTitle className="font-display">
+            <DialogTitle className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
               {isEdit ? "Edit Vibe" : "Share a Vibe"}
             </DialogTitle>
           </DialogHeader>
@@ -204,16 +216,39 @@ const VibeCreator = ({
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="What's the vibe?"
-            className="min-h-[110px]"
+            className="
+              min-h-[120px]
+              resize-none
+              rounded-xl
+              border-slate-200
+              bg-slate-50
+              text-slate-800
+              placeholder:text-slate-400
+              focus-visible:ring-1
+              focus-visible:ring-blue-500
+              dark:border-slate-700
+              dark:bg-slate-800
+              dark:text-slate-100
+              dark:placeholder:text-slate-500
+            "
           />
 
           {/* MEDIA PREVIEW */}
           {media.length > 0 && (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               {media.map((m, i) => (
                 <div
                   key={i}
-                  className="relative aspect-square overflow-hidden rounded-lg border bg-muted"
+                  className="
+                    relative
+                    h-28 sm:h-32
+                    overflow-hidden
+                    rounded-xl
+                    border border-slate-200
+                    dark:border-slate-700
+                    bg-slate-100
+                    dark:bg-slate-800
+                  "
                 >
                   {m.kind === "image" ? (
                     <img
@@ -230,7 +265,15 @@ const VibeCreator = ({
 
                   <button
                     onClick={() => requestRemove(i)}
-                    className="absolute right-1 top-1 rounded bg-black/60 p-1 text-white"
+                    className="
+                          absolute right-2 top-2
+                          rounded-full
+                          bg-black/60
+                          backdrop-blur-md
+                          p-1.5
+                          text-white
+                          transition hover:bg-black/80
+                        "
                   >
                     <X size={14} />
                   </button>
@@ -240,24 +283,44 @@ const VibeCreator = ({
           )}
 
           {/* ACTIONS */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => imgInput.current?.click()}
-              disabled={isVideoSelected}
-            >
-              <ImageIcon size={16} /> Images
-            </Button>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => imgInput.current?.click()}
+                disabled={isVideoSelected}
+                className="
+                rounded-xl
+                border-slate-200
+                dark:border-slate-700
+                dark:bg-slate-800
+                dark:text-slate-200
+                dark:hover:bg-slate-700
+              "
+              >
+                <ImageIcon size={16} className="mr-2" />
+                Images
+              </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => vidInput.current?.click()}
-              disabled={media.length > 0}
-            >
-              <Video size={16} /> Video
-            </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => vidInput.current?.click()}
+                disabled={media.length > 0}
+                className="
+                  rounded-xl
+                  border-slate-200
+                  dark:border-slate-700
+                  dark:bg-slate-800
+                  dark:text-slate-200
+                  dark:hover:bg-slate-700
+                "
+              >
+                <Video size={16} className="mr-2" />
+                Video
+              </Button>
+            </div>
 
             <input
               ref={imgInput}
@@ -276,15 +339,34 @@ const VibeCreator = ({
               onChange={(e) => addVideo(e.target.files)}
             />
 
-            <div className="ml-auto flex gap-2">
-              <Button variant="ghost" onClick={onClose}>
+            <div className="flex gap-2 sm:ml-auto">
+              <Button
+                variant="ghost"
+                onClick={onClose}
+                className="
+                rounded-xl
+                dark:text-slate-300
+                dark:hover:bg-slate-800
+              "
+              >
                 Cancel
               </Button>
 
-              <Button onClick={handleSubmit} disabled={submitting}>
+              <Button
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="
+                rounded-xl
+                bg-blue-600
+                text-white
+                hover:bg-blue-700
+                dark:bg-blue-600
+                dark:hover:bg-blue-500
+              "
+              >
                 {submitting ? (
                   <>
-                    <Loader2 className="animate-spin" size={16} />
+                    <Loader2 className="mr-2 animate-spin" size={16} />
                     Saving...
                   </>
                 ) : isEdit ? (
@@ -303,18 +385,18 @@ const VibeCreator = ({
         open={confirmRemoveIdx !== null}
         onOpenChange={() => setConfirmRemoveIdx(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="dark:bg-slate-900 dark:border-slate-800">
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove media?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="dark:text-slate-100">Remove media?</AlertDialogTitle>
+            <AlertDialogDescription className="dark:text-slate-400">
               This will remove it after saving changes.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700">Cancel</AlertDialogCancel>
 
-            <AlertDialogAction
+            <AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white"
               onClick={() => {
                 if (confirmRemoveIdx !== null) {
                   removeMedia(confirmRemoveIdx);

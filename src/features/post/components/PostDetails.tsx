@@ -1719,7 +1719,7 @@ export default function PostDetails({ postId, initialData }: Props) {
       )}
 
       <CommentsModal
-        open={commentsOpen}
+        open={true} // open={commentsOpen}
         onClose={() => setCommentsOpen(false)}
         postId={postDetailsData.id}
         currentUserId={currentUserId}
