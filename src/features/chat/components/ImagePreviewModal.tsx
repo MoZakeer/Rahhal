@@ -1,15 +1,13 @@
 import { useEffect } from "react";
-
-import { BASE_URL } from "../../../utils/constant";
-import { getFileTypeFromUrl } from "../../../utils/helper";
-
-import type { Attachment } from "./MessageAttachments";
-
+import { createPortal } from "react-dom";
 import {
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
   HiOutlineXMark,
 } from "react-icons/hi2";
+import { BASE_URL } from "../../../utils/constant";
+import { getFileTypeFromUrl } from "../../../utils/helper";
+import type { Attachment } from "./MessageAttachments";
 
 type Props = {
   attachments: Attachment[];
@@ -29,11 +27,11 @@ function ImagePreviewModal({
   const isOpen = currentIndex !== null && attachments && attachments.length > 0;
 
   const hasNext = isOpen && currentIndex < attachments.length - 1;
-
   const hasPrev = isOpen && currentIndex > 0;
-
   useEffect(() => {
     if (!isOpen) return;
+
+    document.body.style.overflow = "hidden";
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -51,36 +49,37 @@ function ImagePreviewModal({
 
     window.addEventListener("keydown", handleKeyDown);
 
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = "";
+
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [isOpen, hasNext, hasPrev, onNext, onPrev, onClose]);
 
   if (!isOpen) return null;
-
   const currentAttachment = attachments[currentIndex];
-
   const fullUrl = `${BASE_URL}${currentAttachment.fileUrl}`;
-
   const fileType = getFileTypeFromUrl(currentAttachment.fileUrl);
-
   const isVideo = fileType === "video";
 
-  return (
+  return createPortal(
     <div
       className="
-        fixed inset-0 z-100
+        fixed inset-0 z-9999
         flex items-center justify-center
         bg-black/90 backdrop-blur-sm
         p-4 sm:p-10
       "
       onClick={onClose}
     >
+      {/* Close Button */}
       <button
         onClick={onClose}
         className="
           absolute top-4 right-4
           sm:top-6 sm:right-6
           text-white
-          hover:bg-black/40
+          hover:bg-white/10
           rounded-full
           p-2
           cursor-pointer
@@ -91,6 +90,7 @@ function ImagePreviewModal({
         <HiOutlineXMark className="w-6 h-6 sm:w-8 sm:h-8" />
       </button>
 
+      {/* Next Button */}
       {hasNext && (
         <button
           onClick={(e) => {
@@ -100,7 +100,7 @@ function ImagePreviewModal({
           className="
             absolute right-4 sm:right-10
             text-white
-            hover:bg-black/40
+            hover:bg-white/10
             rounded-full
             p-3
             transition-all duration-300
@@ -112,6 +112,7 @@ function ImagePreviewModal({
         </button>
       )}
 
+      {/* Prev Button */}
       {hasPrev && (
         <button
           onClick={(e) => {
@@ -121,7 +122,7 @@ function ImagePreviewModal({
           className="
             absolute left-4 sm:left-10
             text-white
-            hover:bg-black/40
+            hover:bg-white/10
             rounded-full
             p-3
             transition-all duration-300
@@ -133,6 +134,7 @@ function ImagePreviewModal({
         </button>
       )}
 
+      {/* Media */}
       {isVideo ? (
         <video
           key={currentAttachment.attachmentId}
@@ -142,7 +144,8 @@ function ImagePreviewModal({
           onClick={(e) => e.stopPropagation()}
           className="
             max-w-full max-h-full
-            rounded-lg shadow-2xl
+            rounded-2xl
+            shadow-2xl
             outline-none
           "
         />
@@ -155,24 +158,28 @@ function ImagePreviewModal({
           className="
             max-w-full max-h-full
             object-contain
-            rounded-lg shadow-2xl
+            rounded-2xl
+            shadow-2xl
             transition-opacity duration-300
           "
         />
       )}
 
+      {/* Counter */}
       <div
         className="
           absolute bottom-6
           text-white text-sm
-          bg-black/50
+          bg-white/10
+          backdrop-blur-md
           px-4 py-1.5
           rounded-full
         "
       >
         {currentIndex + 1} / {attachments.length}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

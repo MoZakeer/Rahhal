@@ -297,20 +297,9 @@ function Message({
               </div>
             )}
           <FaChevronDown
-            className={`
-              hidden
-              sm:flex
-              absolute top-1 right-1
-              opacity-0
-              group-hover:opacity-100
-              transition-all duration-200
-              text-3xl
-              cursor-pointer
-              z-50
-              pb-3 pl-2
-              ${!isSeen ? "text-primary-600" : "text-gray-100"}
-              font-bold
-            `}
+            className={`hidden sm:flex absolute top-1 right-1 opacity-0
+              group-hover:opacity-100 transition-all duration-200 text-3xl cursor-pointer z-50 pb-3 pl-2 font-bold
+              ${isSeen ? "text-slate-200" : "text-primary-600"}`}
             onClick={() => {
               setOpenedReactionId(null);
               setOpenedMenuId((prev) =>
@@ -545,7 +534,7 @@ function Message({
             {isSend && (
               <IoCheckmarkDoneSharp
                 size={14}
-                className={`${isSeen ? "text-primary-400" : "text-gray-400"}`}
+                className={isSeen ? "text-primary-100" : "text-black/60"}
               />
             )}
           </div>

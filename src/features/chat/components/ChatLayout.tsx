@@ -23,7 +23,7 @@ function ChatLayout() {
       </aside>
 
       <main
-        className={`h-full w-full flex-col min-h-0 bg-gray-50 ${
+        className={`h-full w-full flex-col min-h-0 bg-gray-50 dark:bg-gray-100 ${
           !inChat ? "hidden md:flex" : "flex"
         }`}
       >
