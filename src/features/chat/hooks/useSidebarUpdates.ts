@@ -4,7 +4,6 @@ import { useParams } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { type ChatType } from "../types/chatType";
 import { useRealtime } from "@/context/RealtimeContext";
-
 export type UpdateSidebarData = {
   conversationId: string;
   lastMessageContent: string;
@@ -19,6 +18,17 @@ type TypingSidebarData = {
   userName: string;
   isTyping: boolean;
 };
+type ReactSidebarData = {
+  conversationId: string;
+  messageId: string;
+  messageContent: string;
+  messageType: number;
+  messageSenderName: string;
+  reactionInfo: {
+    reacterName: string;
+    emoji: string;
+  } | null;
+};
 export const useSidebarUpdates = function () {
   const queryClient = useQueryClient();
   const { chatConnection: connection } = useRealtime();
@@ -30,7 +40,6 @@ export const useSidebarUpdates = function () {
     if (!connection) return;
 
     const handleUpdateSidebar = function (data: UpdateSidebarData) {
-      console.log(data);
       queryClient.setQueryData<{ data: ChatType[] }>(
         ["all-chats"],
         (oldData) => {
@@ -102,9 +111,35 @@ export const useSidebarUpdates = function () {
         };
       });
     };
-    // const handleLastMessageSeen = function (data: UpdateSidebarData) {
-    //   // console.log(data);
-    // };
+    const handleReactSidebar = function (data: ReactSidebarData) {
+      queryClient.setQueryData<{ data: ChatType[] }>(
+        ["all-chats"],
+        (oldData) => {
+          if (!oldData?.data) {
+            return oldData;
+          }
+          const chats = [...oldData.data];
+          const index = chats.findIndex(
+            (chat) => chat.conversationId === data.conversationId,
+          );
+          if (index > -1) {
+            const updatedChat: ChatType = {
+              ...chats[index],
+              lastMessageContent: data.messageContent,
+              lastMessageType: data.messageType,
+              lastMessageSender: data.messageSenderName,
+              reactionInfo: data.reactionInfo,
+            };
+            chats[index] = updatedChat;
+          }
+
+          return {
+            ...oldData,
+            data: chats,
+          };
+        },
+      );
+    };
     const handleDeleteSidebarMessage = function (data: UpdateSidebarData) {
       queryClient.setQueryData<{ data: ChatType[] }>(
         ["all-chats"],
@@ -134,7 +169,6 @@ export const useSidebarUpdates = function () {
         },
       );
     };
-
     const handleSidebarTyping = (data: TypingSidebarData) => {
       queryClient.setQueryData<{ data: ChatType[] }>(
         ["all-chats"],
@@ -165,14 +199,14 @@ export const useSidebarUpdates = function () {
     connection.on("UpdateSidebar", handleUpdateSidebar);
     connection.on("UpdateUnreadCount", handleUpdateUnreadCount);
     connection.on("NewChatCreated", handleNewChat);
-    // connection.on("UpdateSeenMark", handleLastMessageSeen);
+    connection.on("ReactSidebar", handleReactSidebar);
     connection.on("DeleteLastMessage", handleDeleteSidebarMessage);
     connection.on("UserTyping", handleSidebarTyping);
     return () => {
       connection.off("UpdateSidebar", handleUpdateSidebar);
       connection.off("UpdateUnreadCount", handleUpdateUnreadCount);
       connection.off("NewChatCreated", handleNewChat);
-      // connection.off("UpdateSeenMark", handleLastMessageSeen);
+      connection.off("ReactSidebar", handleReactSidebar);
       connection.off("DeleteLastMessage", handleDeleteSidebarMessage);
       connection.off("UserTyping", handleSidebarTyping);
     };

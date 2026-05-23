@@ -14,4 +14,8 @@ export type ChatType = {
   messageType: number;
   isTyping?: boolean;
   typingUserName?: string;
+  reactionInfo?: {
+    reacterName: string;
+    emoji: string;
+  } | null;
 };
