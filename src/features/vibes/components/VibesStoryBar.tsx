@@ -190,77 +190,109 @@ const VibesStoryBar = ({
 
   // ---------------- RENDER ----------------
   return (
-    <div className="rounded-xl border border-gray-50 bg-card/60 p-3 shadow-card ">
-      {/* HEADER */}
-      <div className="mb-2 flex items-center justify-between px-1">
-        <h3 className="font-display text-sm font-semibold">
-          Vibes
-        </h3>
+  <div
+    className="
+      rounded-2xl
+      border border-slate-200/70
+      dark:border-slate-700/60
+      bg-white/80
+      dark:bg-slate-900
+      
+      p-3
+      shadow-sm
+      dark:shadow-black/20
+      transition-colors duration-300
+    "
+  >
+    {/* HEADER */}
+    <div className="mb-3 flex items-center justify-between px-1">
+      <h3
+        className="
+          font-display text-sm font-semibold
+          text-slate-800
+          dark:text-slate-100
+        "
+      >
+        Vibes
+      </h3>
 
-        {groups.length > 0 && (
-          <button
-            onClick={openAll}
-            className="text-xs font-medium text-primary hover:underline"
-          >
-            View All
-          </button>
-        )}
-      </div>
-
-      {/* AVATARS */}
-      <div className="flex gap-3 overflow-x-auto pb-1">
-        {canPost && (
-          <VibeAvatarRing
-            variant="add"
-            label="Add Vibe"
-            fallback="+"
-            onClick={() => setCreatorOpen(true)}
-          />
-        )}
-
-        {groups.map((g, i) => (
-          <VibeAvatarRing
-            key={g.userId}
-            variant="user"
-            src={g.userAvatar}
-            fallback={initials(g.userName)}
-            label={g.userName.split(" ")[0]}
-            seen={isGroupSeen(g)}
-            onClick={() => openGroup(i)}
-          />
-        ))}
-
-        {groups.length === 0 && !canPost && (
-          <p className="px-2 py-4 text-xs text-muted-foreground">
-            No vibes shared yet.
-          </p>
-        )}
-      </div>
-
-      {/* CREATOR */}
-      {creatorOpen && (
-        <VibeCreator
-          tripId={tripId}
-          currentUserId={currentUserId ?? "user-1"}
-          currentUserName={currentUserName ?? "You"}
-          currentUserAvatar={currentUserAvatar ?? ""}
-          onClose={() => setCreatorOpen(false)}
-        />
-      )}
-
-      {/* VIEWER */}
-      {viewer && (
-        <FullVibeViewer
-          groups={viewer.groups}
-          startGroupIndex={viewer.groupIndex}
-          currentUserId={currentUserId ?? null}
-          tripOwnerId={trip.ownerId}
-          onClose={() => setViewer(null)}
-          onVibeUpdate={handleVibeUpdate}
-        />
+      {groups.length > 0 && (
+        <button
+          onClick={openAll}
+          className="
+            text-xs font-medium
+            text-blue-600
+            dark:text-blue-400
+            hover:text-blue-700
+            dark:hover:text-blue-300
+            transition-colors
+          "
+        >
+          View All
+        </button>
       )}
     </div>
-  );
+
+    {/* AVATARS */}
+    <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
+      {canPost && (
+        <VibeAvatarRing
+          variant="add"
+          label="Add Vibe"
+          fallback="+"
+          onClick={() => setCreatorOpen(true)}
+        />
+      )}
+
+      {groups.map((g, i) => (
+        <VibeAvatarRing
+          key={g.userId}
+          variant="user"
+          src={g.userAvatar}
+          fallback={initials(g.userName)}
+          label={g.userName.split(" ")[0]}
+          seen={isGroupSeen(g)}
+          onClick={() => openGroup(i)}
+        />
+      ))}
+
+      {groups.length === 0 && !canPost && (
+        <p
+          className="
+            px-2 py-4 text-xs
+            text-slate-500
+            dark:text-slate-400
+          "
+        >
+          No vibes shared yet.
+        </p>
+      )}
+    </div>
+
+    {/* CREATOR */}
+    {creatorOpen && (
+      <VibeCreator
+        tripId={tripId}
+        currentUserId={currentUserId ?? "user-1"}
+        currentUserName={currentUserName ?? "You"}
+        currentUserAvatar={currentUserAvatar ?? ""}
+        onClose={() => setCreatorOpen(false)}
+      />
+    )}
+
+    {/* VIEWER */}
+    {viewer && (
+      <FullVibeViewer
+        groups={viewer.groups}
+        startGroupIndex={viewer.groupIndex}
+        currentUserId={currentUserId ?? null}
+        tripOwnerId={trip.ownerId}
+        onClose={() => setViewer(null)}
+        onVibeUpdate={handleVibeUpdate}
+      />
+    )}
+  </div>
+);
 };
 
 export default VibesStoryBar;

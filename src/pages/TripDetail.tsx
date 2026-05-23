@@ -394,7 +394,7 @@ const TripDetail = () => {
   ).length;
 
   return (
-    <div className="relative min-h-screen pb-12">
+    <div className="relative min-h-screen pb-12 bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
       <div className="transition-all duration-300">
         {/* Hero image */}
         <Dialog>
