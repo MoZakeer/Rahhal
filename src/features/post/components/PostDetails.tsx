@@ -1398,7 +1398,7 @@ export default function PostDetails({ postId, initialData }: Props) {
   const [openModal, setOpenModal] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [openLikes, setOpenLikes] = useState(false);
-  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [_commentsOpen, setCommentsOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
   // 1. Fetch Post Data
