@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export function PostContent({
   description,
@@ -7,6 +8,7 @@ export function PostContent({
   description?: string | null;
   className?: string;
 }) {
+  const { t } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const MAX_LENGTH = 150;
@@ -33,7 +35,7 @@ export function PostContent({
           }}
           className="mx-2 cursor-pointer text-slate-500 dark:text-slate-500 text-sm font-medium hover:text-slate-700"
         >
-          {isExpanded ? " " : "see more"}
+          {isExpanded ? " " : t("feed.seeMore")}
         </span>
       )}
     </p>

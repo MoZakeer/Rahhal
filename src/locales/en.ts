@@ -269,7 +269,7 @@ export const en = {
       createPostPlaceholder: "What's your next adventure?...",
       postBtn: "Publish",
       mediaAlt: "Media preview",
-
+      seeMore: "see more",
       likeBtn: "Like",
       unlikeBtn: "Unlike",
       commentBtn: "Add a comment",
@@ -339,6 +339,10 @@ export const en = {
 
       // Likes List
       noLikes: "No likes yet 🤍",
+
+      retry: "Retry",
+      noPostsYet: "No travel stories to show right now.",
+      endOfFeed: "You've caught up with all the stories!"
    },
    postCard: {
       "deleteSuccess": "Deleting post!",
@@ -363,6 +367,175 @@ export const en = {
       removeHistory: "Remove from history",
       createPostPlaceholder: "What's your next adventure?...",
       postBtn: "Post",
+   },
+   landingPage: {
+      exploreWorld: "Explore the world with RAHHAL",
+      heroTitle1: "Travel, Share, ",
+      heroTitle2: "Make Memories",
+      heroSubtitle: "Your ultimate social travel companion. Join groups, share your adventures, and connect with like-minded explorers.",
+      planTrip: "Plan Your Trip",
+      plan: "Plan",
+      exploreGroups: "Explore Groups",
+      explore: "Explore",
+      mock: {
+         userName: "Mahmoud",
+         timeLocation: "2 hours ago • Hurghada, Egypt",
+         featured: "Featured",
+         postText: "Just arrived at the Red Sea! The view is absolutely breathtaking. Who's ready for some diving tomorrow? 🌊🤿",
+         comments: "24 Comments",
+         share: "Share",
+         tripGroup: "Trip Group",
+         groupMessage: "We meet at 8 AM!",
+         perfectMatch: "Perfect Match",
+         compatibility: "95% Compatibility",
+      },
+      features: {
+         badge: "Your Journey Starts Here",
+         title1: "Everything You Need",
+         title2: "for Epic Adventures",
+         subtitle: "From AI-powered planning to real-time coordination, RAHHAL has all the tools to make your travel dreams a reality.",
+         cta: "Start Planning Now",
+         tabs: {
+            map: {
+               title: "Pick Your Destination",
+               desc: "Search for your dream location or browse trending spots. Click on any map pin to explore and instantly join active trips."
+            },
+            ai: {
+               title: "Let AI Plan Your Route",
+               desc: "Our AI analyzes thousands of data points to build a personalized day-by-day itinerary just for you."
+            },
+            chat: {
+               title: "Find Your Travel Buddies",
+               desc: "Post your trip to the community or invite friends. Manage expenses and chat in one place."
+            },
+            vibes: {
+               title: "Share Your Vibes",
+               desc: "Document your adventures using our immersive fullscreen travel stories. Inspire others to explore the world."
+            }
+         },
+         mockups: {
+            map: {
+               clusters: "Destination Clusters",
+               travelers: "Travelers",
+               join: "Join",
+               joined: "Joined",
+               pins: {
+                  p1: { name: "Red Sea Diving ", destination: "Hurghada", date: "25 May", creator: "Ahmed M.", prefs: ["Diving", "Sea"] },
+                  p2: { name: "Camping & Chill", destination: "Dahab", date: "29 May", creator: "Sara T.", prefs: ["Camping", "Chill"] },
+                  p3: { name: "Siwa Oasis", destination: "Siwa", date: "1 Jun", creator: "Kareem", prefs: ["Culture", "Oasis"] },
+                  p4: { name: "Mountain Hiking", destination: "St. Catherine", date: "10 Jun", creator: "Omar", prefs: ["Hiking", "Nature"] },
+                  p5: { name: "Historical Tour", destination: "Luxor", date: "15 Jun", creator: "Nour", prefs: ["History", "Tour"] }
+               }
+            },
+            ai: {
+               badge: "AI Generated Itinerary",
+               d1Title: "Day 1: Arrival & City Vibes",
+               d1i1: "09:00 AM - Hotel Check-in & Rest",
+               d1i2: "11:30 AM - National Museum Tour",
+               d1i3: "07:00 PM - Traditional Dinner at Old Souq",
+               d2Title: "Day 2: Epic Adventure Mode",
+               d2i1: "08:00 AM - 4x4 Desert Safari & Sandboarding",
+               d2i2: "02:00 PM - Authentic Bedouin Lunch",
+               d2i3: "06:00 PM - Sunset Stargazing Camp",
+               d3Title: "Day 3: Relaxation & Departure",
+               d3i1: "10:00 AM - Spa & Wellness Center",
+               d3i2: "01:00 PM - Souvenir Shopping"
+            },
+            chat: {
+               title: "Alexandria trip",
+               members: "8 Members",
+               date: "14 May 2026",
+               user1: "yasmina",
+               msg1: "heyy",
+               msg2: "Almost there 😃",
+               user3: "Zaker",
+               msg3: "We will gather at 8",
+               msg4: "😍 get readyyyy",
+               input: "Write a message..."
+            },
+            vibes: {
+               user: "User",
+               time: "May 19, 07:34 AM",
+               caption: "Enjoying the vibe 🌊",
+               reply: "Reply to User..."
+            }
+         }
+      },
+      cta: {
+         pageTitle: "RAHHAL – Your Ultimate Travel Companion",
+         title1: "Ready to Start Your ",
+         title2: "Adventure?",
+         subtitle: "Join thousands of travelers who are already exploring the world together. Your next great adventure is just one click away.",
+         button: "Join RAHHAL"
+      }
+   },
+   footer: {
+      description: "The social platform for modern travelers. Plan smarter, travel further, and share your adventures with the world.",
+      company: "Company",
+      support: "Support",
+      aboutUs: "About Us",
+      careers: "Careers",
+      blog: "Blog",
+      contact: "Contact",
+      helpCenter: "Help Center",
+      safety: "Safety",
+      termsOfService: "Terms of Service",
+      privacyPolicy: "Privacy Policy",
+      rights: "Rahhal Inc. All rights reserved.",
+      country: "Egypt",
+      language: "English"
+   },
+   comment: {
+      fetchCommentsError: "Failed to fetch comments: ",
+      fetchRepliesError: "Failed to fetch replies: ",
+      save: "Save",
+      cancel: "Cancel",
+      edit: "Edit",
+      delete: "Delete",
+      report: "Report",
+      likeError: "Failed to like comment: ",
+      likes: "Likes",
+      reply: "Reply",
+      hideReplies: "Hide replies",
+      viewReplies: "View {{count}} replies",
+      noRepliesYet: "No replies yet",
+      replyingTo: "Replying to ",
+      writeReply: "Write a reply...",
+      replying: "Replying...",
+      noCommentsYet: "No comments yet",
+      addComment: "Add a comment...",
+      adding: "Adding...",
+      add: "Add"
+   },
+   postDetails: {
+      userPost: "{{name}}'s post",
+      fallbackTitle: "Post Details",
+      loading: "Loading...",
+      notFound: "Post not found",
+      shareDefaultText: "Check out this adventure on RAHHAL!",
+      shareTitle: "{{name}}'s trip on RAHHAL",
+      linkCopied: "Link copied successfully!",
+      copyError: "Failed to copy link",
+      likesCount: "{{count}} likes",
+      shareVia: "Share via...",
+      whatsapp: "WhatsApp",
+      facebook: "Facebook",
+      x: "X",
+      copy: "Copy",
+      more: "More",
+      likesTitle: "Likes",
+      close: "Close"
+   },
+   postHeader: {
+      follow: "Follow",
+      following: "Following",
+      edit: "Edit",
+      delete: "Delete",
+      report: "Report",
+      justNow: "Just now",
+      mAgo: "m ago",
+      hAgo: "h ago",
+      dAgo: "d ago"
    }
 
 };

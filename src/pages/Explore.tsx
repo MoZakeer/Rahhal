@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import {
   Search,
-  SlidersHorizontal,
   Compass,
   Loader2,
   Sparkles,
   PenLine,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import TripCard from "@/components/TripCard";
 import heroImage from "@/assets/hero-travel.jpg";
@@ -260,13 +259,13 @@ const Explore = () => {
                   className="ps-10 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700"
                 />
               </div>
-              <Button
+              {/* <Button
                 variant="outline"
                 size="icon"
                 className="shrink-0 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
               >
                 <SlidersHorizontal className="h-4 w-4" />
-              </Button>
+              </Button> */}
             </div>
 
             {/* Horizontal Scrollable Filters */}

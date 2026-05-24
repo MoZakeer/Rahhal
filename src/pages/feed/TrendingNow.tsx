@@ -11,18 +11,22 @@ interface TrendingTrip {
   amount: number;
 }
 
-export default function TrendingNow() {
+interface TrendingNowProps {
+  variant?: "desktop" | "mobile";
+}
+
+export default function TrendingNow({ variant = "desktop" }: TrendingNowProps) {
   const { t, language } = useLanguage();
   const isRtl = language === "ar";
 
   const [trendingTrips, setTrendingTrips] = useState<TrendingTrip[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchTrendingTrips = async () => {
       try {
         const token = localStorage.getItem("token");
-
         const response = await fetch(
           "https://rahhal-api.runasp.net/TripManagement/MostRelevantTrips",
           {
@@ -49,6 +53,65 @@ export default function TrendingNow() {
     fetchTrendingTrips();
   }, []);
 
+  // ==========================================
+  // تصميم الموبايل (أفقي - Horizontal Scroll)
+  // ==========================================
+  if (variant === "mobile") {
+    return (
+      <div className="w-full py-3 overflow-hidden" dir={isRtl ? "rtl" : "ltr"}>
+        <div className="flex items-center justify-between px-4 sm:px-6 mb-3">
+          <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm flex items-center gap-1.5">
+            <Flame className="w-4 h-4 text-sky-500" />
+            {t("feed.trendingTitle")}
+          </h3>
+          <TrendingUp className="w-4 h-4 text-slate-400" />
+        </div>
+
+        {/* الحاوية الأفقية القابلة للسحب */}
+        <div className="flex overflow-x-auto gap-3 px-4 sm:px-6 pb-2 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {loading ? (
+            // Skeleton للموبايل
+            [1, 2, 3].map((i) => (
+              <div key={i} className="shrink-0 w-48 h-14 rounded-2xl overflow-hidden">
+                <Skeleton height="100%" />
+              </div>
+            ))
+          ) : trendingTrips.length > 0 ? (
+            trendingTrips.slice(0, 5).map((trip, index) => (
+              <div
+                key={trip.city}
+                onClick={() => navigate(`/explore?q=${trip.city}`)}
+                className="snap-start shrink-0 flex items-center gap-3 p-2 pr-4 bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/50 rounded-2xl shadow-sm hover:border-blue-500/50 transition-colors cursor-pointer"
+                style={{ paddingLeft: isRtl ? '1rem' : '0.5rem', paddingRight: isRtl ? '0.5rem' : '1rem' }}
+              >
+                <div className={cn(
+                  "flex items-center justify-center w-10 h-10 rounded-xl font-bold text-sm",
+                  index === 0 ? "bg-blue-600 text-white shadow-md" : 
+                  index === 1 ? "bg-sky-400 text-white shadow-md" : 
+                  "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
+                )}>
+                  #{index + 1}
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-tight">
+                    {trip.city}
+                  </span>
+                  <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 flex items-center gap-0.5 mt-0.5">
+                    <ArrowUpRight className={cn("w-3 h-3", isRtl && "rotate-180")} />
+                    {trip.amount} {t("feed.activeTrip")}
+                  </span>
+                </div>
+              </div>
+            ))
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // تصميم الديسكتوب (عمودي - Vertical List)
+  // ==========================================
   return (
     <div
       className="relative overflow-hidden bg-white/70 dark:bg-slate-900/70 backdrop-blur-md p-6 rounded-3xl border border-slate-200/60 dark:border-slate-800/60 shadow-xl transition-all duration-300"
