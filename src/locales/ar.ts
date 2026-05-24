@@ -478,6 +478,28 @@ export const ar = {
       rights: "شركة رحّال. جميع الحقوق محفوظة.",
       country: "مصر",
       language: "العربية"
+   },
+   comment: {
+      fetchCommentsError: "فشل في جلب التعليقات: ",
+      fetchRepliesError: "فشل في جلب الردود: ",
+      save: "حفظ",
+      cancel: "إلغاء",
+      edit: "تعديل",
+      delete: "حذف",
+      report: "إبلاغ",
+      likeError: "فشل في الإعجاب بالتعليق: ",
+      likes: "الإعجابات",
+      reply: "رد",
+      hideReplies: "إخفاء الردود",
+      viewReplies: "عرض {{count}} من الردود",
+      noRepliesYet: "لا توجد ردود بعد",
+      replyingTo: "رد على ",
+      writeReply: "اكتب رداً...",
+      replying: "جاري الرد...",
+      noCommentsYet: "لا توجد تعليقات بعد",
+      addComment: "أضف تعليقاً...",
+      adding: "جاري الإضافة...",
+      add: "إضافة"
    }
 
 };

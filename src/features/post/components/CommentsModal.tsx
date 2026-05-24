@@ -9,6 +9,7 @@ import MyEmojiPicker from "../../chat/components/EmojiPicker";
 import { HiOutlineFaceSmile } from "react-icons/hi2";
 import { LikesList } from "./LikesList";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { useLanguage } from "@/context/LanguageContext";
 import toast from "react-hot-toast";
 type CommentItem = {
   commentId: string;
@@ -41,9 +42,9 @@ type CommentsModalProps = {
   currentUserId: string;
 };
 
-function formatDate(dateStr: string) {
+function formatDate(dateStr: string, language: string) {
   const date = new Date(dateStr);
-  return date.toLocaleString([], { dateStyle: "short", timeStyle: "short" });
+  return date.toLocaleString(language === "ar" ? "ar-EG" : "en-US", { dateStyle: "short", timeStyle: "short" });
 }
 
 export function CommentsModal({
@@ -51,6 +52,9 @@ export function CommentsModal({
   postId,
   currentUserId,
 }: CommentsModalProps) {
+  const { t, language } = useLanguage();
+  const isRtl = language === "ar";
+
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [newComment, setNewComment] = useState("");
@@ -430,40 +434,32 @@ export function CommentsModal({
           <div className="flex items-start gap-2 flex-wrap">
             <div className="flex-1 min-w-0">
               {editingId === id ? (
-                <div className="flex flex-col sm:flex-row gap-2 w-full pb-2">
-                  {" "}
+                <div className="flex flex-col sm:flex-row gap-2 w-full pb-2 min-h-[40px]">
                   <textarea
                     rows={1}
                     className="flex-1 min-w-0 rounded-2xl border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none"
                     value={editText}
                     onChange={(e) => setEditText(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" && e.shiftKey) {
-                        return;
-                      }
-
-                      if (
-                        e.key === "Enter" &&
-                        editText.trim() &&
-                        !addCommentMutation.isPending
-                      ) {
+                      if (e.key === "Enter" && e.shiftKey) return;
+                      if (e.key === "Enter" && editText.trim() && !addCommentMutation.isPending) {
                         e.preventDefault();
                         handleEdit(id);
                       }
                     }}
                   />
-                  <div className="flex justify-end gap-2 ">
+                  <div className={`flex gap-2 ${isRtl ? 'justify-start' : 'justify-end'}`}>
                     <button
                       onClick={() => handleEdit(id)}
                       className="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full bg-slate-900 dark:bg-blue-600 text-white"
                     >
-                      Save
+                      {t("comment.save")}
                     </button>
                     <button
                       onClick={() => setEditingId(null)}
                       className="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300"
                     >
-                      Cancel
+                      {t("comment.cancel")}
                     </button>
                   </div>
                 </div>
@@ -507,37 +503,38 @@ export function CommentsModal({
                 </div>
               )}
               {menuOpenMap[menuKey] && (
-                <div className="absolute right-0 mt-2 z-50 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-lg w-36 overflow-hidden">
+                // استخدام isRtl عشان نحدد القائمة تفتح يمين ولا شمال
+                <div className={`absolute ${isRtl ? 'left-0' : 'right-0'} mt-2 z-50 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-lg w-36 overflow-hidden`}>
                   <div className="flex flex-col">
                     {comment.profileId === currentUserId ? (
                       <>
                         <button
-                          className="w-full px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-200 text-left transition-colors"
+                          className={`w-full px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-200 transition-colors ${isRtl ? 'text-right' : 'text-left'}`}
                           onClick={() => {
                             setEditingId(id);
                             setEditText(comment.description);
                             closeAllMenus();
                           }}
                         >
-                          Edit
+                          {t("comment.edit")}
                         </button>
                         <button
-                          className="w-full px-4 py-2.5 text-sm hover:bg-red-50 dark:hover:bg-red-500/10 text-left text-red-500 dark:text-red-400 transition-colors"
+                          className={`w-full px-4 py-2.5 text-sm hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 dark:text-red-400 transition-colors ${isRtl ? 'text-right' : 'text-left'}`}
                           onClick={() => handleDelete(id, parentId)}
                         >
-                          Delete
+                          {t("comment.delete")}
                         </button>
                       </>
                     ) : (
                       <button
-                        className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                        className={`flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors ${isRtl ? 'text-right flex-row-reverse' : 'text-left'}`}
                         onClick={() => {
                           toggleMenu(menuKey);
                           setIsReportOpen(true);
                         }}
                       >
                         <Flag className="w-4 h-4" />
-                        Report
+                        <span>{t("comment.report")}</span>
                       </button>
                     )}
                   </div>
@@ -547,7 +544,7 @@ export function CommentsModal({
           </div>
 
           <div className="mt-1 flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
-            <span>{formatDate(comment.createdDate)}</span>
+            <span>{formatDate(comment.createdDate, language)}</span>
             <div className="flex items-center gap-1">
               <button
                 onClick={() => handleLike(id, parentId)}
@@ -605,13 +602,13 @@ export function CommentsModal({
                         open: false,
                       })
                     }
-                    className="absolute top-3 right-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
+                    className={`absolute top-3 ${isRtl ? 'left-3' : 'right-3'} text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100`}
                   >
                     ✕
                   </button>
 
                   <h3 className="text-lg font-semibold mb-4 text-slate-900 dark:text-slate-100">
-                    Likes
+                    {t("comment.likes")}
                   </h3>
 
                   <LikesList type="comment" id={likesModal.id} />
@@ -640,10 +637,14 @@ export function CommentsModal({
                   ...prev,
                   [mainParentId]: true,
                 }));
+                
+                setTimeout(() => {
+                  document.getElementById(`reply-input-${mainParentId}`)?.focus();
+                }, 100);
               }}
               className="font-medium hover:text-slate-900 dark:hover:text-slate-200 transition-colors"
             >
-              Reply
+              {t("comment.reply")}
             </button>
           </div>
 
@@ -655,8 +656,8 @@ export function CommentsModal({
               >
                 <span className="h-px w-8 bg-slate-300 dark:bg-slate-600" />
                 {repliesOpenMap[id]
-                  ? "Hide replies"
-                  : `View ${comment.repliesCount} replies`}
+                  ? t("comment.hideReplies")
+                  : t("comment.viewReplies").replace("{{count}}", comment.repliesCount.toString())}
               </button>
             </div>
           )}
@@ -674,8 +675,8 @@ export function CommentsModal({
                 {!repliesMap[id] ? (
                   <div className="text-xs text-slate-500 py-2"></div>
                 ) : repliesMap[id].length === 0 ? (
-                  <div className="text-xs text-slate-500 dark:text-slate-400 py-2">
-                    No replies yet
+                  <div className={`text-xs text-slate-500 dark:text-slate-400 py-2 ${isRtl ? 'text-right' : 'text-left'}`}>
+                    {t("comment.noRepliesYet")}
                   </div>
                 ) : (
                   repliesMap[id].map((r) => renderComment(r, id))
@@ -687,7 +688,7 @@ export function CommentsModal({
           {replyingTo === (parentId ?? id) && !parentId && (
             <div className="mt-3 w-full">
               <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">
-                Replying to{" "}
+                {t("comment.replyingTo")}{" "}
                 <span className="font-semibold text-slate-700 dark:text-slate-300">
                   @{replyingToName}
                 </span>
@@ -706,6 +707,7 @@ export function CommentsModal({
                   </button>
 
                   <textarea
+                    id={`reply-input-${parentId ?? id}`}
                     value={toDisplayText(replyText)}
                     onChange={(e) => {
                       const HIDDEN = "\u200B";
@@ -753,14 +755,13 @@ export function CommentsModal({
                         handleAddComment(id);
                       }
                     }}
-                    placeholder="Write a reply..."
+                    placeholder={t("comment.writeReply")}
                     rows={1}
                     className="flex-1 min-w-0 rounded-2xl border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 px-4 py-2 text-sm outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none"
                   />
                 </div>
 
-                {/* Row 2: Action buttons (right-aligned) */}
-                <div className="flex items-center justify-end gap-1.5 pl-8">
+                <div className={`flex items-center justify-end gap-1.5 ${isRtl ? 'pr-8' : 'pl-8'}`}>
                   <button
                     onClick={() => {
                       setReplyingTo(null);
@@ -769,7 +770,7 @@ export function CommentsModal({
                     }}
                     className="flex-shrink-0 text-xs font-semibold px-3 py-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
                   >
-                    Cancel
+                    {t("comment.cancel")}
                   </button>
 
                   <button
@@ -782,8 +783,8 @@ export function CommentsModal({
                     }`}
                   >
                     {addCommentMutation.isPending && actionType === "reply"
-                      ? "Replying..."
-                      : "Reply"}
+                      ? t("comment.replying")
+                      : t("comment.reply")}
                   </button>
                 </div>
 
@@ -821,8 +822,8 @@ export function CommentsModal({
   };
 
   return (
-    <div className="w-full   border-slate-50 dark:border-slate-700/50 bg-white dark:bg-slate-800  overflow-hidden">
-      <div className="max-h-[60vh] overflow-y-auto px-4  space-y-5 custom-scrollbar">
+    <div className="w-full border-slate-50 dark:border-slate-700/50 bg-white dark:bg-slate-800 overflow-hidden">
+      <div className="max-h-[60vh] overflow-y-auto px-4 space-y-5 custom-scrollbar">
         {loading ? (
           <div className="space-y-4 dark:opacity-60 transition-opacity">
             <Skeleton height={15} count={3} />
@@ -830,7 +831,7 @@ export function CommentsModal({
           </div>
         ) : comments.length === 0 ? (
           <div className="text-center text-slate-500 dark:text-slate-400">
-            No comments yet
+            {t("comment.noCommentsYet")}
           </div>
         ) : (
           comments.map((c) => renderComment(c))
@@ -838,7 +839,8 @@ export function CommentsModal({
         <div ref={commentsEndRef} />
       </div>
 
-      <div className="relative w-full border-t border-slate-100 dark:border-slate-700/50 px-4  flex gap-3 items-center bg-white dark:bg-slate-800 flex-wrap">
+      {/* ضفنا py-3 هنا عشان تدي مساحة فوق وتحت لحقل الإدخال وتخلي الشكل أشيك */}
+      <div className="relative w-full border-t border-slate-100 dark:border-slate-700/50 py-3 px-4 flex gap-3 items-center bg-white dark:bg-slate-800 flex-wrap">
         <button
           ref={buttonRef}
           type="button"
@@ -874,7 +876,7 @@ export function CommentsModal({
           </>
         )}
         <textarea
-          placeholder="Add a comment..."
+          placeholder={t("comment.addComment")}
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           onKeyDown={(e) => {
@@ -905,8 +907,8 @@ export function CommentsModal({
           }`}
         >
           {addCommentMutation.isPending && actionType === "comment"
-            ? "Adding..."
-            : "Add"}{" "}
+            ? t("comment.adding")
+            : t("comment.add")}
         </button>
       </div>
     </div>

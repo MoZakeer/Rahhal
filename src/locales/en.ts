@@ -480,6 +480,28 @@ export const en = {
       rights: "Rahhal Inc. All rights reserved.",
       country: "Egypt",
       language: "English"
+   },
+   comment: {
+      fetchCommentsError: "Failed to fetch comments: ",
+      fetchRepliesError: "Failed to fetch replies: ",
+      save: "Save",
+      cancel: "Cancel",
+      edit: "Edit",
+      delete: "Delete",
+      report: "Report",
+      likeError: "Failed to like comment: ",
+      likes: "Likes",
+      reply: "Reply",
+      hideReplies: "Hide replies",
+      viewReplies: "View {{count}} replies",
+      noRepliesYet: "No replies yet",
+      replyingTo: "Replying to ",
+      writeReply: "Write a reply...",
+      replying: "Replying...",
+      noCommentsYet: "No comments yet",
+      addComment: "Add a comment...",
+      adding: "Adding...",
+      add: "Add"
    }
 
 };
