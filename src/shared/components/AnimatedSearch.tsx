@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react"; // ضفنا useEffect هنا
 import type { KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, X, Loader2, Clock, Trash2 } from "lucide-react";
@@ -29,6 +29,22 @@ export default function AnimatedSearch({
 
   const { suggestions, saveToHistory, clearAllHistory, deleteSpecificItem } = useSearchHistory(keyword);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open]);
+  // ===========================================
+
   const executeSearch = (searchTerm: string) => {
     if (!searchTerm.trim()) return;
     setIsLoading(true);
@@ -47,6 +63,7 @@ export default function AnimatedSearch({
   };
 
   const finalPlaceholder = placeholder || t("search.placeholder") || "Search...";
+  const targetWidth = typeof window !== "undefined" && window.innerWidth < 768 ? 190 : 250;
 
   return (
     <div ref={ref} className="relative flex items-center z-50" dir={isRtl ? "rtl" : "ltr"}>
@@ -68,7 +85,7 @@ export default function AnimatedSearch({
           <motion.div
             key="input-container"
             initial={{ width: 40, opacity: 0 }}
-            animate={{ width: 250, opacity: 1 }}
+            animate={{ width: targetWidth, opacity: 1 }}
             exit={{ width: 40, opacity: 0 }}
             transition={{ duration: 0.25 }}
             className="relative flex flex-col"
@@ -95,11 +112,25 @@ export default function AnimatedSearch({
                   isRtl ? "pr-2 pl-1 text-right" : "pl-2 pr-1 text-left"
                 )}
               />
-              {keyword.trim() && !isLoading && (
-                <button type="button" onClick={() => setKeyword("")} className="p-1 rounded-full text-gray-400">
-                  <X className="w-3.5 h-3.5" />
+              
+              {/* تعديل زرار الـ X: لو فيه كلام يمسحه، لو مفيش يقفل المربع */}
+              {!isLoading && (
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    if (keyword.trim()) {
+                      setKeyword("");
+                      inputRef.current?.focus(); // نرجع المؤشر تاني بعد ما نمسح
+                    } else {
+                      setOpen(false); // لو فاضي، يقفل المربع
+                    }
+                  }} 
+                  className="p-1 rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition"
+                >
+                  <X className="w-4 h-4" />
                 </button>
               )}
+
               <button type="submit" disabled={!keyword.trim() || isLoading} className="shrink-0 p-1.5 text-blue-500">
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
               </button>
@@ -112,7 +143,7 @@ export default function AnimatedSearch({
                     <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400">
                       {t("search.recentSearches")} 
                     </span>
-                    <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={clearAllHistory} className="text-[10px] flex items-center gap-1 font-medium text-red-500">
+                    <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={clearAllHistory} className="text-[10px] flex items-center gap-1 font-medium text-red-500 hover:underline">
                       <Trash2 className="w-3 h-3" /> {t("search.clearAll")}
                     </button>
                   </div>
