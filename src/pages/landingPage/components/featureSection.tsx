@@ -78,8 +78,6 @@ export default function FeaturesSection() {
   const [activeFeature, setActiveFeature] = useState<number>(0);
 
   const [selectedPin, setSelectedPin] = useState<any>(null);
-  const [isJoining, setIsJoining] = useState(false);
-  const [isJoinedFromMap, setIsJoinedFromMap] = useState<boolean>(false);
 
   const [isAutoPlay, setIsAutoPlay] = useState<boolean>(true);
 
@@ -135,7 +133,6 @@ export default function FeaturesSection() {
                   whileHover={{ scale: 1.15 }}
                   onClick={() => {
                     setSelectedPin(localizedPin);
-                    setIsJoinedFromMap(false);
                     setIsAutoPlay(false);
                   }}
                   className="absolute flex flex-col items-center z-10 outline-none cursor-pointer group"
