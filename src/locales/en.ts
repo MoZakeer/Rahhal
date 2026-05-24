@@ -269,7 +269,7 @@ export const en = {
       createPostPlaceholder: "What's your next adventure?...",
       postBtn: "Publish",
       mediaAlt: "Media preview",
-
+      seeMore: "see more",
       likeBtn: "Like",
       unlikeBtn: "Unlike",
       commentBtn: "Add a comment",

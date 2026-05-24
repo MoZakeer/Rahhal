@@ -269,6 +269,7 @@ export const ar = {
       createPostPlaceholder: "ما هي مغامرتك القادمة؟...",
       postBtn: "نشر",
       mediaAlt: "معاينة الوسائط",
+      seeMore: "عرض المزيد",
 
       likeBtn: "إعجاب",
       unlikeBtn: "إلغاء الإعجاب",
