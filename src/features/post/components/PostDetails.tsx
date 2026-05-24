@@ -26,6 +26,7 @@ import {
   Play,
   ChevronRight,
   ChevronLeft,
+  X,
 } from "lucide-react";
 import { Bookmark } from "lucide-react";
 import { ReportModal } from "../../reports/components/ReportModal";
