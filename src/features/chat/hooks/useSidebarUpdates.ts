@@ -60,6 +60,7 @@ export const useSidebarUpdates = function () {
               unreadMessagesCount: isChatOpenNow ? 0 : data.unreadCount,
               lastMessageType: data.messageType,
               lastMessageSender: data.lastMessageSender,
+              reactionInfo: null,
             };
 
             chats.splice(index, 1);
