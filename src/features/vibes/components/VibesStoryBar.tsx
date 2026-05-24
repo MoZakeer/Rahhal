@@ -187,6 +187,9 @@ const VibesStoryBar = ({
       .join("")
       .toUpperCase();
   }, []);
+  if (vibes.length === 0 && !canPost) {
+  return null;
+}
 
   // ---------------- RENDER ----------------
   return (
