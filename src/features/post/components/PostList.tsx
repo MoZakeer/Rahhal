@@ -49,9 +49,10 @@ export default function PostsList() {
     [isFetchingNextPage, hasNextPage, fetchNextPage],
   );
 
-  // OPTIMIZATION: Memoize the posts array to prevent unnecessary flattening on every render
   const posts = useMemo(() => {
-    return data?.pages.flatMap((page) => page.data?.items ?? []) ?? [];
+    const allPosts = data?.pages.flatMap((page) => page.data?.items ?? []) ?? [];
+    const uniquePosts = Array.from(new Map(allPosts.map((item) => [item.id, item])).values());
+    return uniquePosts;
   }, [data]);
 
   if (isLoading)
@@ -106,9 +107,9 @@ export default function PostsList() {
             key={post.id}
             ref={index === posts.length - 1 ? lastPostRef : null}
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }} // margin helps animate slightly before it fully enters
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
+            layout
           >
             <PostCard post={post} />
           </motion.div>
