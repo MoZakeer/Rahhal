@@ -11,12 +11,14 @@ import { useLanguage } from "@/context/LanguageContext";
 import { cn } from "@/lib/utils";
 import FeedVibesBar from "@/features/vibes/components/FeedVibesBar";
 import { getUserId } from "@/lib/api";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 export default function HomeFeed() {
   useFavicon("/plane-globe (2).png");
 
   const { t, language } = useLanguage();
   const isRtl = language === "ar";
+  useScrollRestoration("home-feed");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
