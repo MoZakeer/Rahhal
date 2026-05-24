@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState, useMemo, lazy, Suspense } from "react";
+import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { Plus } from "lucide-react";
 import PostsList from "../../features/post/components/PostList";
 import FeedHeader from "../../features/post/components/feedHeader";
-import CreatePostModal from "../../features/post/components/createPostModal";
 import { LeftSidebar } from "./LeftSidebar";
 import { RightSidebar } from "./RightSidebar";
 import { useFavicon } from "@/hooks/useFavicon";
@@ -14,39 +13,54 @@ import { getUserId } from "@/lib/api";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import TrendingNow from "./TrendingNow";
 
+// OPTIMIZATION 1: Lazy Loading the CreatePostModal.
+// This prevents the modal's heavy code from loading until the user actually opens it,
+// significantly improving the initial load time of the HomeFeed.
+const CreatePostModal = lazy(() => import("../../features/post/components/createPostModal"));
+
 export default function HomeFeed() {
+  // Hook to set the page favicon
   useFavicon("/plane-globe (2).png");
 
+  // Language context for RTL/LTR support and translations
   const { t, language } = useLanguage();
   const isRtl = language === "ar";
+  
+  // Restore scroll position when returning to this page
   useScrollRestoration("home-feed");
 
+  // State management
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+  // OPTIMIZATION 2: Memoizing the currentUserId.
+  // preventing unnecessary recalculations or local storage reads on every re-render.
+  const currentUserId = useMemo(() => getUserId(), []);
 
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setIsNavVisible(false);
-      } else {
-        setIsNavVisible(true);
-      }
+  // OPTIMIZATION 3: Using framer-motion's useScroll instead of window.addEventListener.
+  // This tracks scroll position outside of React's render cycle, preventing massive 
+  // re-renders and lag when the user scrolls the page.
+  const { scrollY } = useScroll();
 
-      setLastScrollY(currentScrollY);
-    };
+  useMotionValueEvent(scrollY, "change", (current) => {
+    const previous = scrollY.getPrevious() ?? 0;
+    
+    // Hide navigation if scrolling down and past 100px, show if scrolling up
+    if (current > previous && current > 100) {
+      if (isNavVisible) setIsNavVisible(false);
+    } else {
+      if (!isNavVisible) setIsNavVisible(true);
+    }
+  });
 
-    window.addEventListener("scroll", handleScroll);
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
-  const currentUserId = getUserId(); // Replace with actual user ID retrieval logic
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20 transition-colors duration-500 relative overflow-x-clip">
       <div className="w-full max-w-[1440px] mx-auto px-0 sm:px-4 lg:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* ======================================= */}
+          {/* LEFT SIDEBAR (Hidden on smaller screens)  */}
+          {/* ======================================= */}
           <motion.aside
             animate={{
               top: isNavVisible ? 96 : 20,
@@ -57,20 +71,30 @@ export default function HomeFeed() {
             <LeftSidebar />
           </motion.aside>
 
-          {/* Middle Feed */}
+          {/* ======================================= */}
+          {/* MIDDLE FEED (Main Content Area)         */}
+          {/* ======================================= */}
           <motion.div
             animate={{ marginTop: isNavVisible ? 80 : 20 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="col-span-12 lg:col-span-6 flex flex-col gap-6 transition-all duration-300 relative min-w-0"
           >
+            {/* Header with create post trigger */}
             <FeedHeader onCreatePost={() => setIsModalOpen(true)} />
-            <FeedVibesBar currentUserId={currentUserId} />
-            <div className="block lg:hidden w-full overflow-hidden mt-2">
+
+            {/* Mobile ONLY Trending Section (Horizontal Scroll) */}
+            {/* Displayed below the header only on mobile devices to save space */}
+            <div className="block lg:hidden -mt-2">
               <TrendingNow variant="mobile" />
             </div>
+
+            {/* Vibes Navigation Bar */}
+            <FeedVibesBar currentUserId={currentUserId} />
+
+            {/* Main Posts Feed */}
             <PostsList />
 
-            {/* Floating Create Post Button */}
+            {/* Floating Action Button (FAB) to Create Post */}
             <motion.button
               animate={{
                 scale: isNavVisible ? 1 : 0,
@@ -94,7 +118,9 @@ export default function HomeFeed() {
             </motion.button>
           </motion.div>
 
-          {/* Right Sidebar */}
+          {/* ======================================= */}
+          {/* RIGHT SIDEBAR (Hidden on smaller screens) */}
+          {/* ======================================= */}
           <motion.aside
             animate={{
               top: isNavVisible ? 96 : 20,
@@ -107,10 +133,17 @@ export default function HomeFeed() {
         </div>
       </div>
 
-      <CreatePostModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      {/* ======================================= */}
+      {/* MODALS (Lazy Loaded)                      */}
+      {/* ======================================= */}
+      {isModalOpen && (
+        <Suspense fallback={null}>
+          <CreatePostModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+          />
+        </Suspense>
+      )}
     </main>
   );
 }
