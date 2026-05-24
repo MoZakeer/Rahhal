@@ -31,11 +31,10 @@ import { useLanguage } from "../../context/LanguageContext";
 import { useTheme } from "../../context/ThemeContext";
 import { getUserRole, isTokenValid } from "../../utils/auth";
 import AnimatedSearch from "../components/AnimatedSearch";
-import { useNavbar } from "../hooks/useNavbar";
+import { useUnreadMessageCount } from "@/features/chat/hooks/useUnreadMessageCount";
 
 const API_BASE_URL = "https://rahhal-api.runasp.net";
 
-// تم تغيير label إلى labelKey للترجمة
 const travelDropdownItems = [
   { labelKey: "createTrip", path: "/create-trip", icon: Plus },
   { labelKey: "aiPlanner", path: "/ai-planner", icon: Sparkles },
@@ -104,7 +103,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
 
   const isAllowedPage = allowedPages.has(location.pathname);
   const { unreadCount, markAllAsRead } = useNotificationContext();
-
+  useUnreadMessageCount(setUnreadMessages);
   const handleClick = async () => {
     await markAllAsRead();
     navigate("/notifications");
@@ -125,7 +124,10 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
         const result = await res.json();
         if (result && result.data) {
           setProfile(result.data);
-          localStorage.setItem("username", result.data.fullName || result.data.firstName || "");
+          localStorage.setItem(
+            "username",
+            result.data.fullName || result.data.firstName || "",
+          );
         }
       } catch (error) {
         console.error("Profile fetch error:", error);
@@ -176,8 +178,6 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
     fetchUnreadCount();
   }, [token]);
 
-  useNavbar(setUnreadMessages);
-
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -203,8 +203,9 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
 
   return (
     <header
-      className={`fixed top-0 z-40 w-full bg-white dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${isNavVisible ? "translate-y-0" : "-translate-y-full"
-        }`}
+      className={`fixed top-0 z-40 w-full bg-white dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${
+        isNavVisible ? "translate-y-0" : "-translate-y-full"
+      }`}
     >
       <div className="max-w-360 mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo Section */}
@@ -268,10 +269,11 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
             <Link
               key={path}
               to={path}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${isActivePath(path)
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                isActivePath(path)
                   ? "text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/30"
                   : "text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                }`}
+              }`}
             >
               <Icon className="h-5 w-5" />
               <span>{t(`navbar.${labelKey}`)}</span>
@@ -285,25 +287,28 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
             onMouseLeave={handleMouseLeave}
           >
             <button
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${isTravelActive
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                isTravelActive
                   ? "text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/30"
                   : "text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                }`}
+              }`}
             >
               <TravelIcon className="h-5 w-5" />
               <span>{travelLabel}</span>
               <ChevronDown
-                className={`h-3.5 w-3.5 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""
-                  }`}
+                className={`h-3.5 w-3.5 transition-transform duration-200 ${
+                  dropdownOpen ? "rotate-180" : ""
+                }`}
               />
             </button>
 
             {/* Dropdown */}
             <div
-              className={`absolute top-full inset-s-1/2 ltr:-translate-x-1/2 rtl:translate-x-1/2 mt-1.5 w-48 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/60 dark:shadow-slate-950/60 overflow-hidden transition-all duration-200 z-50 ${dropdownOpen
+              className={`absolute top-full inset-s-1/2 ltr:-translate-x-1/2 rtl:translate-x-1/2 mt-1.5 w-48 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/60 dark:shadow-slate-950/60 overflow-hidden transition-all duration-200 z-50 ${
+                dropdownOpen
                   ? "opacity-100 translate-y-0 pointer-events-auto"
                   : "opacity-0 -translate-y-1 pointer-events-none"
-                }`}
+              }`}
             >
               {/* small arrow pointer */}
               <div className="absolute -top-1.5 inset-s-1/2 ltr:-translate-x-1/2 rtl:translate-x-1/2 w-3 h-3 rotate-45 bg-white dark:bg-slate-900 ltr:border-l rtl:border-r border-t border-slate-200 dark:border-slate-700" />
@@ -314,10 +319,11 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                     key={path}
                     to={path}
                     onClick={() => setDropdownOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-all ${isActivePath(path)
+                    className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
+                      isActivePath(path)
                         ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30"
                         : "text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60"
-                      }`}
+                    }`}
                   >
                     <Icon className="h-4 w-4 shrink-0" />
                     {t(`navbar.${labelKey}`)}
@@ -331,10 +337,11 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
             <Link
               key={path}
               to={path}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${isActivePath(path)
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                isActivePath(path)
                   ? "text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/30"
                   : "text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                }`}
+              }`}
             >
               <div className="relative">
                 <Icon className="h-5 w-5" />
@@ -580,10 +587,11 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                     key={path}
                     to={path}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${isActivePath(path)
+                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${
+                      isActivePath(path)
                         ? "bg-blue-50 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400"
                         : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                      }`}
+                    }`}
                   >
                     <Icon className="h-6 w-6" /> {t(`navbar.${labelKey}`)}
                   </Link>
@@ -597,17 +605,18 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                     key={path}
                     to={path}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${isActivePath(path)
+                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${
+                      isActivePath(path)
                         ? "bg-blue-50 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400"
                         : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                      }`}
+                    }`}
                   >
                     <div className="relative">
                       <Icon className="h-6 w-6" />
 
                       {labelKey === "messages" &&
-                        unreadMessages &&
-                        unreadMessages > 0 ? (
+                      unreadMessages &&
+                      unreadMessages > 0 ? (
                         <span
                           className="
                                 absolute -top-2 -right-2
@@ -636,10 +645,11 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                   key={path}
                   to={path}
                   onClick={() => setMobileOpen(false)}
-                  className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${isActivePath(path)
+                  className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${
+                    isActivePath(path)
                       ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30"
                       : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60"
-                    }`}
+                  }`}
                 >
                   <Icon className="h-6 w-6 " />
                   {t(`navbar.${labelKey}`)}

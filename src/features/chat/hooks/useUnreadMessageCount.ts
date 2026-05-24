@@ -1,7 +1,7 @@
 import { useRealtime } from "@/context/RealtimeContext";
 import { useEffect } from "react";
 
-export function useNavbar(
+export function useUnreadMessageCount(
   setUnreadMessages: React.Dispatch<React.SetStateAction<number | undefined>>,
 ) {
   const { chatConnection } = useRealtime();
