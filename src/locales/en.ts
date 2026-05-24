@@ -506,6 +506,36 @@ export const en = {
       addComment: "Add a comment...",
       adding: "Adding...",
       add: "Add"
+   },
+   postDetails: {
+      userPost: "{{name}}'s post",
+      fallbackTitle: "Post Details",
+      loading: "Loading...",
+      notFound: "Post not found",
+      shareDefaultText: "Check out this adventure on RAHHAL!",
+      shareTitle: "{{name}}'s trip on RAHHAL",
+      linkCopied: "Link copied successfully!",
+      copyError: "Failed to copy link",
+      likesCount: "{{count}} likes",
+      shareVia: "Share via...",
+      whatsapp: "WhatsApp",
+      facebook: "Facebook",
+      x: "X",
+      copy: "Copy",
+      more: "More",
+      likesTitle: "Likes",
+      close: "Close"
+   },
+   postHeader: {
+      follow: "Follow",
+      following: "Following",
+      edit: "Edit",
+      delete: "Delete",
+      report: "Report",
+      justNow: "Just now",
+      mAgo: "m ago",
+      hAgo: "h ago",
+      dAgo: "d ago"
    }
 
 };

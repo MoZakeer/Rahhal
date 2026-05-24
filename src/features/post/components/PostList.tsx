@@ -6,7 +6,7 @@ import PostCard from "../components/PostCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useLanguage } from "@/context/LanguageContext";
-import { RefreshCcw } from "lucide-react"; // ضفنا أيقونة لزرار الـ Retry
+import { RefreshCcw } from "lucide-react";
 
 export default function PostsList() {
   const { t, language } = useLanguage();
@@ -23,7 +23,7 @@ export default function PostsList() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    refetch, // استخرجنا refetch عشان نستخدمها في زرار المحاولة مرة أخرى
+    refetch,
   } = useInfiniteQuery({
     queryKey: ["posts"],
     queryFn: ({ pageParam }) => getPostsInfinite(pageParam as number, 10, true),
@@ -59,7 +59,6 @@ export default function PostsList() {
       <div className="space-y-8 dark:opacity-60 transition-opacity px-4 max-w-3xl mx-auto w-full">
         {[1, 2, 3].map((i) => (
           <div key={i} className="bg-white dark:bg-slate-800 p-4 rounded-3xl space-y-4">
-             {/* تحسين الـ Skeleton ليكون أقرب لشكل البوست الحقيقي */}
              <div className="flex items-center gap-3">
                <Skeleton circle width={40} height={40} />
                <div className="flex-1">
@@ -89,7 +88,6 @@ export default function PostsList() {
       </div>
     );
 
-  // حالة لو مفيش بوستات خالص
   if (posts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-16 text-center mx-4 max-w-3xl md:mx-auto mt-4 bg-white/50 dark:bg-slate-800/50 rounded-3xl border border-slate-100 dark:border-slate-800">
@@ -117,7 +115,6 @@ export default function PostsList() {
         ))}
       </AnimatePresence>
 
-      {/* الـ Loading بتاع البيدج الجديدة */}
       {isFetchingNextPage && (
         <div className="space-y-8 dark:opacity-60 transition-opacity">
           <div className="bg-white dark:bg-slate-800 p-4 rounded-3xl space-y-4">
@@ -132,7 +129,6 @@ export default function PostsList() {
         </div>
       )}
 
-      {/* نهاية الـ Feed */}
       {!hasNextPage && posts.length > 0 && (
         <div className="text-center py-8">
           <div className="inline-block px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-800/80 text-sm font-medium text-slate-500 dark:text-slate-400">

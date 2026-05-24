@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 
 // Types
-import type { PostDetails } from "../../../types/post";
+import type { Post, PostDetails } from "../../../types/post";
 import type { PostMediaItem } from "../../../types/post";
 
 // Components & Services
@@ -86,8 +86,9 @@ export function PostHeader({
   profileUrl,
   profileId,
   currentUserId,
-  isFollowed,
+  isFollowing,
   createdAt,
+  post,
   onEdit,
   onDelete,
   onFollow,
@@ -97,9 +98,9 @@ export function PostHeader({
   profileUrl: string;
   profileId: string;
   currentUserId: string;
-  isFollowed?: boolean;
+  isFollowing?: boolean;
   createdAt?: string;
-  post?: unknown;
+  post?: Post;
   onEdit?: () => void;
   onDelete?: () => void;
   onReport?: () => void;
@@ -108,6 +109,8 @@ export function PostHeader({
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { t, language } = useLanguage();
+  const isRtl = language === "ar";
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -136,59 +139,91 @@ export function PostHeader({
     const created = new Date(date);
     const diff = Math.floor((now.getTime() - created.getTime()) / 1000);
 
-    if (diff < 60) return "Just now";
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+    if (diff < 60) return t("feed.justNow");
+    if (diff < 3600) return `${Math.floor(diff / 60)}${t("feed.minsAgo")}`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}${t("feed.hoursAgo")}`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}${t("feed.daysAgo")}`;
 
-    return created.toLocaleDateString();
+    return created.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US');
   }
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 relative">
+    <div
+      className="flex items-center justify-between px-4 py-3 relative cursor-pointer"
+      onClick={() => navigate(`/post/${id}`, { state: { post } })}
+      dir={isRtl ? "rtl" : "ltr"}
+    >
       <div className="flex items-center gap-3">
         <img
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/profile/${profileId}`);
+          }}
+          alt={userName}
+          loading="lazy"
+          decoding="async"
           src={normalizeMediaUrl(profileUrl)}
-          className="w-10 h-10 rounded-full object-cover"
+          className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-slate-800"
         />
         <div className="flex flex-col leading-tight">
           <span
-            onClick={() => navigate(`/profile/${profileId}`)}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/profile/${profileId}`);
+            }}
             className="font-semibold cursor-pointer text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
             {userName}
           </span>
           {createdAt && (
-            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold flex items-center gap-1.5 mt-0.5">
+            <span
+              className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold flex items-center gap-1.5 mt-0.5"
+              dir="auto"
+            >
               {formatTime(createdAt)} <GlobeIcon className="w-3 h-3" />
             </span>
           )}
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div
+        className="flex items-center gap-2"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
         {!isOwner && (
           <button
-            onClick={onFollow}
-            className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${
-              isFollowed
-                ? "bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                : "bg-blue-700 dark:bg-blue-700 border border-blue-700 dark:border-blue-900 text-white hover:bg-blue-800 dark:hover:bg-blue-900"
+            type="button" 
+            onClick={(e) => {
+               e.preventDefault();
+               e.stopPropagation();
+               if (onFollow) onFollow();
+            }}
+            className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-colors duration-200 ${
+              isFollowing
+                ? "bg-slate-50 dark:bg-blue-950/30 border border-slate-200 dark:border-blue-900/50 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                : "bg-blue-700 dark:bg-blue-600 border border-transparent text-white hover:bg-blue-800 dark:hover:bg-blue-700 shadow-sm"
             }`}
           >
-            {isFollowed ? "Following" : "Follow"}
+            {isFollowing ? t("feed.following") : t("feed.follow")}
           </button>
         )}
 
         <div className="relative" ref={dropdownRef}>
           <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              setDropdownOpen(!dropdownOpen);
+            }}
+            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors"
+            aria-label="More options"
           >
             <MoreHorizontal className="w-5 h-5" />
           </button>
+
           {isReportOpen && (
-            <div className="fixed inset-0  flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm animate-in fade-in">
               <ReportModal
                 entityType="post"
                 entityId={id}
@@ -197,35 +232,50 @@ export function PostHeader({
               />
             </div>
           )}
+
           {dropdownOpen && (
-            <div className="absolute top-full right-0 mt-2 w-36 bg-white dark:bg-slate-800 rounded-xl shadow-lg ring-1 ring-black/5 dark:ring-white/10 z-50 overflow-hidden translate-x-3 border border-transparent dark:border-slate-700">
+            <div className={cn(
+              "absolute top-full mt-2 w-36 bg-white dark:bg-slate-800 rounded-xl shadow-lg ring-1 ring-black/5 dark:ring-white/10 z-50 overflow-hidden border border-slate-100 dark:border-slate-700 animate-in zoom-in-95 duration-100",
+              isRtl ? "left-0" : "right-0"
+            )}>
               {isOwner ? (
                 <>
                   <button
-                    className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                    onClick={onEdit}
+                    type="button"
+                    className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setDropdownOpen(false);
+                      onEdit?.();
+                    }}
                   >
                     <Edit className="w-4 h-4" />
-                    Edit
+                    {t("feed.edit")}
                   </button>
                   <button
-                    className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
-                    onClick={onDelete}
+                    className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors border-t border-slate-50 dark:border-slate-700/50"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDropdownOpen(false);
+                      onDelete?.();
+                    }}
                   >
                     <Trash2 className="w-4 h-4" />
-                    Delete
+                    {t("feed.delete")}
                   </button>
                 </>
               ) : (
                 <button
-                  className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
-                  onClick={() => {
-                    setDropdownOpen(!dropdownOpen);
+                  className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDropdownOpen(false);
                     setIsReportOpen(true);
                   }}
                 >
                   <Flag className="w-4 h-4" />
-                  Report
+                  {t("feed.report")}
                 </button>
               )}
             </div>
@@ -334,11 +384,10 @@ transition-all duration-300"
               key={m.id}
               onClick={() => setIsPreviewOpen(true)}
               onMouseEnter={() => setCurrent(i)}
-              className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${
-                i === current
+              className={`relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition ${i === current
                   ? "ring-2 ring-blue-500 dark:ring-blue-400 opacity-100"
                   : "opacity-60 hover:opacity-100"
-              }`}
+                }`}
             >
               {isVideo(m) ? (
                 <>
@@ -1393,9 +1442,10 @@ import { cn } from "@/lib/utils";
 import { Facebook, Link as LinkIcon } from "lucide-react";
 import { CommentsModal } from "./CommentsModal";
 
+
 export default function PostDetails({ postId, initialData }: Props) {
   const currentUserId = getUserId() || "";
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const isRtl = language === "ar";
 
   // Modal States
@@ -1419,8 +1469,8 @@ export default function PostDetails({ postId, initialData }: Props) {
 
   usePageTitle(
     postDetailsData?.userName
-      ? `${postDetailsData.userName}'s post`
-      : "Post Details",
+      ? t("postDetails.userPost").replace("{{name}}", postDetailsData.userName)
+      : t("postDetails.fallbackTitle"),
   );
 
   const { like, save, follow, remove } = usePostDetailsActions(postId || "");
@@ -1431,7 +1481,7 @@ export default function PostDetails({ postId, initialData }: Props) {
         className="min-h-screen flex justify-center items-center"
         aria-busy="true"
       >
-        <span className="text-slate-500">Loading...</span>
+        <span className="text-slate-500">{t("postDetails.loading")}</span>
       </div>
     );
   }
@@ -1440,7 +1490,7 @@ export default function PostDetails({ postId, initialData }: Props) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center items-center">
         <p className="text-lg text-slate-600 dark:text-slate-400">
-          Post not found
+          {t("postDetails.notFound")}
         </p>
       </div>
     );
@@ -1460,7 +1510,7 @@ export default function PostDetails({ postId, initialData }: Props) {
     typeof window !== "undefined"
       ? `${window.location.origin}/post/${postDetailsData.id}`
       : "";
-  const shareText = postDetailsData.description || "شوف المغامرة دي على رحّال!";
+  const shareText = postDetailsData.description || t("postDetails.shareDefaultText");
 
   const shareToWhatsApp = () => {
     window.open(
@@ -1489,10 +1539,10 @@ export default function PostDetails({ postId, initialData }: Props) {
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl);
-      toast.success(isRtl ? "تم نسخ الرابط بنجاح!" : "Link copied!");
+      toast.success(t("postDetails.linkCopied"));
       setShareModalOpen(false);
     } catch {
-      toast.error(isRtl ? "حدث خطأ أثناء النسخ" : "Failed to copy link");
+      toast.error(t("postDetails.copyError"));
     }
   };
 
@@ -1500,7 +1550,7 @@ export default function PostDetails({ postId, initialData }: Props) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `رحلة ${postDetailsData.userName} على رحّال`,
+          title: t("postDetails.shareTitle").replace("{{name}}", postDetailsData.userName),
           text: shareText,
           url: shareUrl,
         });
@@ -1522,7 +1572,7 @@ export default function PostDetails({ postId, initialData }: Props) {
         userName={postDetailsData.userName}
         profileUrl={profileAvatar}
         profileId={postDetailsData.userId}
-        isFollowed={postDetailsData.isFollowedByCurrentUser ?? false}
+        isFollowing={postDetailsData.isFollowedByCurrentUser ?? false}
         onFollow={() => follow(postDetailsData.userId)}
         currentUserId={currentUserId}
         createdAt={postDetailsData.createdDate}
@@ -1555,9 +1605,8 @@ export default function PostDetails({ postId, initialData }: Props) {
         <button
           onClick={() => setOpenLikes(true)}
           className="px-4 text-sm font-semibold mt-1 text-slate-900 dark:text-slate-100 hover:text-blue-600 transition-colors text-left"
-          aria-label={`View all ${postDetailsData.likes} likes`}
         >
-          {postDetailsData.likes} likes
+          {t("postDetails.likesCount").replace("{{count}}", postDetailsData.likes.toString())}
         </button>
       )}
 
@@ -1583,11 +1632,12 @@ export default function PostDetails({ postId, initialData }: Props) {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
               <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                {isRtl ? "مشاركة عبر..." : "Share via..."}
+                {t("postDetails.shareVia")}
               </h3>
               <button
                 onClick={() => setShareModalOpen(false)}
                 className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+                aria-label={t("postDetails.close")}
               >
                 <X size={18} strokeWidth={2.5} />
               </button>
@@ -1603,7 +1653,7 @@ export default function PostDetails({ postId, initialData }: Props) {
                   <MessageCircle size={28} strokeWidth={2} />
                 </div>
                 <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                  {isRtl ? "واتساب" : "WhatsApp"}
+                  {t("postDetails.whatsapp")}
                 </span>
               </button>
 
@@ -1615,7 +1665,7 @@ export default function PostDetails({ postId, initialData }: Props) {
                   <Facebook size={28} strokeWidth={2} />
                 </div>
                 <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                  {isRtl ? "فيسبوك" : "Facebook"}
+                  {t("postDetails.facebook")}
                 </span>
               </button>
 
@@ -1633,7 +1683,7 @@ export default function PostDetails({ postId, initialData }: Props) {
                   </svg>
                 </div>
                 <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                  {isRtl ? "إكس" : "X"}
+                  {t("postDetails.x")}
                 </span>
               </button>
 
@@ -1645,7 +1695,7 @@ export default function PostDetails({ postId, initialData }: Props) {
                   <LinkIcon size={28} strokeWidth={2} />
                 </div>
                 <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                  {isRtl ? "نسخ" : "Copy"}
+                  {t("postDetails.copy")}
                 </span>
               </button>
 
@@ -1657,7 +1707,7 @@ export default function PostDetails({ postId, initialData }: Props) {
                   <Share2 size={28} strokeWidth={2} />
                 </div>
                 <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                  {isRtl ? "المزيد" : "More"}
+                  {t("postDetails.more")}
                 </span>
               </button>
             </div>
@@ -1675,7 +1725,7 @@ export default function PostDetails({ postId, initialData }: Props) {
                   onClick={copyLink}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-colors whitespace-nowrap shadow-sm"
                 >
-                  {isRtl ? "نسخ" : "Copy"}
+                  {t("postDetails.copy")}
                 </button>
               </div>
             </div>
@@ -1693,16 +1743,20 @@ export default function PostDetails({ postId, initialData }: Props) {
           <div
             className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-5 relative shadow-2xl"
             onClick={(e) => e.stopPropagation()}
+            dir={isRtl ? "rtl" : "ltr"}
           >
             <button
               onClick={() => setOpenLikes(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors p-2"
-              aria-label="Close likes modal"
+              className={cn(
+                "absolute top-4 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors p-2",
+                isRtl ? "left-4" : "right-4"
+              )}
+              aria-label={t("postDetails.close")}
             >
               ✕
             </button>
             <h3 className="text-lg font-semibold mb-4 dark:text-white">
-              Likes
+              {t("postDetails.likesTitle")}
             </h3>
             <LikesList type="post" id={postDetailsData.id} />
           </div>
@@ -1724,7 +1778,7 @@ export default function PostDetails({ postId, initialData }: Props) {
       )}
 
       <CommentsModal
-        open={true} // open={commentsOpen}
+        open={true}
         onClose={() => setCommentsOpen(false)}
         postId={postDetailsData.id}
         currentUserId={currentUserId}

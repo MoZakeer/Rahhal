@@ -504,6 +504,35 @@ export const ar = {
       addComment: "أضف تعليقاً...",
       adding: "جاري الإضافة...",
       add: "إضافة"
+   },
+   postDetails: {
+      userPost: "منشور {{name}}",
+      fallbackTitle: "تفاصيل المنشور",
+      loading: "جاري التحميل...",
+      notFound: "المنشور غير موجود",
+      shareDefaultText: "شوف المغامرة دي على رحّال!",
+      shareTitle: "رحلة {{name}} على رحّال",
+      linkCopied: "تم نسخ الرابط بنجاح!",
+      copyError: "حدث خطأ أثناء النسخ",
+      likesCount: "{{count}} إعجابات",
+      shareVia: "مشاركة عبر...",
+      whatsapp: "واتساب",
+      facebook: "فيسبوك",
+      x: "إكس",
+      copy: "نسخ",
+      more: "المزيد",
+      likesTitle: "الإعجابات",
+      close: "إغلاق"
+   },
+   postHeader: {
+      follow: "متابعة",
+      following: "يتابع",
+      edit: "تعديل",
+      delete: "حذف",
+      report: "إبلاغ",
+      justNow: "الآن",
+      mAgo: "د", // اختصار دقيقة
+      hAgo: "س", // اختصار ساعة
+      dAgo: "ي"  // اختصار يوم
    }
-
 };
