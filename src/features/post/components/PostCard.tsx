@@ -260,19 +260,9 @@ export function PostMedia({ media }: { media: PostMediaItem[] }) {
     const video = videoRef.current;
     if (!video) return;
 
-    video.muted = false;
-    video.defaultMuted = false;
-
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          const playPromise = video.play();
-          if (playPromise !== undefined) {
-            playPromise.catch((error) => {
-              console.warn("Autoplay blocked by browser. User interaction required.", error);
-            });
-          }
-        } else {
+        if (!entry.isIntersecting) {
           video.pause();
         }
       },
