@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import FeedVibesBar from "@/features/vibes/components/FeedVibesBar";
 import { getUserId } from "@/lib/api";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
+import TrendingNow from "./TrendingNow";
 
 export default function HomeFeed() {
   useFavicon("/plane-globe (2).png");
@@ -64,7 +65,9 @@ export default function HomeFeed() {
           >
             <FeedHeader onCreatePost={() => setIsModalOpen(true)} />
             <FeedVibesBar currentUserId={currentUserId} />
-
+            <div className="block lg:hidden w-full overflow-hidden mt-2">
+              <TrendingNow variant="mobile" />
+            </div>
             <PostsList />
 
             {/* Floating Create Post Button */}
