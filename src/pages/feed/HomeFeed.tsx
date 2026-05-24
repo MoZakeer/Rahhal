@@ -1,4 +1,4 @@
-import { useState, useMemo, lazy, Suspense } from "react";
+import { useState, useMemo, lazy, Suspense, useEffect } from "react";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { Plus } from "lucide-react";
 import PostsList from "../../features/post/components/PostList";
@@ -12,6 +12,8 @@ import FeedVibesBar from "@/features/vibes/components/FeedVibesBar";
 import { getUserId } from "@/lib/api";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import TrendingNow from "./TrendingNow";
+import axios from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 
 // OPTIMIZATION 1: Lazy Loading the CreatePostModal.
 // This prevents the modal's heavy code from loading until the user actually opens it,
@@ -52,6 +54,44 @@ export default function HomeFeed() {
       if (!isNavVisible) setIsNavVisible(true);
     }
   });
+
+
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const prefetchUser = async () => {
+      const userJS = localStorage.getItem("user");
+      if (!userJS) return;
+      const storedUser = JSON.parse(userJS);
+
+      queryClient.prefetchQuery({
+        queryKey: ["currentUserProfile", storedUser.userId],
+        queryFn: async () => {
+          const BASE_URL = "https://rahhal-api.runasp.net";
+          const res = await axios.get(`${BASE_URL}/Profile/GetUserProfile`, {
+            params: { ProfileId: storedUser.userId },
+            headers: {
+              Authorization: `Bearer ${storedUser.token}`,
+              accept: "application/json",
+            },
+          });
+          
+          const data = res.data?.data;
+          return {
+            name: data?.fullName || "Unknown User",
+            username: data?.userName || "unknown",
+            avatar: data?.profilePicture
+              ? data.profilePicture.startsWith("http")
+                ? data.profilePicture
+                : `${BASE_URL}${data.profilePicture}`
+              : "https://www.gravatar.com/avatar/?d=mp&f=y",
+          };
+        },
+      });
+    };
+
+    prefetchUser();
+  }, [queryClient]);
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20 transition-colors duration-500 relative overflow-x-clip">
