@@ -340,6 +340,9 @@ export const ar = {
 
       // Likes List
       noLikes: "لا توجد إعجابات حتى الآن 🤍",
+      retry: "إعادة المحاولة",
+      noPostsYet: "لا توجد قصص سفر لعرضها في الوقت الحالي.",
+      endOfFeed: "لقد شاهدت جميع القصص!"
    },
    postCard: {
       "deleteSuccess": "جاري حذف المنشور!",

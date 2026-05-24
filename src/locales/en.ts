@@ -339,6 +339,10 @@ export const en = {
 
       // Likes List
       noLikes: "No likes yet 🤍",
+
+      retry: "Retry",
+      noPostsYet: "No travel stories to show right now.",
+      endOfFeed: "You've caught up with all the stories!"
    },
    postCard: {
       "deleteSuccess": "Deleting post!",
