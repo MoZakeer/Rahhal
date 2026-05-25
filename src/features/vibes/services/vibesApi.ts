@@ -33,7 +33,6 @@ const mapVibe = (item: VibeDTO): Vibe => ({
         : "image"
       : "text",
 
-
   content: item.description ?? "",
   description: item.description ?? "",
 
@@ -293,7 +292,6 @@ export const addLikeToComment = async (
     },
     body: JSON.stringify({ profileId, commentId }),
   });
-
 };
 export const updateComment = async (
   commentId: string,

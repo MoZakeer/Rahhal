@@ -57,11 +57,11 @@ const FullVibeViewer = ({
 
   const group = viewerGroups[groupIdx];
   const vibe: Vibe | undefined = group?.vibes[vibeIdx];
-  const vibeText =
-  vibe?.content ?? vibe?.description ?? "";
-const isTextVibe =
-  vibe.type?.toLowerCase?.() === "text" ||
-  (!vibe.mediaUrls || vibe.mediaUrls.length === 0);
+  const vibeText = vibe?.content ?? vibe?.description ?? "";
+  const isTextVibe =
+    vibe.type?.toLowerCase?.() === "text" ||
+    !vibe.mediaUrls ||
+    vibe.mediaUrls.length === 0;
 
   // Auto-advance progress
   useEffect(() => {
@@ -100,34 +100,49 @@ const isTextVibe =
     }
   };
   const handleToggleLike = async (vibeId: string) => {
-    const updatedVibe = { ...vibe, isLiked: !vibe.isLiked };
+    let rollbackVibe: Vibe | null = null;
 
-    // Optimistic local update
+    // Optimistic update
     setViewerGroups((prev) =>
       prev.map((group) => ({
         ...group,
-        vibes: group.vibes.map((v) => (v.id === vibeId ? updatedVibe : v)),
+        vibes: group.vibes.map((v) => {
+          if (v.id !== vibeId) return v;
+
+          rollbackVibe = v;
+
+          const updatedVibe = {
+            ...v,
+            isLiked: !v.isLiked,
+            likes: v.isLiked ? Math.max(0, v.likes - 1) : v.likes + 1,
+          };
+
+          // sync parent
+          onVibeUpdate?.(updatedVibe);
+
+          return updatedVibe;
+        }),
       })),
     );
-
-    // 👇 Propagate up to parent so it survives remount
-    onVibeUpdate?.(updatedVibe);
 
     try {
       await toggleReaction(vibeId);
     } catch (err) {
       console.error("Failed to toggle reaction", err);
-      // Rollback locally
-      setViewerGroups((prev) =>
-        prev.map((group) => ({
-          ...group,
-          vibes: group.vibes.map((v) =>
-            v.id === vibeId ? { ...v, isLiked: !v.isLiked } : v,
-          ),
-        })),
-      );
-      // Rollback in parent too
-      onVibeUpdate?.({ ...updatedVibe, isLiked: !updatedVibe.isLiked });
+
+      // rollback
+      if (rollbackVibe) {
+        setViewerGroups((prev) =>
+          prev.map((group) => ({
+            ...group,
+            vibes: group.vibes.map((v) =>
+              v.id === vibeId ? rollbackVibe! : v,
+            ),
+          })),
+        );
+
+        onVibeUpdate?.(rollbackVibe);
+      }
     }
   };
   const handleDelete = async () => {
