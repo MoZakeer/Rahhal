@@ -26,7 +26,7 @@ import { deleteVibe, canDeleteVibe, canEditVibe } from "../services/vibesApi";
 import type { UserVibesGroup, Vibe } from "../data/vibesData";
 import { normalizeMediaUrl } from "@/features/post/components/services/posts.api";
 import { toggleReaction } from "../services/vibesApi";
-
+import { useNavigate } from "react-router-dom";
 interface FullVibeViewerProps {
   groups: UserVibesGroup[];
   startGroupIndex: number;
@@ -52,6 +52,7 @@ const FullVibeViewer = ({
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const navigate = useNavigate();
 
   const [viewerGroups, setViewerGroups] = useState(groups);
 
@@ -227,7 +228,10 @@ const FullVibeViewer = ({
 
           {/* Header */}
           <div className="absolute left-0 right-0 top-3 z-30 flex items-center gap-3 px-4 pt-2">
-            <Avatar className="h-9 w-9 border border-white/20 shadow-sm">
+            <Avatar
+              onClick={() => navigate(`/profile/${group.userId}`)}
+              className="h-9 w-9 border border-white/20 shadow-sm cursor-pointer  hover:text-white/90 transition-colors"
+            >
               <AvatarImage
                 src={normalizeMediaUrl(group.userAvatar)}
                 alt={group.userName}
@@ -237,16 +241,43 @@ const FullVibeViewer = ({
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1 drop-shadow-sm">
-              <p className="truncate text-sm font-semibold text-white">
+              <p
+                onClick={() => navigate(`/profile/${group.userId}`)}
+                className="truncate text-sm font-semibold text-white cursor-pointer hover:text-white/90 transition-colors"
+              >
                 {group.userName}
               </p>
               <p className="text-[11px] text-white/75 font-medium">
-                {new Date(vibe.createdAt).toLocaleString(undefined, {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  month: "short",
-                  day: "numeric",
-                })}
+                {(() => {
+                  const date = new Date(vibe.createdAt);
+                  const now = new Date();
+
+                  const isToday = date.toDateString() === now.toDateString();
+
+                  const yesterday = new Date();
+                  yesterday.setDate(now.getDate() - 1);
+
+                  const isYesterday =
+                    date.toDateString() === yesterday.toDateString();
+
+                  const time = date.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  });
+
+                  if (isToday) return `Today, ${time}`;
+
+                  if (isYesterday) return `Yesterday, ${time}`;
+
+                  return date.toLocaleString([], {
+                    day: "numeric",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  });
+                })()}
               </p>
             </div>
             {showMenu && (

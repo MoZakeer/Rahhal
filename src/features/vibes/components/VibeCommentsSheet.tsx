@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Send, X, Trash2, Loader2, Heart, Pencil, Check } from "lucide-react";
 
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import type { Vibe, VibeComment } from "../data/vibesData";
 
 import { normalizeMediaUrl } from "@/features/post/components/services/posts.api";
 import Skeleton from "react-loading-skeleton";
+import { LikesList } from "@/features/post/components/LikesList";
 
 interface VibeCommentsSheetProps {
   vibe: Vibe;
@@ -33,11 +35,13 @@ const VibeCommentsSheet = ({
 }: VibeCommentsSheetProps) => {
   const [comments, setComments] = useState<VibeComment[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [openLikes, setOpenLikes] = useState(false);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
@@ -285,7 +289,10 @@ const VibeCommentsSheet = ({
                     className="group flex items-start justify-between gap-3"
                   >
                     <div className="flex min-w-0 flex-1 gap-3">
-                      <Avatar className="h-8 w-8 shrink-0 border border-border/20 shadow-sm">
+                      <Avatar
+                        onClick={() => navigate(`/profile/${c.profileId}`)}
+                        className="h-8 w-8 shrink-0 border border-border/20 shadow-sm cursor-pointer transition-opacity hover:opacity-90"
+                      >
                         <AvatarImage
                           src={normalizeMediaUrl(c.profilePicture)}
                           alt={c.userName}
@@ -299,10 +306,12 @@ const VibeCommentsSheet = ({
                       <div className="min-w-0 flex-1">
                         {/* TOP BAR */}
                         <div className="mb-1 flex items-center justify-between gap-2">
-                          <p className="truncate text-xs font-semibold text-foreground/90">
+                          <button
+                            onClick={() => navigate(`/profile/${c.profileId}`)}
+                            className="truncate text-xs font-semibold text-foreground/90 hover:text-foreground"
+                          >
                             {c.userName}
-                          </p>
-
+                          </button>
                           {isOwner && !isEditing && (
                             <div className="flex items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                               {/* EDIT */}
@@ -387,7 +396,10 @@ const VibeCommentsSheet = ({
                           </p>
 
                           {c.likesCount > 0 && (
-                            <p className="text-[10px] font-semibold text-muted-foreground/90">
+                            <p
+                              onClick={() => setOpenLikes(true)}
+                              className="text-[10px] font-semibold text-muted-foreground/90 cursor-pointer hover:text-muted-foreground/100 transition-colors"
+                            >
                               {c.likesCount}{" "}
                               {c.likesCount === 1 ? "like" : "likes"}
                             </p>
@@ -395,7 +407,33 @@ const VibeCommentsSheet = ({
                         </div>
                       </div>
                     </div>
+                    {openLikes && (
+                      <div
+                        onClick={() => setOpenLikes(false)}
+                        className="fixed inset-0 bg-black/10 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+                      >
+                        <div
+                          className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-lg p-5 relative border border-transparent dark:border-slate-700"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            onClick={() => setOpenLikes(false)}
+                            className="absolute top-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors right-3 text-lg font-bold"
+                          >
+                            ✕
+                          </button>
 
+                          <h3 className="text-lg font-semibold mb-4 text-slate-900 dark:text-slate-100">
+                            {"Liked by " +
+                              vibe.likes +
+                              " " +
+                              (vibe.likes === 1 ? "person" : "people")}
+                          </h3>
+
+                          <LikesList type="post" id={vibe.id} />
+                        </div>
+                      </div>
+                    )}
                     {/* LIKE */}
                     {!isEditing && (
                       <button
