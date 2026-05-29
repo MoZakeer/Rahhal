@@ -19,6 +19,9 @@ export const ar = {
       englishLanguage: "English",
       lightMode: "الوضع الفاتح",
       darkMode: "الوضع الداكن",
+      createAiTrip: "رحلة بالذكاء الاصطناعي",
+      createManualTrip: "رحلة يدوية",
+      createPost: "نشر بوست",
    },
    explore: {
       searchPlaceholder: "ابحث عن رحلات بالاسم أو الوجهة...",

@@ -19,6 +19,9 @@ export const en = {
       englishLanguage: "English",
       lightMode: "Light Mode",
       darkMode: "Dark Mode",
+      createAiTrip: "Create AI Trip",
+      createManualTrip: "Create Manual Trip",
+      createPost: "Create Post",
    },
    explore: {
       searchPlaceholder: "Search trips by name or destination...",

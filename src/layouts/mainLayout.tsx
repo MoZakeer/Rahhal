@@ -3,6 +3,7 @@ import Navbar from "../shared/components/navbar";
 import Footer from "../shared/components/footer";
 // import AppHeader from "@/components/AppHeader";
 import FloatingSidebar from "@/components/FloatingSidebar";
+import MobileBottomNav from "@/components/MobileBottomNav";
 // import FloatingChatBubble from "@/features/aiChatBot/components/FloatingChatBubble";
 import UploadProgressIndicator from "@/pages/feed/UploadProgressIndicator"
 interface MainLayoutProps {
@@ -41,6 +42,7 @@ const MainLayout = ({ onLogout }: MainLayoutProps) => {
       <UploadProgressIndicator />
       <Navbar onLogoutClick={handleLogout} />
       <FloatingSidebar />
+      <MobileBottomNav />
       {/* <FloatingChatBubble /> */}
 
       <main
