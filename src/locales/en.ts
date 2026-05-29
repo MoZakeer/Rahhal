@@ -536,6 +536,29 @@ export const en = {
       mAgo: "m ago",
       hAgo: "h ago",
       dAgo: "d ago"
+   },
+   myTrips: {
+      pageTitle: "My Adventures",
+      badge: "My Passport",
+      title1: "My",
+      title2: "Adventures",
+      tripsCount: "Trips",
+      global: "Global",
+      newTrip: "New Trip",
+      filters: { created: "Created", joined: "Joined", favorites: "Favorites" },
+      searchPlaceholder: "Search destinations...",
+      statusLabel: "Status",
+      statuses: { planned: "Planned", completed: "Completed", past: "Past", upcoming: "Upcoming" },
+      noTrips: "No trips found",
+      noTripsDesc: "Try adjusting your search or filters",
+      createFirstTripBtn: "Create your first trip now",
+      loadingMore: "Loading more adventures...",
+      pageSubtitle: "Manage and explore your past and upcoming adventures",
+      toast: {
+         login: "Please log in.",
+         fetchError: "Network error while loading adventures.",
+         saveError: "Could not update saved trips."
+      }
    }
 
 };

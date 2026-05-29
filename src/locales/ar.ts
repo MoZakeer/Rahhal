@@ -534,5 +534,29 @@ export const ar = {
       mAgo: "د", // اختصار دقيقة
       hAgo: "س", // اختصار ساعة
       dAgo: "ي"  // اختصار يوم
+   },
+   myTrips: {
+      pageTitle: "رحلاتي",
+      badge: "جواز سفري",
+      title1: "سجل",
+      title2: "مغامراتي",
+      tripsCount: "رحلات",
+      global: "عالمية",
+      newTrip: "رحلة جديدة",
+      filters: { created: "أنشأتها", joined: "انضممت لها", favorites: "المفضلة" },
+      searchPlaceholder: "ابحث عن وجهة...",
+      statusLabel: "الحالة",
+      statuses: { planned: "مخطط لها", completed: "مكتملة", past: "سابقة", upcoming: "قادمة" },
+      noTrips: "لم يتم العثور على رحلات",
+      noTripsDesc: "جرب تعديل كلمات البحث أو الفلاتر",
+      createFirstTripBtn: "أنشئ رحلتك الأولى الآن",
+      loadingMore: "جاري تحميل المزيد من المغامرات...",
+      pageSubtitle: "أدر واستكشف مغامراتك السابقة والقادمة",
+      toast: {
+         login: "يرجى تسجيل الدخول أولاً.",
+         fetchError: "حدث خطأ في الشبكة أثناء تحميل الرحلات.",
+         saveError: "تعذر تحديث الرحلات المحفوظة."
+      }
+
    }
 };

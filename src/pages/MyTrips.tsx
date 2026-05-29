@@ -1,19 +1,17 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import {
-  Plus,
-  Search,
-  Briefcase,
-  Globe,
-  Sparkles,
-  Compass,
-} from "lucide-react";
+import { Plus, Search, Compass, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import TripCard from "@/components/TripCard";
 import { toast } from "sonner";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useFavicon } from "@/hooks/useFavicon";
+import { useLanguage } from "@/context/LanguageContext";
+import { cn } from "@/lib/utils";
+
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
 
 // --- Types & Interfaces ---
 export interface ApiTrip {
@@ -30,251 +28,284 @@ export interface ApiTrip {
   destination?: string;
   withPlan?: boolean;
   isPublic?: boolean;
-
   isSaved?: boolean;
 }
+
 interface RawApiTrip extends Omit<ApiTrip, "id" | "name"> {
   tripId: string;
   title: string;
 }
-const filterTypes = [
-  { label: "Created", value: 2 },
-  { label: "Joined", value: 1 },
-  { label: "Favorites", value: 3 },
-];
 
-const statusTypes = [
-  { label: "Planned", value: 1 },
-  { label: "Completed", value: 2 },
-  { label: "Past", value: 4 },
-  { label: "Upcoming", value: 5 },
-];
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+}
 
 const MyTrips = () => {
-  useFavicon("/plane-lock.png")
-  usePageTitle("My Adventures");
-  const [trips, setTrips] = useState<ApiTrip[]>([]);
+  const { t, language } = useLanguage();
+  const isRtl = language === "ar";
+  const queryClient = useQueryClient();
+
+  useFavicon("/plane-lock.png");
+  usePageTitle(t("myTrips.pageTitle"));
+
+  // States
   const [activeFilter, setActiveFilter] = useState<number>(2);
   const [activeStatus, setActiveStatus] = useState<number | "">("");
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [pageNumber] = useState(1);
+  const debouncedSearch = useDebounce(search, 500);
   const constPageSize = 20;
 
-  useEffect(() => {
-    const fetchTrips = async () => {
-      setLoading(true);
-      try {
-        let token = localStorage.getItem("token") || "";
-        token = token.replace(/^"(.*)"$/, "$1");
+  const { ref: loadMoreRef, inView } = useInView();
 
-        let url = `https://rahhal-api.runasp.net/TripManagement/GetMyTrips?FilterType=${activeFilter}&Status=${activeStatus}&PageNumber=${pageNumber}&PageSize=${constPageSize}&SortByLastAdded=true`;
-        if (search.trim())
-          url += `&SearchTerm=${encodeURIComponent(search.trim())}`;
+  const filterTypes = [
+    { label: t("myTrips.filters.created"), value: 2 },
+    { label: t("myTrips.filters.joined"), value: 1 },
+    { label: t("myTrips.filters.favorites"), value: 3 },
+  ];
 
-        const res = await fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        });
+  const statusTypes = [
+    { label: t("myTrips.statuses.planned"), value: 1 },
+    { label: t("myTrips.statuses.completed"), value: 2 },
+    { label: t("myTrips.statuses.past"), value: 4 },
+    { label: t("myTrips.statuses.upcoming"), value: 5 },
+  ];
 
-        const data = await res.json();
-        if (data.isSuccess && data.data?.items) {
-          const normalizedData: ApiTrip[] = data.data.items.map(
-            (item: RawApiTrip) => ({
-              ...item,
-              id: item.tripId, // Create 'id' so TripCard doesn't complain
-              name: item.title, // Create 'name' so TripCard doesn't complain
-            }),
-          );
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useInfiniteQuery({
+    queryKey: ["myTrips", activeFilter, activeStatus, debouncedSearch],
+    queryFn: async ({ pageParam = 1 }) => {
+      let token = localStorage.getItem("token") || "";
+      token = token.replace(/^"(.*)"$/, "$1");
 
-          setTrips(normalizedData);
-        } else {
-          setTrips([]);
-        }
-      } catch {
-        toast.error("Network error while loading adventures.");
-      } finally {
-        setLoading(false);
+      let url = `https://rahhal-api.runasp.net/TripManagement/GetMyTrips?FilterType=${activeFilter}&Status=${activeStatus}&PageNumber=${pageParam}&PageSize=${constPageSize}&SortByLastAdded=true`;
+      if (debouncedSearch.trim()) {
+        url += `&SearchTerm=${encodeURIComponent(debouncedSearch.trim())}`;
       }
-    };
 
-    const delayDebounceFn = setTimeout(fetchTrips, 400);
-    return () => clearTimeout(delayDebounceFn);
-  }, [search, activeFilter, activeStatus, pageNumber]);
-
-  const toggleFavorite = async (tripid: string) => {
-    let token = localStorage.getItem("token") || "";
-    token = token.replace(/^"(.*)"$/, "$1");
-    if (!token) return toast.error("Please log in.");
-
-    setTrips((prev) =>
-      prev.map((t) => (t.id === tripid ? { ...t, isSaved: !t.isSaved } : t)),
-    );
-
-    try {
-      const res = await fetch(
-        `https://rahhal-api.runasp.net/TripManagement/SaveTrip`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ tripId: tripid }),
+      const res = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-      );
-      const data = await res.json();
+      });
 
-      if (!data.isSuccess) throw new Error();
-    } catch {
-      setTrips((prev) =>
-        prev.map((t) => (t.id === tripid ? { ...t, isSaved: !t.isSaved } : t)),
-      );
-      toast.error("Could not update saved trips.");
+      const json = await res.json();
+      if (!json.isSuccess) throw new Error("Failed to fetch");
+      return json.data?.items || [];
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length === constPageSize ? allPages.length + 1 : undefined;
+    },
+  });
+
+  const trips: ApiTrip[] =
+    data?.pages.flat().map((item: RawApiTrip) => ({
+      ...item,
+      id: item.tripId,
+      name: item.title,
+    })) || [];
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
-  };
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const toggleFavoriteMutation = useMutation({
+    mutationFn: async (tripId: string) => {
+      let token = localStorage.getItem("token") || "";
+      token = token.replace(/^"(.*)"$/, "$1");
+      if (!token) throw new Error("No token");
+
+      const res = await fetch(`https://rahhal-api.runasp.net/TripManagement/SaveTrip`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ tripId }),
+      });
+      const data = await res.json();
+      if (!data.isSuccess) throw new Error("Failed to save");
+      return data;
+    },
+    onMutate: async (tripId) => {
+      await queryClient.cancelQueries({ queryKey: ["myTrips"] });
+
+      const previousData = queryClient.getQueryData(["myTrips", activeFilter, activeStatus, debouncedSearch]);
+
+      queryClient.setQueryData(["myTrips", activeFilter, activeStatus, debouncedSearch], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page: RawApiTrip[]) =>
+            page.map((trip) =>
+              trip.tripId === tripId ? { ...trip, isSaved: !trip.isSaved } : trip
+            )
+          ),
+        };
+      });
+
+      return { previousData };
+    },
+    onError: (err, newTodo, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(["myTrips", activeFilter, activeStatus, debouncedSearch], context.previousData);
+      }
+      toast.error(t("myTrips.toast.saveError"));
+    },
+  });
+
+  if (isError) {
+    toast.error(t("myTrips.toast.fetchError"));
+  }
 
   return (
-    <div className="min-h-screen bg-[#F8F9FB] pb-10 dark:bg-slate-900">
-      {/* --- MINIMIZED HERO SECTION --- */}
-      <div className="relative overflow-hidden bg-[#0f172a] py-12 text-white">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute -left-[5%] -top-[10%] h-[120%] w-[40%] rounded-full bg-blue-900/15 blur-[100px]" />
-          <div className="absolute -right-[5%] bottom-0 h-[80%] w-[30%] rounded-full bg-blue-600/10 blur-[80px]" />
-        </div>
+    <div className="min-h-screen bg-[#F8F9FB] pb-10 dark:bg-slate-900" dir={isRtl ? "rtl" : "ltr"}>
+      {/* --- MODERN & COMPACT DASHBOARD HEADER --- */}
+      <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800 sticky top-0 z-35 px-4 py-3 sm:py-6 transition-all duration-300 shadow-sm">
+        <div className="container mx-auto flex flex-col gap-3 sm:gap-6">
 
-        <div className="container relative z-10 mx-auto px-4">
-          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <div className="space-y-3 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1 backdrop-blur-md border border-white/10">
-                <Sparkles className="h-3.5 w-3.5 text-blue-900" />
-                <span className="text-[9px] font-black uppercase tracking-widest text-blue-200">
-                  My Passport
-                </span>
-              </div>
-              <h1 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">
-                My{" "}
-                <span className="bg-gradient-to-r from-blue-400 to-blue-900 bg-clip-text text-transparent">
-                  Adventures
-                </span>
-              </h1>
-              {/* Horizontal Stats */}
-              <div className="flex items-center justify-center md:justify-start gap-4 text-slate-400 text-sm">
-                <div className="flex items-center gap-1.5">
-                  <Briefcase className="h-4 w-4 text-slate-500" />
-                  <span className="font-bold text-slate-200">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2 sm:gap-3 transition-all">
+                {t("myTrips.pageTitle")}
+                {trips.length > 0 && (
+                  <span className="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 text-[10px] sm:text-xs py-0.5 px-2 sm:py-1 sm:px-2.5 rounded-full font-bold">
                     {trips.length}
-                  </span>{" "}
-                  Trips
-                </div>
-                <div className="w-1 h-1 rounded-full bg-slate-700" />
-                <div className="flex items-center gap-1.5">
-                  <Globe className="h-4 w-4 text-slate-500" />
-                  <span className="font-bold text-slate-200 font-mono">
-                    Global
                   </span>
-                </div>
-              </div>
+                )}
+              </h1>
+              <p className="hidden sm:block text-slate-500 dark:text-slate-400 text-sm mt-1.5">
+                {t("myTrips.pageSubtitle")}
+              </p>
             </div>
 
             <Link to="/create-trip">
               <Button
-                size="lg"
-                className="h-14 rounded-2xl px-8 text-base font-bold shadow-xl transition-all hover:scale-[1.02] active:scale-95"
+                size="default"
+                className="h-9 w-9 sm:h-11 sm:w-auto rounded-full sm:rounded-xl p-0 sm:px-6 text-sm font-bold shadow-sm transition-all duration-300 hover:scale-[1.05] active:scale-95 bg-blue-700 hover:bg-blue-800 text-white flex items-center justify-center overflow-hidden group"
+                aria-label={t("myTrips.newTrip")}
               >
-                <Plus className="mr-2 h-5 w-5" /> New Trip
+                <Plus className="h-5 w-5 sm:h-4 sm:w-4 sm:mx-1 transition-transform group-hover:rotate-90" />
+                <span className="hidden sm:inline-block whitespace-nowrap">{t("myTrips.newTrip")}</span>
               </Button>
             </Link>
           </div>
-        </div>
-      </div>
 
-      {/* --- COMPACT FLOATING FILTER BAR --- */}
-      <div className="container mx-auto px-4">
-        <div className="relative -mt-8 rounded-3xl border dark:bg-slate-900 border-white/20 bg-white/95 p-3 shadow-xl backdrop-blur-xl md:p-4">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+          <div className="flex flex-col lg:flex-row justify-between gap-3">
+
             {/* Category Toggle */}
-            <div className="flex p-1 bg-slate-100 dark:bg-slate-800 dark:border-slate-600 rounded-xl w-fit border border-slate-200/50">
+            <div className="flex p-1 bg-slate-100 dark:bg-slate-800/50 rounded-lg sm:rounded-xl border border-slate-200 dark:border-slate-700/50 w-full lg:w-fit overflow-x-auto no-scrollbar">
               {filterTypes.map((t) => (
                 <button
                   key={t.value}
                   onClick={() => setActiveFilter(t.value)}
-                  className={`px-6 py-2 text-xs font-bold transition-all rounded-lg ${
-                    activeFilter === t.value
-                      ? "bg-white dark:bg-slate-300 text-blue-900 shadow-sm ring-1 ring-black/5"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
+                  className={`flex-1 lg:flex-none px-3 sm:px-5 py-1.5 sm:py-2 text-[11px] sm:text-sm font-semibold transition-all duration-300 ease-in-out rounded-md sm:rounded-lg outline-none whitespace-nowrap ${activeFilter === t.value
+                      ? "bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-400 shadow-sm ring-1 ring-slate-200 dark:ring-slate-600 scale-[1.02]"
+                      : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                    }`}
                 >
                   {t.label}
                 </button>
               ))}
             </div>
 
-            {/* Search Bar */}
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-white" />
-              <Input
-                placeholder="Search destinations..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="h-11 w-full border-none bg-slate-100 dark:bg-slate-800 pl-11 dark:text-white rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-blue-900/10"
-              />
-            </div>
-          </div>
+            {/* Search Bar & Status Pills (Same line on mobile!) */}
+            <div className="flex items-center gap-2 sm:gap-3 w-full lg:w-auto">
 
-          {/* Status Pills */}
-          <div className="mt-3 flex flex-wrap items-center gap-2 border-t  border-slate-100 dark:border-slate-400 pt-3 px-2">
-            <span className="text-[10px] font-black uppercase tracking-tighter text-slate-400 mr-2">
-              Status
-            </span>
-            {statusTypes.map((s) => (
-              <button
-                key={s.value}
-                onClick={() =>
-                  setActiveStatus(activeStatus === s.value ? "" : s.value)
-                }
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all border ${
-                  activeStatus === s.value
-                    ? "bg-blue-900 border-blue-900 text-white shadow-sm"
-                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-500 hover:border-slate-300"
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
+              {/* Search */}
+              <div className="relative flex-1 sm:w-64 group">
+                <Search className={cn("absolute top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 transition-colors group-focus-within:text-blue-600", isRtl ? "right-3" : "left-3")} />
+                <Input
+                  placeholder={t("myTrips.searchPlaceholder")}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className={cn(
+                    "h-9 sm:h-10 w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg sm:rounded-xl text-xs sm:text-sm focus-visible:ring-1 focus-visible:ring-blue-500 transition-all",
+                    isRtl ? "pr-9" : "pl-9"
+                  )}
+                />
+              </div>
+
+              {/* Separator */}
+              <div className="hidden sm:block h-6 w-px bg-slate-200 dark:bg-slate-700" />
+
+              {/* Status Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar max-w-[45%] sm:max-w-none pr-1">
+                {statusTypes.map((s) => (
+                  <button
+                    key={s.value}
+                    onClick={() => setActiveStatus(activeStatus === s.value ? "" : s.value)}
+                    className={`px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold transition-all duration-300 border outline-none whitespace-nowrap ${activeStatus === s.value
+                        ? "bg-blue-50 dark:bg-blue-900/30 border-blue-600 dark:border-blue-500 text-blue-700 dark:text-blue-400 scale-105"
+                        : "bg-transparent border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-500"
+                      }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+
+            </div>
           </div>
         </div>
       </div>
+
       {/* --- CONTENT GRID --- */}
       <main className="container mx-auto px-4 py-10">
-        {loading ? (
+        {isLoading ? (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[...Array(3)].map((_, i) => (
-              <div
-                key={i}
-                className="h-72 rounded-3xl bg-slate-200 animate-pulse"
-              />
-            ))}
-          </div>
-        ) : trips.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {trips.map((trip) => (
-              <div
-                key={trip.id}
-                className="animate-in fade-in slide-in-from-bottom-4 duration-500"
-              >
-                <TripCard trip={trip} onToggleFavorite={toggleFavorite} />
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex flex-col gap-3 p-4 h-80 rounded-3xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm animate-pulse">
+                <div className="w-full h-40 bg-slate-200 dark:bg-slate-700 rounded-2xl" />
+                <div className="w-3/4 h-5 bg-slate-200 dark:bg-slate-700 rounded-md mt-2" />
+                <div className="w-1/2 h-4 bg-slate-200 dark:bg-slate-700 rounded-md" />
+                <div className="w-full h-10 bg-slate-200 dark:bg-slate-700 rounded-xl mt-auto" />
               </div>
             ))}
           </div>
+        ) : trips.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {trips.map((trip) => (
+                <div key={trip.id} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <TripCard trip={trip} onToggleFavorite={(id) => toggleFavoriteMutation.mutate(id)} />
+                </div>
+              ))}
+            </div>
+
+            <div ref={loadMoreRef} className="mt-8 flex justify-center py-4">
+              {isFetchingNextPage && (
+                <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                  <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                  <span className="text-sm font-medium">{t("myTrips.loadingMore")}</span>
+                </div>
+              )}
+            </div>
+          </>
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-            <Compass className="mb-4 h-12 w-12" />
-            <p className="text-lg font-medium">No trips found</p>
-            <p className="text-sm">Try adjusting your search or filters</p>
+          <div className="flex flex-col items-center justify-center py-24 text-slate-500 dark:text-slate-400">
+            <Compass className="mb-4 h-16 w-16 opacity-40 text-blue-900 dark:text-blue-500" />
+            <p className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2">{t("myTrips.noTrips")}</p>
+            <p className="text-sm mb-6">{t("myTrips.noTripsDesc")}</p>
+
+            {/* 🚀 Smart Empty State CTA */}
+            <Link to="/create-trip">
+              <Button className="rounded-full bg-slate-900 hover:bg-blue-700 text-white px-8 py-5 text-sm font-bold shadow-lg transition-colors">
+                {t("myTrips.createFirstTripBtn")}
+              </Button>
+            </Link>
           </div>
         )}
       </main>
