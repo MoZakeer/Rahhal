@@ -158,7 +158,7 @@ const MyTrips = () => {
 
       return { previousData };
     },
-    onError: (err, newTodo, context) => {
+    onError: (_err, _newTodo, context) => {
       if (context?.previousData) {
         queryClient.setQueryData(["myTrips", activeFilter, activeStatus, debouncedSearch], context.previousData);
       }
