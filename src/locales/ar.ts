@@ -252,7 +252,7 @@ export const ar = {
       pageTitle: "قصص السفر",
       loadError: "حدث خطأ في تحميل المغامرات.",
       traveler: "يا رحال",
-      shareMobile: "شاركنا مغامرتك...",
+      shareMobile: "شاركنا مغامرتك",
       shareDesktop: "شارك مغامرتك الجاية",
       storiesTitle: "قصص تتخطى الحدود",
       storiesDesc: "لكل رحلة قصة—اكتشف قصتك هنا.",

@@ -252,7 +252,7 @@ export const en = {
       pageTitle: "Travel Stories",
       loadError: "Failed to load adventures.",
       traveler: "Traveler",
-      shareMobile: "Share adventure...",
+      shareMobile: "Share adventure",
       shareDesktop: "Share your next adventure,",
       storiesTitle: "Stories Beyond Borders",
       storiesDesc: "Every journey has a story—discover yours here.",
