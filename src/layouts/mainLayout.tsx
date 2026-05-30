@@ -36,13 +36,13 @@ const MainLayout = ({ onLogout }: MainLayoutProps) => {
   const showAppHeader =
     appHeaderPaths.includes(location.pathname) ||
     location.pathname.startsWith("/trip/");
-
+    const isTripDetailRoute = location.pathname.startsWith("/trip/");
   return (
     <>
       <UploadProgressIndicator />
       <Navbar onLogoutClick={handleLogout} />
       <FloatingSidebar />
-      <MobileBottomNav />
+      {!isTripDetailRoute && <MobileBottomNav />}
       {/* <FloatingChatBubble /> */}
 
       <main
