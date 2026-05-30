@@ -33,7 +33,8 @@ export default function ProfileVibesHighlights({
   const myProfileId = parsedAuth?.profileId || "";
   const isMyProfile = myProfileId === profileId;
 
-  const targetUserId = profile?.userId || profileId;
+  // ProfileData doesn't have `id` property — use `profileId` if available, otherwise fall back to the provided prop
+  const targetUserId = profile?.profileId || profileId || "";
 
   useEffect(() => {
     if (!targetUserId) return;
@@ -91,8 +92,8 @@ export default function ProfileVibesHighlights({
 
   const groups = useMemo(() => {
     if (vibes.length === 0) return [];
-    return groupVibesByUser(vibes);
-  }, [vibes]);
+    return groupVibesByUser(vibes, currentUserId ?? "");
+  }, [vibes, currentUserId]);
 
   if (loading) {
     return (
