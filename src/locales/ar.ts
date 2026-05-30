@@ -561,5 +561,64 @@ export const ar = {
          saveError: "تعذر تحديث الرحلات المحفوظة."
       }
 
+   },
+   createTrip: {
+      pageTitle: "خطط لمغامرتك القادمة",
+      loading: "جاري تجهيز مساحتك...",
+      step: "خطوة",
+      of: "من",
+      step1Title: "إلى أين؟",
+      step2Title: "التواريخ والتفاصيل",
+      step3Title: "حدد الأجواء",
+      labels: {
+         tripName: "اسم الرحلة",
+         country: "البلد",
+         city: "مدينة الوجهة",
+         startDate: "تاريخ البدء",
+         endDate: "تاريخ الانتهاء",
+         travelers: "عدد المسافرين",
+         budget: "الميزانية المتوقعة",
+         gender: "الجنس المستهدف",
+         ageGroup: "الفئة العمرية",
+         description: "الوصف",
+         preferences: "أسلوب السفر والاهتمامات"
+      },
+      placeholders: {
+         tripName: "مثال: رحلة أوروبا صيف 2026",
+         searchCountry: "ابحث عن بلد...",
+         searchCity: "ابحث عن مدينة...",
+         travelers: "مثال: 5",
+         budget: "مثال: 2500",
+         description: "ما هو جو الرحلة؟ هل هناك أهداف معينة؟"
+      },
+      validation: {
+         nameReq: "اسم الرحلة مطلوب",
+         countryReq: "يرجى اختيار البلد",
+         cityReq: "يرجى اختيار الوجهة",
+         startReq: "تاريخ البدء مطلوب",
+         startFuture: "تاريخ البدء يجب أن يكون في المستقبل",
+         endReq: "تاريخ الانتهاء مطلوب",
+         endBeforeStart: "تاريخ الانتهاء لا يمكن أن يكون قبل تاريخ البدء",
+         travelersReq: "عدد المسافرين مطلوب",
+         travelersMin: "الحد الأدنى للمسافرين هو 1",
+         budgetReq: "الميزانية مطلوبة",
+         budgetMin: "الميزانية يجب أن تكون أكبر من 0",
+         descReq: "الوصف مطلوب"
+      },
+      buttons: {
+         back: "رجوع",
+         next: "التالي",
+         finish: "إنشاء الرحلة",
+         creating: "جاري الإنشاء..."
+      },
+      toast: {
+         fetchError: "فشل في تحميل البيانات الأولية. يرجى التحديث.",
+         fillFields: "يرجى تعبئة جميع الحقول المطلوبة بشكل صحيح.",
+         success: "تم إنشاء الرحلة بنجاح!",
+         error: "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى."
+      },
+      genders: { male: "ذكر", female: "أنثى", other: "الجميع" },
+      ages: { kid: "أطفال", young: "شباب", middle: "منتصف العمر", old: "كبار" },
+      noResults: "لا توجد نتائج",
    }
 };
