@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { useQuery } from "@tanstack/react-query"; 
+import { useQuery } from "@tanstack/react-query";
 import {
   MapPin, Calendar, Users, FileText, DollarSign, Tag, Globe, User, Clock, Loader2, ChevronRight, ChevronLeft, CheckCircle2, Search
 } from "lucide-react";
@@ -225,7 +225,7 @@ const CreateTrip = () => {
       } else {
         toast.error(result.message || t("createTrip.toast.error"));
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error(t("createTrip.toast.error"));
     } finally {
@@ -244,8 +244,8 @@ const CreateTrip = () => {
 
   const stepVariants = {
     hidden: { opacity: 0, x: isRtl ? -20 : 20, scale: 0.95 },
-    visible: { opacity: 1, x: 0, scale: 1, transition: { duration: 0.3, ease: "easeOut" } },
-    exit: { opacity: 0, x: isRtl ? 20 : -20, scale: 0.95, transition: { duration: 0.2, ease: "easeIn" } }
+    visible: { opacity: 1, x: 0, scale: 1, transition: { duration: 0.3, ease: "easeOut" as const } },
+    exit: { opacity: 0, x: isRtl ? 20 : -20, scale: 0.95, transition: { duration: 0.2, ease: "easeIn" as const } }
   };
 
   const stepTitles = [
