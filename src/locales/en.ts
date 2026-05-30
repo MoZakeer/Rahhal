@@ -19,6 +19,9 @@ export const en = {
       englishLanguage: "English",
       lightMode: "Light Mode",
       darkMode: "Dark Mode",
+      createAiTrip: "Create AI Trip",
+      createManualTrip: "Create Manual Trip",
+      createPost: "Create Post",
    },
    explore: {
       searchPlaceholder: "Search trips by name or destination...",
@@ -559,6 +562,65 @@ export const en = {
          fetchError: "Network error while loading adventures.",
          saveError: "Could not update saved trips."
       }
+   },
+   createTrip: {
+      pageTitle: "Plan your next adventure",
+      loading: "Preparing your canvas...",
+      step: "Step",
+      of: "of",
+      step1Title: "Where to?",
+      step2Title: "Logistics & Dates",
+      step3Title: "Set the Vibe",
+      labels: {
+         tripName: "Trip Name",
+         country: "Country",
+         city: "Destination City",
+         startDate: "Start Date",
+         endDate: "End Date",
+         travelers: "Travelers",
+         budget: "Est. Budget",
+         gender: "Target Gender",
+         ageGroup: "Age Group",
+         description: "Description",
+         preferences: "Travel Style & Preferences"
+      },
+      placeholders: {
+         tripName: "e.g., Summer Eurotrip 2026",
+         searchCountry: "Search country...",
+         searchCity: "Search city...",
+         travelers: "e.g. 5",
+         budget: "e.g., 2500",
+         description: "What's the vibe of this trip? Any specific goals?"
+      },
+      validation: {
+         nameReq: "Trip name is required",
+         countryReq: "Please select a country",
+         cityReq: "Please select a destination",
+         startReq: "Start date is required",
+         startFuture: "Start date must be in the future",
+         endReq: "End date is required",
+         endBeforeStart: "End date cannot be before start date",
+         travelersReq: "Number of travelers is required",
+         travelersMin: "Minimum travelers is 1",
+         budgetReq: "Budget is required",
+         budgetMin: "Budget must be greater than 0",
+         descReq: "Description is required"
+      },
+      buttons: {
+         back: "Back",
+         next: "Next",
+         finish: "Finish & Create",
+         creating: "Creating..."
+      },
+      toast: {
+         fetchError: "Failed to load initial data. Please refresh.",
+         fillFields: "Please fill in all required fields correctly.",
+         success: "Trip created successfully!",
+         error: "An unexpected error occurred. Please try again."
+      },
+      genders: { male: "Male", female: "Female", other: "Other" },
+      ages: { kid: "Kid", young: "Young", middle: "Middle Age", old: "Old" },
+      noResults: "No results found",
    }
 
 };
