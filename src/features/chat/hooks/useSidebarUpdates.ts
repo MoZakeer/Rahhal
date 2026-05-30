@@ -42,7 +42,7 @@ export const useSidebarUpdates = function () {
     const handleUpdateSidebar = function (data: UpdateSidebarData) {
       queryClient.setQueryData<{ data: ChatType[] }>(
         ["all-chats"],
-        (oldData) => {
+        (oldData:any) => {
           if (!oldData?.data) return oldData;
 
           const chats = [...oldData.data];
@@ -60,6 +60,7 @@ export const useSidebarUpdates = function () {
               unreadMessagesCount: isChatOpenNow ? 0 : data.unreadCount,
               lastMessageType: data.messageType,
               lastMessageSender: data.lastMessageSender,
+              reactionInfo:null,
             };
 
             chats.splice(index, 1);
