@@ -274,36 +274,38 @@ const FullVibeViewer = ({
                 >
                   {group.userName}
                 </p>
-                <p className="text-[11px] text-white/75 font-medium">
-                  {(() => {
-                    if (!vibe?.createdAt) return "Just now";
-                    const date = new Date(vibe.createdAt);
-                    if (isNaN(date.getTime())) return "Just now";
+               <p className="text-[11px] text-white/75 font-medium">
+  {(() => {
+    if (!vibe?.createdAt) return null;
 
-                    const now = new Date();
-                    const isToday = date.toDateString() === now.toDateString();
-                    const yesterday = new Date();
-                    yesterday.setDate(now.getDate() - 1);
-                    const isYesterday = date.toDateString() === yesterday.toDateString();
+    const date = new Date(vibe.createdAt);
+    if (isNaN(date.getTime())) return null;
 
-                    const time = date.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: true,
-                    });
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
 
-                    if (isToday) return `Today, ${time}`;
-                    if (isYesterday) return `Yesterday, ${time}`;
+    const yesterday = new Date();
+    yesterday.setDate(now.getDate() - 1);
+    const isYesterday = date.toDateString() === yesterday.toDateString();
 
-                    return date.toLocaleString([], {
-                      day: "numeric",
-                      month: "short",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: true,
-                    });
-                  })()}
-                </p>
+    const time = date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    if (isToday) return `Today, ${time}`;
+    if (isYesterday) return `Yesterday, ${time}`;
+
+    return date.toLocaleString([], {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  })()}
+</p>
               </div>
 
               {showMenu && (
