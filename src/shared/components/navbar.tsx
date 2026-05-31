@@ -221,17 +221,17 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
         {/* Logo Section */}
         <Link
           to="/feed"
-          className="flex items-center gap-2 group cursor-pointer outline-none"
+          className="flex items-center  group cursor-pointer outline-none"
           onClick={(e) => {
             if (location.pathname === "/feed") e.preventDefault();
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
         >
-          <div className="relative flex h-11 w-11 items-center justify-center transition-transform group-hover:scale-105">
-            <img src="/light-logo.png" alt="Rahhal Logo" className="relative h-11 w-11 object-contain block dark:hidden" />
-            <img src="/dark-logo.png" alt="Rahhal Logo" className="relative h-11 w-11 object-contain hidden dark:block" />
+          <div className="relative flex h-18 w-18 items-center justify-center transition-transform group-hover:scale-105">
+            <img src="/lo.png" alt="Rahhal Logo" className="relative h-18 w-18 object-contain block dark:hidden" />
+            <img src="/dark-lo.png" alt="Rahhal Logo" className="relative h-18 w-18 object-contain hidden dark:block" />
           </div>
-          <span className="text-2xl tracking-tighter ms-0 hidden sm:flex items-baseline">
+          <span className=" -ml-2 text-2xl tracking-tighter ms-0 hidden sm:flex items-baseline">
             {language === "en" ? (
               <>
                 <span className="font-black text-slate-800 dark:text-slate-100">Rah</span>
