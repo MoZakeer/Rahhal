@@ -134,7 +134,7 @@ export default function MobileBottomNav() {
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: "120%", opacity: 0 }}
                   transition={{ type: "spring", damping: 25, stiffness: 220 }}
-                  className="lg:hidden fixed bottom-0 left-0 right-0 z-[60] select-none"
+                  className="lg:hidden fixed bottom-0 left-0 right-0 z-[50] select-none"
                >
                   {/* Glassmorphism Background */}
                   <div className="absolute inset-0 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl border-t border-slate-200/50 dark:border-slate-800/50 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]" />
