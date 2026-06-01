@@ -110,7 +110,7 @@ const TripMatching = () => {
     fetchDestinations();
   }, []);
 
-  // 🚀 Logic for Smart Header (Hide on Scroll Down, Show on Scroll Up)
+  // Logic for Smart Header (Hide on Scroll Down, Show on Scroll Up)
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollY = useRef(0);
 
@@ -118,11 +118,9 @@ const TripMatching = () => {
     const controlHeader = () => {
       const currentScrollY = window.scrollY;
 
-      // لو اليوزر نزل أكتر من 100 بكسل وسكرول لتحت -> نخفي البار
       if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
         setIsVisible(false);
       }
-      // لو اليوزر طالع لفوق -> نظهر البار فوراً
       else {
         setIsVisible(true);
       }
@@ -286,26 +284,37 @@ const TripMatching = () => {
     }
   };
 
-  // 🚀 الفلترة والترتيب الذكي في خطوة واحدة
-  const filteredAndSorted = results
-    .filter((t) =>
-      t.name.toLowerCase().includes(search.toLowerCase()) ||
-      (t.destination && t.destination.toLowerCase().includes(search.toLowerCase()))
-    )
+  const filteredAndSorted = [...results]
+    .filter((t) => {
+      if (!search || search.trim() === "") return true;
+      
+      const searchLower = search.toLowerCase();
+      const tripName = t.name ? t.name.toLowerCase() : "";
+      const tripDest = t.destination ? t.destination.toLowerCase() : "";
+      
+      return tripName.includes(searchLower) || tripDest.includes(searchLower);
+    })
     .sort((a, b) => {
       if (sortBy === "best_match") {
-        return b.matchPercentage - a.matchPercentage;
-      } else if (sortBy === "budget_asc") {
-        const budgetA = a.budget || Infinity;
-        const budgetB = b.budget || Infinity;
+        return (b.matchPercentage || 0) - (a.matchPercentage || 0);
+      } 
+      else if (sortBy === "budget_asc") {
+        const budgetA = a.budget != null && !isNaN(Number(a.budget)) ? Number(a.budget) : 999999;
+        const budgetB = b.budget != null && !isNaN(Number(b.budget)) ? Number(b.budget) : 999999;
         return budgetA - budgetB;
-      } else if (sortBy === "date_asc") {
-        if (!a.startDate) return 1;
-        if (!b.startDate) return -1;
-        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+      } 
+      else if (sortBy === "date_asc") {
+        const timeA = a.startDate ? new Date(a.startDate).getTime() : 9999999999999;
+        const timeB = b.startDate ? new Date(b.startDate).getTime() : 9999999999999;
+        
+        const finalA = isNaN(timeA) ? 9999999999999 : timeA;
+        const finalB = isNaN(timeB) ? 9999999999999 : timeB;
+        
+        return finalA - finalB;
       }
       return 0;
     });
+    
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] pb-20 dark:bg-slate-950">
