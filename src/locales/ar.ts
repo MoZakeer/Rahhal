@@ -19,6 +19,9 @@ export const ar = {
       englishLanguage: "English",
       lightMode: "الوضع الفاتح",
       darkMode: "الوضع الداكن",
+      createAiTrip: "رحلة بالذكاء الاصطناعي",
+      createManualTrip: "رحلة يدوية",
+      createPost: "نشر بوست",
    },
    explore: {
       searchPlaceholder: "ابحث عن رحلات بالاسم أو الوجهة...",
@@ -252,7 +255,7 @@ export const ar = {
       pageTitle: "قصص السفر",
       loadError: "حدث خطأ في تحميل المغامرات.",
       traveler: "يا رحال",
-      shareMobile: "شاركنا مغامرتك...",
+      shareMobile: "شاركنا مغامرتك",
       shareDesktop: "شارك مغامرتك الجاية",
       storiesTitle: "قصص تتخطى الحدود",
       storiesDesc: "لكل رحلة قصة—اكتشف قصتك هنا.",
@@ -534,5 +537,88 @@ export const ar = {
       mAgo: "د", // اختصار دقيقة
       hAgo: "س", // اختصار ساعة
       dAgo: "ي"  // اختصار يوم
+   },
+   myTrips: {
+      pageTitle: "رحلاتي",
+      badge: "جواز سفري",
+      title1: "سجل",
+      title2: "مغامراتي",
+      tripsCount: "رحلات",
+      global: "عالمية",
+      newTrip: "رحلة جديدة",
+      filters: { created: "أنشأتها", joined: "انضممت لها", favorites: "المفضلة" },
+      searchPlaceholder: "ابحث عن وجهة...",
+      statusLabel: "الحالة",
+      statuses: { planned: "مخطط لها", completed: "مكتملة", past: "سابقة", upcoming: "قادمة" },
+      noTrips: "لم يتم العثور على رحلات",
+      noTripsDesc: "جرب تعديل كلمات البحث أو الفلاتر",
+      createFirstTripBtn: "أنشئ رحلتك الأولى الآن",
+      loadingMore: "جاري تحميل المزيد من المغامرات...",
+      pageSubtitle: "أدر واستكشف مغامراتك السابقة والقادمة",
+      toast: {
+         login: "يرجى تسجيل الدخول أولاً.",
+         fetchError: "حدث خطأ في الشبكة أثناء تحميل الرحلات.",
+         saveError: "تعذر تحديث الرحلات المحفوظة."
+      }
+
+   },
+   createTrip: {
+      pageTitle: "خطط لمغامرتك القادمة",
+      loading: "جاري تجهيز مساحتك...",
+      step: "خطوة",
+      of: "من",
+      step1Title: "إلى أين؟",
+      step2Title: "التواريخ والتفاصيل",
+      step3Title: "حدد الأجواء",
+      labels: {
+         tripName: "اسم الرحلة",
+         country: "البلد",
+         city: "مدينة الوجهة",
+         startDate: "تاريخ البدء",
+         endDate: "تاريخ الانتهاء",
+         travelers: "عدد المسافرين",
+         budget: "الميزانية المتوقعة",
+         gender: "الجنس المستهدف",
+         ageGroup: "الفئة العمرية",
+         description: "الوصف",
+         preferences: "أسلوب السفر والاهتمامات"
+      },
+      placeholders: {
+         tripName: "مثال: رحلة أوروبا صيف 2026",
+         searchCountry: "ابحث عن بلد...",
+         searchCity: "ابحث عن مدينة...",
+         travelers: "مثال: 5",
+         budget: "مثال: 2500",
+         description: "ما هو جو الرحلة؟ هل هناك أهداف معينة؟"
+      },
+      validation: {
+         nameReq: "اسم الرحلة مطلوب",
+         countryReq: "يرجى اختيار البلد",
+         cityReq: "يرجى اختيار الوجهة",
+         startReq: "تاريخ البدء مطلوب",
+         startFuture: "تاريخ البدء يجب أن يكون في المستقبل",
+         endReq: "تاريخ الانتهاء مطلوب",
+         endBeforeStart: "تاريخ الانتهاء لا يمكن أن يكون قبل تاريخ البدء",
+         travelersReq: "عدد المسافرين مطلوب",
+         travelersMin: "الحد الأدنى للمسافرين هو 1",
+         budgetReq: "الميزانية مطلوبة",
+         budgetMin: "الميزانية يجب أن تكون أكبر من 0",
+         descReq: "الوصف مطلوب"
+      },
+      buttons: {
+         back: "رجوع",
+         next: "التالي",
+         finish: "إنشاء الرحلة",
+         creating: "جاري الإنشاء..."
+      },
+      toast: {
+         fetchError: "فشل في تحميل البيانات الأولية. يرجى التحديث.",
+         fillFields: "يرجى تعبئة جميع الحقول المطلوبة بشكل صحيح.",
+         success: "تم إنشاء الرحلة بنجاح!",
+         error: "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى."
+      },
+      genders: { male: "ذكر", female: "أنثى", other: "الجميع" },
+      ages: { kid: "أطفال", young: "شباب", middle: "منتصف العمر", old: "كبار" },
+      noResults: "لا توجد نتائج",
    }
 };

@@ -1,7 +1,9 @@
 import { ArrowRight, Heart, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
-
+import { getUserId } from "@/lib/api";
+import { useMemo, useState } from "react";
 import type { Vibe } from "../data/vibesData";
+import { LikesList } from "@/features/post/components/LikesList";
 
 interface VibeReactionsBarProps {
   vibe: Vibe;
@@ -18,6 +20,9 @@ const VibeReactionsBar = ({
   onPause,
   onResume,
 }: VibeReactionsBarProps) => {
+  const currentUserId = useMemo(() => getUserId(), []);
+  const [openLikes, setOpenLikes] = useState(false);
+
   return (
     <div className="absolute bottom-0 inset-x-0 z-30 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-5 pb-8 pt-12 pointer-events-none">
       {/* Flex layout distributes interactions cleanly across the bottom bar */}
@@ -47,8 +52,42 @@ const VibeReactionsBar = ({
                 />
               </motion.div>
             </button>
+            {vibe.likes > 0 && vibe.userId == currentUserId && (
+              <span
+                onClick={() => setOpenLikes(true)}
+                className="text-sm text-white/90 cursor-pointer hover:text-white transition-colors"
+              >
+                {vibe.likes}
+              </span>
+            )}
           </div>
+          {openLikes && (
+            <div
+              onClick={() => setOpenLikes(false)}
+              className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+            >
+              <div
+                className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-lg p-5 relative border border-transparent dark:border-slate-700"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  onClick={() => setOpenLikes(false)}
+                  className="absolute top-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors right-3 text-lg font-bold"
+                >
+                  ✕
+                </button>
 
+                <h3 className="text-lg font-semibold mb-4 text-slate-900 dark:text-slate-100">
+                  {"Liked by " +
+                    vibe.likes +
+                    " " +
+                    (vibe.likes === 1 ? "person" : "people")}
+                </h3>
+
+                <LikesList type="post" id={vibe.id} />
+              </div>
+            </div>
+          )}
           {/* COMMENTS BUTTON CONTAINER */}
           <div className="flex items-center gap-2">
             <button
@@ -66,18 +105,19 @@ const VibeReactionsBar = ({
         </div>
 
         {/* RIGHT SIDE: VIEW TRIP CONTEXT BUTTON */}
-        {vibe.tripId &&(
-        <button
-          type="button"
-          onClick={() => {
-            onPause?.();
-            window.location.href = `/trip/${vibe.tripId}`;
-          }}
-          className="group flex h-10 items-center gap-1.5 rounded-full bg-white/15 px-4 text-xs font-semibold text-white backdrop-blur-md border border-white/10 transition-all duration-200 hover:bg-white/25 active:scale-95 shadow-sm"
-        >
-          <span>View Trip</span>
-          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
-        </button> )}
+        {vibe.tripId && (
+          <button
+            type="button"
+            onClick={() => {
+              onPause?.();
+              window.location.href = `/trip/${vibe.tripId}`;
+            }}
+            className="group flex h-10 items-center gap-1.5 rounded-full bg-white/15 px-4 text-xs font-semibold text-white backdrop-blur-md border border-white/10 transition-all duration-200 hover:bg-white/25 active:scale-95 shadow-sm"
+          >
+            <span>View Trip</span>
+            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+          </button>
+        )}
       </div>
     </div>
   );

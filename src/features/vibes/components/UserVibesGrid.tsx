@@ -42,8 +42,10 @@ const UserVibesGrid = ({ userId, currentUserId }: UserVibesGridProps) => {
     };
   }, [userId]);
 
-  const groups = useMemo(() => groupVibesByUser(vibes), [vibes]);
-
+  const groups = useMemo(
+    () => groupVibesByUser(vibes, currentUserId ?? ""),
+    [vibes, currentUserId],
+  );
   // -----------------------
   // EMPTY STATE
   // -----------------------
@@ -61,8 +63,7 @@ const UserVibesGrid = ({ userId, currentUserId }: UserVibesGridProps) => {
   const openAt = (vibeId: string) => {
     const sorted = [...vibes].sort(
       (a, b) =>
-        new Date(a.createdAt).getTime() -
-        new Date(b.createdAt).getTime()
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     );
 
     const idx = sorted.findIndex((v) => v.id === vibeId);
@@ -76,10 +77,7 @@ const UserVibesGrid = ({ userId, currentUserId }: UserVibesGridProps) => {
     };
 
     // start from clicked vibe
-    merged.vibes = [
-      ...sorted.slice(idx),
-      ...sorted.slice(0, idx),
-    ];
+    merged.vibes = [...sorted.slice(idx), ...sorted.slice(0, idx)];
 
     setViewer({
       groups: [merged],
@@ -94,8 +92,7 @@ const UserVibesGrid = ({ userId, currentUserId }: UserVibesGridProps) => {
     <>
       <div className="grid grid-cols-3 gap-1.5 md:gap-2">
         {vibes.map((v) => {
-          const thumb =
-            v.mediaUrls?.[0] ?? null;
+          const thumb = v.mediaUrls?.[0] ?? null;
 
           return (
             <button
@@ -126,9 +123,7 @@ const UserVibesGrid = ({ userId, currentUserId }: UserVibesGridProps) => {
                     background: "var(--gradient-ocean)",
                   }}
                 >
-                  <span className="line-clamp-4">
-                    {v.content}
-                  </span>
+                  <span className="line-clamp-4">{v.content}</span>
                 </div>
               )}
 

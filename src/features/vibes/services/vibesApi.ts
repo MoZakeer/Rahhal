@@ -33,7 +33,6 @@ const mapVibe = (item: VibeDTO): Vibe => ({
         : "image"
       : "text",
 
-
   content: item.description ?? "",
   description: item.description ?? "",
 
@@ -160,53 +159,59 @@ export async function createVibe(input: CreateVibeInput): Promise<any> {
 // UPDATE
 // --------------------
 
+// --------------------
+// UPDATE
+// --------------------
+
+// نحدث الـ Interface ليتطابق تماماً مع البيانات المرسلة من الـ Component والـ Swagger
 export interface UpdateVibeInput {
   id: string;
-  description?: string;
-  media?: {
-    mediaId?: string;
-    file?: File;
-  }[];
+  description: string;
+  files?: File[];
 }
 
-export async function updateVibe(input: UpdateVibeInput): Promise<void> {
+export async function updateVibe(input: UpdateVibeInput): Promise<any> {
   const formData = new FormData();
 
+  // 1. إضافة الـ ID والـ Description للـ FormData
   formData.append("ID", input.id);
+  formData.append("Description", input.description);
 
-  if (input.description) {
-    formData.append("Description", input.description);
+  // 2. إضافة الملفات المرفوعة الجديدة إلى حقل "Media" كما تطلب الـ Endpoint
+  if (input.files?.length) {
+    input.files.forEach((file) => {
+      formData.append("Media", file);
+    });
   }
 
-  input.media?.forEach((m, index) => {
-    if (m.mediaId) {
-      formData.append(`Media[${index}].mediaId`, m.mediaId);
-    }
-
-    if (m.file) {
-      formData.append(`Media[${index}].file`, m.file);
-    }
-  });
+  const token = localStorage.getItem("token");
 
   const res = await fetch(`${BASE_URL}/Vibes/Update`, {
     method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     body: formData,
   });
 
-  if (!res.ok) {
-    throw new Error("Failed to update vibe");
-  }
-}
+  const data = await res.json();
 
+  if (!res.ok) {
+    throw new Error(data.message || "Failed to update vibe");
+  }
+
+  return data;
+}
 // --------------------
 // DELETE
 // --------------------
 
-export async function deleteVibe(postId: string): Promise<void> {
+export async function deleteVibe(postId: string, token: string): Promise<void> {
   const res = await fetch(`${BASE_URL}/Vibes/Delete`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
+      ...(token && { "Authorization": `Bearer ${token}` }),
     },
     body: JSON.stringify({
       postId,
@@ -293,7 +298,6 @@ export const addLikeToComment = async (
     },
     body: JSON.stringify({ profileId, commentId }),
   });
-
 };
 export const updateComment = async (
   commentId: string,

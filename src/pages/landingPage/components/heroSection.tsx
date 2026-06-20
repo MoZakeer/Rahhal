@@ -1,8 +1,10 @@
 import { Send, Map, Users, MessageCircle, Globe2, Sparkles } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { useNavigate } from 'react-router-dom';
 import { cn } from "@/lib/utils";
 
 export default function HeroSection() {
+  const navigate = useNavigate();
   const { t, language } = useLanguage();
   const isRtl = language === "ar";
 
@@ -46,7 +48,8 @@ export default function HeroSection() {
           </p>
 
           <div className={cn("flex flex-col sm:flex-row items-center justify-start gap-3 mt-6", isRtl ? "flex-row-reverse" : "flex-row")}>
-            <button className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-700 dark:bg-blue-600 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-full font-bold text-sm sm:text-base shadow-lg shadow-blue-500/30 dark:shadow-blue-900/40 hover:bg-blue-800 dark:hover:bg-blue-500 hover:-translate-y-1 transition-all duration-300 active:scale-95 group border border-blue-600 dark:border-blue-500">
+            <button className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-700 dark:bg-blue-600 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-full font-bold text-sm sm:text-base shadow-lg shadow-blue-500/30 dark:shadow-blue-900/40 hover:bg-blue-800 dark:hover:bg-blue-500 hover:-translate-y-1 transition-all duration-300 active:scale-95 group border border-blue-600 dark:border-blue-500"
+              onClick={() => navigate('/ai-planner')}>
               <Map className="w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform" />
               <span>
                 <span className="sm:hidden">{t("landingPage.plan")}</span>
@@ -54,7 +57,8 @@ export default function HeroSection() {
               </span>
             </button>
 
-            <button className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 px-6 py-3 sm:px-8 sm:py-4 rounded-full font-bold text-sm sm:text-base shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 hover:-translate-y-1 transition-all duration-300 active:scale-95 group">
+            <button className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 px-6 py-3 sm:px-8 sm:py-4 rounded-full font-bold text-sm sm:text-base shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 hover:-translate-y-1 transition-all duration-300 active:scale-95 group"
+              onClick={() => navigate('/explore')}>
               <Users className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
               <span>
                 <span className="sm:hidden">{t("landingPage.explore")}</span>

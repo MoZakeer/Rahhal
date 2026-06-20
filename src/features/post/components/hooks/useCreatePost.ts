@@ -1,9 +1,9 @@
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import type { EditMedia } from "../services/createPost";
 import toast from "react-hot-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 
 export function useCreatePost() {
   const queryClient = useQueryClient();
@@ -13,11 +13,6 @@ export function useCreatePost() {
 
   const [caption, setCaption] = useState("");
   const [media, setMedia] = useState<EditMedia[]>([]);
-  const [user, setUser] = useState<{
-    name: string;
-    username: string;
-    avatar: string;
-  } | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
 
   const fileRef = useRef<HTMLInputElement>(null);
@@ -28,45 +23,41 @@ export function useCreatePost() {
     return JSON.parse(userJS);
   }
 
-  useEffect(() => {
-    const fetchUser = async () => {
+
+  const { data: user } = useQuery({
+    queryKey: ["currentUserProfile", getUserFromStorage()?.userId],
+    queryFn: async () => {
       const storedUser = getUserFromStorage();
       if (!storedUser) {
-        setUser({
+        return {
           name: "Unknown User",
           username: "unknown",
           avatar: DEFAULT_AVATAR,
-        });
-        return;
+        };
       }
-      try {
-        const res = await axios.get(`${BASE_URL}/Profile/GetUserProfile`, {
-          params: { ProfileId: storedUser.userId },
-          headers: {
-            Authorization: `Bearer ${storedUser.token}`,
-            accept: "application/json",
-          },
-        });
-        const data = res.data?.data;
-        setUser({
-          name: data?.fullName || "Unknown User",
-          username: data?.userName || "unknown",
-          avatar: data?.profilePicture
-            ? data.profilePicture.startsWith("http")
-              ? data.profilePicture
-              : `${BASE_URL}${data.profilePicture}`
-            : DEFAULT_AVATAR,
-        });
-      } catch (err) {
-        setUser({
-          name: "Unknown User",
-          username: "unknown",
-          avatar: DEFAULT_AVATAR,
-        });
-      }
-    };
-    fetchUser();
-  }, []);
+      
+      const res = await axios.get(`${BASE_URL}/Profile/GetUserProfile`, {
+        params: { ProfileId: storedUser.userId },
+        headers: {
+          Authorization: `Bearer ${storedUser.token}`,
+          accept: "application/json",
+        },
+      });
+      
+      const data = res.data?.data;
+      return {
+        name: data?.fullName || "Unknown User",
+        username: data?.userName || "unknown",
+        avatar: data?.profilePicture
+          ? data.profilePicture.startsWith("http")
+            ? data.profilePicture
+            : `${BASE_URL}${data.profilePicture}`
+          : DEFAULT_AVATAR,
+      };
+    },
+    staleTime: 1000 * 60 * 60, 
+  });
+  // ==========================================
 
   const { mutate: createPost, isPending: isPosting } = useMutation({
     mutationKey: ["createPost"],
@@ -194,7 +185,7 @@ export function useCreatePost() {
     setCaption,
     media,
     setMedia,
-    user,
+    user: user || null,
     isPosting,
     handleCreatePost,
     fileRef,

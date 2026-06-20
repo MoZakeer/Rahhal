@@ -6,6 +6,8 @@ import ProfileTabs from "../../features/profile/components/ProfileTabs";
 import ProfilePosts from "../../features/profile/components/ProfilePosts";
 import SavedPosts from "../../features/profile/components/SavedPosts";
 
+import ProfileVibesHighlights from "../../features/profile/components/ProfileVibesHighlights"; 
+
 import type { ProfileTab } from "../../features/profile/types/profile.types";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useFavicon } from "@/hooks/useFavicon";
@@ -35,14 +37,16 @@ const ProfilePage: React.FC = () => {
     <div className="min-h-screen bg-[#f8f9fa] dark:bg-zinc-950">
       <div className="w-full px-4 lg:px-10 py-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* الـ Sidebar الجانبي */}
           <aside className="lg:col-span-4 xl:col-span-3 z-10">
             <div className="lg:sticky lg:top-8 space-y-6">
-              <div className="bg-white dark:bg-zinc-900 rounded-4xl  dark:border-zinc-800 p-5">
+              <div className="bg-white dark:bg-zinc-900 rounded-4xl p-5 border border-gray-100 dark:border-zinc-800/50 shadow-sm">
                 <ProfileHeader
                   profileId={profileId}
                   isMyProfile={isMyProfile}
                 />
-                <div className=" border-t border-gray-50 dark:border-zinc-800">
+                <div className="border-t border-gray-50 dark:border-zinc-800 mt-4 pt-4">
                   <ProfileStats profileId={profileId} />
                 </div>
               </div>
@@ -54,7 +58,15 @@ const ProfilePage: React.FC = () => {
           </aside>
 
           <main className="lg:col-span-8 xl:col-span-9 flex flex-col gap-6">
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl  dark:border-zinc-800 overflow-hidden">
+            
+            {/* 1. إضافة شريط الـ Vibes الستوري هنا (Instagram Highlights Style) */}
+            <ProfileVibesHighlights 
+              profileId={profileId} 
+              currentUserId={myProfileId || null} 
+            />
+
+           
+            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-100 dark:border-zinc-800/50 overflow-hidden shadow-sm">
               <ProfileTabs
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
@@ -62,6 +74,7 @@ const ProfilePage: React.FC = () => {
               />
             </div>
 
+            
             <div className="w-full min-h-[500px]">
               {activeTab === "Posts" && (
                 <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -94,6 +107,7 @@ const ProfilePage: React.FC = () => {
               )}
             </div>
           </main>
+
         </div>
       </div>
     </div>

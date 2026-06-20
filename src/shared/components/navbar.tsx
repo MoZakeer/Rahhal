@@ -1,12 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  Popover,
-  Dialog,
-  DialogBackdrop,
-  DialogPanel,
-  Transition,
-} from "@headlessui/react";
+import { Popover, Transition } from "@headlessui/react";
 import {
   Home,
   Compass,
@@ -14,9 +8,6 @@ import {
   MessageCircle,
   Bell,
   LogOut,
-  User,
-  Menu,
-  X,
   Languages,
   ChevronDown,
   ShieldCheck,
@@ -25,6 +16,7 @@ import {
   GitCompareArrows,
   Sun,
   Moon,
+  ChevronRight,
 } from "lucide-react";
 import { useNotificationContext } from "../../context/NotificationProvider";
 import { useLanguage } from "../../context/LanguageContext";
@@ -87,7 +79,6 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
   const token = localStorage.getItem("token");
 
   const [profile, setProfile] = useState<Profile>();
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState<number>();
   const [hasToken] = useState(() => isTokenValid());
   const isFeedPage = location.pathname === "/feed";
@@ -109,9 +100,23 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
     navigate("/notifications");
   };
 
+  // 🔥 Smart Fetching System (Nav-Only Optimization)
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchProfile = async (forceFetch = false) => {
       if (!profileId || !token) return;
+
+      const cacheKey = `nav_profile_cache_${profileId}`;
+
+      // 1. Check local session cache first (if not forcing a fetch)
+      if (!forceFetch) {
+        const cachedData = sessionStorage.getItem(cacheKey);
+        if (cachedData) {
+          setProfile(JSON.parse(cachedData));
+          return; // Skip the API call completely!
+        }
+      }
+
+      // 2. Fetch from API if no cache exists or if forced to update
       try {
         const url = `${API_BASE_URL}/Profile/GetUserProfile?ProfileId=${profileId}`;
         const res = await fetch(url, {
@@ -122,20 +127,22 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
         });
         if (!res.ok) throw new Error(`Error: ${res.status}`);
         const result = await res.json();
+        
         if (result && result.data) {
           setProfile(result.data);
-          localStorage.setItem(
-            "username",
-            result.data.fullName || result.data.firstName || "",
-          );
+          // Save to cache for next time
+          sessionStorage.setItem(cacheKey, JSON.stringify(result.data));
+          localStorage.setItem("username", result.data.fullName || result.data.firstName || "");
         }
       } catch (error) {
         console.error("Profile fetch error:", error);
       }
     };
 
-    fetchProfile();
-    const handleUpdate = () => fetchProfile();
+    fetchProfile(); // Initial run
+
+    // 3. Listen for profile updates to force a fresh fetch and overwrite cache
+    const handleUpdate = () => fetchProfile(true);
     window.addEventListener("profileUpdated", handleUpdate);
     return () => window.removeEventListener("profileUpdated", handleUpdate);
   }, [profileId, token]);
@@ -203,63 +210,35 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
 
   return (
     <header
-      className={`fixed top-0 z-40 w-full bg-white dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${
+      className={`fixed top-0 z-40 w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-500 ease-in-out ${
         isNavVisible ? "translate-y-0" : "-translate-y-full"
       }`}
     >
       <div className="max-w-360 mx-auto flex h-16 items-center justify-between px-4 md:px-6">
+        
         {/* Logo Section */}
         <Link
           to="/feed"
-          className="flex items-center gap-2 group cursor-pointer"
+          className="flex items-center  group cursor-pointer outline-none"
           onClick={(e) => {
             if (location.pathname === "/feed") e.preventDefault();
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
         >
-          <div className="relative flex h-12 w-12 items-center justify-center transition-transform group-hover:scale-110">
-            <img
-              src="/light-logo.png"
-              alt="Rahhal Light Logo"
-              className="relative h-12 w-12 object-contain block dark:hidden"
-            />
-            <img
-              src="/dark-logo.png"
-              alt="Rahhal Dark Logo"
-              className="relative h-12 w-12 object-contain hidden dark:block"
-            />
+          <div className="relative flex h-18 w-18 items-center justify-center transition-transform group-hover:scale-105">
+            <img src="/lo.png" alt="Rahhal Logo" className="relative h-18 w-18 object-contain block dark:hidden" />
+            <img src="/dark-lo.png" alt="Rahhal Logo" className="relative h-18 w-18 object-contain hidden dark:block" />
           </div>
-          {/* <span className="text-2xl tracking-tighter ms-0 hidden sm:flex items-baseline">
-            {language === 'en' ? (
+          <span className=" -ml-2 text-2xl tracking-tighter ms-0 hidden sm:flex items-baseline">
+            {language === "en" ? (
               <>
                 <span className="font-black text-slate-800 dark:text-slate-100">Rah</span>
                 <span className="font-light text-slate-600 dark:text-slate-300">hal</span>
               </>
             ) : (
-              <>
-                <span className="font-black text-slate-800 dark:text-slate-100">رَحَّا</span>
-                <span className="font-light text-slate-600 dark:text-slate-300">ل</span>
-              </>
+              <span className="font-black text-slate-800 dark:text-slate-100">رَحَّال</span>
             )}
-            <span className="text-blue-400 text-3xl font-black ms-0.5">.</span>
-          </span> */}
-
-          <span className="text-2xl tracking-tighter ms-0 hidden sm:flex items-baseline">
-            {language === "en" ? (
-              <>
-                <span className="font-black text-slate-800 dark:text-slate-100">
-                  Rah
-                </span>
-                <span className="font-light text-slate-600 dark:text-slate-300">
-                  hal
-                </span>
-              </>
-            ) : (
-              <span className="font-black text-slate-800 dark:text-slate-100">
-                رَحَّال
-              </span>
-            )}
-            <span className="text-blue-400 text-3xl font-black ms-0.5">.</span>
+            <span className="text-blue-500 text-3xl font-black ms-0.5">.</span>
           </span>
         </Link>
 
@@ -280,12 +259,8 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
             </Link>
           ))}
 
-          {/* Travel dropdown trigger */}
-          <div
-            className="relative"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
+          {/* Travel Dropdown Trigger */}
+          <div className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <button
               className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
                 isTravelActive
@@ -295,14 +270,10 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
             >
               <TravelIcon className="h-5 w-5" />
               <span>{travelLabel}</span>
-              <ChevronDown
-                className={`h-3.5 w-3.5 transition-transform duration-200 ${
-                  dropdownOpen ? "rotate-180" : ""
-                }`}
-              />
+              <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} />
             </button>
 
-            {/* Dropdown */}
+            {/* Travel Dropdown Menu */}
             <div
               className={`absolute top-full inset-s-1/2 ltr:-translate-x-1/2 rtl:translate-x-1/2 mt-1.5 w-48 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/60 dark:shadow-slate-950/60 overflow-hidden transition-all duration-200 z-50 ${
                 dropdownOpen
@@ -310,9 +281,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                   : "opacity-0 -translate-y-1 pointer-events-none"
               }`}
             >
-              {/* small arrow pointer */}
               <div className="absolute -top-1.5 inset-s-1/2 ltr:-translate-x-1/2 rtl:translate-x-1/2 w-3 h-3 rotate-45 bg-white dark:bg-slate-900 ltr:border-l rtl:border-r border-t border-slate-200 dark:border-slate-700" />
-
               <div className="p-1.5 relative">
                 {travelDropdownItems.map(({ labelKey, path, icon: Icon }) => (
                   <Link
@@ -357,7 +326,7 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
         </nav>
 
         {/* Right Section: Actions & Profile */}
-        <div className="flex items-center gap-2 ms-auto lg:gap-3 relative">
+        <div className="flex items-center gap-3 lg:gap-4 relative">
           {hasToken ? (
             <>
               {(isAllowedPage || isFeedPage) && (
@@ -366,355 +335,313 @@ export default function Navbar({ onLogoutClick }: NavbarProps) {
                 </div>
               )}
 
-              {/* Bell Button */}
+              {/* Mobile Messages Button (Hidden on Desktop) */}
+              <Link
+                to="/chat"
+                className="lg:hidden relative flex h-9 w-9 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                aria-label={t("navbar.messages")}
+              >
+                <MessageCircle className="h-5 w-5 text-slate-600 dark:text-slate-300" />
+                {unreadMessages !== undefined && unreadMessages > 0 && (
+                  <span className="absolute -top-1 -inset-e-1 min-w-4.5 h-4.5 flex items-center justify-center rounded-full bg-red-500 text-[10px] text-white px-1 shadow-sm font-bold border-2 border-white dark:border-slate-900">
+                    {unreadMessages > 9 ? "9+" : unreadMessages}
+                  </span>
+                )}
+              </Link>
+
+              {/* Notifications Button */}
               <button
                 onClick={handleClick}
-                className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="relative flex h-9 w-9 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
-                <Bell className="h-5 w-5 dark:text-blue-400 text-slate-500" />
+                <Bell className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -inset-e-1 min-w-4.5 h-4.5 flex items-center justify-center rounded-full bg-red-500 text-[10px] text-white px-1">
+                  <span className="absolute -top-1 -inset-e-1 min-w-4.5 h-4.5 flex items-center justify-center rounded-full bg-red-500 text-[10px] text-white px-1 shadow-sm font-bold border-2 border-white dark:border-slate-900">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
               </button>
 
-              <div className="hidden lg:block h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
+              <div className="hidden lg:block h-6 w-px bg-slate-200 dark:bg-slate-700" />
 
-              {/* User Account Popover */}
+              {/* Desktop User Profile Popover */}
               <Popover className="relative hidden lg:block">
-                <Popover.Button className="flex items-center gap-2 p-1 pe-3 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-all outline-none border border-transparent hover:border-slate-100 dark:hover:border-slate-700 group">
-                  {profile?.profilePicture ? (
-                    <img
-                      src={`${API_BASE_URL}${profile.profilePicture}?t=${new Date().getTime()}`}
-                      className="h-9 w-9 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700"
-                      alt="user"
-                    />
-                  ) : (
-                    <div className="h-9 w-9 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700 bg-linear-to-br to-blue-500 from-blue-900">
-                      <span className="text-xs font-black text-white uppercase">
-                        {profile?.fullName?.charAt(0) ||
-                          profile?.userName?.charAt(0) ||
-                          "U"}
-                      </span>
-                    </div>
-                  )}
-
-                  <p className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                    {profile?.userName || "User"}
-                  </p>
-
-                  <ChevronDown className="h-4 w-4 text-slate-400 dark:text-slate-500 group-ui-open:rotate-180 transition-transform" />
-                </Popover.Button>
-
-                <Transition
-                  enter="transition duration-150 ease-out"
-                  enterFrom="scale-95 opacity-0"
-                  enterTo="scale-100 opacity-100"
-                  leave="transition duration-100 ease-in"
-                  leaveFrom="scale-100 opacity-100"
-                  leaveTo="scale-95 opacity-0"
-                >
-                  <Popover.Panel className="absolute inset-e-0 mt-3 w-56 ltr:origin-top-right rtl:origin-top-left rounded-2xl bg-white dark:bg-slate-800 p-2 shadow-2xl ring-1 ring-black/5 dark:ring-white/5 outline-none z-50">
-                    <div className="space-y-0.5">
-                      {role === "SuperAdmin" && (
-                        <Link
-                          to="/admin/reports/users"
-                          className="group relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-white border border-slate-200 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-500/50 shadow-sm hover:shadow-blue-500/10 transition-all duration-300 ease-out"
-                        >
-                          <div className="absolute inset-0 rounded-2xl bg-blue-500/0 group-hover:bg-blue-500/3 transition-colors" />
-                          <div className="relative flex items-center justify-center h-8 w-8 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                            <ShieldCheck className="h-5 w-5 text-blue-500 dark:text-blue-400" />
-                          </div>
-                          <span className="relative">
-                            {t("navbar.adminPanel")}
+                {({ open, close }) => (
+                  <>
+                    <Popover.Button className="flex items-center gap-2 p-1 pe-3 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-all outline-none border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
+                      {profile?.profilePicture ? (
+                        <img
+                          src={`${API_BASE_URL}${profile.profilePicture}`}
+                          className="h-9 w-9 rounded-full object-cover shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
+                          alt="user"
+                        />
+                      ) : (
+                        <div className="h-9 w-9 rounded-full flex items-center justify-center shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 bg-gradient-to-br to-blue-500 from-blue-700">
+                          <span className="text-xs font-black text-white uppercase">
+                            {profile?.fullName?.charAt(0) || profile?.userName?.charAt(0) || "U"}
                           </span>
-                          <div className="ms-auto h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-                        </Link>
+                        </div>
+                      )}
+                      <p className="text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                        {profile?.userName || "User"}
+                      </p>
+                      <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+                    </Popover.Button>
+
+                    <Transition
+                      enter="transition duration-200 ease-out"
+                      enterFrom="scale-95 opacity-0 translate-y-[-10px]"
+                      enterTo="scale-100 opacity-100 translate-y-0"
+                      leave="transition duration-150 ease-in"
+                      leaveFrom="scale-100 opacity-100 translate-y-0"
+                      leaveTo="scale-95 opacity-0 translate-y-[-10px]"
+                    >
+                      <Popover.Panel className="absolute top-full end-0 mt-3 w-64 rounded-3xl bg-white dark:bg-slate-900 p-2 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] ring-1 ring-slate-200 dark:ring-slate-800 outline-none z-50">
+                        <div className="absolute -top-1.5 end-4 w-3 h-3 rotate-45 bg-white dark:bg-slate-900 border-t border-s border-slate-200 dark:border-slate-800" />
+                        <div className="relative z-10">
+                          
+                          {/* Profile Premium Card */}
+                          <Link
+                            to={`/profile/${profileId}`}
+                            onClick={() => close()}
+                            className="group flex items-center gap-3 p-3 mb-2 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500/50 shadow-sm transition-all duration-300"
+                          >
+                            {profile?.profilePicture ? (
+                              <img
+                                src={`${API_BASE_URL}${profile.profilePicture}`}
+                                className="h-11 w-11 rounded-full object-cover shadow-sm ring-2 ring-white dark:ring-slate-700"
+                                alt="user"
+                              />
+                            ) : (
+                              <div className="h-11 w-11 rounded-full flex items-center justify-center bg-gradient-to-br to-blue-500 from-blue-700 shadow-sm ring-2 ring-white dark:ring-slate-700">
+                                <span className="text-sm font-black text-white uppercase">
+                                  {profile?.fullName?.charAt(0) || profile?.userName?.charAt(0) || "U"}
+                                </span>
+                              </div>
+                            )}
+
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-extrabold text-slate-800 dark:text-slate-100 truncate">
+                                {profile?.fullName || profile?.userName || "User"}
+                              </p>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                {(role === "SuperAdmin" || role === "Admin") && (
+                                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
+                                    {role}
+                                  </span>
+                                )}
+                                <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 truncate">
+                                  {t("navbar.viewProfile") || "View Profile"}
+                                </span>
+                              </div>
+                            </div>
+                            <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-transform" />
+                          </Link>
+
+                          {/* Profile Menu Actions */}
+                          <div className="space-y-1 px-1 pb-1">
+                            
+                            {/* Admin Panel */}
+                            {role === "SuperAdmin" && (
+                              <Link
+                                to="/admin/reports/users"
+                                onClick={close}
+                                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                              >
+                                <ShieldCheck className="h-4 w-4 text-indigo-500" />
+                                <span className="flex-1">{t("navbar.adminPanel") || "Admin Panel"}</span>
+                                <div className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+                              </Link>
+                            )}
+
+                            {/* Theme Toggle */}
+                            <button
+                              onClick={() => { toggleTheme(); close(); }}
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            >
+                              {theme === "dark" ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4 text-slate-500" />}
+                              <span>{theme === "dark" ? (t("navbar.lightMode") || "Light Mode") : (t("navbar.darkMode") || "Dark Mode")}</span>
+                            </button>
+
+                            {/* Language Toggle */}
+                            <button
+                              onClick={() => { toggleLanguage(); close(); }}
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            >
+                              <Languages className="h-4 w-4 text-teal-500" />
+                              <span>{language === "en" ? (t("navbar.arabicLanguage") || "Arabic") : (t("navbar.englishLanguage") || "English")}</span>
+                            </button>
+
+                            {/* Logout */}
+                            <div className="mt-1 pt-1 border-t border-slate-200 dark:border-slate-800">
+                              <button
+                                onClick={() => {
+                                  close();
+                                  if (onLogoutClick) onLogoutClick();
+                                }}
+                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                              >
+                                <LogOut className="h-4 w-4" />
+                                <span>{t("navbar.logout") || "Logout"}</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </Popover.Panel>
+                    </Transition>
+                  </>
+                )}
+              </Popover>
+
+              {/* Mobile User Profile Popover */}
+              <Popover className="relative lg:hidden">
+                {({ open, close }) => (
+                  <>
+                    <Popover.Button className="relative p-0.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all focus:outline-none active:scale-90 outline-none">
+                      {profile?.profilePicture ? (
+                        <img
+                          src={`${API_BASE_URL}${profile.profilePicture}`}
+                          className="h-8 w-8 rounded-full object-cover border border-slate-200 dark:border-slate-700 shadow-sm"
+                          alt="user"
+                        />
+                      ) : (
+                        <div className="h-8 w-8 rounded-full flex items-center justify-center bg-gradient-to-br to-blue-500 from-blue-700 border border-slate-200 dark:border-slate-700 shadow-sm">
+                          <span className="text-[10px] font-black text-white uppercase">
+                            {profile?.fullName?.charAt(0) || profile?.userName?.charAt(0) || "U"}
+                          </span>
+                        </div>
                       )}
 
-                      <Link
-                        to={`/profile/${profileId}`}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                      >
-                        <User className="h-4 w-4" /> {t("navbar.myProfile")}
-                      </Link>
+                      {/* Mobile Dropdown Indicator */}
+                      <div className="absolute -bottom-0.5 -end-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <ChevronDown className={`h-2.5 w-2.5 text-slate-600 dark:text-slate-300 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+                      </div>
+                    </Popover.Button>
 
-                      {/* Dark Mode Button */}
-                      <button
-                        onClick={toggleTheme}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                      >
-                        {theme === "dark" ? (
-                          <Sun className="h-4 w-4" />
-                        ) : (
-                          <Moon className="h-4 w-4" />
-                        )}
-                        {theme === "dark"
-                          ? t("navbar.lightMode")
-                          : t("navbar.darkMode")}
-                      </button>
+                    <Transition
+                      enter="transition duration-200 ease-out"
+                      enterFrom="scale-95 opacity-0 translate-y-[-10px]"
+                      enterTo="scale-100 opacity-100 translate-y-0"
+                      leave="transition duration-150 ease-in"
+                      leaveFrom="scale-100 opacity-100 translate-y-0"
+                      leaveTo="scale-95 opacity-0 translate-y-[-10px]"
+                    >
+                      <Popover.Panel className="absolute top-full end-0 mt-3 w-64 rounded-3xl bg-white dark:bg-slate-900 p-2 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] ring-1 ring-slate-200 dark:ring-slate-800 outline-none z-50">
+                        <div className="absolute -top-1.5 end-4 w-3 h-3 rotate-45 bg-white dark:bg-slate-900 border-t border-s border-slate-200 dark:border-slate-800" />
+                        <div className="relative z-10">
+                          
+                          {/* Profile Premium Card */}
+                          <Link
+                            to={`/profile/${profileId}`}
+                            onClick={() => close()}
+                            className="group flex items-center gap-3 p-3 mb-2 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500/50 shadow-sm transition-all duration-300"
+                          >
+                            {profile?.profilePicture ? (
+                              <img
+                                src={`${API_BASE_URL}${profile.profilePicture}`}
+                                className="h-11 w-11 rounded-full object-cover shadow-sm ring-2 ring-white dark:ring-slate-700"
+                                alt="user"
+                              />
+                            ) : (
+                              <div className="h-11 w-11 rounded-full flex items-center justify-center bg-gradient-to-br to-blue-500 from-blue-700 shadow-sm ring-2 ring-white dark:ring-slate-700">
+                                <span className="text-sm font-black text-white uppercase">
+                                  {profile?.fullName?.charAt(0) || profile?.userName?.charAt(0) || "U"}
+                                </span>
+                              </div>
+                            )}
 
-                      {/* Language Button */}
-                      <button
-                        onClick={toggleLanguage}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                      >
-                        <Languages className="h-4 w-4" />
-                        {language === "en"
-                          ? t("navbar.arabicLanguage")
-                          : t("navbar.englishLanguage")}
-                      </button>
-                    </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-extrabold text-slate-800 dark:text-slate-100 truncate">
+                                {profile?.fullName || profile?.userName || "User"}
+                              </p>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                {(role === "SuperAdmin" || role === "Admin") && (
+                                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
+                                    {role}
+                                  </span>
+                                )}
+                                <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 truncate">
+                                  {t("navbar.viewProfile") || "View Profile"}
+                                </span>
+                              </div>
+                            </div>
+                            <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-transform" />
+                          </Link>
 
-                    <div className="mt-1 pt-1 border-t border-slate-50 dark:border-slate-700">
-                      <button
-                        onClick={onLogoutClick}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
-                      >
-                        <LogOut className="h-4 w-4" /> {t("navbar.logout")}
-                      </button>
-                    </div>
-                  </Popover.Panel>
-                </Transition>
+                          {/* Profile Menu Actions */}
+                          <div className="space-y-1 px-1 pb-1">
+                            
+                            {/* Admin Panel */}
+                            {role === "SuperAdmin" && (
+                              <Link
+                                to="/admin/reports/users"
+                                onClick={close}
+                                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                              >
+                                <ShieldCheck className="h-4 w-4 text-indigo-500" />
+                                <span className="flex-1">{t("navbar.adminPanel") || "Admin Panel"}</span>
+                                <div className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+                              </Link>
+                            )}
+
+                            {/* Theme Toggle */}
+                            <button
+                              onClick={() => { toggleTheme(); close(); }}
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            >
+                              {theme === "dark" ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4 text-slate-500" />}
+                              <span>{theme === "dark" ? (t("navbar.lightMode") || "Light Mode") : (t("navbar.darkMode") || "Dark Mode")}</span>
+                            </button>
+
+                            {/* Language Toggle */}
+                            <button
+                              onClick={() => { toggleLanguage(); close(); }}
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            >
+                              <Languages className="h-4 w-4 text-teal-500" />
+                              <span>{language === "en" ? (t("navbar.arabicLanguage") || "Arabic") : (t("navbar.englishLanguage") || "English")}</span>
+                            </button>
+
+                            {/* Logout */}
+                            <div className="mt-1 pt-1 border-t border-slate-200 dark:border-slate-800">
+                              <button
+                                onClick={() => {
+                                  close();
+                                  if (onLogoutClick) onLogoutClick();
+                                }}
+                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                              >
+                                <LogOut className="h-4 w-4" />
+                                <span>{t("navbar.logout") || "Logout"}</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </Popover.Panel>
+                    </Transition>
+                  </>
+                )}
               </Popover>
             </>
           ) : (
-            <div className="hidden lg:flex items-center gap-3">
+            /* Guest User Actions (Responsive) */
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <Link
                 to="/login"
-                className="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
+                className="px-2 sm:px-4 py-1.5 text-[11px] sm:text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap"
               >
-                {t("navbar.signIn")}
+                {t("navbar.signIn") || "Sign In"}
               </Link>
               <Link
                 to="/sign-up"
-                className="rounded-xl bg-blue-600 dark:bg-blue-500 px-5 py-2 text-sm font-bold text-white shadow-lg"
+                className="rounded-xl bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 px-3 sm:px-5 py-1.5 sm:py-2 text-[11px] sm:text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all whitespace-nowrap"
               >
-                {t("navbar.signUp")}
+                {t("navbar.signUp") || "Sign Up"}
               </Link>
             </div>
           )}
-
-          {/* Mobile Menu */}
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="lg:hidden p-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
-          >
-            <Menu className="h-6 w-6" />
-          </button>
         </div>
       </div>
-
-      {/* --- Mobile Sidebar (Drawer) --- */}
-      <Dialog
-        open={mobileOpen}
-        onClose={setMobileOpen}
-        className="relative z-50 lg:hidden"
-      >
-        <DialogBackdrop
-          transition
-          className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm transition-opacity duration-300 data-closed:opacity-0"
-        />
-        <div className="fixed inset-0 flex justify-end">
-          <DialogPanel
-            transition
-            className="relative flex h-full w-full max-w-sm flex-col bg-white dark:bg-slate-900 px-6 py-6 shadow-2xl transition duration-300 ltr:data-closed:translate-x-full rtl:data-closed:-translate-x-full"
-          >
-            <div className="mb-8 flex items-center justify-between">
-              <span className="text-xl font-black text-slate-800 dark:text-slate-100">
-                {t("navbar.menu")}
-              </span>
-              <button
-                onClick={() => setMobileOpen(false)}
-                className="p-2 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-2 flex-1 overflow-y-auto pe-2">
-              {hasToken && (
-                <Link
-                  to={`/profile/${profileId}`}
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-500/10 mb-2 border border-blue-100 dark:border-blue-500/20"
-                >
-                  {profile?.profilePicture ? (
-                    <img
-                      src={`${API_BASE_URL}${profile.profilePicture}?t=${new Date().getTime()}`}
-                      className="h-9 w-9 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700"
-                      alt="user"
-                    />
-                  ) : (
-                    <div className="h-9 w-9 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700 bg-linear-to-br to-blue-500 from-blue-900">
-                      <span className="text-xs font-black text-white uppercase">
-                        {profile?.fullName?.charAt(0) ||
-                          profile?.userName?.charAt(0) ||
-                          "U"}
-                      </span>
-                    </div>
-                  )}
-                  <div>
-                    <p className="font-black text-slate-800 dark:text-slate-100 leading-none">
-                      {profile?.userName || "User"}
-                    </p>
-                    <p className="text-xs font-bold text-blue-600 dark:text-blue-400 mt-1">
-                      {t("navbar.viewProfile")}
-                    </p>
-                  </div>
-                </Link>
-              )}
-              {role === "SuperAdmin" && (
-                <Link
-                  onClick={() => setMobileOpen(false)}
-                  to="/admin/reports/users"
-                  className="group relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-white border border-slate-200 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-500/50 shadow-sm hover:shadow-blue-500/10 transition-all duration-300 ease-out"
-                >
-                  <div className="absolute inset-0 rounded-2xl bg-blue-500/0 group-hover:bg-blue-500/3 transition-colors" />
-                  <div className="relative flex items-center justify-center h-8 w-8 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                    <ShieldCheck className="h-5 w-5 text-blue-500 dark:text-blue-400" />
-                  </div>
-                  <span className="relative">{t("navbar.adminPanel")}</span>
-                  <div className="ms-auto h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
-                </Link>
-              )}
-
-              {navItemsBefore.map(({ icon: Icon, labelKey, path }) => {
-                if (labelKey === "messages" && !hasToken) return null;
-                return (
-                  <Link
-                    key={path}
-                    to={path}
-                    onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${
-                      isActivePath(path)
-                        ? "bg-blue-50 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400"
-                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                    }`}
-                  >
-                    <Icon className="h-6 w-6" /> {t(`navbar.${labelKey}`)}
-                  </Link>
-                );
-              })}
-
-              {navItemsAfter.map(({ icon: Icon, labelKey, path }) => {
-                if (labelKey === "messages" && !hasToken) return null;
-                return (
-                  <Link
-                    key={path}
-                    to={path}
-                    onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${
-                      isActivePath(path)
-                        ? "bg-blue-50 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400"
-                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                    }`}
-                  >
-                    <div className="relative">
-                      <Icon className="h-6 w-6" />
-
-                      {labelKey === "messages" &&
-                      unreadMessages &&
-                      unreadMessages > 0 ? (
-                        <span
-                          className="
-                                absolute -top-2 -right-2
-            min-w-5 h-5
-          flex items-center justify-center
-          rounded-full
-          bg-red-500
-          text-[10px]
-          text-white
-          px-1
-          font-bold
-        "
-                        >
-                          {unreadMessages > 9 ? "9+" : unreadMessages}
-                        </span>
-                      ) : null}
-                    </div>
-
-                    {t(`navbar.${labelKey}`)}
-                  </Link>
-                );
-              })}
-
-              {travelDropdownItems.map(({ labelKey, path, icon: Icon }) => (
-                <Link
-                  key={path}
-                  to={path}
-                  onClick={() => setMobileOpen(false)}
-                  className={`flex items-center gap-4 rounded-xl p-4 text-base font-bold transition-colors ${
-                    isActivePath(path)
-                      ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30"
-                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60"
-                  }`}
-                >
-                  <Icon className="h-6 w-6 " />
-                  {t(`navbar.${labelKey}`)}
-                </Link>
-              ))}
-
-              <div className="h-px bg-slate-50 dark:bg-slate-800 my-2" />
-
-              {/* Mobile Dark Mode Button */}
-              <button
-                onClick={toggleTheme}
-                className="w-full flex items-center gap-4 p-4 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
-              >
-                {theme === "dark" ? (
-                  <Sun className="h-6 w-6" />
-                ) : (
-                  <Moon className="h-6 w-6" />
-                )}
-                {theme === "dark"
-                  ? t("navbar.lightMode")
-                  : t("navbar.darkMode")}
-              </button>
-
-              {/* Mobile Language Button */}
-              <button
-                onClick={toggleLanguage}
-                className="w-full flex items-center gap-4 p-4 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
-              >
-                <Languages className="h-6 w-6" />
-                {language === "en"
-                  ? t("navbar.arabicLanguage")
-                  : t("navbar.englishLanguage")}
-              </button>
-            </div>
-
-            <div className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
-              {hasToken ? (
-                <button
-                  onClick={onLogoutClick}
-                  className="flex w-full items-center gap-4 rounded-xl bg-red-50 dark:bg-red-500/10 p-4 text-red-600 dark:text-red-400 font-bold shadow-sm"
-                >
-                  <LogOut className="h-6 w-6" /> {t("navbar.logout")}
-                </button>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  <Link
-                    to="/login"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex justify-center rounded-xl bg-slate-100 dark:bg-slate-800 p-4 font-bold text-slate-700 dark:text-slate-200"
-                  >
-                    {t("navbar.signIn")}
-                  </Link>
-                  <Link
-                    to="/sign-up"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex justify-center rounded-xl bg-blue-600 dark:bg-blue-500 p-4 font-bold text-white shadow-lg"
-                  >
-                    {t("navbar.signUp")}
-                  </Link>
-                </div>
-              )}
-            </div>
-          </DialogPanel>
-        </div>
-      </Dialog>
     </header>
   );
 }

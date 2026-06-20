@@ -43,7 +43,10 @@ const FeedVibesBar = ({ currentUserId }: { currentUserId?: string | null }) => {
   // GROUP BY USER
   // -------------------
 
-  const groups = useMemo(() => groupVibesByUser(vibes), [vibes]);
+  const groups = useMemo(
+    () => groupVibesByUser(vibes, currentUserId ?? ""),
+    [vibes],
+  );
 
   // -------------------
   // HELPERS

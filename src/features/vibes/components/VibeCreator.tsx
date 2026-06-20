@@ -49,7 +49,7 @@ const VibeCreator = ({
 }: VibeCreatorProps) => {
   const isEdit = Boolean(vibe);
 
-  const [text, setText] = useState(vibe?.content ?? "");
+  const [text, setText] = useState(vibe?.content ?? vibe?.description ?? "");
 
   const [media, setMedia] = useState<MediaItem[]>(() => {
     if (!vibe || !vibe.mediaUrls?.length) return [];
@@ -57,12 +57,12 @@ const VibeCreator = ({
     const kind: "image" | "video" =
       vibe.type === "video" ? "video" : "image";
 
-    return vibe.mediaUrls.map((url) => ({
+    return vibe.mediaUrls.map((url, index) => ({
       url,
       kind,
       existing: true,
-      mediaId: url,
-    }));
+      mediaId: `${index}`,
+    }))
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -151,39 +151,65 @@ const VibeCreator = ({
     setSubmitting(true);
 
     try {
-      // --------------------
-      // EDIT MODE
-      // --------------------
-      if (isEdit) {
-        const updated = await updateVibe({
-          id: vibe!.id,
-          description: text.trim() || undefined,
-          media: media.map((m) => ({
-            mediaId: m.mediaId,
-            file: m.file,
-          })),
-        });
-
-        toast.success("Vibe updated");
-        onSaved?.(updated as any);
-        onClose();
-        return;
-      }
+      // تجميع الملفات المرفوعة حديثاً فقط لإرسالها للـ API
+      const newFiles = media
+        .filter((m) => m.file)
+        .map((m) => m.file as File);
 
       // --------------------
-      // CREATE MODE
+      // EDIT MODE (PATCH /Vibes/Update)
+      // --------------------
+     // --------------------
+// EDIT MODE (PATCH /Vibes/Update)
+// --------------------
+if (isEdit) {
+  const updatedResponse = await updateVibe({
+    id: vibe!.id,
+    description: text.trim(),
+    files: newFiles,
+  });
+
+  toast.success("Vibe updated successfully!");
+
+  if (onSaved) {
+    // 💡 بناخد الـ mediaUrls اللي راجعة من السيرفر فوراً، لو مش موجودة بنرجع للي في الـ media state
+    const finalMediaUrls = updatedResponse?.mediaUrls || updatedResponse?.media || media.map((m) => m.url);
+
+    onSaved({
+      ...vibe,
+      ...updatedResponse, // السيرفر المفروض يرجع البيانات المحدثة هنا
+      content: text.trim(),
+      description: text.trim(),
+      mediaUrls: finalMediaUrls, // 👈 التعديل السحري هنا
+      type:
+        finalMediaUrls.length > 0
+          ? media[0]?.kind === "video"
+            ? "video"
+            : "image"
+          : "text",
+    });
+  }
+  
+  setTimeout(() => {
+    onClose();
+  }, 100);
+  return;
+}
+      // --------------------
+      // CREATE MODE (POST /Vibes/Create)
       // --------------------
       const created = await createVibe({
         tripId,
         description: text.trim(),
-        files: media.filter((m) => m.file).map((m) => m.file as File),
+        files: newFiles,
       });
 
       toast.success("Vibe shared!");
       onSaved?.(created);
       onClose();
-    } catch (error) {
-      toast.error(isEdit ? "Failed to update vibe" : "Failed to share vibe");
+    } catch (error: any) {
+      console.error("Error processing vibe:", error);
+      toast.error(error.message || (isEdit ? "Failed to update vibe" : "Failed to share vibe"));
     } finally {
       setSubmitting(false);
     }
@@ -194,16 +220,17 @@ const VibeCreator = ({
       <Dialog open onOpenChange={(o) => !o && onClose()}>
         <DialogContent
           className="
-            w-[95vw]
-            max-w-lg
-            rounded-2xl
-            border border-slate-200/70
-            dark:border-slate-800
-            bg-white
-            dark:bg-slate-900
-            p-4 sm:p-6
-            shadow-2xl
-          "
+              w-[95vw]
+              max-w-lg
+              rounded-2xl
+              border border-slate-200/70
+              dark:border-slate-800
+              bg-white
+              dark:bg-slate-900
+              p-4 sm:p-6
+              shadow-2xl
+              z-9999!
+            "
         >
           <DialogHeader>
             <DialogTitle className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
@@ -217,20 +244,20 @@ const VibeCreator = ({
             onChange={(e) => setText(e.target.value)}
             placeholder="What's the vibe?"
             className="
-              min-h-[120px]
-              resize-none
-              rounded-xl
-              border-slate-200
-              bg-slate-50
-              text-slate-800
-              placeholder:text-slate-400
-              focus-visible:ring-1
-              focus-visible:ring-blue-500
-              dark:border-slate-700
-              dark:bg-slate-800
-              dark:text-slate-100
-              dark:placeholder:text-slate-500
-            "
+                min-h-[120px]
+                resize-none
+                rounded-xl
+                border-slate-200
+                bg-slate-50
+                text-slate-800
+                placeholder:text-slate-400
+                focus-visible:ring-1
+                focus-visible:ring-blue-500
+                dark:border-slate-700
+                dark:bg-slate-800
+                dark:text-slate-100
+                dark:placeholder:text-slate-500
+              "
           />
 
           {/* MEDIA PREVIEW */}
@@ -240,19 +267,20 @@ const VibeCreator = ({
                 <div
                   key={i}
                   className="
-                    relative
-                    h-28 sm:h-32
-                    overflow-hidden
-                    rounded-xl
-                    border border-slate-200
-                    dark:border-slate-700
-                    bg-slate-100
-                    dark:bg-slate-800
-                  "
+                      relative
+                      h-28 sm:h-32
+                      overflow-hidden
+                      rounded-xl
+                      border border-slate-200
+                      dark:border-slate-700
+                      bg-slate-100
+                      dark:bg-slate-800
+                    "
                 >
                   {m.kind === "image" ? (
                     <img
                       src={m.url}
+                      alt=""
                       className="h-full w-full object-cover"
                     />
                   ) : (
@@ -264,16 +292,17 @@ const VibeCreator = ({
                   )}
 
                   <button
+                    type="button"
                     onClick={() => requestRemove(i)}
                     className="
-                          absolute right-2 top-2
-                          rounded-full
-                          bg-black/60
-                          backdrop-blur-md
-                          p-1.5
-                          text-white
-                          transition hover:bg-black/80
-                        "
+                        absolute right-2 top-2
+                        rounded-full
+                        bg-black/60
+                        backdrop-blur-md
+                        p-1.5
+                        text-white
+                        transition hover:bg-black/80
+                      "
                   >
                     <X size={14} />
                   </button>
@@ -291,13 +320,13 @@ const VibeCreator = ({
                 onClick={() => imgInput.current?.click()}
                 disabled={isVideoSelected}
                 className="
-                rounded-xl
-                border-slate-200
-                dark:border-slate-700
-                dark:bg-slate-800
-                dark:text-slate-200
-                dark:hover:bg-slate-700
-              "
+                  rounded-xl
+                  border-slate-200
+                  dark:border-slate-700
+                  dark:bg-slate-800
+                  dark:text-slate-200
+                  dark:hover:bg-slate-700
+                "
               >
                 <ImageIcon size={16} className="mr-2" />
                 Images
@@ -309,13 +338,13 @@ const VibeCreator = ({
                 onClick={() => vidInput.current?.click()}
                 disabled={media.length > 0}
                 className="
-                  rounded-xl
-                  border-slate-200
-                  dark:border-slate-700
-                  dark:bg-slate-800
-                  dark:text-slate-200
-                  dark:hover:bg-slate-700
-                "
+                    rounded-xl
+                    border-slate-200
+                    dark:border-slate-700
+                    dark:bg-slate-800
+                    dark:text-slate-200
+                    dark:hover:bg-slate-700
+                  "
               >
                 <Video size={16} className="mr-2" />
                 Video
@@ -344,10 +373,10 @@ const VibeCreator = ({
                 variant="ghost"
                 onClick={onClose}
                 className="
-                rounded-xl
-                dark:text-slate-300
-                dark:hover:bg-slate-800
-              "
+                  rounded-xl
+                  dark:text-slate-300
+                  dark:hover:bg-slate-800
+                "
               >
                 Cancel
               </Button>
@@ -356,13 +385,13 @@ const VibeCreator = ({
                 onClick={handleSubmit}
                 disabled={submitting}
                 className="
-                rounded-xl
-                bg-blue-600
-                text-white
-                hover:bg-blue-700
-                dark:bg-blue-600
-                dark:hover:bg-blue-500
-              "
+                  rounded-xl
+                  bg-blue-600
+                  text-white
+                  hover:bg-blue-700
+                  dark:bg-blue-600
+                  dark:hover:bg-blue-500
+                "
               >
                 {submitting ? (
                   <>
@@ -396,7 +425,8 @@ const VibeCreator = ({
           <AlertDialogFooter>
             <AlertDialogCancel className="dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700">Cancel</AlertDialogCancel>
 
-            <AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white"
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700 text-white"
               onClick={() => {
                 if (confirmRemoveIdx !== null) {
                   removeMedia(confirmRemoveIdx);

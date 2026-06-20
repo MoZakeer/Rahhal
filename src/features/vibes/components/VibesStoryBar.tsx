@@ -50,7 +50,7 @@ const VibesStoryBar = ({
   currentUserName,
   currentUserAvatar,
   onOpen,
-  onClose
+  onClose,
 }: VibesStoryBarProps) => {
   // ---------------- STATE ----------------
   const [vibes, setVibes] = useState<Vibe[]>([]);
@@ -60,17 +60,17 @@ const VibesStoryBar = ({
     groupIndex: number;
   } | null>(null);
   useEffect(() => {
-  if (viewer) {
-    onOpen?.();
-  } else {
-    onClose?.();
-  }
-}, [viewer]);
+    if (viewer) {
+      onOpen?.();
+    } else {
+      onClose?.();
+    }
+  }, [viewer]);
 
   const seenKey = useMemo(() => getSeenKey(tripId), [tripId]);
 
   const [seen, setSeen] = useState<Set<string>>(() =>
-    loadSeen(getSeenKey(tripId))
+    loadSeen(getSeenKey(tripId)),
   );
 
   const canPost = canPostVibe(trip, currentUserId);
@@ -96,8 +96,8 @@ const VibesStoryBar = ({
 
   // ---------------- DERIVED DATA ----------------
   const groups = useMemo(
-    () => groupVibesByUser(vibes),
-    [vibes]
+    () => groupVibesByUser(vibes, currentUserId ?? ""),
+    [vibes],
   );
 
   // ---------------- SEEN LOGIC ----------------
@@ -110,20 +110,17 @@ const VibesStoryBar = ({
         return next;
       });
     },
-    [seenKey]
+    [seenKey],
   );
 
   const isGroupSeen = useCallback(
-    (group: UserVibesGroup) =>
-      group.vibes.every((v) => seen.has(v.id)),
-    [seen]
+    (group: UserVibesGroup) => group.vibes.every((v) => seen.has(v.id)),
+    [seen],
   );
 
   // ---------------- UPDATE VIBE ----------------
   const handleVibeUpdate = useCallback((updated: Vibe) => {
-    setVibes((prev) =>
-      prev.map((v) => (v.id === updated.id ? updated : v))
-    );
+    setVibes((prev) => prev.map((v) => (v.id === updated.id ? updated : v)));
 
     setViewer((prev) => {
       if (!prev) return null;
@@ -132,9 +129,7 @@ const VibesStoryBar = ({
         ...prev,
         groups: prev.groups.map((g) => ({
           ...g,
-          vibes: g.vibes.map((v) =>
-            v.id === updated.id ? updated : v
-          ),
+          vibes: g.vibes.map((v) => (v.id === updated.id ? updated : v)),
         })),
       };
     });
@@ -146,7 +141,7 @@ const VibesStoryBar = ({
       setViewer({ groups, groupIndex: idx });
       markGroupSeen(groups[idx]);
     },
-    [groups, markGroupSeen]
+    [groups, markGroupSeen],
   );
 
   // ---------------- OPEN ALL ----------------
@@ -155,8 +150,7 @@ const VibesStoryBar = ({
 
     const all = [...vibes].sort(
       (a, b) =>
-        new Date(a.createdAt).getTime() -
-        new Date(b.createdAt).getTime()
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     );
 
     const merged: UserVibesGroup = {
@@ -164,8 +158,7 @@ const VibesStoryBar = ({
       userName: "All Vibes",
       userAvatar: "",
       vibes: all,
-      lastVibeAt:
-        all.at(-1)?.createdAt ?? new Date().toISOString(),
+      lastVibeAt: all.at(-1)?.createdAt ?? new Date().toISOString(),
     };
 
     setSeen((prev) => {
@@ -188,13 +181,13 @@ const VibesStoryBar = ({
       .toUpperCase();
   }, []);
   if (vibes.length === 0 && !canPost) {
-  return null;
-}
+    return null;
+  }
 
   // ---------------- RENDER ----------------
   return (
-  <div
-    className="
+    <div
+      className="
       rounded-2xl
       border border-slate-200/70
       dark:border-slate-700/60
@@ -206,23 +199,23 @@ const VibesStoryBar = ({
       dark:shadow-black/20
       transition-colors duration-300
     "
-  >
-    {/* HEADER */}
-    <div className="mb-3 flex items-center justify-between px-1">
-      <h3
-        className="
+    >
+      {/* HEADER */}
+      <div className="mb-3 flex items-center justify-between px-1">
+        <h3
+          className="
           font-display text-sm font-semibold
           text-slate-800
           dark:text-slate-100
         "
-      >
-        Vibes
-      </h3>
+        >
+          Vibes
+        </h3>
 
-      {groups.length > 0 && (
-        <button
-          onClick={openAll}
-          className="
+        {groups.length > 0 && (
+          <button
+            onClick={openAll}
+            className="
             text-xs font-medium
             text-blue-600
             dark:text-blue-400
@@ -230,72 +223,72 @@ const VibesStoryBar = ({
             dark:hover:text-blue-300
             transition-colors
           "
-        >
-          View All
-        </button>
-      )}
-    </div>
+          >
+            View All
+          </button>
+        )}
+      </div>
 
-    {/* AVATARS */}
-    <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
-      {canPost && (
-        <VibeAvatarRing
-          variant="add"
-          label="Add Vibe"
-          fallback="+"
-          onClick={() => setCreatorOpen(true)}
-        />
-      )}
+      {/* AVATARS */}
+      <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
+        {canPost && (
+          <VibeAvatarRing
+            variant="add"
+            label="Add Vibe"
+            fallback="+"
+            onClick={() => setCreatorOpen(true)}
+          />
+        )}
 
-      {groups.map((g, i) => (
-        <VibeAvatarRing
-          key={g.userId}
-          variant="user"
-          src={g.userAvatar}
-          fallback={initials(g.userName)}
-          label={g.userName.split(" ")[0]}
-          seen={isGroupSeen(g)}
-          onClick={() => openGroup(i)}
-        />
-      ))}
+        {groups.map((g, i) => (
+          <VibeAvatarRing
+            key={g.userId}
+            variant="user"
+            src={g.userAvatar}
+            fallback={initials(g.userName)}
+            label={g.userName.split(" ")[0]}
+            seen={isGroupSeen(g)}
+            onClick={() => openGroup(i)}
+          />
+        ))}
 
-      {groups.length === 0 && !canPost && (
-        <p
-          className="
+        {groups.length === 0 && !canPost && (
+          <p
+            className="
             px-2 py-4 text-xs
             text-slate-500
             dark:text-slate-400
           "
-        >
-          No vibes shared yet.
-        </p>
+          >
+            No vibes shared yet.
+          </p>
+        )}
+      </div>
+
+      {/* CREATOR */}
+      {creatorOpen && (
+        <VibeCreator
+          tripId={tripId}
+          currentUserId={currentUserId ?? "user-1"}
+          currentUserName={currentUserName ?? "You"}
+          currentUserAvatar={currentUserAvatar ?? ""}
+          onClose={() => setCreatorOpen(false)}
+        />
+      )}
+
+      {/* VIEWER */}
+      {viewer && (
+        <FullVibeViewer
+          groups={viewer.groups}
+          startGroupIndex={viewer.groupIndex}
+          currentUserId={currentUserId ?? null}
+          tripOwnerId={trip.ownerId}
+          onClose={() => setViewer(null)}
+          onVibeUpdate={handleVibeUpdate}
+        />
       )}
     </div>
-
-    {/* CREATOR */}
-    {creatorOpen && (
-      <VibeCreator
-        tripId={tripId}
-        currentUserId={currentUserId ?? "user-1"}
-        currentUserName={currentUserName ?? "You"}
-        currentUserAvatar={currentUserAvatar ?? ""}
-        onClose={() => setCreatorOpen(false)}
-      />
-    )}
-
-    {/* VIEWER */}
-    {viewer && (
-      <FullVibeViewer
-        groups={viewer.groups}
-        startGroupIndex={viewer.groupIndex}
-        currentUserId={currentUserId ?? null}
-        tripOwnerId={trip.ownerId}
-        onClose={() => setViewer(null)}
-        onVibeUpdate={handleVibeUpdate}
-      />
-    )}
-  </div>
-);
+  );
 };
 
 export default VibesStoryBar;
